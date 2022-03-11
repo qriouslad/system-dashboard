@@ -1,0 +1,36 @@
+{
+	"name"       : "johnbillion/wp-parser-lib",
+	"description": "File scanning and hook parsing functionality from WP Parser.",
+	"keywords"   : ["wordpress"],
+	"homepage"   : "https://github.com/johnbillion/wp-parser-lib",
+	"license"    : "GPL-2.0-or-later",
+	"authors"    : [
+		{
+			"name"    : "Ryan McCue",
+			"homepage": "http://ryanmccue.info",
+			"role"    : "Developer"
+		},
+		{
+			"name"    : "Contributors",
+			"homepage": "https://github.com/johnbillion/wp-parser-lib/graphs/contributors"
+		}
+	],
+	"support"    : {
+		"issues": "https://github.com/johnbillion/wp-parser-lib/issues"
+	},
+	"require"    : {
+		"php"                      : ">=5.4",
+		"composer/installers"      : "~1.0",
+		"phpdocumentor/reflection" : "~3.0",
+		"erusev/parsedown"         : "~1.7"
+	},
+	"autoload"   : {
+		"classmap": ["lib"],
+		"files"   : ["lib/runner.php"]
+	},
+	"config": {
+		"allow-plugins": {
+			"composer/installers": true
+		}
+	}
+}

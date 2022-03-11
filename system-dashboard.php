@@ -15,7 +15,7 @@
  * @wordpress-plugin
  * Plugin Name:       System Dashboard
  * Plugin URI:        https://wordpress.org/plugins/system-dashboard/
- * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
+ * Description:       Centralized dashboard to monitor various WordPress components, stats and data, including the server.
  * Version:           1.0.0
  * Author:            Bowo
  * Author URI:        https://bowo.io

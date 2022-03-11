@@ -1,0 +1,5 @@
+{
+    "require": {
+        "johnbillion/wp-hooks-generator": "^0.7.3"
+    }
+}
