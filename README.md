@@ -4,8 +4,9 @@ Contributors: qriouslad
 Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
-Tested up to: 5.9.2
+Tested up to: 5.9.2  
 Stable tag: 1.0.0  
+Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,3 +45,7 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 ### 1.0.0 (March 2022)
 
 * Initial stable release
+
+## Upgrade Notice
+
+None required yet.
