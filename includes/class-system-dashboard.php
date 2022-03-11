@@ -122,7 +122,17 @@ class System_Dashboard {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-system-dashboard-public.php';
 
+		/**
+		 * Include CodeStar framework
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/codestar-framework/codestar-framework.php';
+
 		$this->loader = new System_Dashboard_Loader();
+
+		/**
+		 * Include libraries/classes added via composer
+		 */
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/autoload.php';
 
 	}
 
@@ -156,7 +166,9 @@ class System_Dashboard {
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-
+		$this->loader->add_action( 'csf_loaded', $plugin_admin, 'sd_dashboard_page' );
+		$this->loader->add_filter( 'plugin_action_links_'.$this->plugin_name.'/'.$this->plugin_name.'.php', $plugin_admin, 'sd_add_plugin_action_links' );
+		// $this->loader->add_filter( 'plugin_row_meta', $plugin_admin, 'sd_add_plugin_meta_links', $this->plugin_name.'/'.$this->plugin_name.'.php', 'data', 'active' );
 	}
 
 	/**

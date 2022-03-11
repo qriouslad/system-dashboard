@@ -2,3 +2,379 @@
  * All of the CSS for your admin-specific functionality should be
  * included in this file.
  */
+
+.sd-options .csf-header-inner {
+    background-color: #fafafa;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.csf-theme-dark.sd-options .csf-header-inner h1 {
+    color:  #23282d;
+}
+
+.sd-options .csf-header-inner h1 small {
+    font-size: 14px;
+}
+
+.sd-options .csf-buttons {
+    display: none;
+}
+
+.sd-options .field-info-line {
+    display:  block;
+    width: 100%;
+    padding:  4px 0;
+    overflow:  hidden;
+    border-bottom: 1px solid #eee;
+}
+
+.sd-options .field-info-line:first-child {
+    padding-top: 0;
+}
+
+.sd-options .field-info-line span {
+    display: inline-block;
+    width: 50%;
+    overflow:  hidden;
+    padding-right: 16px;
+}
+
+.sd-options .field-info-line.line-full-width span {
+    /* font-weight: 600; */
+    width: 100%;
+}
+
+.sd-options .field-info-line:last-child, 
+.sd-options .field-info-line.line-full-width:last-child {
+    border-bottom:  none;
+}
+
+.csf-field.main-section > .csf-title h4 {
+    font-size: 1.25em;
+    font-weight: 600;
+    color: #555;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ccd0d4;
+}
+
+.main-section .csf-subtitle-text {
+    color:  #3c434a;
+    line-height: 1.7;
+}
+
+.sd-options h4.field-parts-title {
+    padding-bottom: 8px;
+    border-bottom: 1px solid #ccd0d4;
+    margin-bottom: 0;
+}
+
+.sd-options .field-parts {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    padding:  8px 0 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.sd-options .field-parts.plain-content {
+    padding:  8px 0 16px;
+    border-bottom: 0;
+}
+
+.sd-options .field-parts:first-child {
+    padding-top: 0;
+}
+
+.sd-options .ac-left .field-parts:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.sd-options .mc-collapsible .field-parts:first-child {
+    padding-top: 8px;
+}
+
+.sd-options .field-part {
+    width:  48%;
+}
+
+.sd-options .field-part.full-width {
+    width: 100%;
+}
+
+.sd-options .first-part span {
+    color: #aaa;
+}
+
+.sd-options .field-part.long-value {
+    word-break: break-all;
+}
+
+a.link-muted {
+    color: #3c434a;
+    text-decoration: none;
+}
+
+a.link-muted:hover {
+    color: #135e96;
+    text-decoration: underline;
+}
+
+.phpinfo-details td.v {
+    overflow-wrap: anywhere;   
+}
+
+.csf-field-accordion.phpinfo-details .csf-accordion-content {
+    background:  #f5f5f5;
+}
+
+.csf-field.wordpress-more-tabs {
+    padding-top: 0;
+    border-top: none;
+}
+
+.custom-fields-tabs .csf-accordion-items {
+    display: flex;
+    justify-content: space-between;
+}
+
+.custom-fields-tabs .csf-accordion-item {
+    width: calc( ( 100% / 2 ) - 7.5px );
+}
+
+/* Pure JS Accordion */
+
+dl.mc-collapsible {
+  background-color: #fff;
+  position: relative;
+}
+dl.mc-collapsible[data-controls] {
+  margin-top: 15px;
+}
+dl.mc-collapsible .control {
+/*  font-family: "Open Sans", sans-serif; */
+  position: absolute;
+  top: -5px;
+  color: #2271b1;
+  width: 60px;
+  font-size: 0.875em;
+  text-align: end;
+  cursor: pointer;
+  right: 0;
+  height: 44px;
+}
+dl.mc-collapsible .control i {
+  display: inline-block;
+  font-size: 1.3em;
+  margin-inline: 3px;
+  vertical-align: middle;
+}
+dl.mc-collapsible .control span {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+dl.mc-collapsible .control:hover span {
+    text-decoration: underline;
+}
+dl.mc-collapsible .control span:nth-child(2) {
+  display: none;
+}
+dl.mc-collapsible .control.controls-open span:nth-child(1) {
+  display: none;
+}
+dl.mc-collapsible .control.controls-open span:nth-child(2) {
+  display: flex;
+}
+dl.mc-collapsible dt {
+/*  font-family: Lato, sans-serif; */
+  padding: 0.75em 0;
+  font-size: 1em;
+  font-weight: 600;
+  position: relative;
+  cursor: pointer;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  transition: color 0.3s ease-out, background-color 0.45s ease-out;
+}
+dl.mc-collapsible dt:hover {
+/*  color: #a13021; */
+}
+dl.mc-collapsible dt::before, dl.mc-collapsible dt::after {
+/*  font-family: "Material Icons"; */
+  font-size: 1.5em;
+  font-weight: bold;
+  position: absolute;
+  display: block;
+  top: 50%;
+  transform: translatey(-50%) rotate(90deg);
+  transition: transform 0.3s ease-out, opacity 0.4s ease-out;
+  transform-origin: center;
+}
+dl.mc-collapsible.ac-left dt::before {
+  transform: translatey(-65%) rotate(0deg);
+}
+dl.mc-collapsible dd {
+/*  font-family: Roboto, sans-serif; */
+  max-height: 0em;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+/*  word-break: break-all; */
+}
+dl.mc-collapsible dd > div {
+  margin: 0;
+}
+dl.mc-collapsible dd > div > *:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+/* dl.mc-collapsible dd > div > *:not(:first-child) {
+  margin-top: 0.5em;
+} */
+dl.mc-collapsible:not([data-style]) dt {
+  padding-right: 2.5em;
+  border-bottom: 1px #f2f2f2 solid;
+}
+dl.mc-collapsible:not([data-style]) dt.active, dl.mc-collapsible:not([data-style]) dt:hover {
+/*  background-color: #fafafa; */
+  border-bottom: 1px #ccc solid;
+}
+dl.mc-collapsible:not([data-style]) dt::before, dl.mc-collapsible:not([data-style]) dt::after {
+  right: 1em;
+}
+dl.mc-collapsible:not([data-style]) dt::before {
+  content: "›";
+}
+dl.mc-collapsible:not([data-style]) dt.active::before {
+  transform: translateX(-100%) translateY(-50%) rotate(-0.25turn);
+}
+dl.mc-collapsible:not([data-style]) dd {
+/*  padding-inline: 1em; */
+    padding: 0;
+}
+/*
+dl.mc-collapsible:not([data-style]) dd div {
+  margin-top: 0.7em;
+}
+*/
+dl.mc-collapsible:not([data-style]).ac-left {
+    margin-bottom: 0;
+}
+dl.mc-collapsible:not([data-style]).ac-left dt {
+  padding-right: 0;
+  padding-bottom: 0;
+  padding-left: 1.25em;
+  border-bottom: 0;
+}
+dl.mc-collapsible:not([data-style]).ac-left dt.active {
+  padding-bottom: 0.75em;
+  border-bottom: 1px #eee solid;
+}
+dl.mc-collapsible:not([data-style]).ac-left dt.active:hover {
+  border-bottom: 1px #ccc solid;
+}
+
+dl.mc-collapsible:not([data-style]).ac-left dt::before, dl.mc-collapsible:not([data-style]).ac-left dt::after {
+  font-size: 1.5em;
+  left: 0;
+  right: unset;
+}
+dl.mc-collapsible:not([data-style]).ac-left dt::before {
+    font-size: 22px;
+    top: 18px;
+}
+dl.mc-collapsible:not([data-style]).ac-left dt.active::before {
+  transform: translateX(50%) translateY(-50%) rotate(0.25turn);
+}
+dl.mc-collapsible[data-style=qa] dt {
+  padding-left: 1.5em;
+}
+dl.mc-collapsible[data-style=qa] dt::before, dl.mc-collapsible[data-style=qa] dt::after {
+  color: #595959;
+  font-weight: normal;
+  left: 0.1em;
+  top: 1.1em;
+  vertical-align: middle;
+  transform-origin: center;
+  position: absolute;
+}
+dl.mc-collapsible[data-style=qa] dt::before {
+  content: "add_box";
+}
+dl.mc-collapsible[data-style=qa] dt::after {
+  content: "indeterminate_check_box";
+  opacity: 0;
+  transform-origin: 0;
+}
+dl.mc-collapsible[data-style=qa] dt.active::before, dl.mc-collapsible[data-style=qa] dt.active::after {
+  color: #a13021;
+}
+dl.mc-collapsible[data-style=qa] dt.active::before {
+  opacity: 0;
+}
+dl.mc-collapsible[data-style=qa] dt.active::after {
+  opacity: 1;
+}
+dl.mc-collapsible[data-style=qa] dd {
+  padding-left: 1em;
+}
+.mc-collapsible-title {
+    margin: 0;
+    padding: 8px 0;
+    border-bottom:  1px #ccc solid;
+}
+.group {
+  width: 100%;
+  margin-top: -24px;
+/*  background-color: #fff;
+  padding: 1em;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); */
+}
+
+.group-hooks dl.mc-collapsible .control {
+    top: 8px;
+}
+.group-hooks dl.mc-collapsible dt {
+    font-weight: normal;
+}
+.group h3 {
+  color: #595959;
+/*  font-family: Lato, sans-serif; */
+  text-align: center;
+  margin-top: 0.25em;
+}
+
+.group + .group {
+  margin-block: 1em;
+}
+
+/* END OF Pure JS Accordion */
+
+
+@media (max-width:768px) {
+
+    .custom-fields-tabs .csf-accordion-items {
+        flex-direction: column;
+    }
+    .custom-fields-tabs .csf-accordion-item {
+        width: 100%;
+    }
+
+}
+
+@media (max-width:480px) {
+
+    .sd-options .field-info-line span {
+        width: auto;
+        padding-right: 0;
+    }
+
+    .sd-option .field-part {
+        width:  100%;
+    }
+
+}
