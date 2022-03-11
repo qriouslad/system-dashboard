@@ -993,23 +993,21 @@ class System_Dashboard_Admin {
 			$cpu_load_average = shell_exec("uptime");
 			$cpu_load_average_array = explode( ", ", $cpu_load_average );
 
-			$last_15minutes = $cpu_load_average_array[3];
-			$last_15minutes = str_replace(":", "", $last_15minutes);
-			$last_15minutes = (float)str_replace("load average", "", $last_15minutes);
+			$last_1minute = (float)trim( array_pop( $cpu_load_average_array ) );
 
-			if ( is_numeric( $last_15minutes ) ) {
+			if ( is_numeric( $last_1minute ) ) {
 
-				$last_15minutes_pct_num = ( $last_15minutes / $cpu_core_count ) * 100;
-				$last_15minutes_pct_num_rounded = round( $last_15minutes_pct_num, 0 );
-				$last_15minutes_pct = $last_15minutes_pct_num_rounded .'%';
+				$last_1minutes_pct_num = ( $last_1minute / $cpu_core_count ) * 100;
+				$last_1minutes_pct_num_rounded = round( $last_1minutes_pct_num, 0 );
+				$last_1minutes_pct = $last_1minutes_pct_num_rounded .'%';
 
 			} else {
 
-				$last_15minutes_pct = 'N/A';
+				$last_1minutes_pct = 'N/A';
 
 			}
 
-			$last_5minutes = (float)$cpu_load_average_array[4];
+			$last_5minutes = (float)trim( array_pop( $cpu_load_average_array ) );
 
 			if ( is_numeric( $last_5minutes ) ) {
 
@@ -1023,17 +1021,19 @@ class System_Dashboard_Admin {
 
 			}
 
-			$last_1minute = (float)$cpu_load_average_array[5];
+			$last_15minutes = array_pop( $cpu_load_average_array );
+			$last_15minutes = str_replace(":", "", $last_15minutes);
+			$last_15minutes = (float)trim( str_replace("load average", "", $last_15minutes) );
 
-			if ( is_numeric( $last_1minute ) ) {
+			if ( is_numeric( $last_15minutes ) ) {
 
-				$last_1minutes_pct_num = ( $last_1minute / $cpu_core_count ) * 100;
-				$last_1minutes_pct_num_rounded = round( $last_1minutes_pct_num, 0 );
-				$last_1minutes_pct = $last_1minutes_pct_num_rounded .'%';
+				$last_15minutes_pct_num = ( $last_15minutes / $cpu_core_count ) * 100;
+				$last_15minutes_pct_num_rounded = round( $last_15minutes_pct_num, 0 );
+				$last_15minutes_pct = $last_15minutes_pct_num_rounded .'%';
 
 			} else {
 
-				$last_1minutes_pct = 'N/A';
+				$last_15minutes_pct = 'N/A';
 
 			}
 
@@ -2413,7 +2413,7 @@ class System_Dashboard_Admin {
 
 			} else {}
 		
-			// Generate hooks by creating the output directories first
+			// Generate hooks for active plugins
 
 			if ( $type == 'active_plugins' ) {
 
@@ -2449,8 +2449,6 @@ class System_Dashboard_Admin {
 					$shell_command = 'cd ' . plugin_dir_path( __DIR__ ) . ' && chmod +x ./vendor/johnbillion/wp-hooks-generator/src/generate.php && ./vendor/johnbillion/wp-hooks-generator/src/generate.php --input=' . $plugins_path . $directory_name . ' --output=' . $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . ' 2>&1';
 
 					$shell_output = '';
-
-					// $shell_command = 'pwd';
 
 					// If no directory exist yet, create it
 					if ( !is_dir( $plugin_hooks_path ) ) {
@@ -2555,6 +2553,8 @@ class System_Dashboard_Admin {
 				$output .= $this->sd_html( 'accordions-end' );
 
 				return $output;
+
+			// Generate hooks for active theme
 
 			} elseif ( $type == 'active_theme' ) {
 
@@ -2696,6 +2696,7 @@ class System_Dashboard_Admin {
 		}
 		
 	}
+
 
 	/** Get WordPress constants
 	 * 
@@ -5378,17 +5379,17 @@ class System_Dashboard_Admin {
 								),
 							),
 
-							// array(
-							// 	'title' => 'Tests',
-							// 	'fields' => array(
+							array(
+								'title' => 'Tests',
+								'fields' => array(
 
-							// 		array(
-							// 			'type'		=> 'content',
-							// 			'content'	=> $this->wp_urls_dirs_paths(),
-							// 		),
+									array(
+										'type'		=> 'content',
+										'content'	=> $this->wp_urls_dirs_paths(),
+									),
 
-							// 	),
-							// ),
+								),
+							),
 
 
 						),
