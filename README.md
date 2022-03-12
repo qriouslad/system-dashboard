@@ -10,7 +10,7 @@ Requires PHP: 5.6
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-![](.wordpress-org/banner-1544x500.png)
+![](.wordpress-org/banner-772x250.png)
 
 Centralized dashboard to monitor various WordPress components, stats and data, including the server.
 
