@@ -298,7 +298,7 @@ if ( ! class_exists( 'CSF_Shortcoder' ) ) {
     public static function once_editor_setup() {
 
       if ( function_exists( 'register_block_type' ) ) {
-        add_action( 'enqueue_block_editor_assets', array( 'CSF_Shortcoder', 'add_guteberg_blocks' ) );
+        // add_action( 'enqueue_block_editor_assets', array( 'CSF_Shortcoder', 'add_guteberg_blocks' ) );
       }
 
       if ( csf_wp_editor_api() ) {
@@ -318,9 +318,9 @@ if ( ! class_exists( 'CSF_Shortcoder' ) ) {
         $depends[] = 'wp-edit-post';
       }
 
-      wp_enqueue_script( 'csf-gutenberg-block', CSF::include_plugin_url( 'assets/js/gutenberg.js' ), $depends );
+      // wp_enqueue_script( 'csf-gutenberg-block', CSF::include_plugin_url( 'assets/js/gutenberg.js' ), $depends );
 
-      wp_localize_script( 'csf-gutenberg-block', 'csf_gutenberg_blocks', CSF::$shortcode_instances );
+      // wp_localize_script( 'csf-gutenberg-block', 'csf_gutenberg_blocks', CSF::$shortcode_instances );
 
       // foreach ( CSF::$shortcode_instances as $value ) {
 

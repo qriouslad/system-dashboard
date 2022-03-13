@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.2  
-Stable tag: 1.1.0  
+Stable tag: 1.1.1  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -42,11 +42,15 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 
 ## Changelog
 
+### 1.1.1 (March 2022)
+
+* Add site health status visual indicator (green or orange dot)
+* Disable auto-registered Gutenberg block on the plugin info page
+
 ### 1.1.0 (March 2022)
 
 * Add site health status
 * Prioritize use of myslq_ over mysql_ function
-* Disable auto-registered Gutenberg block on the plugin info page
 
 ### 1.0.0 (March 2022)
 
