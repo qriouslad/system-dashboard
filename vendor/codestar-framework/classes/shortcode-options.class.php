@@ -322,13 +322,13 @@ if ( ! class_exists( 'CSF_Shortcoder' ) ) {
 
       wp_localize_script( 'csf-gutenberg-block', 'csf_gutenberg_blocks', CSF::$shortcode_instances );
 
-      foreach ( CSF::$shortcode_instances as $value ) {
+      // foreach ( CSF::$shortcode_instances as $value ) {
 
-        register_block_type( 'csf-gutenberg-block/block-'. $value['hash'], array(
-          'editor_script' => 'csf-gutenberg-block',
-        ) );
+      //   register_block_type( 'csf-gutenberg-block/block-'. $value['hash'], array(
+      //     'editor_script' => 'csf-gutenberg-block',
+      //   ) );
 
-      }
+      // }
 
     }
 

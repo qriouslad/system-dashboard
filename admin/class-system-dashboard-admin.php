@@ -194,6 +194,8 @@ class System_Dashboard_Admin {
 
 		$output = '';
 
+		$output .= '<strong>Site Health</strong>: <br />' . $this->sd_site_health() . '<br />';
+
 		$output .= '<strong>Theme</strong>: <br /><a href="'. wp_get_theme()->get( 'ThemeURI' ) .'" target="_blank">'.wp_get_theme()->get( 'Name' ) .'</a> '.wp_get_theme()->get( 'Version' ).'<br />';
 
 		if ( !empty( wp_get_theme()->get( 'Author' ) ) ) {
@@ -211,6 +213,58 @@ class System_Dashboard_Admin {
 		$output .= '<strong>Your IP</strong>: <br />' . $this->sd_get_user_ip() . '<br />';
 
 		$output .= '<div style="display: none;">' . $this->sd_active_plugins( 'original', 'print_r') . '</div>';
+
+		return $output;
+
+	}
+
+	/**
+	 * Get Site Health status. Modified from WP core function wp_dashboard_site_health()
+	 *
+	 * @link wp-admin/includes/dashboard.php
+	 * @since 1.1.0
+	 */
+	public function sd_site_health() {
+
+		$get_issues = get_transient( 'health-check-site-status-result' );
+
+		$issue_counts = array();
+
+		if ( false !== $get_issues ) {
+			$issue_counts = json_decode( $get_issues, true );
+		}
+
+		if ( ! is_array( $issue_counts ) || ! $issue_counts ) {
+			$issue_counts = array(
+				'good'        => 0,
+				'recommended' => 0,
+				'critical'    => 0,
+			);
+		}
+
+		$issues_total = $issue_counts['recommended'] + $issue_counts['critical'];
+
+		$output = '';
+
+		if ( false === $get_issues ) {
+
+			$output .= 'Please <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '">visit the Site Health screen</a> to gather information about your site now.';
+
+		} else {
+
+			if ( $issues_total <= 0 ) {
+				$output .= 'Great job! Your site currently passes all site health <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">checks</a>.';
+			} elseif ( 1 === (int) $issue_counts['critical'] )  {
+				$output .= 'Your site has <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">a critical issue</a> that should be addressed as soon as possible to improve its performance and security. ';
+			} elseif ( $issue_counts['critical'] > 1 ) {
+				$ouput .= 'Your site has <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">critical issues</a> that should be addressed as soon as possible to improve its performance and security. ';
+			} elseif ( 1 === (int) $issue_counts['recommended'] ) {
+				$output .= 'Your site&#8217;s health is looking good, but there is still <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">one thing</a> you can do to improve its performance and security. ';
+			} else {
+				$output .= 'Your site&#8217;s health is looking good, but there are still <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">some things</a> you can do to improve its performance and security. ';
+			}
+
+		}
 
 		return $output;
 
@@ -1381,15 +1435,15 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_db_client( $type = 'info' ) {
 
-		if ( is_callable( 'mysql_get_client_info' ) ) {
-
-			$db_client_info = mysql_get_client_info();
-			$db_client_version = mysqli_get_client_version();
-
-		} elseif ( is_callable( 'mysqli_get_client_info' ) ) {
+		if ( is_callable( 'mysqli_get_client_info' ) ) {
 
 			$db_client_info = mysqli_get_client_info();
 			$db_client_version = mysqli_get_client_version();
+
+		} elseif ( is_callable( 'mysql_get_client_info' ) ) {
+
+			$db_client_info = mysql_get_client_info();
+			$db_client_version = mysql_get_client_version();
 
 		} else {
 
