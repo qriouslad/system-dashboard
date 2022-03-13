@@ -1381,15 +1381,15 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_db_client( $type = 'info' ) {
 
-		if ( is_callable( 'mysql_get_client_info' ) ) {
-
-			$db_client_info = mysql_get_client_info();
-			$db_client_version = mysqli_get_client_version();
-
-		} elseif ( is_callable( 'mysqli_get_client_info' ) ) {
+		if ( is_callable( 'mysqli_get_client_info' ) ) {
 
 			$db_client_info = mysqli_get_client_info();
 			$db_client_version = mysqli_get_client_version();
+
+		} elseif ( is_callable( 'mysql_get_client_info' ) ) {
+
+			$db_client_info = mysql_get_client_info();
+			$db_client_version = mysql_get_client_version();
 
 		} else {
 
