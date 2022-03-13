@@ -222,9 +222,12 @@ class System_Dashboard_Admin {
 	 * Get Site Health status. Modified from WP core function wp_dashboard_site_health()
 	 *
 	 * @link wp-admin/includes/dashboard.php
+	 * @link wp-admin/js/site-health.js
 	 * @since 1.1.0
 	 */
 	public function sd_site_health() {
+
+		$output = '';
 
 		$get_issues = get_transient( 'health-check-site-status-result' );
 
@@ -244,7 +247,25 @@ class System_Dashboard_Admin {
 
 		$issues_total = $issue_counts['recommended'] + $issue_counts['critical'];
 
-		$output = '';
+		// From recalculateProgress() in site-health.js
+
+		$tests_total = $issue_counts['good'] + $issue_counts['recommended'] + ( $issue_counts['critical'] * 1.5 );
+
+		$tests_failed = ( $issue_counts['recommended'] * 0.5 ) + ( $issue_counts['critical'] * 1.5 );
+
+		$tests_score = 100 - ceil( ( $tests_failed / $tests_total ) * 100 );
+
+		if ( ( 80 <= $tests_score ) && ( 0 === (int) $issue_counts['critical'] ) ) {
+
+			$site_health_dot_class = 'green';
+
+		} else {
+
+			$site_health_dot_class = 'orange';
+
+		}
+
+		$output .= '<div class="site-health-dot ' . $site_health_dot_class . '"><span style="display:none;">' . $tests_score . '</span></div>';
 
 		if ( false === $get_issues ) {
 

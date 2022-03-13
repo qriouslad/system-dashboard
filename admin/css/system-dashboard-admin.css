@@ -142,6 +142,26 @@ a.link-muted:hover {
     width: calc( ( 100% / 2 ) - 7.5px );
 }
 
+.site-health-dot {
+    display: inline-block;
+    width: 1.25em;
+    height: 1.25em;
+    margin-right: 6px;
+    margin-bottom: -1px;
+    font-size: 0.75em;
+    color: #ffffff;
+    font-weight: 600;
+    border-radius: 100px;
+}
+
+.site-health-dot.green {
+    background: #00a32a;
+}
+
+.site-health-dot.orange {
+    background: #dba617;
+}
+
 /* Pure JS Accordion */
 
 dl.mc-collapsible {
