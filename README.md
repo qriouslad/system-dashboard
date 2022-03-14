@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.2  
-Stable tag: 1.1.1  
+Stable tag: 1.2.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -16,7 +16,7 @@ Centralized dashboard to monitor various WordPress components, stats and data, i
 
 ## Description
 
-This plugin provides a centralized dashboard to monitor various WordPress components, stats and data, including server hardware, software and resource usage.
+This plugin provides a centralized dashboard to monitor various WordPress components, stats and data, including server hardware, software and resource usage. Requires shell_exec and exec functions enabled for all modules to work properly.
 
 ### Features
 
@@ -41,6 +41,15 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 1.2.0 (March 2022)
+
+* General: Update shell_exec and exec check command
+* Directories: add filesystem permissions info
+* Database: Update database extension and client info check
+* Media: Add Media Handling info
+* PHP: Add Imagick and SUHOSIN checks
+* Server: Add server location info
 
 ### 1.1.1 (March 2022)
 
