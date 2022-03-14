@@ -306,6 +306,8 @@ class System_Dashboard_Admin {
 
 		$output .= '<strong>IP Address</strong>: <br />' . $_SERVER['SERVER_ADDR'] . '<br />';
 
+		$output .= '<strong>Location</strong>: <br />' . $this->sd_server_location() . '<br />';
+
 		$output .= '<strong>Timezone</strong>: <br />' . date_default_timezone_get() . '<br />';
 
 		$output .= '<strong>Server Date Time</strong>: <br />' . date( 'F j, Y - H:i', time() );
@@ -502,6 +504,119 @@ class System_Dashboard_Admin {
 
 	}
 
+	/**
+	 * Get info on media handling
+	 *
+	 * @link wp-admin/includes/class-wp-debug-data.php
+	 * @since 1.2.0
+	 */
+	public function sd_media_handling() {
+
+		$output = '';
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'Active editor' );
+		$output .= $this->sd_html( 'field-content-second', _wp_image_editor_choose() );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		// Get ImageMagic information, if available.
+		if ( class_exists( 'Imagick' ) ) {
+			// Save the Imagick instance for later use.
+			$imagick             = new Imagick();
+			$imagemagick_version = $imagick->getVersion();
+		} else {
+			$imagemagick_version = __( 'Not available' );
+		}
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'ImageMagick version number' );
+		$output .= $this->sd_html( 'field-content-second', ( is_array( $imagemagick_version ) ? $imagemagick_version['versionNumber'] : $imagemagick_version ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'ImageMagick version string' );
+		$output .= $this->sd_html( 'field-content-second', ( is_array( $imagemagick_version ) ? $imagemagick_version['versionString'] : $imagemagick_version ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$imagick_version = phpversion( 'imagick' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'Imagick version' );
+		$output .= $this->sd_html( 'field-content-second', ( $imagick_version ) ? $imagick_version : __( 'Not available' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'Max size of post data allowed' );
+		$output .= $this->sd_html( 'field-content-second', ini_get( 'post_max_size' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'Max size of an uploaded file' );
+		$output .= $this->sd_html( 'field-content-second', ini_get( 'upload_max_filesize' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'Max number of files allowed' );
+		$output .= $this->sd_html( 'field-content-second', number_format( ini_get( 'max_file_uploads' ) ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		// Get GD information, if available.
+		if ( function_exists( 'gd_info' ) ) {
+			$gd = gd_info();
+		} else {
+			$gd = false;
+		}
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'GD version' );
+		$output .= $this->sd_html( 'field-content-second', ( is_array( $gd ) ? $gd['GD Version'] : 'Not available' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$gd_image_formats     = array();
+		$gd_supported_formats = array(
+			'GIF Create' => 'GIF',
+			'JPEG'       => 'JPEG',
+			'PNG'        => 'PNG',
+			'WebP'       => 'WebP',
+			'BMP'        => 'BMP',
+			'AVIF'       => 'AVIF',
+			'HEIF'       => 'HEIF',
+			'TIFF'       => 'TIFF',
+			'XPM'        => 'XPM',
+		);
+
+		foreach ( $gd_supported_formats as $format_key => $format ) {
+			$index = $format_key . ' Support';
+			if ( isset( $gd[ $index ] ) && $gd[ $index ] ) {
+				array_push( $gd_image_formats, $format );
+			}
+		}
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'GD supported file formats' );
+		$output .= $this->sd_html( 'field-content-second', implode( ', ', $gd_image_formats ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		// Get Ghostscript information, if available.
+		if ( function_exists( 'exec' ) ) {
+			$gs = exec( 'gs --version' );
+
+			if ( empty( $gs ) ) {
+				$gs = 'Not available';
+			} else {
+			}
+		} else {
+			$gs = 'Unable to determine if Ghostscript is installed';
+		}
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'Ghostscript version' );
+		$output .= $this->sd_html( 'field-content-second', $gs );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		return $output;
+
+	}
 
 	/**
 	 * Get user roles and associated capabilities
@@ -825,7 +940,7 @@ class System_Dashboard_Admin {
 		if (function_exists('shell_exec') && !in_array('shell_exec', array_map('trim', explode(', ', ini_get('disable_functions'))))) {
 
 	    	/*If enabled, check if shell_exec() actually have execution power*/
-			$returnVal = shell_exec('cat /proc/cpuinfo');
+			$returnVal = shell_exec('pwd');
 
 			if (!empty($returnVal)) {
 				return true;
@@ -853,11 +968,7 @@ class System_Dashboard_Admin {
 		if (function_exists('exec') && !in_array('exec', array_map('trim', explode(', ', ini_get('disable_functions'))))) {
 
 	    	/*If enabled, check if exec() actually have execution power*/
-	    	// from content_disk() in https://plugins.svn.wordpress.org/ressources/trunk/ressources.php
-	    	// could be replaced with a 'lighter' command
-			$chem = str_replace( "/uploads", "", wp_upload_dir()['basedir'] ); // get wp-content path
-
-			$returnVal = exec('du -h --max-depth=1 ' . $chem, $che);
+			$returnVal = exec('pwd');
 
 			if (!empty($returnVal)) {
 				return true;
@@ -974,6 +1085,30 @@ class System_Dashboard_Admin {
 		return $os;
 
 	}
+
+	/**
+	 * Get server location
+	 * 
+	 * @link https://plugins.trac.wordpress.org/browser/server-info-wp/trunk/init.php
+	 * @since 1.2.0
+	 */
+	public function sd_server_location() {
+
+		if ( function_exists( 'file_get_contents' ) && isset( $_SERVER['SERVER_ADDR'] ) ) {
+
+			$location_data = unserialize( file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $_SERVER['SERVER_ADDR'] ) );
+			$location = $location_data['geoplugin_city'].', '.$location_data['geoplugin_countryName'];
+
+		} else {
+
+			$location = 'Undetectable';
+
+		}
+
+		return $location;
+
+	}
+
 
 	/**
 	 * Get server CPU Type
@@ -1360,6 +1495,75 @@ class System_Dashboard_Admin {
 	}
 
 	/**
+	 * Get filesystem permission status
+	 *
+	 * @link wp-admin/includes/class-wp-debug-data.php
+	 * @since 1.0.0
+	 */
+	public function sd_filesystem_permissions() {
+
+		$output = '';
+
+		if ( wp_is_writable( ABSPATH ) ) {
+			$is_writable_abspath = 'Writeable';
+		} else {
+			$is_writable_abspath = 'Not writeable';			
+		}
+
+		if ( wp_is_writable( WP_CONTENT_DIR ) ) {
+			$is_writable_wp_content_dir = 'Writeable';
+		} else {
+			$is_writable_wp_content_dir = 'Not writeable';			
+		}
+
+		if ( wp_is_writable( wp_upload_dir()['basedir'] ) ) {
+			$is_writable_upload_dir = 'Writeable';
+		} else {
+			$is_writable_upload_dir = 'Not writeable';			
+		}
+
+		if ( wp_is_writable( WP_PLUGIN_DIR ) ) {
+			$is_writable_wp_plugin_dir = 'Writeable';
+		} else {
+			$is_writable_wp_plugin_dir = 'Not writeable';			
+		}
+
+		if ( wp_is_writable( get_theme_root( get_template() ) ) ) {
+			$is_writable_template_directory = 'Writeable';
+		} else {
+			$is_writable_template_directory = 'Not writeable';			
+		}
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'The main WordPress directory' );
+		$output .= $this->sd_html( 'field-content-second', $is_writable_abspath );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'The wp-content directory' );
+		$output .= $this->sd_html( 'field-content-second', $is_writable_wp_content_dir );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'The uploads directory' );
+		$output .= $this->sd_html( 'field-content-second', $is_writable_upload_dir );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'The plugins directory' );
+		$output .= $this->sd_html( 'field-content-second', $is_writable_wp_plugin_dir );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'The themes directory' );
+		$output .= $this->sd_html( 'field-content-second', $is_writable_template_directory );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		return $output;
+
+	}
+
+	/**
 	 * Get database disk usage
 	 * 
 	 * @link https://plugins.svn.wordpress.org/wp-server-stats/trunk/wp-server-stats.php
@@ -1452,32 +1656,54 @@ class System_Dashboard_Admin {
 	/**
 	 * Get database client info
 	 *
+	 * @link wp-admin/includes/class-wp-debug-data.php
 	 * @since 1.0.0
 	 */
 	public function sd_db_client( $type = 'info' ) {
 
-		if ( is_callable( 'mysqli_get_client_info' ) ) {
+		global $wpdb;
 
-			$db_client_info = mysqli_get_client_info();
-			$db_client_version = mysqli_get_client_version();
+		if ( is_resource( $wpdb->dbh ) ) {
+			// Old mysql extension.
+			$extension = 'mysql';
+		} elseif ( is_object( $wpdb->dbh ) ) {
+			// mysqli or PDO.
+			$extension = get_class( $wpdb->dbh );
+		} else {
+			// Unknown sql extension.
+			$extension = null;
+		}
 
-		} elseif ( is_callable( 'mysql_get_client_info' ) ) {
-
-			$db_client_info = mysql_get_client_info();
-			$db_client_version = mysql_get_client_version();
-
+		if ( isset( $wpdb->use_mysqli ) && $wpdb->use_mysqli ) {
+			$client_version = $wpdb->dbh->client_info;
 		} else {
 
-			$db_client_info = 'Undetectable';
-			$db_client_version = 'Undetectable';
+			if ( is_callable( 'mysql_get_client_info' ) ) {
+
+				// phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_mysql_get_client_info,PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved
+				if ( preg_match( '|[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}|', mysql_get_client_info(), $matches ) ) {
+					$client_version = $matches[0];
+				} else {
+					$client_version = null;
+				}
+
+			} else {
+
+				$client_version = 'Undetectable';
+
+			}
 
 		}
 
-		if ( $type == 'info' ) {
-			return $db_client_info;
-		} elseif ( $type == 'version' ) {
-			return $db_client_version;
-		}
+		if ( $type == 'extension' ) {
+
+			return $extension;
+
+		} elseif ( $type == 'client_version' ) {
+
+			return $client_version;
+
+		} else {}
 
 	}
 
@@ -1514,8 +1740,12 @@ class System_Dashboard_Admin {
 
 		$db_specs = array(
 			array(
-				'name'					=> 'Client',
-				'value'					=> $this->sd_db_client( 'info' ),
+				'name'					=> 'Extension',
+				'value'					=> $this->sd_db_client( 'extension' ),
+			),
+			array(
+				'name'					=> 'Client Version',
+				'value'					=> $this->sd_db_client( 'client_version' ),
 			),
 			array(
 				'name'					=> 'Host',
@@ -4586,6 +4816,22 @@ class System_Dashboard_Admin {
 										'content'	=> $this->sd_dir_size( WP_CONTENT_DIR.'/themes' ),
 									),
 									array(
+										'id'		=> 'db_filesystem_permissions',
+										'type'		=> 'accordion',
+										'title'		=> 'Filesystem Permissions',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_filesystem_permissions(),
+													),													
+												),
+											),
+										),
+									),
+									array(
 										'type'		=> 'content',
 										'title'		=> 'Tools',
 										'content'	=> $this->sd_tools( 'directories' ),
@@ -4725,7 +4971,7 @@ class System_Dashboard_Admin {
 										'content'	=> $this->sd_media_count_by_mime(),
 									),
 									array(
-										'id'		=> 'functions_plugins',
+										'id'		=> 'media_allowed_mime_types',
 										'type'		=> 'accordion',
 										'title'		=> 'Allowed Mime Types',
 										'accordions'	=> array(
@@ -4735,6 +4981,22 @@ class System_Dashboard_Admin {
 													array(
 														'type'		=> 'content',
 														'content'	=> $this->sd_get_mime_types_file_extensions(),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'media_handling',
+										'type'		=> 'accordion',
+										'title'		=> 'Media Handling',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_media_handling(),
 													),													
 												),
 											),
@@ -5428,6 +5690,16 @@ class System_Dashboard_Admin {
 										'type'		=> 'content',
 										'title'		=> 'GZip',
 										'content'	=> ( is_callable('gzopen') ? 'Yes' : 'No' ),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'SUHOSIN',
+										'content'	=> ( ( extension_loaded( 'suhosin' ) || ( defined( 'SUHOSIN_PATCH' ) && constant( 'SUHOSIN_PATCH' ) ) ) ? 'Yes' : 'No' ),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Imagick',
+										'content'	=> ( extension_loaded( 'imagick' ) ? 'Yes' : 'No' ),
 									),
 									array(
 										'type'		=> 'content',
