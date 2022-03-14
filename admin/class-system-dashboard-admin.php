@@ -269,20 +269,20 @@ class System_Dashboard_Admin {
 
 		if ( false === $get_issues ) {
 
-			$output .= 'Please <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '">visit the Site Health screen</a> to gather information about your site now.';
+			$output .= 'Visit the <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '">Site Health screen</a> to perform checks now.';
 
 		} else {
 
 			if ( $issues_total <= 0 ) {
 				$output .= 'Great job! Your site currently passes all site health <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">checks</a>.';
 			} elseif ( 1 === (int) $issue_counts['critical'] )  {
-				$output .= 'Your site has <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">a critical issue</a> that should be addressed as soon as possible to improve its performance and security. ';
+				$output .= 'Your site has <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">a critical issue</a> that should be addressed as soon as possible. ';
 			} elseif ( $issue_counts['critical'] > 1 ) {
-				$ouput .= 'Your site has <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">critical issues</a> that should be addressed as soon as possible to improve its performance and security. ';
+				$ouput .= 'Your site has <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">critical issues</a> that should be addressed as soon as possible.';
 			} elseif ( 1 === (int) $issue_counts['recommended'] ) {
-				$output .= 'Your site&#8217;s health is looking good, but there is still <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">one thing</a> you can do to improve its performance and security. ';
+				$output .= 'Looking good, but <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">one thing</a> can be improved.';
 			} else {
-				$output .= 'Your site&#8217;s health is looking good, but there are still <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">some things</a> you can do to improve its performance and security. ';
+				$output .= 'Looking good, but <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">some things</a> you can be improved.';
 			}
 
 		}
