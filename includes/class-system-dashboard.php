@@ -169,6 +169,8 @@ class System_Dashboard {
 		$this->loader->add_action( 'csf_loaded', $plugin_admin, 'sd_dashboard_page' );
 		$this->loader->add_filter( 'plugin_action_links_'.$this->plugin_name.'/'.$this->plugin_name.'.php', $plugin_admin, 'sd_add_plugin_action_links' );
 		// $this->loader->add_filter( 'plugin_row_meta', $plugin_admin, 'sd_add_plugin_meta_links', $this->plugin_name.'/'.$this->plugin_name.'.php', 'data', 'active' );
+		$this->loader->add_action( 'admin_footer', $plugin_admin, 'sd_option_ajax_call' );
+		$this->loader->add_action( 'wp_ajax_sd_option_value', $plugin_admin, 'sd_option_value' );
 	}
 
 	/**

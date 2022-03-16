@@ -81,7 +81,15 @@ class System_Dashboard_Admin {
 	 *
 	 * @since 1.0.0
 	 */
-	public function sd_html( $partial, $content = '', $classes = '' ) {
+	public function sd_html( $partial, $content = '', $classes = '', $data_attributes = array(), $id = '' ) {
+
+		$data_atts = '';
+
+		foreach ( $data_attributes as $key => $value ) {
+
+			$data_atts .= 'data-' . $key . '="' . $value . '"';
+
+		}
 
 		// Inline accordions
 
@@ -99,7 +107,7 @@ class System_Dashboard_Admin {
 
 		} elseif ( $partial == 'accordion-head' ) {
 
-			return '<dt>' . $content . '</dt>';
+			return '<dt id ="' . $id . '" class="' . $classes . '" ' . $data_atts . '>' . $content . '</dt>';
 
 		} elseif ( $partial == 'accordion-body' ) {
 
@@ -269,20 +277,20 @@ class System_Dashboard_Admin {
 
 		if ( false === $get_issues ) {
 
-			$output .= 'Please <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '">visit the Site Health screen</a> to gather information about your site now.';
+			$output .= 'Visit the <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '">Site Health screen</a> to perform checks now.';
 
 		} else {
 
 			if ( $issues_total <= 0 ) {
 				$output .= 'Great job! Your site currently passes all site health <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">checks</a>.';
 			} elseif ( 1 === (int) $issue_counts['critical'] )  {
-				$output .= 'Your site has <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">a critical issue</a> that should be addressed as soon as possible to improve its performance and security. ';
+				$output .= 'Your site has <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">a critical issue</a> that should be addressed as soon as possible. ';
 			} elseif ( $issue_counts['critical'] > 1 ) {
-				$ouput .= 'Your site has <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">critical issues</a> that should be addressed as soon as possible to improve its performance and security. ';
+				$ouput .= 'Your site has <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">critical issues</a> that should be addressed as soon as possible.';
 			} elseif ( 1 === (int) $issue_counts['recommended'] ) {
-				$output .= 'Your site&#8217;s health is looking good, but there is still <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">one thing</a> you can do to improve its performance and security. ';
+				$output .= 'Looking good, but <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">one thing</a> can be improved.';
 			} else {
-				$output .= 'Your site&#8217;s health is looking good, but there are still <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">some things</a> you can do to improve its performance and security. ';
+				$output .= 'Looking good, but <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">some things</a> can be improved.';
 			}
 
 		}
@@ -1874,6 +1882,223 @@ class System_Dashboard_Admin {
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Get options that are not transients
+	 *
+	 * @link http://plugins.svn.wordpress.org/options-inspector/tags/2.1.1/option-inspector.php
+	 * @link http://plugins.svn.wordpress.org/options-view/tags/2.09/lib/class-tt-optionsview-list-table.php
+	 * @since 1.3.0
+	 */
+	public function sd_options( $type = 'wpcore' ) {
+
+		$wpcore_initial_options = array( 'siteurl', 'home', 'blogname', 'blogdescription', 'users_can_register', 'admin_email', 'start_of_week', 'use_balanceTags', 'use_smilies', 'require_name_email', 'comments_notify', 'posts_per_rss', 'rss_use_excerpt', 'mailserver_url', 'mailserver_login', 'mailserver_pass', 'mailserver_port', 'default_category', 'default_comment_status', 'default_ping_status', 'default_pingback_flag', 'posts_per_page', 'date_format', 'time_format', 'links_updated_date_format', 'comment_moderation', 'moderation_notify', 'permalink_structure', 'rewrite_rules', 'hack_file', 'blog_charset', 'moderation_keys', 'active_plugins', 'category_base', 'ping_sites', 'comment_max_links', 'gmt_offset', 'default_email_category', 'recently_edited', 'template', 'stylesheet', 'comment_registration', 'html_type', 'use_trackback', 'default_role', 'db_version', 'uploads_use_yearmonth_folders', 'upload_path', 'blog_public', 'default_link_category', 'show_on_front', 'tag_base', 'show_avatars', 'avatar_rating', 'upload_url_path', 'thumbnail_size_w', 'thumbnail_size_h', 'thumbnail_crop', 'medium_size_w', 'medium_size_h', 'avatar_default', 'large_size_w', 'large_size_h', 'image_default_link_type', 'image_default_size', 'image_default_align', 'close_comments_for_old_posts', 'close_comments_days_old', 'thread_comments', 'thread_comments_depth', 'page_comments', 'comments_per_page', 'default_comments_page', 'comment_order', 'sticky_posts', 'widget_categories', 'widget_text', 'widget_rss', 'uninstall_plugins', 'timezone_string', 'page_for_posts', 'page_on_front', 'default_post_format', 'link_manager_enabled', 'finished_splitting_shared_terms', 'site_icon', 'medium_large_size_w', 'medium_large_size_h', 'wp_page_for_privacy_policy', 'show_comments_cookies_opt_in', 'admin_email_lifespan', 'disallowed_keys', 'comment_previously_approved', 'auto_plugin_theme_update_emails', 'auto_update_core_dev', 'auto_update_core_minor', 'auto_update_core_major', 'wp_force_deactivated_plugins', 'initial_db_version', 'wp_user_roles', 'fresh_site', 'widget_block', 'sidebars_widgets', 'cron', 'widget_pages', 'widget_calendar', 'widget_archives', 'widget_media_audio', 'widget_media_image', 'widget_media_gallery', 'widget_media_video', 'widget_meta', 'widget_search', 'widget_tag_cloud', 'widget_nav_menu', 'widget_custom_html', 'recovery_keys', 'theme_mods_twentytwentytwo', 'https_detection_errors', 'can_compress_scripts', 'recently_activated', 'finished_updating_comment_type' );
+
+		$options_core = array();
+		$options_noncore = array();
+
+		$options_total_count = 0;
+		$options_wpcore_count = 0;
+		$options_noncore_count = 0;
+
+		$output = '';
+		$names = '';
+
+		global $wpdb;
+
+		// $options = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}options ORDER BY option_name" );
+		// $options = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}options ORDER BY option_name" ) );
+		$options = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}options" );
+
+		if ( !empty( $options ) ) {
+
+			foreach ( $options as $option ) {
+
+				$id = $option->option_id;
+				$name = $option->option_name;
+				$value = $option->option_value;
+				$autoload = $option->autoload;
+
+				if ( $autoload == 'yes' ) {
+					$autoloaded = '(autoloaded)';
+				} else {
+					$autoloaded = '';					
+				}
+
+				// Ignore options with name starting with underscore as they are transients
+				if ( $name[0] !== '_' ) {
+
+					$content = '';
+
+					if ( $type == 'wpcore' ) {
+
+						if ( in_array( $name, $wpcore_initial_options ) ) {
+
+							$content .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
+							$content .= $this->sd_html( 'field-content-first', '<div class="option__value-div"><div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="option_id_' . $id . '" class="option__value"></div>', 'full-width long-value' );
+							// $content .= $this->sd_html( 'field-content-second', json_encode( $value ), 'full-width' );
+							$content .= $this->sd_html( 'field-content-end' );
+
+							$data_atts = array(
+								'id'		=> $id,
+								'loaded'	=> 'no',
+								'name'		=> $name,
+							);
+
+							$output .= $this->sd_html( 'accordions-start-simple');
+							$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' ' . $autoloaded, 'option__name', $data_atts, 'option-name-'.$id );
+							$output .= $this->sd_html( 'accordion-body', $content );
+							$output .= $this->sd_html( 'accordions-end' );
+
+						}
+
+					} elseif ( $type == 'noncore' ) {
+
+						if ( !in_array( $name, $wpcore_initial_options ) ) {
+
+							$content .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
+							$content .= $this->sd_html( 'field-content-first', '<div class="option__value-div"><div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="option_id_' . $id . '" class="option__value"></div>', 'full-width long-value' );
+							$content .= $this->sd_html( 'field-content-end' );
+
+							$data_atts = array(
+								'id'		=> $id,
+								'loaded'	=> 'no',
+								'name'		=> $name,
+							);
+
+							$output .= $this->sd_html( 'accordions-start-simple');
+							$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' ' . $autoloaded, 'option__name', $data_atts, 'option-name-'.$id );
+							$output .= $this->sd_html( 'accordion-body', $content );
+							$output .= $this->sd_html( 'accordions-end' );
+
+						}
+
+					} elseif ( $type == 'total_count' ) {
+
+						$options_total_count++;
+
+					} elseif ( $type == 'wpcore_count' ) {
+
+						if ( in_array( $name, $wpcore_initial_options ) ) {
+
+							$options_wpcore_count++;
+
+						}
+
+					} elseif ( $type == 'noncore_count' ) {
+
+						if ( !in_array( $name, $wpcore_initial_options ) ) {
+
+							$options_noncore_count++;
+
+						}
+
+					} else {}
+
+				} else {}
+
+			}
+
+			if ( ( $type == 'wpcore' ) || ( $type == 'noncore' ) ) {
+
+				return $output;
+
+			} elseif ( $type == 'total_count' ) {
+
+				return $options_total_count;
+
+			} elseif ( $type == 'wpcore_count' ) {
+
+				return $options_wpcore_count;
+
+			} elseif ( $type == 'noncore_count' ) {
+
+				return $options_noncore_count;
+
+			} else {}
+
+		}
+
+	}
+
+	/**
+	 * Trigger AJAX call to get option value
+	 *
+	 * @link https://sharewebdesign.com/blog/wordpress-ajax-call/
+	 * @since 1.3.0
+	 */
+	public function sd_option_ajax_call() {
+
+		?>
+
+		<script id="sd-option-ajax-call">
+			
+			jQuery( document ).ready( function() {
+
+				jQuery('.option__name').click( function() {
+
+					// var optionName = 'siteurl';
+					var optionName = this.dataset.name;
+					var optionId = this.dataset.id;
+					var optionLoaded = this.dataset.loaded;
+
+					if ( optionLoaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_option_value',
+								'option_name':optionName
+							},
+							success:function(data) {
+								console.log('result: ' + optionId + ' - ' + data);
+								jQuery('#option_id_' + optionId).prepend(data);
+								jQuery('#option-name-' + optionId).attr('data-loaded','yes');
+								jQuery('#spinner-' + optionId).fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+			} );
+
+		</script>
+
+		<?php
+
+	}
+
+	/**
+	 * Get formatted value of an option. Triggered by an AJAX call.
+	 *
+	 * @link https://sharewebdesign.com/blog/wordpress-ajax-call/
+	 * @since 1.3.0
+	 */
+	public function sd_option_value() {
+
+		if ( isset( $_REQUEST ) ) {
+
+			$option_name = $_REQUEST['option_name'];
+
+			$option_value = maybe_unserialize( get_option( $option_name ) );
+
+		} else {
+
+			$option_value = 'None. Please define option name first.';
+
+		}
+
+		// JSON_UNESCAPED_SLASHES will remove backslashes used for escaping, e.g. \' will become just '. stripslashes will further remove backslashes using to escape backslashes, e.g. double \\ will become a single \. JSON_PRETTY_PRINT and <pre> beautifies the output on the HTML side.
+		echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>';
+
+		wp_die();
+
 	}
 
 	/**
@@ -4254,6 +4479,14 @@ class System_Dashboard_Admin {
 				//	'usenow'	=> '',
 				// ),
 			),
+			'options' 	=> array(
+				// array(
+				// 	'type'		=> 'plugin',
+				// 	'name'		=> 'Name',
+				// 	'pointer'	=> 'slug',
+				//	'usenow'	=> '',
+				// ),
+			),
 			'transients' 	=> array(
 				array(
 					'type'		=> 'plugin',
@@ -4566,6 +4799,13 @@ class System_Dashboard_Admin {
 				),
 			),
 			'emails' 	=> array(
+				// array(
+					// 'type'		=> 'link',
+					// 'name'		=> 'Title',
+					// 'pointer'	=> '',
+				// ),
+			),
+			'options' 	=> array(
 				// array(
 					// 'type'		=> 'link',
 					// 'name'		=> 'Title',
@@ -5110,6 +5350,62 @@ class System_Dashboard_Admin {
 						'title' 	=> ' ',
 						'class'		=> 'wordpress-more-tabs',
 						'tabs'		=> array(
+
+							array(
+								'title'		=> 'Options',
+								'fields'	=> array(
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Total Number',
+										'content'	=> $this->sd_options( 'total_count' ) . ' options',
+									),
+									array(
+										'id'		=> 'wp_core_options',
+										'type'		=> 'accordion',
+										'title'		=> 'WordPress Core',
+										'subtitle'	=> $this->sd_options( 'wpcore_count' ) . ' options',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View Options',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_options( 'wpcore' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'wp_noncore_options',
+										'type'		=> 'accordion',
+										'title'		=> 'Plugins & Themes',
+										'subtitle'	=> $this->sd_options( 'noncore_count' ) . ' options',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View Options',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_options( 'noncore' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Tools',
+										'content'	=> $this->sd_tools( 'transients' ),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'References',
+										'content'	=> $this->sd_references( 'transients' ),
+									),
+
+								),
+							),
 
 							array(
 								'title'		=> 'Transients',
@@ -5727,17 +6023,17 @@ class System_Dashboard_Admin {
 								),
 							),
 
-							// array(
-							// 	'title' => 'Tests',
-							// 	'fields' => array(
+							array(
+								'title' => 'Tests',
+								'fields' => array(
 
-							// 		array(
-							// 			'type'		=> 'content',
-							// 			'content'	=> $this->wp_urls_dirs_paths(),
-							// 		),
+									array(
+										'type'		=> 'content',
+										'content'	=> $this->wp_urls_dirs_paths(),
+									),
 
-							// 	),
-							// ),
+								),
+							),
 
 						),
 					),
