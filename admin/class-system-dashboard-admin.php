@@ -1913,15 +1913,22 @@ class System_Dashboard_Admin {
 
 		if ( !empty( $options ) ) {
 
+			$autoloaded_count = 0;
+			$autoloaded_size = 0;
+
 			foreach ( $options as $option ) {
 
 				$id = $option->option_id;
 				$name = $option->option_name;
 				$value = $option->option_value;
 				$autoload = $option->autoload;
+				$size_raw = $wpdb->get_var( $wpdb->prepare( "SELECT LENGTH(option_value) FROM $wpdb->options WHERE option_name = %s LIMIT 1", $name ) );
+				$size = '- size: ' . size_format( $size_raw );
 
 				if ( $autoload == 'yes' ) {
-					$autoloaded = '(autoloaded)';
+					$autoloaded = '- autoloaded';
+					$autoloaded_count++;
+					$autoloaded_size += $size_raw;
 				} else {
 					$autoloaded = '';					
 				}
@@ -1937,7 +1944,6 @@ class System_Dashboard_Admin {
 
 							$content .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
 							$content .= $this->sd_html( 'field-content-first', '<div class="option__value-div"><div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="option_id_' . $id . '" class="option__value"></div>', 'full-width long-value' );
-							// $content .= $this->sd_html( 'field-content-second', json_encode( $value ), 'full-width' );
 							$content .= $this->sd_html( 'field-content-end' );
 
 							$data_atts = array(
@@ -1947,7 +1953,7 @@ class System_Dashboard_Admin {
 							);
 
 							$output .= $this->sd_html( 'accordions-start-simple');
-							$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' ' . $autoloaded, 'option__name', $data_atts, 'option-name-'.$id );
+							$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' ' . $autoloaded . ' ' . $size, 'option__name', $data_atts, 'option-name-'.$id );
 							$output .= $this->sd_html( 'accordion-body', $content );
 							$output .= $this->sd_html( 'accordions-end' );
 
@@ -1968,7 +1974,7 @@ class System_Dashboard_Admin {
 							);
 
 							$output .= $this->sd_html( 'accordions-start-simple');
-							$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' ' . $autoloaded, 'option__name', $data_atts, 'option-name-'.$id );
+							$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' ' . $autoloaded . ' ' . $size, 'option__name', $data_atts, 'option-name-'.$id );
 							$output .= $this->sd_html( 'accordion-body', $content );
 							$output .= $this->sd_html( 'accordions-end' );
 
@@ -2015,6 +2021,14 @@ class System_Dashboard_Admin {
 			} elseif ( $type == 'noncore_count' ) {
 
 				return $options_noncore_count;
+
+			} elseif ( $type == 'total_count_autoloaded' ) {
+
+				return $autoloaded_count;
+
+			} elseif ( $type == 'total_autoloaded_size' ) {
+
+			 return size_format( $autoloaded_size );
 
 			} else {}
 
@@ -5348,6 +5362,11 @@ class System_Dashboard_Admin {
 										'type'		=> 'content',
 										'title'		=> 'Total Number',
 										'content'	=> $this->sd_options( 'total_count' ) . ' options',
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Autoloaded',
+										'content'	=> $this->sd_options( 'total_count_autoloaded' ) . ' options | Total size: ' . $this->sd_options( 'total_autoloaded_size' ),
 									),
 									array(
 										'id'		=> 'wp_core_options',
