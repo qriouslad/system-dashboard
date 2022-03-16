@@ -4286,7 +4286,7 @@ class System_Dashboard_Admin {
 	public function sd_tools( $type ) {
 
 		$tools = array(
-			'directories' 	=> array(
+			'overview' 	=> array(
 				// array(
 				// 	'type'		=> 'plugin',
 				// 	'name'		=> 'Name',
@@ -4299,13 +4299,13 @@ class System_Dashboard_Admin {
 					'type'		=> 'plugin',
 					'name'		=> 'Disk Usage Sunburst',
 					'pointer'	=> 'disk-usage-sunburst',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/tools.php?page=disk-usage-sunburst%2Frbdusb-disk-usage-sunburst.php',
 				),
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'Filester – File Manager Pro',
 					'pointer'	=> 'filester',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/admin.php?page=njt-fs-filemanager',
 				),
 			),
 			'database' 	=> array(
@@ -4343,12 +4343,6 @@ class System_Dashboard_Admin {
 			'posttypes_taxonomies' 	=> array(
 				array(
 					'type'		=> 'plugin',
-					'name'		=> 'Simple History',
-					'pointer'	=> 'simple-history',
-					'usenow'	=> '',
-				),
-				array(
-					'type'		=> 'plugin',
 					'name'		=> 'Entity Viewer',
 					'pointer'	=> 'entity-viewer',
 					'usenow'	=> '',
@@ -4357,35 +4351,22 @@ class System_Dashboard_Admin {
 					'type'		=> 'plugin',
 					'name'		=> 'MB Custom Post Types & Custom Taxonomies',
 					'pointer'	=> 'mb-custom-post-type',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/edit.php?post_type=mb-post-type',
 				),
-				// array(
-				// 	'type'		=> 'plugin',
-				// 	'name'		=> 'Name',
-				// 	'pointer'	=> 'slug',
-				//	'usenow'	=> '',
-				// ),
 			),
 			'media' 	=> array(
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'Mime Types Plus',
 					'pointer'	=> 'mime-types-plus',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/admin.php?page=mimetypesplus-edit',
 				),
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'Media Cleaner – Clean & Optimize Space',
 					'pointer'	=> 'media-cleaner',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/upload.php?page=wpmc_dashboard',
 				),
-				array(
-					'type'		=> 'plugin',
-					'name'		=> 'Enable Media Replace',
-					'pointer'	=> 'enable-media-replace',
-					'usenow'	=> '',
-				),
-
 			),
 			'custom_fields' 	=> array(
 				array(
@@ -4404,31 +4385,25 @@ class System_Dashboard_Admin {
 					'type'		=> 'plugin',
 					'name'		=> 'Post Meta Manager',
 					'pointer'	=> 'post-meta-manager',
-					'usenow'	=> '',
-				),
-				array(
-					'type'		=> 'plugin',
-					'name'		=> 'Admin Columns',
-					'pointer'	=> 'codepress-admin-columns',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/tools.php?page=pmm-pmeta-settings',
 				),
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'Advanced Custom Fields',
 					'pointer'	=> 'advanced-custom-fields',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/edit.php?post_type=acf-field-group',
 				),
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'Custom Field Suite',
 					'pointer'	=> 'custom-field-suite',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/edit.php?post_type=cfs',
 				),
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'Smart Custom Fields',
 					'pointer'	=> 'smart-custom-fields',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/edit.php?post_type=smart-custom-fields',
 				),
 			),
 			'constants' 	=> array(
@@ -4444,31 +4419,31 @@ class System_Dashboard_Admin {
 					'type'		=> 'plugin',
 					'name'		=> 'User Role Editor',
 					'pointer'	=> 'user-role-editor',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/options-general.php?page=settings-user-role-editor.php',
 				),
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'PublishPress Capabilities – User Role Access, Editor Permissions, Admin Menus',
 					'pointer'	=> 'capability-manager-enhanced',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/admin.php?page=pp-capabilities',
 				),
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'Members – Membership & User Role Editor Plugin',
 					'pointer'	=> 'members',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/admin.php?page=roles',
 				),
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'Advanced Access Manager',
 					'pointer'	=> 'advanced-access-manager',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/admin.php?page=aam',
 				),
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'User Switching',
 					'pointer'	=> 'user-switching',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/users.php',
 				),
 			),
 			'emails' 	=> array(
@@ -4480,19 +4455,25 @@ class System_Dashboard_Admin {
 				// ),
 			),
 			'options' 	=> array(
-				// array(
-				// 	'type'		=> 'plugin',
-				// 	'name'		=> 'Name',
-				// 	'pointer'	=> 'slug',
-				//	'usenow'	=> '',
-				// ),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Option Inspector',
+					'pointer'	=> 'options-inspector',
+					'usenow'	=> '/wp-admin/options.php',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Options View',
+					'pointer'	=> 'options-view',
+					'usenow'	=> '/wp-admin/tools.php?page=optionsview',
+				),
 			),
 			'transients' 	=> array(
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'Transients Manager',
 					'pointer'	=> 'transients-manager',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/tools.php?page=transients-manager',
 				),
 			),
 			'cron' 	=> array(
@@ -4500,7 +4481,7 @@ class System_Dashboard_Admin {
 					'type'		=> 'plugin',
 					'name'		=> 'WP Crontrol',
 					'pointer'	=> 'wp-crontrol',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/options-general.php?page=crontrol_admin_options_page',
 				),
 			),
 			'hooks' 	=> array(
@@ -4522,12 +4503,6 @@ class System_Dashboard_Admin {
 					'pointer'	=> 'visual-action-hooks',
 					'usenow'	=> '',
 				),
-				array(
-					'type'		=> 'plugin',
-					'name'		=> 'FastDev',
-					'pointer'	=> 'fastdev',
-					'usenow'	=> '',
-				),
 			),
 			'classes' 	=> array(
 				array(
@@ -4540,7 +4515,7 @@ class System_Dashboard_Admin {
 					'type'		=> 'plugin',
 					'name'		=> 'FastDev',
 					'pointer'	=> 'fastdev',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/admin.php?page=fd-main',
 				),
 			),
 			'functions' 	=> array(
@@ -4554,7 +4529,7 @@ class System_Dashboard_Admin {
 					'type'		=> 'plugin',
 					'name'		=> 'FastDev',
 					'pointer'	=> 'fastdev',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/admin.php?page=fd-main',
 				),
 			),
 			'logs' 	=> array(
@@ -4806,11 +4781,26 @@ class System_Dashboard_Admin {
 				// ),
 			),
 			'options' 	=> array(
-				// array(
-					// 'type'		=> 'link',
-					// 'name'		=> 'Title',
-					// 'pointer'	=> '',
-				// ),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'Understanding and Working With the WordPress Options Table',
+					'pointer'	=> 'https://code.tutsplus.com/tutorials/understanding-and-working-with-the-wordpress-options-table--cms-21119',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'Working with wp_options',
+					'pointer'	=> 'https://docs.wpvip.com/technical-references/code-quality-and-best-practices/working-with-wp_options/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'How to Clean up Your wp_options Table and Autoloaded Data',
+					'pointer'	=> 'https://kinsta.com/knowledgebase/wp-options-autoloaded-data/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'Keeping your WordPress options table in check',
+					'pointer'	=> 'https://10up.com/blog/2017/wp-options-table/',
+				),
 			),
 			'transients' 	=> array(
 				array(
