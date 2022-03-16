@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.2  
-Stable tag: 1.2.0  
+Stable tag: 1.3.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -16,12 +16,17 @@ Centralized dashboard to monitor various WordPress components, stats and data, i
 
 ## Description
 
-This plugin provides a centralized dashboard to monitor various WordPress components, stats and data, including server hardware, software and resource usage. Requires shell_exec and exec functions enabled for all modules to work properly.
+This plugin provides a centralized dashboard to monitor various WordPress components, stats and data, including server hardware, software and resource usage. 
 
 ### Features
 
-* WordPress dashboard modules currently include: Overview, Directories, Database, Post Types & Taxonomies, Media, Custom Fields, Users, Transients, Cron (Jobs), Hooks, Classes, Functions, Constants.
+* WordPress dashboard modules currently include: Overview, Directories, Database, Post Types & Taxonomies, Media, Custom Fields, Users, Options, Transients, Cron (Jobs), Hooks, Classes, Functions, Constants.
 * Server dashboard modules currently include: Overview, Monitor (CPU, RAM, Disk), Hardware and PHP.
+
+### Technical Notes
+
+* Requires shell_exec and exec functions enabled for some modules to work properly. 
+* First load of the dashboard may take up to 60 seconds because the plugin is scanning hooks from active theme and plugins.
 
 ### Give Back
 
@@ -41,6 +46,10 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 1.3.0 (March 2022)
+
+* Add WordPress > Options module to inspect value of WordPress core and also plugins and theme options in the wp_options table
 
 ### 1.2.0 (March 2022)
 
