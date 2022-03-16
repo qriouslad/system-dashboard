@@ -267,11 +267,6 @@ dl.mc-collapsible dt::before, dl.mc-collapsible dt::after {
   transition: transform 0.3s ease-out, opacity 0.4s ease-out;
   transform-origin: center;
 }
-
-.sd__hooks dl.mc-collapsible dt {
-    font-weight: normal;
-}
-
 dl.mc-collapsible.ac-left dt::before {
   transform: translatey(-65%) rotate(0deg);
 }
