@@ -1920,13 +1920,23 @@ class System_Dashboard_Admin {
 
 				$id = $option->option_id;
 				$name = $option->option_name;
-				$value = $option->option_value;
+
+				$value = maybe_unserialize( $option->option_value );
+				$value_type = gettype( $value );
+
 				$autoload = $option->autoload;
 				$size_raw = $wpdb->get_var( $wpdb->prepare( "SELECT LENGTH(option_value) FROM $wpdb->options WHERE option_name = %s LIMIT 1", $name ) );
-				$size = '- size: ' . size_format( $size_raw );
+
+				if ( !empty( $value ) ) {
+					$size = 'size: ' . size_format( $size_raw );
+					$value_type = ' - type: ' . $value_type;
+				} else {
+					$size = 'empty ';
+					$value_type = '';
+				}
 
 				if ( $autoload == 'yes' ) {
-					$autoloaded = '- autoloaded';
+					$autoloaded = 'autoloaded - ';
 					$autoloaded_count++;
 					$autoloaded_size += $size_raw;
 				} else {
@@ -1953,7 +1963,7 @@ class System_Dashboard_Admin {
 							);
 
 							$output .= $this->sd_html( 'accordions-start-simple');
-							$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' ' . $autoloaded . ' ' . $size, 'option__name', $data_atts, 'option-name-'.$id );
+							$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' | ' . $autoloaded . $size . $value_type, 'option__name', $data_atts, 'option-name-'.$id );
 							$output .= $this->sd_html( 'accordion-body', $content );
 							$output .= $this->sd_html( 'accordions-end' );
 
@@ -1974,7 +1984,7 @@ class System_Dashboard_Admin {
 							);
 
 							$output .= $this->sd_html( 'accordions-start-simple');
-							$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' ' . $autoloaded . ' ' . $size, 'option__name', $data_atts, 'option-name-'.$id );
+							$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' | ' . $autoloaded . $size . $value_type, 'option__name', $data_atts, 'option-name-'.$id );
 							$output .= $this->sd_html( 'accordion-body', $content );
 							$output .= $this->sd_html( 'accordions-end' );
 
@@ -2102,14 +2112,24 @@ class System_Dashboard_Admin {
 
 			$option_value = maybe_unserialize( get_option( $option_name ) );
 
+			$option_value_type = gettype( $option_value );
+
+			if  ( ( $option_value_type == 'array' ) || ( $option_value_type == 'object' ) ) {
+
+				// JSON_UNESCAPED_SLASHES will remove backslashes used for escaping, e.g. \' will become just '. stripslashes will further remove backslashes using to escape backslashes, e.g. double \\ will become a single \. JSON_PRETTY_PRINT and <pre> beautifies the output on the HTML side.
+				echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>';
+
+			} elseif ( ( $option_value_type == 'boolean' ) || ( $option_value_type == 'integer' ) || ( $option_value_type == 'string' ) ) {
+
+				echo '<pre>' . htmlspecialchars( $option_value ) . '</pre>';
+
+			} else {}
+
 		} else {
 
-			$option_value = 'None. Please define option name first.';
+			echo 'None. Please define option name first.';
 
 		}
-
-		// JSON_UNESCAPED_SLASHES will remove backslashes used for escaping, e.g. \' will become just '. stripslashes will further remove backslashes using to escape backslashes, e.g. double \\ will become a single \. JSON_PRETTY_PRINT and <pre> beautifies the output on the HTML side.
-		echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>';
 
 		wp_die();
 
