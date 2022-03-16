@@ -5537,6 +5537,7 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Current Theme',
 										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.',
+										'class'		=> 'sd__hooks',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View Hooks',
@@ -5554,6 +5555,7 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Active Plugins',
 										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.',
+										'class'		=> 'sd__hooks',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View Hooks',
