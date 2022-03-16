@@ -127,7 +127,8 @@ function mcCollapsible() {
                     dl.getAttribute("data-single-mode") && openAll(dl, false);
                     //Activate current item
                     dt.classList.add("active");
-                    dd.style.maxHeight = dd.scrollHeight + "px"; //Max hieght for the animation
+                    // dd.style.maxHeight = dd.scrollHeight + "px"; //Max hieght for the animation
+                    dd.style.maxHeight = "unset"; //Max hieght for the animation
                 }
                 //Check if all item are active for the controls and update accordingly
                 if (dl.querySelector("div.control")) {

@@ -76,6 +76,10 @@
     border-bottom: 1px solid #eee;
 }
 
+.sd-options .field-parts.flex-direction-column {
+    flex-direction: column;
+}
+
 .sd-options .field-parts.plain-content {
     padding:  8px 0 16px;
     border-bottom: 0;
@@ -104,6 +108,36 @@
 
 .sd-options .first-part span {
     color: #aaa;
+}
+
+.sd-options .first-part span.option__name {
+    color: #2271b1;
+    text-decoration: underline;
+}
+
+.sd-options .first-part span.option__value {
+    color: #3c434a;
+}
+
+.option__value-div {
+}
+
+.option__value-div img {
+    height: 1.5em;
+    width: 1.5em;
+    position: relative;
+    bottom: -4px;
+    margin-right: 2px;
+}
+
+.option__value {
+    display: block;
+    height: auto;
+}
+
+.option__value pre {
+    word-break: break-all;
+    white-space: pre-wrap;
 }
 
 .sd-options .field-part.long-value {
