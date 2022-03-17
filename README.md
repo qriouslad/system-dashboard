@@ -38,6 +38,38 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 
 1. The dashboard
    ![The dashboard](.wordpress-org/screenshot-1.png)
+2. WordPress overview & the Directories module
+   ![Directories module](.wordpress-org/screenshot-2.png)
+3. Database module
+   ![Database module](.wordpress-org/screenshot-3.png)
+4. Post Types & Taxonomies module
+   ![Post Types & Taxonomies module](.wordpress-org/screenshot-4.png)
+5. Media module
+   ![Media module](.wordpress-org/screenshot-5.png)
+6. Custom Fields module
+   ![Custom Fields module](.wordpress-org/screenshot-6.png)
+7. Users module
+   ![Users module](.wordpress-org/screenshot-7.png)
+8. Options module
+   ![Options module](.wordpress-org/screenshot-8.png)
+9. Transients module
+   ![Transients module](.wordpress-org/screenshot-9.png)
+10. Cron module
+   ![Cron module](.wordpress-org/screenshot-10.png)
+11. Hooks module
+   ![Hooks module](.wordpress-org/screenshot-11.png)
+12. Classes module
+   ![Classes module](.wordpress-org/screenshot-12.png)
+13. Functions module
+   ![Functions module](.wordpress-org/screenshot-13.png)
+14. Constants module
+   ![Constants module](.wordpress-org/screenshot-14.png)
+15. Server overview and Monitor module
+   ![Server overview and Monitor module](.wordpress-org/screenshot-15.png)
+16. Hardware module
+   ![Hardware module](.wordpress-org/screenshot-16.png)
+17. PHP module
+   ![PHP module](.wordpress-org/screenshot-17.png)
 
 ## Frequently Asked Questions
 
