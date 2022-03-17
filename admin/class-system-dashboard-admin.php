@@ -2047,22 +2047,172 @@ class System_Dashboard_Admin {
 	}
 
 	/**
-	 * Trigger AJAX call to get option value
+	 * Get transients data
+	 * 
+	 * @link https://plugins.svn.wordpress.org/wptools/tags/3.13/functions/functions_transiente_manager.php
+	 * @since 1.0.0
+	 */
+	public function sd_transients( $return_type = 'list', $x_type = 'expired' ) {
+
+		global $wpdb;
+
+		$args = array();
+
+		$defaults = array(
+			'offset'	=> 0,
+			'number'	=> 1000,
+			'searc'		=> '',
+		);
+
+		$args       = wp_parse_args($args, $defaults);
+
+		$sql = "SELECT * FROM $wpdb->options WHERE option_name LIKE '%\_transient\_%' AND option_name NOT LIKE '%\_transient\_timeout%'";
+		$offset = absint($args['offset']);
+		$number = absint($args['number']);
+		$sql .= " ORDER BY option_id DESC LIMIT $offset,$number;";
+
+		$transients = $wpdb->get_results($sql);
+
+		$output = '';
+		$n = 0; // Start transients counter by expiry type
+		$transients_total_count = 0;
+		$autoloaded_count = 0;
+		$autoloaded_size = 0;
+
+		$output .= $this->sd_html( 'accordions-start-simple' );
+		
+		foreach( $transients as $transient ) {
+
+			// Get transient name
+
+			$transient_name_full = $transient->option_name;
+			$length = false !== strpos( $transient->option_name, 'site_transient_' ) ? 16 : 11;
+			$transient_name = substr( $transient->option_name, $length, strlen($transient->option_name) );
+
+			// Get other transient info
+
+			$id = $transient->option_id;
+			$autoload = $transient->autoload;
+			$size_raw = $wpdb->get_var( $wpdb->prepare( "SELECT LENGTH(option_value) FROM $wpdb->options WHERE option_name = %s LIMIT 1", $transient_name_full ) );
+			$value = maybe_unserialize( $transient->option_value );
+			$value_type = gettype( $value );
+
+			// Set HTML data-attributes values
+
+			$data_atts = array(
+				'id'		=> $id,
+				'loaded'	=> 'no',
+				'name'		=> $transient_name_full,
+			);
+
+			if ( !empty( $value ) ) {
+				$size = 'size: ' . size_format( $size_raw );
+				$value_type = ' - type: ' . $value_type;
+			} else {
+				$size = 'empty ';
+				$value_type = '';
+			}
+
+			if ( $autoload == 'yes' ) {
+				$autoloaded = 'autoloaded - ';
+				$autoloaded_count++;
+				$autoloaded_size += $size_raw;
+			} else {
+				$autoloaded = '';					
+			}
+
+
+			// Get transient expiry
+
+			$time_now  = time();
+
+			if ( false !== strpos( $transient->option_name, 'site_transient_') ) {
+				$expiry = get_option('_site_transient_timeout_' . $transient_name );
+			} else {
+				$expiry = get_option('_transient_timeout_' . $transient_name );
+			}
+
+			if ( empty( $expiry ) ) {
+				$expiry_type = 'neverexpire';
+				$expiry_formatted = '';
+			} elseif ( $time_now > $expiry ) {
+				$expiry_type = 'expired';
+				$expiry_formatted = '';
+			} else {
+				$expiry_type = 'active';
+				$expiry_formatted = human_time_diff( $time_now, $expiry );
+			}
+
+			$transient_content = $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
+			$transient_content .= $this->sd_html( 'field-content-first', '<div class="option__value-div"><div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="transient_id_' . $id . '" class="option__value"></div>', 'full-width long-value' );
+			$transient_content .= $this->sd_html( 'field-content-end' );
+			
+
+			if ( $x_type == 'active' ) {
+				$expiry_note = ' Expires in ' . $expiry_formatted;
+			} elseif ( $x_type == 'neverexpire' ) {
+				$expiry_note = '';
+			} elseif ( $x_type == 'expired' ) {
+				$expiry_note = '';
+			}
+
+			if ( $x_type == $expiry_type ) {
+
+				$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $transient_name . ' | ' . $autoloaded . $size . $value_type . '<br />' . $expiry_note, 'transient__name', $data_atts, 'transient-name-'.$id );
+				$output .= $this->sd_html( 'accordion-body', $transient_content );
+
+				$n++;
+
+			}
+
+			$transients_total_count++;
+
+		}
+
+		$output .= $this->sd_html( 'accordions-end' );
+
+		if ( $return_type == 'list' ) {
+
+			return $output;
+
+		} elseif ( $return_type == 'count' ) {
+
+			return $n;
+
+		} elseif ( $return_type == 'total_count' ) {
+
+			return $transients_total_count;
+
+		} elseif ( $return_type == 'total_count_autoloaded' ) {
+
+			return $autoloaded_count;
+
+		} elseif ( $return_type == 'total_autoloaded_size' ) {
+
+			 return size_format( $autoloaded_size );
+
+		} else {}
+
+	}
+
+	/**
+	 * Triggers varioius AJAX calls
 	 *
 	 * @link https://sharewebdesign.com/blog/wordpress-ajax-call/
 	 * @since 1.3.0
 	 */
-	public function sd_option_ajax_call() {
+	public function sd_ajax_calls() {
 
 		?>
 
-		<script id="sd-option-ajax-call">
+		<script id="sd-ajax-calls">
 			
 			jQuery( document ).ready( function() {
 
+				// Get option value
+
 				jQuery('.option__name').click( function() {
 
-					// var optionName = 'siteurl';
 					var optionName = this.dataset.name;
 					var optionId = this.dataset.id;
 					var optionLoaded = this.dataset.loaded;
@@ -2090,6 +2240,37 @@ class System_Dashboard_Admin {
 
 				});
 
+				// Get transient value
+
+				jQuery('.transient__name').click( function() {
+
+					var transientName = this.dataset.name;
+					var transientId = this.dataset.id;
+					var transientLoaded = this.dataset.loaded;
+
+					if ( transientLoaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_option_value',
+								'option_name':transientName
+							},
+							success:function(data) {
+								console.log('result: ' + transientId + ' - ' + data);
+								jQuery('#transient_id_' + transientId).prepend(data);
+								jQuery('#transient-name-' + transientId).attr('data-loaded','yes');
+								jQuery('#spinner-' + transientId).fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
 			} );
 
 		</script>
@@ -2099,7 +2280,7 @@ class System_Dashboard_Admin {
 	}
 
 	/**
-	 * Get formatted value of an option. Triggered by an AJAX call.
+	 * Get formatted value of an option (including transients, which are options too). Triggered by an AJAX call.
 	 *
 	 * @link https://sharewebdesign.com/blog/wordpress-ajax-call/
 	 * @since 1.3.0
@@ -2133,143 +2314,6 @@ class System_Dashboard_Admin {
 
 		wp_die();
 
-	}
-
-	/**
-	 * Get total number of transients
-	 * 
-	 * @link https://plugins.svn.wordpress.org/wptools/tags/3.13/functions/functions_transiente_manager.php
-	 * @since 1.0.0
-	 */
-	public function sd_transients_count() {
-
-		global $wpdb;
-
-		$transients_count = $wpdb->get_var("SELECT count(option_id) FROM $wpdb->options WHERE option_name LIKE '%_transient_%' AND option_name NOT LIKE '%_transient\_timeout%'");
-
-		return $transients_count;
-
-	}
-
-	/**
-	 * Get transients
-	 * 
-	 * @link https://plugins.svn.wordpress.org/wptools/tags/3.13/functions/functions_transiente_manager.php
-	 * @since 1.0.0
-	 */
-	public function sd_transients( $return_type = 'list', $x_type = 'expired' ) {
-
-		global $wpdb;
-		$args = array();
-
-		$defaults = array(
-			'offset'	=> 0,
-			'number'	=> 1000,
-			'searc'		=> '',
-		);
-
-		$args       = wp_parse_args($args, $defaults);
-
-		$sql = "SELECT * FROM $wpdb->options WHERE option_name LIKE '%\_transient\_%' AND option_name NOT LIKE '%\_transient\_timeout%'";
-		$offset = absint($args['offset']);
-		$number = absint($args['number']);
-		$sql .= " ORDER BY option_id DESC LIMIT $offset,$number;";
-
-		$transients = $wpdb->get_results($sql);
-
-		$output = '';
-
-		// if ( $x_type == 'active' ) {
-		// 	$output = '<div class="field-info-line"><span><strong>Name</strong></span><strong>Expiration</strong></div>';
-		// } elseif ( $x_type == 'neverexpire' ) {
-		// 	$output = '<div class="field-info-line"><span><strong>Name</strong></span></div>';
-		// } elseif ( $x_type == 'expired' ) {
-		// 	$output = '<div class="field-info-line"><span><strong>Name</strong></span></div>';
-		// }
-
-
-		$n = 0;
-
-		$output .= $this->sd_html( 'accordions-start' );
-		
-		foreach( $transients as $transient ) {
-
-			// Get transient name
-
-			$transient_name_full = $transient->option_name;
-			$length = false !== strpos( $transient->option_name, 'site_transient_' ) ? 16 : 11;
-			$transient_name = substr( $transient->option_name, $length, strlen($transient->option_name) );
-
-			// Get transient expiry
-
-			$time_now  = time();
-
-			if ( false !== strpos( $transient->option_name, 'site_transient_') ) {
-				$expiry = get_option('_site_transient_timeout_' . $transient_name );
-			} else {
-				$expiry = get_option('_transient_timeout_' . $transient_name );
-			}
-
-			if ( empty( $expiry ) ) {
-				$expiry_type = 'neverexpire';
-				$expiry_formatted = '';
-			} elseif ( $time_now > $expiry ) {
-				$expiry_type = 'expired';
-				$expiry_formatted = '';
-			} else {
-				$expiry_type = 'active';
-				$expiry_formatted = human_time_diff( $time_now, $expiry );
-			}
-
-			// Get transient content
-			$transient_content_raw = get_option( $transient_name_full );
-
-			if ( !empty( $transient_content_raw ) ) {
-
-				// $transient_content_raw = get_transient( $transient_name );
-				$transient_content_type = gettype( $transient_content_raw );
-
-				if ( ( $transient_content_type == 'string' ) || ( $transient_content_type == 'boolean' ) ) {
-					$transient_content = $transient_content_raw;
-				} elseif ( $transient_content_type == 'array' ) {
-					$transient_content = '<pre>' . print_r( $transient_content_raw, true) . '</pre>';
-				} elseif ( $transient_content_type == 'object' ) {
-					$transient_content = '<pre>' . print_r( json_decode( json_encode( $transient_content_raw ) ) , true) . '</pre>';
-				} else {}
-
-			} else {
-
-				$transient_content = 'This transient is empty.';
-				$transient_content_type = '';
-
-			}
-
-			if ( $x_type == 'active' ) {
-				$expiry_note = ' Expires in ' . $expiry_formatted;
-			} elseif ( $x_type == 'neverexpire' ) {
-				$expiry_note = '';
-			} elseif ( $x_type == 'expired' ) {
-				$expiry_note = '';
-			}
-
-			if ( $x_type == $expiry_type ) {
-
-				$output .= $this->sd_html( 'accordion-head', $transient_name . ' (' . $transient_content_type . ')<br />' . $expiry_note );
-				$output .= $this->sd_html( 'accordion-body', $transient_content );
-
-				$n++;
-
-			}
-
-		}
-
-		$output .= $this->sd_html( 'accordions-end' );
-
-		if ( $return_type == 'list' ) {
-			return $output;
-		} elseif ( $return_type == 'count' ) {
-			return $n;
-		}
 	}
 
 	/**
@@ -5380,7 +5424,7 @@ class System_Dashboard_Admin {
 								'fields'	=> array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Total Number',
+										'title'		=> 'Total',
 										'content'	=> $this->sd_options( 'total_count' ) . ' options',
 									),
 									array(
@@ -5441,13 +5485,18 @@ class System_Dashboard_Admin {
 								'fields'	=> array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Total Number',
-										'content'	=> $this->sd_transients_count() . ' transients',
+										'title'		=> 'Total',
+										'content'	=> $this->sd_transients( 'total_count' ) . ' transients',
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Autoloaded',
+										'content'	=> $this->sd_transients( 'total_count_autoloaded' ) . ' transients | Total size: ' . $this->sd_transients( 'total_autoloaded_size' ),
 									),
 									array(
 										'id'		=> 'transients_active',
 										'type'		=> 'accordion',
-										'title'		=> 'Active',
+										'title'		=> 'With Expiration',
 										'subtitle'	=> $this->sd_transients( 'count', 'active' ) . ' transients',
 										'accordions'	=> array(
 											array(
@@ -5456,23 +5505,6 @@ class System_Dashboard_Admin {
 													array(
 														'type'		=> 'content',
 														'content'	=> $this->sd_transients( 'list', 'active' ),
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'id'		=> 'transients_neverexpire',
-										'type'		=> 'accordion',
-										'title'		=> 'Does Not Expire',
-										'subtitle'	=> $this->sd_transients( 'count', 'neverexpire' ) . ' transients',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View Transients',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_transients( 'list', 'neverexpire' ),
 													),													
 												),
 											),
@@ -5490,6 +5522,23 @@ class System_Dashboard_Admin {
 													array(
 														'type'		=> 'content',
 														'content'	=> $this->sd_transients( 'list', 'expired' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'transients_neverexpire',
+										'type'		=> 'accordion',
+										'title'		=> 'Does Not Expire',
+										'subtitle'	=> $this->sd_transients( 'count', 'neverexpire' ) . ' transients',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View Transients',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_transients( 'list', 'neverexpire' ),
 													),													
 												),
 											),
@@ -6054,17 +6103,17 @@ class System_Dashboard_Admin {
 								),
 							),
 
-							array(
-								'title' => 'Tests',
-								'fields' => array(
+							// array(
+							// 	'title' => 'Tests',
+							// 	'fields' => array(
 
-									array(
-										'type'		=> 'content',
-										'content'	=> $this->wp_urls_dirs_paths(),
-									),
+							// 		array(
+							// 			'type'		=> 'content',
+							// 			'content'	=> $this->wp_urls_dirs_paths(),
+							// 		),
 
-								),
-							),
+							// 	),
+							// ),
 
 						),
 					),
