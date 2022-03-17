@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.2  
-Stable tag: 1.3.1  
+Stable tag: 1.3.2  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -47,7 +47,13 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 
 ## Changelog
 
+### 1.3.2 (March 2022)
+
+* Transients: Enable ajax loading of transient values
+* Transients: Consolidate and clean up transient-related functions
+
 ### 1.3.1 (March 2022)
+
 * All modules: Update list of tools and references
 * Hooks: Improve readability of non-core hooks list
 * Options: add autoloaded options count and total size
