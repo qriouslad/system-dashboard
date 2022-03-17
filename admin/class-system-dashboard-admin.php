@@ -1913,15 +1913,32 @@ class System_Dashboard_Admin {
 
 		if ( !empty( $options ) ) {
 
+			$autoloaded_count = 0;
+			$autoloaded_size = 0;
+
 			foreach ( $options as $option ) {
 
 				$id = $option->option_id;
 				$name = $option->option_name;
-				$value = $option->option_value;
+
+				$value = maybe_unserialize( $option->option_value );
+				$value_type = gettype( $value );
+
 				$autoload = $option->autoload;
+				$size_raw = $wpdb->get_var( $wpdb->prepare( "SELECT LENGTH(option_value) FROM $wpdb->options WHERE option_name = %s LIMIT 1", $name ) );
+
+				if ( !empty( $value ) ) {
+					$size = 'size: ' . size_format( $size_raw );
+					$value_type = ' - type: ' . $value_type;
+				} else {
+					$size = 'empty ';
+					$value_type = '';
+				}
 
 				if ( $autoload == 'yes' ) {
-					$autoloaded = '(autoloaded)';
+					$autoloaded = 'autoloaded - ';
+					$autoloaded_count++;
+					$autoloaded_size += $size_raw;
 				} else {
 					$autoloaded = '';					
 				}
@@ -1937,7 +1954,6 @@ class System_Dashboard_Admin {
 
 							$content .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
 							$content .= $this->sd_html( 'field-content-first', '<div class="option__value-div"><div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="option_id_' . $id . '" class="option__value"></div>', 'full-width long-value' );
-							// $content .= $this->sd_html( 'field-content-second', json_encode( $value ), 'full-width' );
 							$content .= $this->sd_html( 'field-content-end' );
 
 							$data_atts = array(
@@ -1947,7 +1963,7 @@ class System_Dashboard_Admin {
 							);
 
 							$output .= $this->sd_html( 'accordions-start-simple');
-							$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' ' . $autoloaded, 'option__name', $data_atts, 'option-name-'.$id );
+							$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' | ' . $autoloaded . $size . $value_type, 'option__name', $data_atts, 'option-name-'.$id );
 							$output .= $this->sd_html( 'accordion-body', $content );
 							$output .= $this->sd_html( 'accordions-end' );
 
@@ -1968,7 +1984,7 @@ class System_Dashboard_Admin {
 							);
 
 							$output .= $this->sd_html( 'accordions-start-simple');
-							$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' ' . $autoloaded, 'option__name', $data_atts, 'option-name-'.$id );
+							$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' | ' . $autoloaded . $size . $value_type, 'option__name', $data_atts, 'option-name-'.$id );
 							$output .= $this->sd_html( 'accordion-body', $content );
 							$output .= $this->sd_html( 'accordions-end' );
 
@@ -2016,6 +2032,14 @@ class System_Dashboard_Admin {
 
 				return $options_noncore_count;
 
+			} elseif ( $type == 'total_count_autoloaded' ) {
+
+				return $autoloaded_count;
+
+			} elseif ( $type == 'total_autoloaded_size' ) {
+
+			 return size_format( $autoloaded_size );
+
 			} else {}
 
 		}
@@ -2023,106 +2047,7 @@ class System_Dashboard_Admin {
 	}
 
 	/**
-<<<<<<< HEAD
-	 * Trigger AJAX call to get option value
-	 *
-	 * @link https://sharewebdesign.com/blog/wordpress-ajax-call/
-	 * @since 1.3.0
-	 */
-	public function sd_option_ajax_call() {
-
-		?>
-
-		<script id="sd-option-ajax-call">
-			
-			jQuery( document ).ready( function() {
-
-				jQuery('.option__name').click( function() {
-
-					// var optionName = 'siteurl';
-					var optionName = this.dataset.name;
-					var optionId = this.dataset.id;
-					var optionLoaded = this.dataset.loaded;
-
-					if ( optionLoaded == 'no' ) {
-
-						jQuery.ajax({
-							url: ajaxurl,
-							data: {
-								'action':'sd_option_value',
-								'option_name':optionName
-							},
-							success:function(data) {
-								console.log('result: ' + optionId + ' - ' + data);
-								jQuery('#option_id_' + optionId).prepend(data);
-								jQuery('#option-name-' + optionId).attr('data-loaded','yes');
-								jQuery('#spinner-' + optionId).fadeOut( 0 );
-							},
-							erro:function(errorThrown) {
-								console.log(errorThrown);
-							}
-						});
-
-					} else {}
-
-				});
-
-			} );
-
-		</script>
-
-		<?php
-
-	}
-
-	/**
-	 * Get formatted value of an option. Triggered by an AJAX call.
-	 *
-	 * @link https://sharewebdesign.com/blog/wordpress-ajax-call/
-	 * @since 1.3.0
-	 */
-	public function sd_option_value() {
-
-		if ( isset( $_REQUEST ) ) {
-
-			$option_name = $_REQUEST['option_name'];
-
-			$option_value = maybe_unserialize( get_option( $option_name ) );
-
-		} else {
-
-			$option_value = 'None. Please define option name first.';
-
-		}
-
-		// JSON_UNESCAPED_SLASHES will remove backslashes used for escaping, e.g. \' will become just '. stripslashes will further remove backslashes using to escape backslashes, e.g. double \\ will become a single \. JSON_PRETTY_PRINT and <pre> beautifies the output on the HTML side.
-		echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>';
-
-		wp_die();
-
-	}
-
-	/**
-	 * Get total number of transients
-	 * 
-	 * @link https://plugins.svn.wordpress.org/wptools/tags/3.13/functions/functions_transiente_manager.php
-	 * @since 1.0.0
-	 */
-	public function sd_transients_count() {
-
-		global $wpdb;
-
-		$transients_count = $wpdb->get_var("SELECT count(option_id) FROM $wpdb->options WHERE option_name LIKE '%_transient_%' AND option_name NOT LIKE '%_transient\_timeout%'");
-
-		return $transients_count;
-
-	}
-
-	/**
-	 * Get transients
-=======
 	 * Get transients data
->>>>>>> v1.3.2
 	 * 
 	 * @link https://plugins.svn.wordpress.org/wptools/tags/3.13/functions/functions_transiente_manager.php
 	 * @since 1.0.0
@@ -4439,7 +4364,7 @@ class System_Dashboard_Admin {
 	public function sd_tools( $type ) {
 
 		$tools = array(
-			'directories' 	=> array(
+			'overview' 	=> array(
 				// array(
 				// 	'type'		=> 'plugin',
 				// 	'name'		=> 'Name',
@@ -4452,13 +4377,13 @@ class System_Dashboard_Admin {
 					'type'		=> 'plugin',
 					'name'		=> 'Disk Usage Sunburst',
 					'pointer'	=> 'disk-usage-sunburst',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/tools.php?page=disk-usage-sunburst%2Frbdusb-disk-usage-sunburst.php',
 				),
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'Filester – File Manager Pro',
 					'pointer'	=> 'filester',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/admin.php?page=njt-fs-filemanager',
 				),
 			),
 			'database' 	=> array(
@@ -4496,12 +4421,6 @@ class System_Dashboard_Admin {
 			'posttypes_taxonomies' 	=> array(
 				array(
 					'type'		=> 'plugin',
-					'name'		=> 'Simple History',
-					'pointer'	=> 'simple-history',
-					'usenow'	=> '',
-				),
-				array(
-					'type'		=> 'plugin',
 					'name'		=> 'Entity Viewer',
 					'pointer'	=> 'entity-viewer',
 					'usenow'	=> '',
@@ -4510,35 +4429,22 @@ class System_Dashboard_Admin {
 					'type'		=> 'plugin',
 					'name'		=> 'MB Custom Post Types & Custom Taxonomies',
 					'pointer'	=> 'mb-custom-post-type',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/edit.php?post_type=mb-post-type',
 				),
-				// array(
-				// 	'type'		=> 'plugin',
-				// 	'name'		=> 'Name',
-				// 	'pointer'	=> 'slug',
-				//	'usenow'	=> '',
-				// ),
 			),
 			'media' 	=> array(
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'Mime Types Plus',
 					'pointer'	=> 'mime-types-plus',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/admin.php?page=mimetypesplus-edit',
 				),
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'Media Cleaner – Clean & Optimize Space',
 					'pointer'	=> 'media-cleaner',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/upload.php?page=wpmc_dashboard',
 				),
-				array(
-					'type'		=> 'plugin',
-					'name'		=> 'Enable Media Replace',
-					'pointer'	=> 'enable-media-replace',
-					'usenow'	=> '',
-				),
-
 			),
 			'custom_fields' 	=> array(
 				array(
@@ -4557,31 +4463,25 @@ class System_Dashboard_Admin {
 					'type'		=> 'plugin',
 					'name'		=> 'Post Meta Manager',
 					'pointer'	=> 'post-meta-manager',
-					'usenow'	=> '',
-				),
-				array(
-					'type'		=> 'plugin',
-					'name'		=> 'Admin Columns',
-					'pointer'	=> 'codepress-admin-columns',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/tools.php?page=pmm-pmeta-settings',
 				),
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'Advanced Custom Fields',
 					'pointer'	=> 'advanced-custom-fields',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/edit.php?post_type=acf-field-group',
 				),
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'Custom Field Suite',
 					'pointer'	=> 'custom-field-suite',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/edit.php?post_type=cfs',
 				),
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'Smart Custom Fields',
 					'pointer'	=> 'smart-custom-fields',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/edit.php?post_type=smart-custom-fields',
 				),
 			),
 			'constants' 	=> array(
@@ -4597,31 +4497,31 @@ class System_Dashboard_Admin {
 					'type'		=> 'plugin',
 					'name'		=> 'User Role Editor',
 					'pointer'	=> 'user-role-editor',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/options-general.php?page=settings-user-role-editor.php',
 				),
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'PublishPress Capabilities – User Role Access, Editor Permissions, Admin Menus',
 					'pointer'	=> 'capability-manager-enhanced',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/admin.php?page=pp-capabilities',
 				),
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'Members – Membership & User Role Editor Plugin',
 					'pointer'	=> 'members',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/admin.php?page=roles',
 				),
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'Advanced Access Manager',
 					'pointer'	=> 'advanced-access-manager',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/admin.php?page=aam',
 				),
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'User Switching',
 					'pointer'	=> 'user-switching',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/users.php',
 				),
 			),
 			'emails' 	=> array(
@@ -4633,19 +4533,25 @@ class System_Dashboard_Admin {
 				// ),
 			),
 			'options' 	=> array(
-				// array(
-				// 	'type'		=> 'plugin',
-				// 	'name'		=> 'Name',
-				// 	'pointer'	=> 'slug',
-				//	'usenow'	=> '',
-				// ),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Option Inspector',
+					'pointer'	=> 'options-inspector',
+					'usenow'	=> '/wp-admin/options.php',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Options View',
+					'pointer'	=> 'options-view',
+					'usenow'	=> '/wp-admin/tools.php?page=optionsview',
+				),
 			),
 			'transients' 	=> array(
 				array(
 					'type'		=> 'plugin',
 					'name'		=> 'Transients Manager',
 					'pointer'	=> 'transients-manager',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/tools.php?page=transients-manager',
 				),
 			),
 			'cron' 	=> array(
@@ -4653,7 +4559,7 @@ class System_Dashboard_Admin {
 					'type'		=> 'plugin',
 					'name'		=> 'WP Crontrol',
 					'pointer'	=> 'wp-crontrol',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/options-general.php?page=crontrol_admin_options_page',
 				),
 			),
 			'hooks' 	=> array(
@@ -4675,12 +4581,6 @@ class System_Dashboard_Admin {
 					'pointer'	=> 'visual-action-hooks',
 					'usenow'	=> '',
 				),
-				array(
-					'type'		=> 'plugin',
-					'name'		=> 'FastDev',
-					'pointer'	=> 'fastdev',
-					'usenow'	=> '',
-				),
 			),
 			'classes' 	=> array(
 				array(
@@ -4693,7 +4593,7 @@ class System_Dashboard_Admin {
 					'type'		=> 'plugin',
 					'name'		=> 'FastDev',
 					'pointer'	=> 'fastdev',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/admin.php?page=fd-main',
 				),
 			),
 			'functions' 	=> array(
@@ -4707,7 +4607,7 @@ class System_Dashboard_Admin {
 					'type'		=> 'plugin',
 					'name'		=> 'FastDev',
 					'pointer'	=> 'fastdev',
-					'usenow'	=> '',
+					'usenow'	=> '/wp-admin/admin.php?page=fd-main',
 				),
 			),
 			'logs' 	=> array(
@@ -4959,11 +4859,26 @@ class System_Dashboard_Admin {
 				// ),
 			),
 			'options' 	=> array(
-				// array(
-					// 'type'		=> 'link',
-					// 'name'		=> 'Title',
-					// 'pointer'	=> '',
-				// ),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'Understanding and Working With the WordPress Options Table',
+					'pointer'	=> 'https://code.tutsplus.com/tutorials/understanding-and-working-with-the-wordpress-options-table--cms-21119',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'Working with wp_options',
+					'pointer'	=> 'https://docs.wpvip.com/technical-references/code-quality-and-best-practices/working-with-wp_options/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'How to Clean up Your wp_options Table and Autoloaded Data',
+					'pointer'	=> 'https://kinsta.com/knowledgebase/wp-options-autoloaded-data/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'Keeping your WordPress options table in check',
+					'pointer'	=> 'https://10up.com/blog/2017/wp-options-table/',
+				),
 			),
 			'transients' 	=> array(
 				array(
@@ -5513,6 +5428,11 @@ class System_Dashboard_Admin {
 										'content'	=> $this->sd_options( 'total_count' ) . ' options',
 									),
 									array(
+										'type'		=> 'content',
+										'title'		=> 'Autoloaded',
+										'content'	=> $this->sd_options( 'total_count_autoloaded' ) . ' options | Total size: ' . $this->sd_options( 'total_autoloaded_size' ),
+									),
+									array(
 										'id'		=> 'wp_core_options',
 										'type'		=> 'accordion',
 										'title'		=> 'WordPress Core',
@@ -5705,6 +5625,7 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Current Theme',
 										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.',
+										'class'		=> 'sd__hooks',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View Hooks',
@@ -5722,6 +5643,7 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Active Plugins',
 										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.',
+										'class'		=> 'sd__hooks',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View Hooks',
