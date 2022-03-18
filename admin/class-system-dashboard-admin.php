@@ -1106,7 +1106,16 @@ class System_Dashboard_Admin {
 
 		if ( function_exists( 'file_get_contents' ) && isset( $_SERVER['SERVER_ADDR'] ) ) {
 
-			$location_data = unserialize( file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $_SERVER['SERVER_ADDR'] ) );
+			$location_data = get_transient('sd_server_location');
+
+			if ($location_data === false) {
+
+				$location_data = unserialize( file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $_SERVER['SERVER_ADDR'] ) );
+
+				set_transient('sd_server_location', $location_data, WEEK_IN_SECONDS);
+
+			}
+
 			$location = $location_data['geoplugin_city'].', '.$location_data['geoplugin_countryName'];
 
 		} else {
@@ -1119,7 +1128,6 @@ class System_Dashboard_Admin {
 
 	}
 
-
 	/**
 	 * Get server CPU Type
 	 *
@@ -1129,17 +1137,26 @@ class System_Dashboard_Admin {
 
 		if ($this->is_shell_exec_enabled()) {
 
-			$cpu = shell_exec( 'grep "model name" /proc/cpuinfo | uniq' );
-			$cpu = str_replace( ":", "", $cpu );
-			$cpu = str_replace( "model name", "", $cpu );
+			$sd_cpu_type = get_transient('sd_cpu_type');
+
+			if ($sd_cpu_type === false) {
+
+				$sd_cpu_type = shell_exec( 'grep "model name" /proc/cpuinfo | uniq' );
+				$sd_cpu_type = str_replace( ":", "", $sd_cpu_type );
+				$sd_cpu_type = str_replace( "model name", "", $sd_cpu_type );
+				$sd_cpu_type = trim( $sd_cpu_type );
+
+				set_transient('sd_cpu_type', $sd_cpu_type, WEEK_IN_SECONDS);
+
+			}
 
 		} else {
 
-			$cpu = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+			$sd_cpu_type = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
 
 		}
 
-		return $cpu;
+		return $sd_cpu_type;
 
 	}
 
@@ -1156,6 +1173,7 @@ class System_Dashboard_Admin {
 				if ($cpu_count === false) {
 
 					if ($this->is_shell_exec_enabled()) {
+
 						$cpu_count = shell_exec('cat /proc/cpuinfo |grep "physical id" | sort | uniq | wc -l');
 
 						set_transient('sd_cpu_count', $cpu_count, WEEK_IN_SECONDS);
@@ -1422,15 +1440,31 @@ class System_Dashboard_Admin {
 
 		if ( function_exists( 'disk_total_space' ) ) {
 
-			$free_disk_space = disk_total_space( dirname(__FILE__) );;
+			if ($this->is_shell_exec_enabled()) {
+
+				$total_disk_space = get_transient('sd_total_disk_space');
+
+				if ($total_disk_space === false) {
+
+						$total_disk_space = disk_total_space( dirname(__FILE__) );;
+
+						set_transient('sd_total_disk_space', $total_disk_space, WEEK_IN_SECONDS);
+
+				}
+
+			} else {
+
+				$total_disk_space = 'Undetectable';
+
+			}
 
 		} else {
 
-			$free_disk_space = 'Undetectable';
+			$total_disk_space = 'Undetectable';
 
 		}
 
-		return $free_disk_space;
+		return $total_disk_space;
 
 	}
 
