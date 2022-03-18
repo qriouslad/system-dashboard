@@ -448,6 +448,41 @@ class System_Dashboard_Admin {
 
 	}
 
+	/**
+	 * Get old slugs
+	 *
+	 * @link http://plugins.svn.wordpress.org/remove-old-slugspermalinks/tags/2.6.0/includes/class-alg-slugs-manager-core.php
+	 * @since 1.5.0
+	 */
+	public function sd_old_slugs() {
+
+		global $wpdb;
+
+		$query = "SELECT * FROM {$wpdb->prefix}postmeta WHERE meta_key = '_wp_old_slug' ORDER BY post_id";
+
+		$results = $wpdb->get_results( $query );
+
+		$results_array = json_decode( json_encode( $results ), true );
+
+		$output = $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<strong><em>Old Slug</em> >> Current Slug</strong>' );
+		$output .= $this->sd_html( 'field-content-second', '<strong>Post Title (ID - Type)</strong>' );
+		$output .= $this->sd_html( 'field-content-end' );			
+
+
+		foreach ( $results_array as $old_slug ) {
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', '<em>' . $old_slug['meta_value'] . '</em> >> ' . get_post_field( 'post_name', $old_slug['post_id'] ) );
+			$output .= $this->sd_html( 'field-content-second', '<a href="'. get_the_permalink( $old_slug['post_id'] ) .'" target="_blank">' . get_the_title( $old_slug['post_id'] ) . '</a> (' . $old_slug['post_id'] . ' - ' . get_post_field( 'post_type', $old_slug['post_id'] ) . ')' );
+			$output .= $this->sd_html( 'field-content-end' );			
+
+		}
+
+		return $output;
+
+	}
+
 	/** 
 	 * Get media/attachments count by MIME type
 	 * 
@@ -5380,6 +5415,22 @@ class System_Dashboard_Admin {
 										'type'		=> 'content',
 										'title'		=> 'Comments',
 										'content'	=> get_comments( array( 'count' => true ) ),
+									),
+									array(
+										'id'		=> 'pttax_old_slugs',
+										'type'		=> 'accordion',
+										'title'		=> 'Old Slugs',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_old_slugs(),
+													),													
+												),
+											),
+										),
 									),
 									array(
 										'type'		=> 'content',
