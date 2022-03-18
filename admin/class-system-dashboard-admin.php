@@ -1616,7 +1616,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_file_viewer( $filename = '' ) {
 
-		if ( ( $filename == '.htaccess' ) || ( $filename == 'wp-config.php' ) ) {
+		if ( ( $filename == '.htaccess' ) || ( $filename == 'wp-config.php' ) || ( $filename == 'robots.txt' ) ) {
 
 			$file_path = ABSPATH . $filename;
 			
@@ -1624,7 +1624,27 @@ class System_Dashboard_Admin {
 			
 		if ( !file_exists( $file_path ) ) {
 
-			$output = $file_path . ' does not exist';
+			if ( $filename != 'robots.txt' ) {
+
+				$output = $file_path . ' does not exist';
+
+			} else {
+
+				// Create robots.txt file with WP defaults per March 2022
+
+				$default_robots_content = 'User-agent: *' . PHP_EOL . 'Disallow: /wp-admin/' . PHP_EOL . 'Allow: /wp-admin/admin-ajax.php' . PHP_EOL . PHP_EOL . 'Sitemap: ' . get_site_url() . '/wp-sitemap.xml';
+
+				$robots_txt = fopen( ABSPATH . '/robots.txt', 'w');
+
+				fwrite( $robots_txt, $default_robots_content );
+
+				fclose( $robots_txt );
+
+				// Output the default content
+
+				$output = nl2br( trim( file_get_contents( $file_path, true ) ) );
+
+			}
 
 		} else {
 
@@ -5536,6 +5556,24 @@ class System_Dashboard_Admin {
 													array(
 														'type'		=> 'content',
 														'content'	=> $this->sd_file_viewer( 'wp-config.php' ),
+													),													
+												),
+											),
+										),
+									),
+
+									array(
+										'id'		=> 'misc_robots',
+										'type'		=> 'accordion',
+										'title'		=> 'robots.txt',
+										'subtitle'	=> 'Apache server configuration only for the directory the file is in',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_file_viewer( 'robots.txt' ),
 													),													
 												),
 											),
