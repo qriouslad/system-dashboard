@@ -5536,11 +5536,11 @@ class System_Dashboard_Admin {
 							),
 
 							array(
-								'title' => 'Misc',
+								'title' => 'Viewer',
 								'fields' => array(
 
 									array(
-										'id'		=> 'misc_wpconfig',
+										'id'		=> 'viewer_wpconfig',
 										'type'		=> 'accordion',
 										'title'		=> 'wp-config.php',
 										'subtitle'	=> 'WordPress main configuration file',
@@ -5558,25 +5558,7 @@ class System_Dashboard_Admin {
 									),
 
 									array(
-										'id'		=> 'misc_robots',
-										'type'		=> 'accordion',
-										'title'		=> 'robots.txt',
-										'subtitle'	=> 'Apache server configuration only for the directory the file is in',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_file_viewer( 'robots.txt' ),
-													),													
-												),
-											),
-										),
-									),
-
-									array(
-										'id'		=> 'misc_htaccess',
+										'id'		=> 'viewer_htaccess',
 										'type'		=> 'accordion',
 										'title'		=> '.htaccess',
 										'subtitle'	=> 'Apache server configuration only for the directory the file is in',
@@ -5591,6 +5573,31 @@ class System_Dashboard_Admin {
 												),
 											),
 										),
+									),
+
+									array(
+										'id'		=> 'viewer_robots',
+										'type'		=> 'accordion',
+										'title'		=> 'robots.txt',
+										'subtitle'	=> 'Tell search engine crawlers which URLs they can access on your site',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_file_viewer( 'robots.txt' ),
+													),													
+												),
+											),
+										),
+									),
+
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Sitemap',
+										'subtitle'	=> 'Provide information about the pages, videos, and other files on your site, and the relationships between them, for search engines to crawl your site more efficiently.',
+										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
 									),
 
 								),
