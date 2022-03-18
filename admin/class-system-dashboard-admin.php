@@ -4374,19 +4374,14 @@ class System_Dashboard_Admin {
 					if ( ( defined( $constant['name'] ) ) && ( !empty( constant( $constant['name'] ) ) ) ) {
 
 						$constant_name = $constant['name'];
-
-						$defined_constants[] = $constant_name;
-
-						if ( $constant['name'] == 'DB_PASSWORD' ) {
-							$constant_value = 'Please see wp-config.php';
-						} else {
-							$constant_value = constant( $constant['name'] );
-						}
+						$constant_value = constant( $constant['name'] );
 
 						$constants_output .= $this->sd_html( 'field-content-start' );
 						$constants_output .= $this->sd_html( 'field-content-first', $constant_name );
 						$constants_output .= $this->sd_html( 'field-content-second', wp_kses_post( $constant_value ), 'long-value' );
 						$constants_output .= $this->sd_html( 'field-content-end' );
+
+						$defined_constants[] = $constant_name;
 
 					}
 
