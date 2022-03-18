@@ -1418,7 +1418,7 @@ class System_Dashboard_Admin {
 
 		if ( function_exists( 'disk_free_space' ) ) {
 
-			$free_disk_space = disk_free_space( dirname(__FILE__) );;
+			$free_disk_space = disk_free_space( dirname(__FILE__) );
 
 		} else {
 
@@ -1446,7 +1446,7 @@ class System_Dashboard_Admin {
 
 				if ($total_disk_space === false) {
 
-						$total_disk_space = disk_total_space( dirname(__FILE__) );;
+						$total_disk_space = disk_total_space( dirname(__FILE__) );
 
 						set_transient('sd_total_disk_space', $total_disk_space, WEEK_IN_SECONDS);
 
@@ -1602,6 +1602,36 @@ class System_Dashboard_Admin {
 		$output .= $this->sd_html( 'field-content-first', 'The themes directory' );
 		$output .= $this->sd_html( 'field-content-second', $is_writable_template_directory );
 		$output .= $this->sd_html( 'field-content-end' );
+
+		return $output;
+
+	}
+
+	/**
+	 * File viewer
+	 *
+	 * @param string $filename
+	 * @since 1.5.0
+	 */
+	public function sd_file_viewer( $filename = '' ) {
+
+		if ( ( $filename == '.htaccess' ) || ( $filename == 'wp-config.php' ) ) {
+
+			$file_path = ABSPATH . $filename;
+			
+		} else {}
+			
+		if ( !file_exists( $file_path ) ) {
+
+			$output = $file_path . ' does not exist';
+
+		} else {
+
+			$file_content = nl2br( trim( file_get_contents( $file_path, true ) ) );
+
+			$output = $file_content;
+
+		}
 
 		return $output;
 
@@ -5484,6 +5514,49 @@ class System_Dashboard_Admin {
 										'type'		=> 'content',
 										'title'		=> 'References',
 										'content'	=> $this->sd_references( 'users_roles_capabilities' ),
+									),
+
+								),
+							),
+
+							array(
+								'title' => 'Misc',
+								'fields' => array(
+
+									array(
+										'id'		=> 'misc_wpconfig',
+										'type'		=> 'accordion',
+										'title'		=> 'wp-config.php',
+										'subtitle'	=> 'WordPress main configuration file',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_file_viewer( 'wp-config.php' ),
+													),													
+												),
+											),
+										),
+									),
+
+									array(
+										'id'		=> 'misc_htaccess',
+										'type'		=> 'accordion',
+										'title'		=> '.htaccess',
+										'subtitle'	=> 'Apache server configuration only for the directory the file is in',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_file_viewer( '.htaccess' ),
+													),													
+												),
+											),
+										),
 									),
 
 								),
