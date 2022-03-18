@@ -152,6 +152,7 @@ class System_Dashboard_Admin {
 
 		$output = '';
 
+		$output = 'get_site_url() - ' . get_site_url() . '<br />';
 		$output .= 'admin_url() - ' . admin_url() . '<br />';
 		$output .= 'content_url() - ' . content_url() . '<br />';
 
