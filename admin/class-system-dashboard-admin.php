@@ -62,6 +62,7 @@ class System_Dashboard_Admin {
 	public function enqueue_styles() {
 
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/system-dashboard-admin.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name . 'json-viewer', plugin_dir_url( __FILE__ ) . 'css/jquery.json-viewer.css', array(), $this->version, 'all' );
 
 	}
 
@@ -73,6 +74,7 @@ class System_Dashboard_Admin {
 	public function enqueue_scripts() {
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/system-dashboard-admin.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name . 'json-viewer', plugin_dir_url( __FILE__ ) . 'js/jquery.json-viewer.js', array( 'jquery' ), $this->version, false );
 
 	}
 
@@ -790,9 +792,9 @@ class System_Dashboard_Admin {
 				$output .= $this->sd_html( 'accordion-head', $role_title );
 
 				$caps_output .= $this->sd_html( 'field-content-start', 'plain-content' );
-				$caps_output .= $this->sd_html( 'field-content-first', '<div class="field-part-title"><em>Default capabilities:</em></div>
+				$caps_output .= $this->sd_html( 'field-content-first', '<div class="field-part-title"><strong>Default capabilities:</strong></div>
 								<div class="field-part-content">' . $role_default_caps_string . '</div>' );
-				$caps_output .= $this->sd_html( 'field-content-second', '<div class="field-part-title"><em>Custom capabilities:</em></div>
+				$caps_output .= $this->sd_html( 'field-content-second', '<div class="field-part-title"><strong>Custom capabilities:</strong></div>
 								<div class="field-part-content">' . $role_custom_caps_string . '</div>' );
 				$caps_output .= $this->sd_html( 'field-content-end' );
 
@@ -1933,6 +1935,9 @@ class System_Dashboard_Admin {
 				if ( !empty( $value ) ) {
 					$size = 'size: ' . size_format( $size_raw );
 					$value_type = ' - type: ' . $value_type;
+				} elseif( ( empty( $value ) ) && is_numeric( $value ) ) {
+					$size = 'size: ' . size_format( $size_raw );
+					$value_type = ' - type: ' . $value_type;
 				} else {
 					$size = 'empty ';
 					$value_type = '';
@@ -2111,10 +2116,14 @@ class System_Dashboard_Admin {
 			if ( !empty( $value ) ) {
 				$size = 'size: ' . size_format( $size_raw );
 				$value_type = ' - type: ' . $value_type;
+			} elseif( ( empty( $value ) ) && is_numeric( $value ) ) {
+				$size = 'size: ' . size_format( $size_raw );
+				$value_type = ' - type: ' . $value_type;
 			} else {
 				$size = 'empty ';
 				$value_type = '';
 			}
+
 
 			if ( $autoload == 'yes' ) {
 				$autoloaded = 'autoloaded - ';
@@ -2209,10 +2218,29 @@ class System_Dashboard_Admin {
 		?>
 
 		<script id="sd-ajax-calls">
-			
+
 			jQuery( document ).ready( function() {
 
-				// Get option value
+				// https://stackoverflow.com/a/60408183
+				function isJsonString( jsonString ) {
+
+				  // This function below ('printError') can be used to print details about the error, if any.
+				  // Please, refer to the original article (see the end of this post)
+				  // for more details. I suppressed details to keep the code clean.
+				  //
+				  let printError = function(error, explicit) {
+				  console.log(`[${explicit ? 'EXPLICIT' : 'INEXPLICIT'}] ${error.name}: ${error.message}`);
+				  }
+
+
+				  try {
+				      JSON.parse( jsonString );
+				      return true; // It's a valid JSON format
+				  } catch (e) {
+				      return false; // It's not a valid JSON format
+				  }
+
+				}
 
 				jQuery('.option__name').click( function() {
 
@@ -2229,10 +2257,18 @@ class System_Dashboard_Admin {
 								'option_name':optionName
 							},
 							success:function(data) {
-								console.log('result: ' + optionId + ' - ' + data);
-								jQuery('#option_id_' + optionId).prepend(data);
+								// console.log('result: ' + optionId + ' - ' + data);
+
+								if ( isJsonString(data) ) {
+									var dataObj = JSON.parse(data);
+									jQuery('#option_id_' + optionId).jsonViewer(dataObj,{collapsed: true, rootCollapsable: false, withQuotes: false, withLinks: false});
+								} else {
+									jQuery('#option_id_' + optionId).prepend(data);
+								}
+
 								jQuery('#option-name-' + optionId).attr('data-loaded','yes');
 								jQuery('#spinner-' + optionId).fadeOut( 0 );
+
 							},
 							erro:function(errorThrown) {
 								console.log(errorThrown);
@@ -2260,10 +2296,18 @@ class System_Dashboard_Admin {
 								'option_name':transientName
 							},
 							success:function(data) {
-								console.log('result: ' + transientId + ' - ' + data);
-								jQuery('#transient_id_' + transientId).prepend(data);
+								// console.log('result: ' + transientId + ' - ' + data);
+
+								if ( isJsonString(data) ) {
+									var dataObj = JSON.parse(data);
+									jQuery('#transient_id_' + transientId).jsonViewer(dataObj,{collapsed: true, rootCollapsable: false, withQuotes: false, withLinks: false});
+								} else {
+									jQuery('#transient_id_' + transientId).prepend(data);
+								}
+
 								jQuery('#transient-name-' + transientId).attr('data-loaded','yes');
 								jQuery('#spinner-' + transientId).fadeOut( 0 );
+
 							},
 							erro:function(errorThrown) {
 								console.log(errorThrown);
@@ -2301,11 +2345,13 @@ class System_Dashboard_Admin {
 			if  ( ( $option_value_type == 'array' ) || ( $option_value_type == 'object' ) ) {
 
 				// JSON_UNESCAPED_SLASHES will remove backslashes used for escaping, e.g. \' will become just '. stripslashes will further remove backslashes using to escape backslashes, e.g. double \\ will become a single \. JSON_PRETTY_PRINT and <pre> beautifies the output on the HTML side.
-				echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>';
+
+				// echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>'; // Raw JSON beautified
+				echo json_encode( $option_value ); // for JSON Tree viewer
 
 			} elseif ( ( $option_value_type == 'boolean' ) || ( $option_value_type == 'integer' ) || ( $option_value_type == 'string' ) ) {
 
-				echo '<pre>' . htmlspecialchars( $option_value ) . '</pre>';
+				echo '<pre>' . htmlspecialchars( $option_value ) . '</pre>'; // Raw JSON beautified
 
 			} else {}
 

@@ -106,7 +106,7 @@
     width: 100%;
 }
 
-.sd-options .first-part span {
+.sd-options .first-part > span {
     color: #aaa;
 }
 
@@ -138,6 +138,20 @@
 .option__value pre {
     word-break: break-all;
     white-space: pre-wrap;
+}
+
+.option__value.json-document {
+    padding: 0;
+}
+
+.option__value a.json-toggle:before {
+    font-size: 1em;
+    top: .25em;
+}
+
+.option__value .json-string,
+.option__value .json-literal {
+    font-weight: 600;
 }
 
 .sd-options .field-part.long-value {
