@@ -182,26 +182,28 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
    ![Custom Fields module](.wordpress-org/screenshot-6.png)
 7. Users module
    ![Users module](.wordpress-org/screenshot-7.png)
-8. Options module
-   ![Options module](.wordpress-org/screenshot-8.png)
-9. Transients module
-   ![Transients module](.wordpress-org/screenshot-9.png)
-10. Cron module
-   ![Cron module](.wordpress-org/screenshot-10.png)
-11. Hooks module
-   ![Hooks module](.wordpress-org/screenshot-11.png)
-12. Classes module
-   ![Classes module](.wordpress-org/screenshot-12.png)
-13. Functions module
-   ![Functions module](.wordpress-org/screenshot-13.png)
-14. Constants module
-   ![Constants module](.wordpress-org/screenshot-14.png)
-15. Server overview and Monitor module
-   ![Server overview and Monitor module](.wordpress-org/screenshot-15.png)
-16. Hardware module
-   ![Hardware module](.wordpress-org/screenshot-16.png)
-17. PHP module
-   ![PHP module](.wordpress-org/screenshot-17.png)
+8. File Viewer module
+   ![File Viewer module](.wordpress-org/screenshot-8.png)
+9. Options module
+   ![Options module](.wordpress-org/screenshot-9.png)
+10. Transients module
+   ![Transients module](.wordpress-org/screenshot-10.png)
+11. Cron module
+   ![Cron module](.wordpress-org/screenshot-11.png)
+12. Hooks module
+   ![Hooks module](.wordpress-org/screenshot-12.png)
+13. Classes module
+   ![Classes module](.wordpress-org/screenshot-13.png)
+14. Functions module
+   ![Functions module](.wordpress-org/screenshot-14.png)
+15. Constants module
+   ![Constants module](.wordpress-org/screenshot-15.png)
+16. Server overview and Monitor module
+   ![Server overview and Monitor module](.wordpress-org/screenshot-16.png)
+17. Hardware module
+   ![Hardware module](.wordpress-org/screenshot-17.png)
+18. PHP module
+   ![PHP module](.wordpress-org/screenshot-18.png)
 
 ## Frequently Asked Questions
 
