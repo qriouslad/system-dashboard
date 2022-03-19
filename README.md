@@ -18,10 +18,142 @@ Centralized dashboard to monitor various WordPress components, stats and data, i
 
 This plugin provides a centralized dashboard to monitor various WordPress components, stats and data, including server hardware, software and resource usage. 
 
-### Features
 
-* WordPress dashboard modules currently include: Overview, Directories, Database, Post Types & Taxonomies, Media, Custom Fields, Users, Options, Transients, Cron (Jobs), Hooks, Classes, Functions, Constants.
-* Server dashboard modules currently include: Overview, Monitor (CPU, RAM, Disk), Hardware and PHP.
+### WordPress Modules 
+
+#### Overview: 
+
+* Site health status
+* Quick stats of active theme and plugins
+* Timezone and current time
+* Your IP address
+
+#### Directories: 
+
+* Root path
+* Directory size of WP installation, wp-content directory, uploads directory, plugins directory, themes directory
+* Filesystem permissions
+
+#### Database: 
+
+* Software info
+* Uptime
+* Data size
+* Index size
+* List of tables and size of each one
+* Key database info, e.g. innodb_buffer_pool_size
+* Detailed specifications
+
+#### Post Types & Taxonomies: 
+
+* List of post types and posts count for each
+* List of taxonomies and terms count for each
+* Comment count
+* List of old slugs and the corresponding posts
+
+#### Media: 
+
+* List of media types and files count for each
+* List of allowed mime types and the corresponding file extensions
+* Media handling info, e.g. max file upload size
+
+#### Custom Fields:
+
+* List of public custom fields
+* List of private custom fields, i.e. keys that start with an undersocre _
+
+#### Users:
+
+* List of user roles and users count for each
+* List of roles and capabilities. Including custom roles and custom capabilities.
+
+#### (File) Viewer: 
+
+* wp-config.php viewer
+* .htaccess viewer
+* robots.txt viewer
+* Links to sitemap and REST API
+
+#### Options: 
+
+* Total number of options
+* Total number and size of autoloaded options
+* List of options from WordPress core with ID, autoload, size and type info
+* List of options from plugins and theme with ID, autoload, size and type info
+* AJAX loading of option value with interactive tree viewer for array and object value types 
+
+#### Transients: 
+
+* Total number of transients
+* Total number and size of autoloaded transients
+* List of transients with expiration, including time left to expiry
+* List of expired transients
+* List of transients that do not expire
+* AJAX loading of transient value with interactive tree viewer for array and object value types 
+
+#### Cron (Jobs):
+
+* List of cron job hooks and recurrences
+
+#### Hooks:
+
+* List of action and filter hooks from WordPress core with description, originating file path and link to WordPress Code Reference for each hook
+* List of action and filter hooks from the active theme, with description, originating file path and link to file preview in the theme file editor
+* List of action and filter hooks from active plugins, with description, originating file path and link to file preview in the plugin file editor
+
+#### Classes: 
+
+* List of classes from WordPress core with methods, originating file path, and link to WordPress Code Reference for each class
+* List of classes from the active theme with methods, originating file path, and link to preview the file in the theme file editor
+* List of classes from active plugins with methods, originating file path, and link to preview the file in the plugin file editor
+
+#### Functions:
+
+* List of functions from WordPress core with the originating file path and link to WordPress Code Reference for each function
+* List of functions from the active theme with the originating file path and link to preview the file in the theme file editor
+* List of functions from active plugins with the originating file path and link to preview the file in the plugin file editor
+
+#### Constants:
+
+* List of defined constants by WordPress core (categorized), as well as by theme and plugins
+* Documentation of each constant from WordPress core
+
+### Server Modules 
+
+#### Overview: 
+
+* Server operating system
+* Web server software
+* Server IP address
+* Server location
+* Server timezone and current date time
+
+#### Monitor: 
+
+* Server uptime
+* Server CPU load average: last 15 minutes, last 5 minutes, last 1 minute
+* CPU RAM usage
+* Disk usage
+
+#### Hardware: 
+
+* CPU type
+* CPU count and cores count
+* Total RAM
+* Total disk space
+
+#### PHP:
+
+* PHP version
+* PHP user
+* Key info: max execution time, max input time, max input vars, memory limit, post max size, upload max size, cURL version, allow_url_fopen, fsockopen, SoapClient, DOMDocument, GZip, SUHOSIN, Imagick
+* Extensions loaded
+* Disabled functions
+* Detailed PHP specification from phpinfo()
+
+### For All WordPress and Server Modules:
+
+* List of relevant tools (plugins) and references (articles) for each module
 
 ### Technical Notes
 
