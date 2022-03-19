@@ -152,6 +152,7 @@ class System_Dashboard_Admin {
 
 		$output = '';
 
+		$output = 'get_site_url() - ' . get_site_url() . '<br />';
 		$output .= 'admin_url() - ' . admin_url() . '<br />';
 		$output .= 'content_url() - ' . content_url() . '<br />';
 
@@ -444,6 +445,41 @@ class System_Dashboard_Admin {
 		}
 
 		return $taxonomies_info;
+
+	}
+
+	/**
+	 * Get old slugs
+	 *
+	 * @link http://plugins.svn.wordpress.org/remove-old-slugspermalinks/tags/2.6.0/includes/class-alg-slugs-manager-core.php
+	 * @since 1.5.0
+	 */
+	public function sd_old_slugs() {
+
+		global $wpdb;
+
+		$query = "SELECT * FROM {$wpdb->prefix}postmeta WHERE meta_key = '_wp_old_slug' ORDER BY post_id";
+
+		$results = $wpdb->get_results( $query );
+
+		$results_array = json_decode( json_encode( $results ), true );
+
+		$output = $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<strong>Old Slug >> Current Slug</strong>' );
+		$output .= $this->sd_html( 'field-content-second', '<strong>Post Title (ID - Type)</strong>' );
+		$output .= $this->sd_html( 'field-content-end' );			
+
+
+		foreach ( $results_array as $old_slug ) {
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', $old_slug['meta_value'] . ' >> ' . get_post_field( 'post_name', $old_slug['post_id'] ) );
+			$output .= $this->sd_html( 'field-content-second', '<a href="'. get_the_permalink( $old_slug['post_id'] ) .'" target="_blank">' . get_the_title( $old_slug['post_id'] ) . '</a> (' . $old_slug['post_id'] . ' - ' . get_post_field( 'post_type', $old_slug['post_id'] ) . ')' );
+			$output .= $this->sd_html( 'field-content-end' );			
+
+		}
+
+		return $output;
 
 	}
 
@@ -1106,7 +1142,16 @@ class System_Dashboard_Admin {
 
 		if ( function_exists( 'file_get_contents' ) && isset( $_SERVER['SERVER_ADDR'] ) ) {
 
-			$location_data = unserialize( file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $_SERVER['SERVER_ADDR'] ) );
+			$location_data = get_transient('sd_server_location');
+
+			if ($location_data === false) {
+
+				$location_data = unserialize( file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $_SERVER['SERVER_ADDR'] ) );
+
+				set_transient('sd_server_location', $location_data, WEEK_IN_SECONDS);
+
+			}
+
 			$location = $location_data['geoplugin_city'].', '.$location_data['geoplugin_countryName'];
 
 		} else {
@@ -1119,7 +1164,6 @@ class System_Dashboard_Admin {
 
 	}
 
-
 	/**
 	 * Get server CPU Type
 	 *
@@ -1129,17 +1173,26 @@ class System_Dashboard_Admin {
 
 		if ($this->is_shell_exec_enabled()) {
 
-			$cpu = shell_exec( 'grep "model name" /proc/cpuinfo | uniq' );
-			$cpu = str_replace( ":", "", $cpu );
-			$cpu = str_replace( "model name", "", $cpu );
+			$sd_cpu_type = get_transient('sd_cpu_type');
+
+			if ($sd_cpu_type === false) {
+
+				$sd_cpu_type = shell_exec( 'grep "model name" /proc/cpuinfo | uniq' );
+				$sd_cpu_type = str_replace( ":", "", $sd_cpu_type );
+				$sd_cpu_type = str_replace( "model name", "", $sd_cpu_type );
+				$sd_cpu_type = trim( $sd_cpu_type );
+
+				set_transient('sd_cpu_type', $sd_cpu_type, WEEK_IN_SECONDS);
+
+			}
 
 		} else {
 
-			$cpu = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+			$sd_cpu_type = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
 
 		}
 
-		return $cpu;
+		return $sd_cpu_type;
 
 	}
 
@@ -1156,6 +1209,7 @@ class System_Dashboard_Admin {
 				if ($cpu_count === false) {
 
 					if ($this->is_shell_exec_enabled()) {
+
 						$cpu_count = shell_exec('cat /proc/cpuinfo |grep "physical id" | sort | uniq | wc -l');
 
 						set_transient('sd_cpu_count', $cpu_count, WEEK_IN_SECONDS);
@@ -1400,7 +1454,7 @@ class System_Dashboard_Admin {
 
 		if ( function_exists( 'disk_free_space' ) ) {
 
-			$free_disk_space = disk_free_space( dirname(__FILE__) );;
+			$free_disk_space = disk_free_space( dirname(__FILE__) );
 
 		} else {
 
@@ -1422,15 +1476,31 @@ class System_Dashboard_Admin {
 
 		if ( function_exists( 'disk_total_space' ) ) {
 
-			$free_disk_space = disk_total_space( dirname(__FILE__) );;
+			if ($this->is_shell_exec_enabled()) {
+
+				$total_disk_space = get_transient('sd_total_disk_space');
+
+				if ($total_disk_space === false) {
+
+						$total_disk_space = disk_total_space( dirname(__FILE__) );
+
+						set_transient('sd_total_disk_space', $total_disk_space, WEEK_IN_SECONDS);
+
+				}
+
+			} else {
+
+				$total_disk_space = 'Undetectable';
+
+			}
 
 		} else {
 
-			$free_disk_space = 'Undetectable';
+			$total_disk_space = 'Undetectable';
 
 		}
 
-		return $free_disk_space;
+		return $total_disk_space;
 
 	}
 
@@ -1568,6 +1638,44 @@ class System_Dashboard_Admin {
 		$output .= $this->sd_html( 'field-content-first', 'The themes directory' );
 		$output .= $this->sd_html( 'field-content-second', $is_writable_template_directory );
 		$output .= $this->sd_html( 'field-content-end' );
+
+		return $output;
+
+	}
+
+	/**
+	 * File viewer
+	 *
+	 * @param string $filename
+	 * @since 1.5.0
+	 */
+	public function sd_file_viewer( $filename = '' ) {
+
+		$file_path = ABSPATH . $filename;
+			
+		if ( !file_exists( $file_path ) ) {
+
+			if ( $filename == 'robots.txt' ) {
+
+				ob_start();
+
+				do_robots();
+
+				$output = nl2br( trim( ob_get_clean() ) );
+
+			} else {
+
+				$output = $file_path . ' does not exist';
+
+			}
+
+		} else {
+
+			$file_content = nl2br( trim( file_get_contents( $file_path, true ) ) );
+
+			$output = $file_content;
+
+		}
 
 		return $output;
 
@@ -4289,19 +4397,14 @@ class System_Dashboard_Admin {
 					if ( ( defined( $constant['name'] ) ) && ( !empty( constant( $constant['name'] ) ) ) ) {
 
 						$constant_name = $constant['name'];
-
-						$defined_constants[] = $constant_name;
-
-						if ( $constant['name'] == 'DB_PASSWORD' ) {
-							$constant_value = 'Please see wp-config.php';
-						} else {
-							$constant_value = constant( $constant['name'] );
-						}
+						$constant_value = constant( $constant['name'] );
 
 						$constants_output .= $this->sd_html( 'field-content-start' );
 						$constants_output .= $this->sd_html( 'field-content-first', $constant_name );
 						$constants_output .= $this->sd_html( 'field-content-second', wp_kses_post( $constant_value ), 'long-value' );
 						$constants_output .= $this->sd_html( 'field-content-end' );
+
+						$defined_constants[] = $constant_name;
 
 					}
 
@@ -4477,6 +4580,12 @@ class System_Dashboard_Admin {
 					'pointer'	=> 'mb-custom-post-type',
 					'usenow'	=> '/wp-admin/edit.php?post_type=mb-post-type',
 				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Slugs Manager',
+					'pointer'	=> 'remove-old-slugspermalinks',
+					'usenow'	=> '/wp-admin/tools.php?page=alg-slugs-manager',
+				),
 			),
 			'media' 	=> array(
 				array(
@@ -4568,6 +4677,20 @@ class System_Dashboard_Admin {
 					'name'		=> 'User Switching',
 					'pointer'	=> 'user-switching',
 					'usenow'	=> '/wp-admin/users.php',
+				),
+			),
+			'viewer' => array(
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Robots.txt rewrite',
+					'pointer'	=> 'robotstxt-rewrite',
+					'usenow'	=> '/wp-admin/options-general.php?page=robots-txt-options',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Robots.txt Quick Editor',
+					'pointer'	=> 'robots-txt-quick-editor',
+					'usenow'	=> '/wp-admin/options-general.php?page=robots-txt-quick-editor-page',
 				),
 			),
 			'emails' 	=> array(
@@ -4895,6 +5018,58 @@ class System_Dashboard_Admin {
 					'type'		=> 'link',
 					'name'		=> 'The Ultimate Guide to WordPress User Roles and Capabilities',
 					'pointer'	=> 'https://kinsta.com/blog/wordpress-user-roles/',
+				),
+			),
+			'viewer' => array(
+				array(
+					'type'		=> 'link',
+					'name'		=> 'The WordPress wp-config File: A Comprehensive Guide',
+					'pointer'	=> 'https://wpmudev.com/blog/wordpress-wp-config-file-guide/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'wp-config.php File – An In-Depth View on How to Configure WordPress',
+					'pointer'	=> 'https://kinsta.com/blog/wp-config-php/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'Understanding and Configuring the .htaccess File in WordPress',
+					'pointer'	=> 'https://webdesign.tutsplus.com/tutorials/understanding-and-configuring-the-htaccess-file-in-wordpress--cms-37360',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'How to Use .htaccess File to Secure, Optimize, and Control Redirects in WordPress',
+					'pointer'	=> 'https://www.cloudways.com/blog/wordpress-htaccess/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'WordPress Robots.txt Guide – What It Is and How to Use It',
+					'pointer'	=> 'https://kinsta.com/blog/wordpress-robots-txt/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'How to Optimize Your WordPress Robots.txt for SEO',
+					'pointer'	=> 'https://www.wpbeginner.com/wp-tutorials/how-to-optimize-your-wordpress-robots-txt-for-seo/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'The Complete Guide to WordPress REST API Basics',
+					'pointer'	=> 'https://kinsta.com/blog/wordpress-rest-api/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'The Ultimate Guide To The WordPress REST API',
+					'pointer'	=> 'https://wpengine.com/resources/the-ultimate-guide-to-the-wordpress-rest-api/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'REST API Handbook',
+					'pointer'	=> 'https://developer.wordpress.org/rest-api/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'REST API Resources',
+					'pointer'	=> 'https://developer.wordpress.com/docs/api/',
 				),
 			),
 			'emails' 	=> array(
@@ -5302,6 +5477,22 @@ class System_Dashboard_Admin {
 										'content'	=> get_comments( array( 'count' => true ) ),
 									),
 									array(
+										'id'		=> 'pttax_old_slugs',
+										'type'		=> 'accordion',
+										'title'		=> 'Old Slugs',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_old_slugs(),
+													),													
+												),
+											),
+										),
+									),
+									array(
 										'type'		=> 'content',
 										'title'		=> 'Tools',
 										'content'	=> $this->sd_tools( 'posttypes_taxonomies' ),
@@ -5450,6 +5641,87 @@ class System_Dashboard_Admin {
 										'type'		=> 'content',
 										'title'		=> 'References',
 										'content'	=> $this->sd_references( 'users_roles_capabilities' ),
+									),
+
+								),
+							),
+
+							array(
+								'title' => 'Viewer',
+								'fields' => array(
+
+									array(
+										'id'		=> 'viewer_wpconfig',
+										'type'		=> 'accordion',
+										'title'		=> 'wp-config.php',
+										'subtitle'	=> 'WordPress main configuration file',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_file_viewer( 'wp-config.php' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'viewer_htaccess',
+										'type'		=> 'accordion',
+										'title'		=> '.htaccess',
+										'subtitle'	=> 'Apache server configuration only for the directory the file is in',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_file_viewer( '.htaccess' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'viewer_robots',
+										'type'		=> 'accordion',
+										'title'		=> 'robots.txt',
+										'subtitle'	=> 'Tell search engine crawlers which URLs they can access on your site',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_file_viewer( 'robots.txt' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Sitemap',
+										'subtitle'	=> 'Contains information for search engines to crawl your site more efficiently',
+										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'WordPress REST API',
+										'subtitle'	=> 'An interface for external applications to interact with WordPress',
+										'content'	=> '<a href="/wp-json/wp/v2" target="_blank">Access now &raquo;</a>',
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Tools',
+										'content'	=> $this->sd_tools( 'viewer' ),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'References',
+										'content'	=> $this->sd_references( 'viewer' ),
 									),
 
 								),
