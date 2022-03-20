@@ -80,6 +80,28 @@ class System_Dashboard_Admin {
 	}
 
 	/**
+	 * Check if current screen is this plugin's (System Dashboard plugin's) main page
+	 *
+	 * @since 1.6.1
+	 */
+	public function is_sd() {
+
+		$request_uri = $_SERVER['REQUEST_URI']; // e.g. /wp-admin/index.php?page=system-dashboard
+
+		if ( strpos( $request_uri, 'index.php?page=' . $this->plugin_name ) !== false ) {
+
+			return true; // Yes, this is the system dashboard page
+
+		} else {
+
+			return false; // Nope, this is NOT the system dashboard page
+
+
+		}
+
+	}
+
+	/**
 	 * Get HTML partials
 	 *
 	 * @since 1.0.0
@@ -246,29 +268,33 @@ class System_Dashboard_Admin {
 	
 	public function sd_wp_overview() {
 
-		$output = '';
+		if ( $this->is_sd() ) {
 
-		$output .= '<strong>Site Health</strong>: <br />' . $this->sd_site_health() . '<br />';
+			$output = '';
 
-		$output .= '<strong>Theme</strong>: <br /><a href="'. wp_get_theme()->get( 'ThemeURI' ) .'" target="_blank">'.wp_get_theme()->get( 'Name' ) .'</a> '.wp_get_theme()->get( 'Version' ).'<br />';
+			$output .= '<strong>Site Health</strong>: <br />' . $this->sd_site_health() . '<br />';
 
-		if ( !empty( wp_get_theme()->get( 'Author' ) ) ) {
+			$output .= '<strong>Theme</strong>: <br /><a href="'. wp_get_theme()->get( 'ThemeURI' ) .'" target="_blank">'.wp_get_theme()->get( 'Name' ) .'</a> '.wp_get_theme()->get( 'Version' ).'<br />';
 
-			$output .= 'by <a href="'.wp_get_theme()->get( 'AuthorURI' ).'" target="_blank">'. wp_get_theme()->get( 'Author' ) .'</a><br />';
+			if ( !empty( wp_get_theme()->get( 'Author' ) ) ) {
+
+				$output .= 'by <a href="'.wp_get_theme()->get( 'AuthorURI' ).'" target="_blank">'. wp_get_theme()->get( 'Author' ) .'</a><br />';
+
+			}
+
+			$output .= '<strong>Plugins</strong>: <br /><a href="/wp-admin/plugins.php" target="_blank">' . count( get_plugins() ) . ' installed</a><br /><a href="/wp-admin/plugins.php?plugin_status=active" target="_blank">' . count( get_option( 'active_plugins' ) ) . ' active</a><br />';
+
+			$output .= '<strong>Timezone</strong>: <br />' . get_option( 'timezone_string' ) . '<br />';
+
+			$output .= '<strong>Current Date Time</strong>: <br />' . current_time( 'F j, Y - H:i' ) . '<br />';
+
+			$output .= '<strong>Your IP</strong>: <br />' . $this->sd_get_user_ip() . '<br />';
+
+			$output .= '<div style="display: none;">' . $this->sd_active_plugins( 'original', 'print_r') . '</div>';
+
+			return $output;
 
 		}
-
-		$output .= '<strong>Plugins</strong>: <br /><a href="/wp-admin/plugins.php" target="_blank">' . count( get_plugins() ) . ' installed</a><br /><a href="/wp-admin/plugins.php?plugin_status=active" target="_blank">' . count( get_option( 'active_plugins' ) ) . ' active</a><br />';
-
-		$output .= '<strong>Timezone</strong>: <br />' . get_option( 'timezone_string' ) . '<br />';
-
-		$output .= '<strong>Current Date Time</strong>: <br />' . current_time( 'F j, Y - H:i' ) . '<br />';
-
-		$output .= '<strong>Your IP</strong>: <br />' . $this->sd_get_user_ip() . '<br />';
-
-		$output .= '<div style="display: none;">' . $this->sd_active_plugins( 'original', 'print_r') . '</div>';
-
-		return $output;
 
 	}
 
@@ -435,22 +461,26 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_post_types_info(){
 
-		global $wpdb;
+		if ( $this->is_sd() ) {
 
-		$post_types = $wpdb->get_results( "SELECT post_type AS 'type', count(1) AS 'count' FROM {$wpdb->posts} GROUP BY post_type ORDER BY count DESC;" );
+			global $wpdb;
 
-		$output = '';
+			$post_types = $wpdb->get_results( "SELECT post_type AS 'type', count(1) AS 'count' FROM {$wpdb->posts} GROUP BY post_type ORDER BY count DESC;" );
 
-		foreach ( $post_types as $post_type ) {
+			$output = '';
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $post_type->type );
-			$output .= $this->sd_html( 'field-content-second', $post_type->count );
-			$output .= $this->sd_html( 'field-content-end' );
+			foreach ( $post_types as $post_type ) {
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', $post_type->type );
+				$output .= $this->sd_html( 'field-content-second', $post_type->count );
+				$output .= $this->sd_html( 'field-content-end' );
+
+			}
+
+			return $output;
 
 		}
-
-		return $output;
 
 	}
 
@@ -502,30 +532,34 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_old_slugs() {
 
-		global $wpdb;
+		if ( $this->is_sd() ) {
 
-		$query = "SELECT * FROM {$wpdb->prefix}postmeta WHERE meta_key = '_wp_old_slug' ORDER BY post_id";
+			global $wpdb;
 
-		$results = $wpdb->get_results( $query );
+			$query = "SELECT * FROM {$wpdb->prefix}postmeta WHERE meta_key = '_wp_old_slug' ORDER BY post_id";
 
-		$results_array = json_decode( json_encode( $results ), true );
+			$results = $wpdb->get_results( $query );
 
-		$output = $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', '<strong>Old Slug >> Current Slug</strong>' );
-		$output .= $this->sd_html( 'field-content-second', '<strong>Post Title (ID - Type)</strong>' );
-		$output .= $this->sd_html( 'field-content-end' );			
+			$results_array = json_decode( json_encode( $results ), true );
 
-
-		foreach ( $results_array as $old_slug ) {
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $old_slug['meta_value'] . ' >> ' . get_post_field( 'post_name', $old_slug['post_id'] ) );
-			$output .= $this->sd_html( 'field-content-second', '<a href="'. get_the_permalink( $old_slug['post_id'] ) .'" target="_blank">' . get_the_title( $old_slug['post_id'] ) . '</a> (' . $old_slug['post_id'] . ' - ' . get_post_field( 'post_type', $old_slug['post_id'] ) . ')' );
+			$output = $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', '<strong>Old Slug >> Current Slug</strong>' );
+			$output .= $this->sd_html( 'field-content-second', '<strong>Post Title (ID - Type)</strong>' );
 			$output .= $this->sd_html( 'field-content-end' );			
 
-		}
 
-		return $output;
+			foreach ( $results_array as $old_slug ) {
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', $old_slug['meta_value'] . ' >> ' . get_post_field( 'post_name', $old_slug['post_id'] ) );
+				$output .= $this->sd_html( 'field-content-second', '<a href="'. get_the_permalink( $old_slug['post_id'] ) .'" target="_blank">' . get_the_title( $old_slug['post_id'] ) . '</a> (' . $old_slug['post_id'] . ' - ' . get_post_field( 'post_type', $old_slug['post_id'] ) . ')' );
+				$output .= $this->sd_html( 'field-content-end' );			
+
+			}
+
+			return $output;
+
+		}
 
 	}
 
@@ -949,88 +983,92 @@ class System_Dashboard_Admin {
 	 */	
 	public function sd_get_all_custom_fields( $type = 'public' ) {
 
-		global $wpdb;
+		if ( $this->is_sd() ) {
 
-		$query = "
-	        SELECT DISTINCT($wpdb->postmeta.meta_key) 
-	        FROM $wpdb->postmeta;
-	    ";
+			global $wpdb;
 
-	    $results = $wpdb->get_results($query);
+			$query = "
+		        SELECT DISTINCT($wpdb->postmeta.meta_key) 
+		        FROM $wpdb->postmeta;
+		    ";
 
-	    $meta_keys = array();
+		    $results = $wpdb->get_results($query);
 
-		if ( is_array( $results ) ) {
+		    $meta_keys = array();
 
-			foreach( $results as $result ) {
+			if ( is_array( $results ) ) {
 
-			    $result = json_decode( json_encode( $result ), true ); // convert stdClass to array
+				foreach( $results as $result ) {
 
-			    $meta_keys[] = $result['meta_key'];
+				    $result = json_decode( json_encode( $result ), true ); // convert stdClass to array
+
+				    $meta_keys[] = $result['meta_key'];
+
+				}
 
 			}
+
+			$output = '';
+			$private_custom_fields = array();
+			$public_custom_fields = array();
+			$private_custom_fields_count = 0;
+			$public_custom_fields_count = 0;
+
+			foreach ( $meta_keys as $meta_key ) {
+
+				// https://www.php.net/manual/en/function.substr.php Example #3
+				if ( $meta_key[0] == '_' ) {
+
+					$private_custom_fields[] = $meta_key;
+					sort( $private_custom_fields );
+
+					$private_custom_fields_count++;
+
+				} else {
+
+					$public_custom_fields[] = $meta_key;
+					sort( $public_custom_fields );
+
+					$public_custom_fields_count++;
+
+				}
+
+			}
+
+			if ( $type == 'public' ) {
+
+				foreach( $public_custom_fields as $public_custom_field ) {
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $public_custom_field, 'full-width' );
+					$output .= $this->sd_html( 'field-content-end' );
+
+				}
+
+			} elseif ( $type == 'private' ) {
+
+				foreach( $private_custom_fields as $private_custom_field ) {
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $private_custom_field, 'field-full-width' );
+					$output .= $this->sd_html( 'field-content-end' );
+
+				}
+
+			} elseif ( $type == 'public-count' ) {
+
+				$output = $public_custom_fields_count;
+
+			} elseif ( $type == 'private-count' ) {
+
+				$output = $private_custom_fields_count;
+
+			} else {}
+
+			// return '<pre>' . print_r( $private_custom_fields, true ) . '</pre>';
+			return $output;
 
 		}
-
-		$output = '';
-		$private_custom_fields = array();
-		$public_custom_fields = array();
-		$private_custom_fields_count = 0;
-		$public_custom_fields_count = 0;
-
-		foreach ( $meta_keys as $meta_key ) {
-
-			// https://www.php.net/manual/en/function.substr.php Example #3
-			if ( $meta_key[0] == '_' ) {
-
-				$private_custom_fields[] = $meta_key;
-				sort( $private_custom_fields );
-
-				$private_custom_fields_count++;
-
-			} else {
-
-				$public_custom_fields[] = $meta_key;
-				sort( $public_custom_fields );
-
-				$public_custom_fields_count++;
-
-			}
-
-		}
-
-		if ( $type == 'public' ) {
-
-			foreach( $public_custom_fields as $public_custom_field ) {
-
-				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $public_custom_field, 'full-width' );
-				$output .= $this->sd_html( 'field-content-end' );
-
-			}
-
-		} elseif ( $type == 'private' ) {
-
-			foreach( $private_custom_fields as $private_custom_field ) {
-
-				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $private_custom_field, 'field-full-width' );
-				$output .= $this->sd_html( 'field-content-end' );
-
-			}
-
-		} elseif ( $type == 'public-count' ) {
-
-			$output = $public_custom_fields_count;
-
-		} elseif ( $type == 'private-count' ) {
-
-			$output = $private_custom_fields_count;
-
-		} else {}
-
-		// return '<pre>' . print_r( $private_custom_fields, true ) . '</pre>';
-		return $output;
 
 	}
 
@@ -1884,26 +1922,31 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_db_tables() {
 
-		global $wpdb;
+		if ( $this->is_sd() ) {
 
-		$prefix = $wpdb->prefix;
-		$tables = $wpdb->get_results("SHOW TABLE STATUS");
+			global $wpdb;
 
-		$output = $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', '<strong>Table Name</strong>' );
-		$output .= $this->sd_html( 'field-content-second', '<strong>Size</strong>' );
-		$output .= $this->sd_html( 'field-content-end' );
+			$prefix = $wpdb->prefix;
+			$tables = $wpdb->get_results("SHOW TABLE STATUS");
 
-		foreach( $tables as $table ) {
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $table->Name );
-			$output .= $this->sd_html( 'field-content-second', $this->sd_format_filesize( $table->Data_length ) );
+			$output = $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', '<strong>Table Name</strong>' );
+			$output .= $this->sd_html( 'field-content-second', '<strong>Size</strong>' );
 			$output .= $this->sd_html( 'field-content-end' );
+
+			foreach( $tables as $table ) {
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', $table->Name );
+				$output .= $this->sd_html( 'field-content-second', $this->sd_format_filesize( $table->Data_length ) );
+				$output .= $this->sd_html( 'field-content-end' );
+
+			}
+
+			return $output;
 
 		}
 
-		return $output;
 	}
 
 	/** 
@@ -1912,19 +1955,24 @@ class System_Dashboard_Admin {
 	 * @since 1.0.0
 	 */
 	public function sd_db_uptime() {
-		global $wpdb;
 
-		$db_uptime_query = $wpdb->get_results("SHOW GLOBAL STATUS LIKE 'Uptime'");
+		if ( $this->is_sd() ) {
 
-		if ( isset( $db_uptime_query[0]->Value ) ) {
-			$db_uptime = $db_uptime_query[0]->Value;
-			$dtf = new \DateTime('@0');
-			$dtt = new \DateTime("@$db_uptime");
-			// $db_uptime_formatted = $dtf->diff($dtt)->format('%a days, %h hours, %i minutes and %s seconds');
-			$db_uptime_formatted = $dtf->diff($dtt)->format('%a days');
+			global $wpdb;
+
+			$db_uptime_query = $wpdb->get_results("SHOW GLOBAL STATUS LIKE 'Uptime'");
+
+			if ( isset( $db_uptime_query[0]->Value ) ) {
+				$db_uptime = $db_uptime_query[0]->Value;
+				$dtf = new \DateTime('@0');
+				$dtt = new \DateTime("@$db_uptime");
+				// $db_uptime_formatted = $dtf->diff($dtt)->format('%a days, %h hours, %i minutes and %s seconds');
+				$db_uptime_formatted = $dtf->diff($dtt)->format('%a days');
+			}
+
+			return $db_uptime_formatted;
+
 		}
-
-		return $db_uptime_formatted;
 
 	}
 
@@ -1990,92 +2038,97 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_db_specs() {
 
-		global $wpdb;
+		if ( $this->is_sd() ) {
 
-		$innodb_buffer_pool_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'innodb_buffer_pool_size'");
-		$innodb_buffer_pool_size = $this->sd_format_filesize( $innodb_buffer_pool_size_query->Value );
+			global $wpdb;
 
-		$key_buffer_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'key_buffer_size'");
-		$key_buffer_size = $this->sd_format_filesize( $key_buffer_size_query->Value );
+			$innodb_buffer_pool_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'innodb_buffer_pool_size'");
+			$innodb_buffer_pool_size = $this->sd_format_filesize( $innodb_buffer_pool_size_query->Value );
 
-		$max_allowed_packet_query = $wpdb->get_row("SHOW VARIABLES LIKE 'max_allowed_packet'");
-		$max_allowed_packet = $this->sd_format_filesize( $max_allowed_packet_query->Value );
+			$key_buffer_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'key_buffer_size'");
+			$key_buffer_size = $this->sd_format_filesize( $key_buffer_size_query->Value );
 
-		$max_connection_query = $wpdb->get_row("SHOW VARIABLES LIKE 'max_connections'");
-		$max_connection = number_format_i18n( $max_connection_query->Value );
+			$max_allowed_packet_query = $wpdb->get_row("SHOW VARIABLES LIKE 'max_allowed_packet'");
+			$max_allowed_packet = $this->sd_format_filesize( $max_allowed_packet_query->Value );
 
-		$query_cache_limit_query = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_limit'");
-		$query_cache_limit = $this->sd_format_filesize( $query_cache_limit_query->Value );
+			$max_connection_query = $wpdb->get_row("SHOW VARIABLES LIKE 'max_connections'");
+			$max_connection = number_format_i18n( $max_connection_query->Value );
 
-		$query_cache_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_size'");
-		$query_cache_size = $this->sd_format_filesize( $query_cache_size_query->Value );
+			$query_cache_limit_query = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_limit'");
+			$query_cache_limit = $this->sd_format_filesize( $query_cache_limit_query->Value );
 
-		$query_cache_type_query = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_type'");
-		$query_cache_type = $query_cache_type_query->Value;
+			$query_cache_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_size'");
+			$query_cache_size = $this->sd_format_filesize( $query_cache_size_query->Value );
 
-		$db_specs = array(
-			array(
-				'name'					=> 'Extension',
-				'value'					=> $this->sd_db_client( 'extension' ),
-			),
-			array(
-				'name'					=> 'Client Version',
-				'value'					=> $this->sd_db_client( 'client_version' ),
-			),
-			array(
-				'name'					=> 'Host',
-				'value'					=> DB_HOST,
-			),
-			array(
-				'name'					=> 'Name',
-				'value'					=> DB_NAME,
-			),
-			array(
-				'name'					=> 'User',
-				'value'					=> DB_USER,
-			),
-			array(
-				'name'					=> 'innodb_buffer_pool_size',
-				'value'					=> $innodb_buffer_pool_size,
-			),
-			array(
-				'name'					=> 'key_buffer_size',
-				'value'					=> $key_buffer_size,
-			),
-			array(
-				'name'					=> 'max_allowed_packet',
-				'value'					=> $max_allowed_packet,
-			),
-			array(
-				'name'					=> 'max_connections',
-				'value'					=> $max_connection,
-			),
-			array(
-				'name'					=> 'query_cache_limit',
-				'value'					=> $query_cache_limit,
-			),
-			array(
-				'name'					=> 'query_cache_size',
-				'value'					=> $query_cache_size,
-			),
-			array(
-				'name'					=> 'query_cache_type',
-				'value'					=> $query_cache_type,
-			),
-		);
+			$query_cache_type_query = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_type'");
+			$query_cache_type = $query_cache_type_query->Value;
 
-		$output = '';
+			$db_specs = array(
+				array(
+					'name'					=> 'Extension',
+					'value'					=> $this->sd_db_client( 'extension' ),
+				),
+				array(
+					'name'					=> 'Client Version',
+					'value'					=> $this->sd_db_client( 'client_version' ),
+				),
+				array(
+					'name'					=> 'Host',
+					'value'					=> DB_HOST,
+				),
+				array(
+					'name'					=> 'Name',
+					'value'					=> DB_NAME,
+				),
+				array(
+					'name'					=> 'User',
+					'value'					=> DB_USER,
+				),
+				array(
+					'name'					=> 'innodb_buffer_pool_size',
+					'value'					=> $innodb_buffer_pool_size,
+				),
+				array(
+					'name'					=> 'key_buffer_size',
+					'value'					=> $key_buffer_size,
+				),
+				array(
+					'name'					=> 'max_allowed_packet',
+					'value'					=> $max_allowed_packet,
+				),
+				array(
+					'name'					=> 'max_connections',
+					'value'					=> $max_connection,
+				),
+				array(
+					'name'					=> 'query_cache_limit',
+					'value'					=> $query_cache_limit,
+				),
+				array(
+					'name'					=> 'query_cache_size',
+					'value'					=> $query_cache_size,
+				),
+				array(
+					'name'					=> 'query_cache_type',
+					'value'					=> $query_cache_type,
+				),
+			);
 
-		foreach ( $db_specs as $spec ) {
+			$output = '';
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $spec['name'] );
-			$output .= $this->sd_html( 'field-content-second', $spec['value'] );
-			$output .= $this->sd_html( 'field-content-end' );
+			foreach ( $db_specs as $spec ) {
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', $spec['name'] );
+				$output .= $this->sd_html( 'field-content-second', $spec['value'] );
+				$output .= $this->sd_html( 'field-content-end' );
+
+			}
+
+			return $output;
 
 		}
 
-		return $output;
 	}
 
 	/** 
@@ -2086,29 +2139,34 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_db_details() {
 
-		global $wpdb;
-		$dbinfo = $wpdb->get_results("SHOW VARIABLES");
+		if ( $this->is_sd() ) {
 
-		$output = '';
+			global $wpdb;
+			$dbinfo = $wpdb->get_results("SHOW VARIABLES");
 
-		if ( !empty( $dbinfo ) ) {
+			$output = '';
 
-			foreach( $dbinfo as $info ) {
+			if ( !empty( $dbinfo ) ) {
 
-				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $info->Variable_name );
-				$output .= $this->sd_html( 'field-content-second', $info->Value );
-				$output .= $this->sd_html( 'field-content-end' );
+				foreach( $dbinfo as $info ) {
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $info->Variable_name );
+					$output .= $this->sd_html( 'field-content-second', $info->Value );
+					$output .= $this->sd_html( 'field-content-end' );
+
+				}
+
+			} else {
+
+				$output .= 'Undetectable';
 
 			}
 
-		} else {
-
-			$output .= 'Undetectable';
+			return $output;
 
 		}
 
-		return $output;
 	}
 
 	/**
@@ -2160,180 +2218,193 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_options( $type = 'wpcore' ) {
 
-		$wpcore_initial_options = array( 'siteurl', 'home', 'blogname', 'blogdescription', 'users_can_register', 'admin_email', 'start_of_week', 'use_balanceTags', 'use_smilies', 'require_name_email', 'comments_notify', 'posts_per_rss', 'rss_use_excerpt', 'mailserver_url', 'mailserver_login', 'mailserver_pass', 'mailserver_port', 'default_category', 'default_comment_status', 'default_ping_status', 'default_pingback_flag', 'posts_per_page', 'date_format', 'time_format', 'links_updated_date_format', 'comment_moderation', 'moderation_notify', 'permalink_structure', 'rewrite_rules', 'hack_file', 'blog_charset', 'moderation_keys', 'active_plugins', 'category_base', 'ping_sites', 'comment_max_links', 'gmt_offset', 'default_email_category', 'recently_edited', 'template', 'stylesheet', 'comment_registration', 'html_type', 'use_trackback', 'default_role', 'db_version', 'uploads_use_yearmonth_folders', 'upload_path', 'blog_public', 'default_link_category', 'show_on_front', 'tag_base', 'show_avatars', 'avatar_rating', 'upload_url_path', 'thumbnail_size_w', 'thumbnail_size_h', 'thumbnail_crop', 'medium_size_w', 'medium_size_h', 'avatar_default', 'large_size_w', 'large_size_h', 'image_default_link_type', 'image_default_size', 'image_default_align', 'close_comments_for_old_posts', 'close_comments_days_old', 'thread_comments', 'thread_comments_depth', 'page_comments', 'comments_per_page', 'default_comments_page', 'comment_order', 'sticky_posts', 'widget_categories', 'widget_text', 'widget_rss', 'uninstall_plugins', 'timezone_string', 'page_for_posts', 'page_on_front', 'default_post_format', 'link_manager_enabled', 'finished_splitting_shared_terms', 'site_icon', 'medium_large_size_w', 'medium_large_size_h', 'wp_page_for_privacy_policy', 'show_comments_cookies_opt_in', 'admin_email_lifespan', 'disallowed_keys', 'comment_previously_approved', 'auto_plugin_theme_update_emails', 'auto_update_core_dev', 'auto_update_core_minor', 'auto_update_core_major', 'wp_force_deactivated_plugins', 'initial_db_version', 'wp_user_roles', 'fresh_site', 'widget_block', 'sidebars_widgets', 'cron', 'widget_pages', 'widget_calendar', 'widget_archives', 'widget_media_audio', 'widget_media_image', 'widget_media_gallery', 'widget_media_video', 'widget_meta', 'widget_search', 'widget_tag_cloud', 'widget_nav_menu', 'widget_custom_html', 'recovery_keys', 'theme_mods_twentytwentytwo', 'https_detection_errors', 'can_compress_scripts', 'recently_activated', 'finished_updating_comment_type' );
+		if ( $this->is_sd() ) {
 
-		$options_core = array();
-		$options_noncore = array();
+			$wpcore_initial_options = array( 'siteurl', 'home', 'blogname', 'blogdescription', 'users_can_register', 'admin_email', 'start_of_week', 'use_balanceTags', 'use_smilies', 'require_name_email', 'comments_notify', 'posts_per_rss', 'rss_use_excerpt', 'mailserver_url', 'mailserver_login', 'mailserver_pass', 'mailserver_port', 'default_category', 'default_comment_status', 'default_ping_status', 'default_pingback_flag', 'posts_per_page', 'date_format', 'time_format', 'links_updated_date_format', 'comment_moderation', 'moderation_notify', 'permalink_structure', 'rewrite_rules', 'hack_file', 'blog_charset', 'moderation_keys', 'active_plugins', 'category_base', 'ping_sites', 'comment_max_links', 'gmt_offset', 'default_email_category', 'recently_edited', 'template', 'stylesheet', 'comment_registration', 'html_type', 'use_trackback', 'default_role', 'db_version', 'uploads_use_yearmonth_folders', 'upload_path', 'blog_public', 'default_link_category', 'show_on_front', 'tag_base', 'show_avatars', 'avatar_rating', 'upload_url_path', 'thumbnail_size_w', 'thumbnail_size_h', 'thumbnail_crop', 'medium_size_w', 'medium_size_h', 'avatar_default', 'large_size_w', 'large_size_h', 'image_default_link_type', 'image_default_size', 'image_default_align', 'close_comments_for_old_posts', 'close_comments_days_old', 'thread_comments', 'thread_comments_depth', 'page_comments', 'comments_per_page', 'default_comments_page', 'comment_order', 'sticky_posts', 'widget_categories', 'widget_text', 'widget_rss', 'uninstall_plugins', 'timezone_string', 'page_for_posts', 'page_on_front', 'default_post_format', 'link_manager_enabled', 'finished_splitting_shared_terms', 'site_icon', 'medium_large_size_w', 'medium_large_size_h', 'wp_page_for_privacy_policy', 'show_comments_cookies_opt_in', 'admin_email_lifespan', 'disallowed_keys', 'comment_previously_approved', 'auto_plugin_theme_update_emails', 'auto_update_core_dev', 'auto_update_core_minor', 'auto_update_core_major', 'wp_force_deactivated_plugins', 'initial_db_version', 'wp_user_roles', 'fresh_site', 'widget_block', 'sidebars_widgets', 'cron', 'widget_pages', 'widget_calendar', 'widget_archives', 'widget_media_audio', 'widget_media_image', 'widget_media_gallery', 'widget_media_video', 'widget_meta', 'widget_search', 'widget_tag_cloud', 'widget_nav_menu', 'widget_custom_html', 'recovery_keys', 'theme_mods_twentytwentytwo', 'https_detection_errors', 'can_compress_scripts', 'recently_activated', 'finished_updating_comment_type' );
 
-		$options_total_count = 0;
-		$options_wpcore_count = 0;
-		$options_noncore_count = 0;
+			$options_core = array();
+			$options_noncore = array();
 
-		$output = '';
+			$options_total_count = 0;
+			$options_wpcore_count = 0;
+			$options_noncore_count = 0;
 
-		if ( $type == 'wpcore' ) {
+			$output = '';
 
-			$output .= $this->sd_html( 'search-filter', '', '', ['search-options-wpcore' => ''] );
+			if ( $type == 'wpcore' ) {
 
-		} elseif ( $type == 'noncore' ) {
+				$output .= $this->sd_html( 'search-filter', '', '', ['search-options-wpcore' => ''] );
 
-			$output .= $this->sd_html( 'search-filter', '', '', ['search-options-noncore' => ''] );
+			} elseif ( $type == 'noncore' ) {
 
-		}
+				$output .= $this->sd_html( 'search-filter', '', '', ['search-options-noncore' => ''] );
 
-		$names = '';
+			}
 
-		global $wpdb;
+			$names = '';
 
-		// $options = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}options ORDER BY option_name" );
-		// $options = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}options ORDER BY option_name" ) );
-		$options = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}options" );
+			global $wpdb;
 
-		if ( !empty( $options ) ) {
+			// $options = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}options ORDER BY option_name" );
+			// $options = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}options ORDER BY option_name" ) );
+			$options = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}options" );
 
-			$autoloaded_count = 0;
-			$autoloaded_size = 0;
+			if ( !empty( $options ) ) {
 
-			foreach ( $options as $option ) {
+				$autoloaded_count = 0;
+				$autoloaded_size = 0;
 
-				$id = $option->option_id;
-				$name = $option->option_name;
+				foreach ( $options as $option ) {
 
-				$value = maybe_unserialize( $option->option_value );
-				$value_type = gettype( $value );
+					$id = $option->option_id;
+					$name = $option->option_name;
 
-				$autoload = $option->autoload;
-				$size_raw = $wpdb->get_var( $wpdb->prepare( "SELECT LENGTH(option_value) FROM $wpdb->options WHERE option_name = %s LIMIT 1", $name ) );
+					$value = maybe_unserialize( $option->option_value );
+					$value_type_raw = gettype( $value );
 
-				if ( !empty( $value ) ) {
-					$size = 'size: ' . size_format( $size_raw );
-					$value_type = ' - type: ' . $value_type;
-				} elseif( ( empty( $value ) ) && is_numeric( $value ) ) {
-					$size = 'size: ' . size_format( $size_raw );
-					$value_type = ' - type: ' . $value_type;
-				} else {
-					$size = 'empty ';
-					$value_type = '';
-				}
+					$autoload = $option->autoload;
 
-				if ( $autoload == 'yes' ) {
-					$autoloaded = 'autoloaded - ';
-					$autoloaded_count++;
-					$autoloaded_size += $size_raw;
-				} else {
-					$autoloaded = '';					
-				}
+					$size_raw = $wpdb->get_var( $wpdb->prepare( "SELECT LENGTH(option_value) FROM $wpdb->options WHERE option_name = %s LIMIT 1", $name ) );
+					$size_formatted = size_format( $size_raw );
 
-				// Ignore options with name starting with underscore as they are transients
-				if ( $name[0] !== '_' ) {
+					if ( !empty( $value ) ) {
+						$size = 'size: ' . $size_formatted;
+						$size_formatted_array = explode( " ", $size_formatted );
+						$size_order = strtolower( $size_formatted_array[1] );
+						$value_type = ' - type: ' . $value_type_raw;
+					} elseif( ( empty( $value ) ) && is_numeric( $value ) ) {
+						$size = 'size: ' . $size_formatted;
+						$size_formatted_array = explode( " ", $size_formatted );
+						$size_order = strtolower( $size_formatted_array[1] );
+						$value_type = ' - type: ' . $value_type;
+					} else {
+						$size = 'empty ';
+						$size_order = 'empty';
+						$value_type = '';
+					}
 
-					$content = '';
+					if ( $autoload == 'yes' ) {
+						$autoloaded = 'autoloaded - ';
+						$autoloaded_string = '_autoloaded';
+						$autoloaded_count++;
+						$autoloaded_size += $size_raw;
+					} else {
+						$autoloaded = '';					
+						$autoloaded_string = '';
+					}
 
-					if ( $type == 'wpcore' ) {
+					// Ignore options with name starting with underscore as they are transients
+					if ( $name[0] !== '_' ) {
 
-						if ( in_array( $name, $wpcore_initial_options ) ) {
+						$content = '';
 
-							$content .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
-							$content .= $this->sd_html( 'field-content-first', '<div class="option__value-div"><div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="option_id_' . $id . '" class="option__value"></div>', 'full-width long-value' );
-							$content .= $this->sd_html( 'field-content-end' );
+						if ( $type == 'wpcore' ) {
 
-							$data_atts = array(
-								'id'		=> $id,
-								'loaded'	=> 'no',
-								'name'		=> $name,
-							);
+							if ( in_array( $name, $wpcore_initial_options ) ) {
 
-							// Search filter data attributes
-							$search_atts = array(
-								'opt-core'	=> '',
-								'opt-core-name'	=> $name,
-							);
+								$content .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
+								$content .= $this->sd_html( 'field-content-first', '<div class="option__value-div"><div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="option_id_' . $id . '" class="option__value"></div>', 'full-width long-value' );
+								$content .= $this->sd_html( 'field-content-end' );
 
-							$output .= $this->sd_html( 'accordions-start-simple-margin-default', '', '', $search_atts );
-							$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' | ' . $autoloaded . $size . $value_type, 'option__name', $data_atts, 'option-name-'.$id );
-							$output .= $this->sd_html( 'accordion-body', $content );
-							$output .= $this->sd_html( 'accordions-end' );
+								$data_atts = array(
+									'id'		=> $id,
+									'loaded'	=> 'no',
+									'name'		=> $name,
+								);
 
-						}
+								// Search filter data attributes
+								$search_atts = array(
+									'opt-core'	=> '',
+									'opt-core-name'	=> $name . $autoloaded_string . '_' . $size_order . '_' . $value_type_raw,
+								);
 
-					} elseif ( $type == 'noncore' ) {
+								$output .= $this->sd_html( 'accordions-start-simple-margin-default', '', '', $search_atts );
+								$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' | ' . $autoloaded . $size . $value_type, 'option__name', $data_atts, 'option-name-'.$id );
+								$output .= $this->sd_html( 'accordion-body', $content );
+								$output .= $this->sd_html( 'accordions-end' );
 
-						if ( !in_array( $name, $wpcore_initial_options ) ) {
+							}
 
-							$content .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
-							$content .= $this->sd_html( 'field-content-first', '<div class="option__value-div"><div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="option_id_' . $id . '" class="option__value"></div>', 'full-width long-value' );
-							$content .= $this->sd_html( 'field-content-end' );
+						} elseif ( $type == 'noncore' ) {
 
-							$data_atts = array(
-								'id'		=> $id,
-								'loaded'	=> 'no',
-								'name'		=> $name,
-							);
+							if ( !in_array( $name, $wpcore_initial_options ) ) {
 
-							// Search filter data attributes
-							$search_atts = array(
-								'opt-noncore'	=> '',
-								'opt-noncore-name'	=> $name,
-							);
+								$content .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
+								$content .= $this->sd_html( 'field-content-first', '<div class="option__value-div"><div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="option_id_' . $id . '" class="option__value"></div>', 'full-width long-value' );
+								$content .= $this->sd_html( 'field-content-end' );
 
-							$output .= $this->sd_html( 'accordions-start-simple-margin-default', '', '', $search_atts );
-							$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' | ' . $autoloaded . $size . $value_type, 'option__name', $data_atts, 'option-name-'.$id );
-							$output .= $this->sd_html( 'accordion-body', $content );
-							$output .= $this->sd_html( 'accordions-end' );
+								$data_atts = array(
+									'id'		=> $id,
+									'loaded'	=> 'no',
+									'name'		=> $name,
+								);
 
-						}
+								// Search filter data attributes
+								$search_atts = array(
+									'opt-noncore'	=> '',
+									'opt-noncore-name'	=> $name . $autoloaded_string . '_' . $size_order . '_' . $value_type_raw,
+								);
 
-					} elseif ( $type == 'total_count' ) {
+								$output .= $this->sd_html( 'accordions-start-simple-margin-default', '', '', $search_atts );
+								$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' | ' . $autoloaded . $size . $value_type, 'option__name', $data_atts, 'option-name-'.$id );
+								$output .= $this->sd_html( 'accordion-body', $content );
+								$output .= $this->sd_html( 'accordions-end' );
 
-						$options_total_count++;
+							}
 
-					} elseif ( $type == 'wpcore_count' ) {
+						} elseif ( $type == 'total_count' ) {
 
-						if ( in_array( $name, $wpcore_initial_options ) ) {
+							$options_total_count++;
 
-							$options_wpcore_count++;
+						} elseif ( $type == 'wpcore_count' ) {
 
-						}
+							if ( in_array( $name, $wpcore_initial_options ) ) {
 
-					} elseif ( $type == 'noncore_count' ) {
+								$options_wpcore_count++;
 
-						if ( !in_array( $name, $wpcore_initial_options ) ) {
+							}
 
-							$options_noncore_count++;
+						} elseif ( $type == 'noncore_count' ) {
 
-						}
+							if ( !in_array( $name, $wpcore_initial_options ) ) {
+
+								$options_noncore_count++;
+
+							}
+
+						} else {}
 
 					} else {}
+
+				}
+
+				if ( ( $type == 'wpcore' ) || ( $type == 'noncore' ) ) {
+
+					return $output;
+
+				} elseif ( $type == 'total_count' ) {
+
+					return $options_total_count;
+
+				} elseif ( $type == 'wpcore_count' ) {
+
+					return $options_wpcore_count;
+
+				} elseif ( $type == 'noncore_count' ) {
+
+					return $options_noncore_count;
+
+				} elseif ( $type == 'total_count_autoloaded' ) {
+
+					return $autoloaded_count;
+
+				} elseif ( $type == 'total_autoloaded_size' ) {
+
+				 return size_format( $autoloaded_size );
 
 				} else {}
 
 			}
-
-			if ( ( $type == 'wpcore' ) || ( $type == 'noncore' ) ) {
-
-				return $output;
-
-			} elseif ( $type == 'total_count' ) {
-
-				return $options_total_count;
-
-			} elseif ( $type == 'wpcore_count' ) {
-
-				return $options_wpcore_count;
-
-			} elseif ( $type == 'noncore_count' ) {
-
-				return $options_noncore_count;
-
-			} elseif ( $type == 'total_count_autoloaded' ) {
-
-				return $autoloaded_count;
-
-			} elseif ( $type == 'total_autoloaded_size' ) {
-
-			 return size_format( $autoloaded_size );
-
-			} else {}
 
 		}
 
@@ -2347,148 +2418,152 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_transients( $return_type = 'list', $x_type = 'expired' ) {
 
-		global $wpdb;
+		if ( $this->is_sd() ) {
 
-		$args = array();
+			global $wpdb;
 
-		$defaults = array(
-			'offset'	=> 0,
-			'number'	=> 1000,
-			'searc'		=> '',
-		);
+			$args = array();
 
-		$args       = wp_parse_args($args, $defaults);
-
-		$sql = "SELECT * FROM $wpdb->options WHERE option_name LIKE '%\_transient\_%' AND option_name NOT LIKE '%\_transient\_timeout%'";
-		$offset = absint($args['offset']);
-		$number = absint($args['number']);
-		$sql .= " ORDER BY option_id DESC LIMIT $offset,$number;";
-
-		$transients = $wpdb->get_results($sql);
-
-		$output = '';
-		$n = 0; // Start transients counter by expiry type
-		$transients_total_count = 0;
-		$autoloaded_count = 0;
-		$autoloaded_size = 0;
-
-		$output .= $this->sd_html( 'accordions-start-simple' );
-		
-		foreach( $transients as $transient ) {
-
-			// Get transient name
-
-			$transient_name_full = $transient->option_name;
-			$length = false !== strpos( $transient->option_name, 'site_transient_' ) ? 16 : 11;
-			$transient_name = substr( $transient->option_name, $length, strlen($transient->option_name) );
-
-			// Get other transient info
-
-			$id = $transient->option_id;
-			$autoload = $transient->autoload;
-			$size_raw = $wpdb->get_var( $wpdb->prepare( "SELECT LENGTH(option_value) FROM $wpdb->options WHERE option_name = %s LIMIT 1", $transient_name_full ) );
-			$value = maybe_unserialize( $transient->option_value );
-			$value_type = gettype( $value );
-
-			// Set HTML data-attributes values
-
-			$data_atts = array(
-				'id'		=> $id,
-				'loaded'	=> 'no',
-				'name'		=> $transient_name_full,
+			$defaults = array(
+				'offset'	=> 0,
+				'number'	=> 1000,
+				'searc'		=> '',
 			);
 
-			if ( !empty( $value ) ) {
-				$size = 'size: ' . size_format( $size_raw );
-				$value_type = ' - type: ' . $value_type;
-			} elseif( ( empty( $value ) ) && is_numeric( $value ) ) {
-				$size = 'size: ' . size_format( $size_raw );
-				$value_type = ' - type: ' . $value_type;
-			} else {
-				$size = 'empty ';
-				$value_type = '';
-			}
+			$args       = wp_parse_args($args, $defaults);
 
+			$sql = "SELECT * FROM $wpdb->options WHERE option_name LIKE '%\_transient\_%' AND option_name NOT LIKE '%\_transient\_timeout%'";
+			$offset = absint($args['offset']);
+			$number = absint($args['number']);
+			$sql .= " ORDER BY option_id DESC LIMIT $offset,$number;";
 
-			if ( $autoload == 'yes' ) {
-				$autoloaded = 'autoloaded - ';
-				$autoloaded_count++;
-				$autoloaded_size += $size_raw;
-			} else {
-				$autoloaded = '';					
-			}
+			$transients = $wpdb->get_results($sql);
 
+			$output = '';
+			$n = 0; // Start transients counter by expiry type
+			$transients_total_count = 0;
+			$autoloaded_count = 0;
+			$autoloaded_size = 0;
 
-			// Get transient expiry
-
-			$time_now  = time();
-
-			if ( false !== strpos( $transient->option_name, 'site_transient_') ) {
-				$expiry = get_option('_site_transient_timeout_' . $transient_name );
-			} else {
-				$expiry = get_option('_transient_timeout_' . $transient_name );
-			}
-
-			if ( empty( $expiry ) ) {
-				$expiry_type = 'neverexpire';
-				$expiry_formatted = '';
-			} elseif ( $time_now > $expiry ) {
-				$expiry_type = 'expired';
-				$expiry_formatted = '';
-			} else {
-				$expiry_type = 'active';
-				$expiry_formatted = human_time_diff( $time_now, $expiry );
-			}
-
-			$transient_content = $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
-			$transient_content .= $this->sd_html( 'field-content-first', '<div class="option__value-div"><div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="transient_id_' . $id . '" class="option__value"></div>', 'full-width long-value' );
-			$transient_content .= $this->sd_html( 'field-content-end' );
+			$output .= $this->sd_html( 'accordions-start-simple' );
 			
+			foreach( $transients as $transient ) {
 
-			if ( $x_type == 'active' ) {
-				$expiry_note = ' Expires in ' . $expiry_formatted;
-			} elseif ( $x_type == 'neverexpire' ) {
-				$expiry_note = '';
-			} elseif ( $x_type == 'expired' ) {
-				$expiry_note = '';
+				// Get transient name
+
+				$transient_name_full = $transient->option_name;
+				$length = false !== strpos( $transient->option_name, 'site_transient_' ) ? 16 : 11;
+				$transient_name = substr( $transient->option_name, $length, strlen($transient->option_name) );
+
+				// Get other transient info
+
+				$id = $transient->option_id;
+				$autoload = $transient->autoload;
+				$size_raw = $wpdb->get_var( $wpdb->prepare( "SELECT LENGTH(option_value) FROM $wpdb->options WHERE option_name = %s LIMIT 1", $transient_name_full ) );
+				$value = maybe_unserialize( $transient->option_value );
+				$value_type = gettype( $value );
+
+				// Set HTML data-attributes values
+
+				$data_atts = array(
+					'id'		=> $id,
+					'loaded'	=> 'no',
+					'name'		=> $transient_name_full,
+				);
+
+				if ( !empty( $value ) ) {
+					$size = 'size: ' . size_format( $size_raw );
+					$value_type = ' - type: ' . $value_type;
+				} elseif( ( empty( $value ) ) && is_numeric( $value ) ) {
+					$size = 'size: ' . size_format( $size_raw );
+					$value_type = ' - type: ' . $value_type;
+				} else {
+					$size = 'empty ';
+					$value_type = '';
+				}
+
+
+				if ( $autoload == 'yes' ) {
+					$autoloaded = 'autoloaded - ';
+					$autoloaded_count++;
+					$autoloaded_size += $size_raw;
+				} else {
+					$autoloaded = '';					
+				}
+
+
+				// Get transient expiry
+
+				$time_now  = time();
+
+				if ( false !== strpos( $transient->option_name, 'site_transient_') ) {
+					$expiry = get_option('_site_transient_timeout_' . $transient_name );
+				} else {
+					$expiry = get_option('_transient_timeout_' . $transient_name );
+				}
+
+				if ( empty( $expiry ) ) {
+					$expiry_type = 'neverexpire';
+					$expiry_formatted = '';
+				} elseif ( $time_now > $expiry ) {
+					$expiry_type = 'expired';
+					$expiry_formatted = '';
+				} else {
+					$expiry_type = 'active';
+					$expiry_formatted = human_time_diff( $time_now, $expiry );
+				}
+
+				$transient_content = $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
+				$transient_content .= $this->sd_html( 'field-content-first', '<div class="option__value-div"><div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="transient_id_' . $id . '" class="option__value"></div>', 'full-width long-value' );
+				$transient_content .= $this->sd_html( 'field-content-end' );
+				
+
+				if ( $x_type == 'active' ) {
+					$expiry_note = ' Expires in ' . $expiry_formatted;
+				} elseif ( $x_type == 'neverexpire' ) {
+					$expiry_note = '';
+				} elseif ( $x_type == 'expired' ) {
+					$expiry_note = '';
+				}
+
+				if ( $x_type == $expiry_type ) {
+
+					$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $transient_name . ' | ' . $autoloaded . $size . $value_type . '<br />' . $expiry_note, 'transient__name', $data_atts, 'transient-name-'.$id );
+					$output .= $this->sd_html( 'accordion-body', $transient_content );
+
+					$n++;
+
+				}
+
+				$transients_total_count++;
+
 			}
 
-			if ( $x_type == $expiry_type ) {
+			$output .= $this->sd_html( 'accordions-end' );
 
-				$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $transient_name . ' | ' . $autoloaded . $size . $value_type . '<br />' . $expiry_note, 'transient__name', $data_atts, 'transient-name-'.$id );
-				$output .= $this->sd_html( 'accordion-body', $transient_content );
+			if ( $return_type == 'list' ) {
 
-				$n++;
+				return $output;
 
-			}
+			} elseif ( $return_type == 'count' ) {
 
-			$transients_total_count++;
+				return $n;
+
+			} elseif ( $return_type == 'total_count' ) {
+
+				return $transients_total_count;
+
+			} elseif ( $return_type == 'total_count_autoloaded' ) {
+
+				return $autoloaded_count;
+
+			} elseif ( $return_type == 'total_autoloaded_size' ) {
+
+				 return size_format( $autoloaded_size );
+
+			} else {}
 
 		}
-
-		$output .= $this->sd_html( 'accordions-end' );
-
-		if ( $return_type == 'list' ) {
-
-			return $output;
-
-		} elseif ( $return_type == 'count' ) {
-
-			return $n;
-
-		} elseif ( $return_type == 'total_count' ) {
-
-			return $transients_total_count;
-
-		} elseif ( $return_type == 'total_count_autoloaded' ) {
-
-			return $autoloaded_count;
-
-		} elseif ( $return_type == 'total_autoloaded_size' ) {
-
-			 return size_format( $autoloaded_size );
-
-		} else {}
 
 	}
 
@@ -3356,89 +3431,222 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_hooks( $type = 'active_plugins' ) {
 
-		// This sd_hooks method can only works if shell_exec is enabled in PHP, so, check first.
-		if ( $this->is_shell_exec_enabled() ) {
+		if ( $this->is_sd() ) {
 
-			$base_dir_path = wp_upload_dir()['basedir'] . '/' . $this->plugin_name;
-			$hooks_base_dir_path = $base_dir_path . '/hooks';
-			$plugins_hooks_dir_path = $hooks_base_dir_path . '/plugins';
-			$themes_hooks_dir_path = $hooks_base_dir_path . '/themes';
+			// This sd_hooks method can only works if shell_exec is enabled in PHP, so, check first.
+			if ( $this->is_shell_exec_enabled() ) {
 
-			// Create base directories in Uploads folder
+				$base_dir_path = wp_upload_dir()['basedir'] . '/' . $this->plugin_name;
+				$hooks_base_dir_path = $base_dir_path . '/hooks';
+				$plugins_hooks_dir_path = $hooks_base_dir_path . '/plugins';
+				$themes_hooks_dir_path = $hooks_base_dir_path . '/themes';
 
-			if ( !is_dir( $base_dir_path ) ) {
+				// Create base directories in Uploads folder
 
-				mkdir( $base_dir_path );
+				if ( !is_dir( $base_dir_path ) ) {
 
-				if ( !is_dir( $hooks_base_dir_path ) ) {
+					mkdir( $base_dir_path );
 
-					mkdir( $hooks_base_dir_path );
+					if ( !is_dir( $hooks_base_dir_path ) ) {
 
-				} else {}
+						mkdir( $hooks_base_dir_path );
 
-				if ( !is_dir( $plugins_hooks_dir_path ) ) {
+					} else {}
 
-					mkdir( $plugins_hooks_dir_path );
+					if ( !is_dir( $plugins_hooks_dir_path ) ) {
 
-				} else {}
+						mkdir( $plugins_hooks_dir_path );
 
-				if ( !is_dir( $themes_hooks_dir_path ) ) {
+					} else {}
 
-					mkdir( $themes_hooks_dir_path );
+					if ( !is_dir( $themes_hooks_dir_path ) ) {
 
-				} else {}
+						mkdir( $themes_hooks_dir_path );
 
-			} else {
+					} else {}
 
-				// Base directory exist, proceed to generate hooks
+				} else {
 
-				// Generate hooks for active plugins
+					// Base directory exist, proceed to generate hooks
 
-				if ( $type == 'active_plugins' ) {
+					// Generate hooks for active plugins
 
-					$active_plugin_dirfile_names = $this->sd_active_plugins( 'original', 'raw' );
+					if ( $type == 'active_plugins' ) {
 
-					$plugin_file_editor_base_url = '/wp-admin/plugin-editor.php?file=';
+						$active_plugin_dirfile_names = $this->sd_active_plugins( 'original', 'raw' );
 
-					$output = $this->sd_html( 'accordions-start' );
+						$plugin_file_editor_base_url = '/wp-admin/plugin-editor.php?file=';
 
-					// $plugins_data = array();
+						$output = $this->sd_html( 'accordions-start' );
 
-					foreach ( $active_plugin_dirfile_names as $dirfile_name ) {
+						// $plugins_data = array();
 
-						// Get plugin info, looking for version number
-						$this_plugin_path = plugin_dir_path( __DIR__ );
-						$plugins_path = str_replace( $this->plugin_name.'/', "", $this_plugin_path );
-						$plugin_file_path = $plugins_path . $dirfile_name;
-						$plugins_data = get_plugin_data( $plugin_file_path );
+						foreach ( $active_plugin_dirfile_names as $dirfile_name ) {
 
-						// Remove dot, slash and underscore from version
-						$plugin_version = str_replace( ".", "", $plugins_data['Version'] );
-						$plugin_version = str_replace( "-", "", $plugin_version );
-						$plugin_version = str_replace( "_", "", $plugin_version );
+							// Get plugin info, looking for version number
+							$this_plugin_path = plugin_dir_path( __DIR__ );
+							$plugins_path = str_replace( $this->plugin_name.'/', "", $this_plugin_path );
+							$plugin_file_path = $plugins_path . $dirfile_name;
+							$plugins_data = get_plugin_data( $plugin_file_path );
 
-						// Prepare directory name for plugins hooks output files. Each version has a different folder.
-						$dirfile_name_array = explode( "/", $dirfile_name);
-						$directory_name = $dirfile_name_array[0];
-						$plugin_hooks_path = $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version;
+							// Remove dot, slash and underscore from version
+							$plugin_version = str_replace( ".", "", $plugins_data['Version'] );
+							$plugin_version = str_replace( "-", "", $plugin_version );
+							$plugin_version = str_replace( "_", "", $plugin_version );
 
-						// Prepare shell command to generate hooks for the plugin
-						// Go to plugins root folder before executing wp-hooks-generator which is symlink to /johnbillion/wp-hooks-generator/src/generate.php. Make sure generator is executable. The additional '2>&1' is to output error response as well, without which, blank response is returned in case of error
+							// Prepare directory name for plugins hooks output files. Each version has a different folder.
+							$dirfile_name_array = explode( "/", $dirfile_name);
+							$directory_name = $dirfile_name_array[0];
+							$plugin_hooks_path = $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version;
 
-						$shell_command = 'cd ' . plugin_dir_path( __DIR__ ) . ' && chmod +x ./vendor/johnbillion/wp-hooks-generator/src/generate.php && ./vendor/johnbillion/wp-hooks-generator/src/generate.php --input=' . $plugins_path . $directory_name . ' --output=' . $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . ' 2>&1';
+							// Prepare shell command to generate hooks for the plugin
+							// Go to plugins root folder before executing wp-hooks-generator which is symlink to /johnbillion/wp-hooks-generator/src/generate.php. Make sure generator is executable. The additional '2>&1' is to output error response as well, without which, blank response is returned in case of error
+
+							$shell_command = 'cd ' . plugin_dir_path( __DIR__ ) . ' && chmod +x ./vendor/johnbillion/wp-hooks-generator/src/generate.php && ./vendor/johnbillion/wp-hooks-generator/src/generate.php --input=' . $plugins_path . $directory_name . ' --output=' . $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . ' 2>&1';
+
+							$shell_output = '';
+
+							// If no directory exist yet, create it
+							if ( !is_dir( $plugin_hooks_path ) ) {
+
+								mkdir( $plugin_hooks_path );
+
+							} else {}
+
+							// If no action hooks json have been generated for the plugin, generate it
+							if ( !is_file( $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . '/actions.json' ) ) {
+
+								$shell_output = shell_exec( $shell_command );
+
+								// delay execution of wp_remote_get by 0.25 seconds, so file writing process can be completed properly first.
+								sleep(0.25); 
+
+							}
+
+							// If hooks generation failed, output error message
+
+							if ( !is_file( $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . '/actions.json' ) ) {
+
+								$output .= $directory_name . '<pre>' . $shell_output . '</pre>';
+
+							}
+
+							$response = wp_remote_get( wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/plugins/' . $directory_name . '-' . $plugin_version . '/actions.json' );
+							$action_hooks_json = wp_remote_retrieve_body( $response );
+
+							$response = wp_remote_get(  wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/plugins/' . $directory_name . '-' . $plugin_version . '/filters.json'  );
+							$filter_hooks_json = wp_remote_retrieve_body( $response );
+
+							$action_hooks = json_decode( $action_hooks_json, TRUE )['hooks']; // convert into array
+							$filter_hooks = json_decode( $filter_hooks_json, TRUE )['hooks']; // convert into array
+
+							// Output action hooks
+
+							$output .= '<h4 class="mc-collapsible-title">' . $plugins_data['Name'] . ' v' . $plugins_data['Version'] . '</h4>';
+
+							if ( !empty( $action_hooks ) ) {
+								$action_hooks_count = count( $action_hooks );
+							} else {
+								$action_hooks_count = 0;
+							}
+
+							$output .= $this->sd_html( 'accordion-head', 'Action Hooks (' . $action_hooks_count . ')' );
+
+							$hooks_output = '';
+
+							foreach ( $action_hooks as $hook ) {
+
+								$plugin_file_editor_url = $plugin_file_editor_base_url . urlencode( $directory_name .'/'. $hook['file'] ) .'&plugin='. urlencode( $dirfile_name );
+
+								$hooks_output .= $this->sd_html( 'field-content-start' );
+								$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $plugin_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
+								$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'] );
+								$hooks_output .= $this->sd_html( 'field-content-end' );
+
+							}
+
+							if ( empty( $hooks_output ) ) {
+								$hooks_output .= $this->sd_html( 'field-content-start' );
+								$hooks_output .= $this->sd_html( 'field-content-first', 'There are no action hooks defined.', 'full-width' );
+								$hooks_output .= $this->sd_html( 'field-content-end' );
+							}
+
+							$output .= $this->sd_html( 'accordion-body', $hooks_output );
+
+							// Output filter hooks
+
+							if ( !empty( $filter_hooks ) ) {
+								$filter_hooks_count = count( $filter_hooks );
+							} else {
+								$filter_hooks_count = 0;
+							}
+
+							$output .= $this->sd_html( 'accordion-head', 'Filter Hooks (' . $filter_hooks_count . ')' );
+
+							$hooks_output = '';
+
+							foreach ( $filter_hooks as $hook ) {
+
+								$plugin_file_editor_url = $plugin_file_editor_base_url . urlencode( $directory_name .'/'. $hook['file'] ) .'&plugin='. urlencode( $dirfile_name );
+
+								$hooks_output .= $this->sd_html( 'field-content-start' );
+								$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $plugin_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
+								$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'] );
+								$hooks_output .= $this->sd_html( 'field-content-end' );
+
+							}
+
+							if ( empty( $hooks_output ) ) {
+								$hooks_output .= $this->sd_html( 'field-content-start' );
+								$hooks_output .= $this->sd_html( 'field-content-first', 'There are no filter hooks defined.', 'full-width' );
+								$hooks_output .= $this->sd_html( 'field-content-end' );
+							}
+
+							$output .= $this->sd_html( 'accordion-body', $hooks_output );
+
+						}
+
+						$output .= $this->sd_html( 'accordions-end' );
+
+						return $output;
+
+					// Generate hooks for active theme
+
+					} elseif ( $type == 'active_theme' ) {
+
+						$theme_path = get_template_directory(); // absolute path to theme directory, without trailing slash
+						$theme_path_array = explode( "/", $theme_path );
+						$theme_dirname = end( $theme_path_array );
+						$theme_version = $this->sd_active_theme( 'version_trimmed' );
+
+						// Get theme hooks by first creating directory for hooks output files
+
+						$active_theme_hooks_path = $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version;
+
+						$theme_file_editor_base_url = '/wp-admin/theme-editor.php?file=';
+
+						$output = $this->sd_html( 'accordions-start' );
+
+						// Go to plugins root folder before executing wp-hooks-generator which is symlink to /johnbillion/wp-hooks-generator/src/generate.php. The additional '2>&1' is to output error response as well, without which, blank response is returned in case of error
+
+						$shell_command = 'cd ' . plugin_dir_path( __DIR__ ) . ' && chmod +x ./vendor/johnbillion/wp-hooks-generator/src/generate.php && ./vendor/johnbillion/wp-hooks-generator/src/generate.php --input=' . $theme_path . ' --output=' . $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version . ' 2>&1';
 
 						$shell_output = '';
 
-						// If no directory exist yet, create it
-						if ( !is_dir( $plugin_hooks_path ) ) {
+						// If no directory exist, create it and generate hooks files in it
 
-							mkdir( $plugin_hooks_path );
+						if ( !is_dir( $active_theme_hooks_path ) ) {
+
+							// Create directory
+							mkdir( $active_theme_hooks_path );
 
 						} else {}
 
-						// If no action hooks json have been generated for the plugin, generate it
-						if ( !is_file( $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . '/actions.json' ) ) {
+						// If no action hooks json have been generated for the theme, generate it
 
+						if ( !is_file( $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version . '/actions.json' ) ) {
+
+							// Generate hooks
 							$shell_output = shell_exec( $shell_command );
 
 							// delay execution of wp_remote_get by 0.25 seconds, so file writing process can be completed properly first.
@@ -3448,16 +3656,18 @@ class System_Dashboard_Admin {
 
 						// If hooks generation failed, output error message
 
-						if ( !is_file( $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . '/actions.json' ) ) {
+						if ( !is_file( $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version . '/actions.json' ) ) {
 
-							$output .= $directory_name . '<pre>' . $shell_output . '</pre>';
+							$output .= $theme_dirname . '<pre>' . $shell_output . '</pre>';
 
 						}
 
-						$response = wp_remote_get( wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/plugins/' . $directory_name . '-' . $plugin_version . '/actions.json' );
+						// Get json of action and filter hooks
+
+						$response = wp_remote_get( wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/themes/' . $theme_dirname . '-' . $theme_version . '/actions.json' );
 						$action_hooks_json = wp_remote_retrieve_body( $response );
 
-						$response = wp_remote_get(  wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/plugins/' . $directory_name . '-' . $plugin_version . '/filters.json'  );
+						$response = wp_remote_get( wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/themes/' . $theme_dirname . '-' . $theme_version . '/filters.json' );
 						$filter_hooks_json = wp_remote_retrieve_body( $response );
 
 						$action_hooks = json_decode( $action_hooks_json, TRUE )['hooks']; // convert into array
@@ -3465,7 +3675,7 @@ class System_Dashboard_Admin {
 
 						// Output action hooks
 
-						$output .= '<h4 class="mc-collapsible-title">' . $plugins_data['Name'] . ' v' . $plugins_data['Version'] . '</h4>';
+						$output .= '<h4 class="mc-collapsible-title">' . $this->sd_active_theme( 'name' ) . ' ' . $this->sd_active_theme( 'version' ) . '</h4>';
 
 						if ( !empty( $action_hooks ) ) {
 							$action_hooks_count = count( $action_hooks );
@@ -3479,24 +3689,22 @@ class System_Dashboard_Admin {
 
 						foreach ( $action_hooks as $hook ) {
 
-							$plugin_file_editor_url = $plugin_file_editor_base_url . urlencode( $directory_name .'/'. $hook['file'] ) .'&plugin='. urlencode( $dirfile_name );
+							$theme_file_editor_url = $theme_file_editor_base_url . $hook['file'];
 
 							$hooks_output .= $this->sd_html( 'field-content-start' );
-							$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $plugin_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
-							$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'] );
+							$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $theme_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
+							$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'], 'long-value' );
 							$hooks_output .= $this->sd_html( 'field-content-end' );
 
 						}
 
 						if ( empty( $hooks_output ) ) {
-							$hooks_output .= $this->sd_html( 'field-content-start' );
-							$hooks_output .= $this->sd_html( 'field-content-first', 'There are no action hooks defined.', 'full-width' );
-							$hooks_output .= $this->sd_html( 'field-content-end' );
+								$hooks_output .= $this->sd_html( 'field-content-start' );
+								$hooks_output .= $this->sd_html( 'field-content-first', 'There are no action hooks defined.', 'full-width' );
+								$hooks_output .= $this->sd_html( 'field-content-end' );
 						}
 
 						$output .= $this->sd_html( 'accordion-body', $hooks_output );
-
-						// Output filter hooks
 
 						if ( !empty( $filter_hooks ) ) {
 							$filter_hooks_count = count( $filter_hooks );
@@ -3504,16 +3712,18 @@ class System_Dashboard_Admin {
 							$filter_hooks_count = 0;
 						}
 
+						// Output filter hooks
+
 						$output .= $this->sd_html( 'accordion-head', 'Filter Hooks (' . $filter_hooks_count . ')' );
 
 						$hooks_output = '';
 
 						foreach ( $filter_hooks as $hook ) {
 
-							$plugin_file_editor_url = $plugin_file_editor_base_url . urlencode( $directory_name .'/'. $hook['file'] ) .'&plugin='. urlencode( $dirfile_name );
+							$theme_file_editor_url = $theme_file_editor_base_url . $hook['file'];
 
 							$hooks_output .= $this->sd_html( 'field-content-start' );
-							$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $plugin_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
+							$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $theme_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
 							$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'] );
 							$hooks_output .= $this->sd_html( 'field-content-end' );
 
@@ -3527,152 +3737,21 @@ class System_Dashboard_Admin {
 
 						$output .= $this->sd_html( 'accordion-body', $hooks_output );
 
-					}
+						$output .= $this->sd_html( 'accordions-end' );
 
-					$output .= $this->sd_html( 'accordions-end' );
-
-					return $output;
-
-				// Generate hooks for active theme
-
-				} elseif ( $type == 'active_theme' ) {
-
-					$theme_path = get_template_directory(); // absolute path to theme directory, without trailing slash
-					$theme_path_array = explode( "/", $theme_path );
-					$theme_dirname = end( $theme_path_array );
-					$theme_version = $this->sd_active_theme( 'version_trimmed' );
-
-					// Get theme hooks by first creating directory for hooks output files
-
-					$active_theme_hooks_path = $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version;
-
-					$theme_file_editor_base_url = '/wp-admin/theme-editor.php?file=';
-
-					$output = $this->sd_html( 'accordions-start' );
-
-					// Go to plugins root folder before executing wp-hooks-generator which is symlink to /johnbillion/wp-hooks-generator/src/generate.php. The additional '2>&1' is to output error response as well, without which, blank response is returned in case of error
-
-					$shell_command = 'cd ' . plugin_dir_path( __DIR__ ) . ' && chmod +x ./vendor/johnbillion/wp-hooks-generator/src/generate.php && ./vendor/johnbillion/wp-hooks-generator/src/generate.php --input=' . $theme_path . ' --output=' . $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version . ' 2>&1';
-
-					$shell_output = '';
-
-					// If no directory exist, create it and generate hooks files in it
-
-					if ( !is_dir( $active_theme_hooks_path ) ) {
-
-						// Create directory
-						mkdir( $active_theme_hooks_path );
+						return $output;
 
 					} else {}
 
-					// If no action hooks json have been generated for the theme, generate it
+				}
 
-					if ( !is_file( $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version . '/actions.json' ) ) {
+			} else {
 
-						// Generate hooks
-						$shell_output = shell_exec( $shell_command );
+				$output = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
 
-						// delay execution of wp_remote_get by 0.25 seconds, so file writing process can be completed properly first.
-						sleep(0.25); 
-
-					}
-
-					// If hooks generation failed, output error message
-
-					if ( !is_file( $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version . '/actions.json' ) ) {
-
-						$output .= $theme_dirname . '<pre>' . $shell_output . '</pre>';
-
-					}
-
-					// Get json of action and filter hooks
-
-					$response = wp_remote_get( wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/themes/' . $theme_dirname . '-' . $theme_version . '/actions.json' );
-					$action_hooks_json = wp_remote_retrieve_body( $response );
-
-					$response = wp_remote_get( wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/themes/' . $theme_dirname . '-' . $theme_version . '/filters.json' );
-					$filter_hooks_json = wp_remote_retrieve_body( $response );
-
-					$action_hooks = json_decode( $action_hooks_json, TRUE )['hooks']; // convert into array
-					$filter_hooks = json_decode( $filter_hooks_json, TRUE )['hooks']; // convert into array
-
-					// Output action hooks
-
-					$output .= '<h4 class="mc-collapsible-title">' . $this->sd_active_theme( 'name' ) . ' ' . $this->sd_active_theme( 'version' ) . '</h4>';
-
-					if ( !empty( $action_hooks ) ) {
-						$action_hooks_count = count( $action_hooks );
-					} else {
-						$action_hooks_count = 0;
-					}
-
-					$output .= $this->sd_html( 'accordion-head', 'Action Hooks (' . $action_hooks_count . ')' );
-
-					$hooks_output = '';
-
-					foreach ( $action_hooks as $hook ) {
-
-						$theme_file_editor_url = $theme_file_editor_base_url . $hook['file'];
-
-						$hooks_output .= $this->sd_html( 'field-content-start' );
-						$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $theme_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
-						$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'], 'long-value' );
-						$hooks_output .= $this->sd_html( 'field-content-end' );
-
-					}
-
-					if ( empty( $hooks_output ) ) {
-							$hooks_output .= $this->sd_html( 'field-content-start' );
-							$hooks_output .= $this->sd_html( 'field-content-first', 'There are no action hooks defined.', 'full-width' );
-							$hooks_output .= $this->sd_html( 'field-content-end' );
-					}
-
-					$output .= $this->sd_html( 'accordion-body', $hooks_output );
-
-					if ( !empty( $filter_hooks ) ) {
-						$filter_hooks_count = count( $filter_hooks );
-					} else {
-						$filter_hooks_count = 0;
-					}
-
-					// Output filter hooks
-
-					$output .= $this->sd_html( 'accordion-head', 'Filter Hooks (' . $filter_hooks_count . ')' );
-
-					$hooks_output = '';
-
-					foreach ( $filter_hooks as $hook ) {
-
-						$theme_file_editor_url = $theme_file_editor_base_url . $hook['file'];
-
-						$hooks_output .= $this->sd_html( 'field-content-start' );
-						$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $theme_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
-						$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'] );
-						$hooks_output .= $this->sd_html( 'field-content-end' );
-
-					}
-
-					if ( empty( $hooks_output ) ) {
-						$hooks_output .= $this->sd_html( 'field-content-start' );
-						$hooks_output .= $this->sd_html( 'field-content-first', 'There are no filter hooks defined.', 'full-width' );
-						$hooks_output .= $this->sd_html( 'field-content-end' );
-					}
-
-					$output .= $this->sd_html( 'accordion-body', $hooks_output );
-
-					$output .= $this->sd_html( 'accordions-end' );
-
-					return $output;
-
-				} else {}
+				return $output;
 
 			}
-
-		} else {
-
-			$output = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
-
-			return $output;
 
 		}
 		
