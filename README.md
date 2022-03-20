@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.2  
-Stable tag: 1.7.1  
+Stable tag: 1.7.2  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -212,6 +212,10 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changeog
+
+### 1.7.2 (March 2022)
+
+* Further optimize how System Dashboard is loaded on wp-admin pages. On wp-admin pages other than the System Dashboard page, only call function that adds a 'System' sub-menu under the 'Dashboard' menu. This considerably speeds up load time across the entire wp-admin and also speed up AJAX calls from inside the System Dashboard page.
 
 ### 1.7.1 (March 2022)
 
