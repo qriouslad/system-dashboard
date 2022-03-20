@@ -29,6 +29,83 @@
 	 * practising this, we should strive to set a better example in our own work.
 	 */
 
+     $(document).ready( function() {
+
+        // Search filter - https://codepen.io/alexerlandsson/pen/ZbyRoO
+
+        // Options - WP Core
+
+        $('[data-search-options-wpcore]').on('keyup', function() {
+            var searchVal = $(this).val();
+            var filterItems = $('[data-opt-core]');
+
+            if ( searchVal != '' ) {
+                filterItems.addClass('hidden');
+                $('[data-opt-core][data-opt-core-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
+            } else {
+                filterItems.removeClass('hidden');
+            }
+        });
+
+        // Options - Non WP Core
+
+        $('[data-search-options-noncore]').on('keyup', function() {
+            var searchVal = $(this).val();
+            var filterItems = $('[data-opt-noncore]');
+
+            if ( searchVal != '' ) {
+                filterItems.addClass('hidden');
+                $('[data-opt-noncore][data-opt-noncore-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
+            } else {
+                filterItems.removeClass('hidden');
+            }
+        });
+
+        // Hooks - WP Core - Action
+
+        $('[data-search-wpcore-action-hooks]').on('keyup', function() {
+            var searchVal = $(this).val();
+            var filterItems = $('[data-core-act-hook]');
+
+            if ( searchVal != '' ) {
+                filterItems.addClass('hidden');
+                $('[data-core-act-hook][data-core-act-hook-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
+            } else {
+                filterItems.removeClass('hidden');
+            }
+        });
+
+
+        // Hooks - WP Core - Filter
+
+        $('[data-search-wpcore-filter-hooks]').on('keyup', function() {
+            var searchVal = $(this).val();
+            var filterItems = $('[data-core-fil-hook]');
+
+            if ( searchVal != '' ) {
+                filterItems.addClass('hidden');
+                $('[data-core-fil-hook][data-core-fil-hook-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
+            } else {
+                filterItems.removeClass('hidden');
+            }
+        });
+
+        // Functions - WP Core
+
+        $('[data-search-functions-wpcore]').on('keyup', function() {
+            var searchVal = $(this).val();
+            var filterItems = $('[data-fn-core]');
+
+            if ( searchVal != '' ) {
+                filterItems.addClass('hidden');
+                $('[data-fn-core][data-fn-core-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
+            } else {
+                filterItems.removeClass('hidden');
+            }
+        });
+
+     });
+
 })( jQuery );
 
 "use strict";

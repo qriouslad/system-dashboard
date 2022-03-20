@@ -76,6 +76,20 @@
     border-bottom: 1px solid #eee;
 }
 
+.sd-options .field-parts.search-filter {
+    background: #fafafa;
+    padding:  8px !important;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: calc(100% - 16px);
+    margin-bottom: 4px;
+}
+
+.sd-options .field-parts.search-filter input[type="text"] {
+    min-width: 220px;
+    border: 1px solid #ddd;
+}
+
 .sd-options .field-parts.flex-direction-column {
     flex-direction: column;
 }
@@ -90,7 +104,7 @@
 }
 
 .sd-options .ac-left .field-parts:last-child {
-    padding-bottom: 0;
+    padding-bottom: 0;,
     border-bottom: 0;
 }
 
@@ -208,6 +222,10 @@ a.link-muted:hover {
 
 .site-health-dot.orange {
     background: #dba617;
+}
+
+.hidden {
+    display: none !important;
 }
 
 /* Pure JS Accordion */
@@ -353,7 +371,7 @@ dl.mc-collapsible:not([data-style]).ac-left dt::before, dl.mc-collapsible:not([d
 }
 dl.mc-collapsible:not([data-style]).ac-left dt::before {
     font-size: 22px;
-    top: 18px;
+    top: 20px;
 }
 dl.mc-collapsible:not([data-style]).ac-left dt.active::before {
   transform: translateX(50%) translateY(-50%) rotate(0.25turn);
@@ -403,10 +421,14 @@ dl.mc-collapsible[data-style=qa] dd {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); */
 }
 
-.group-hooks dl.mc-collapsible .control {
+.group.margin-default {
+    margin-top: -8px;
+}
+
+.sd__hooks dl.mc-collapsible .control {
     top: 8px;
 }
-.group-hooks dl.mc-collapsible dt {
+.sd__hooks dl.mc-collapsible dt {
     font-weight: normal;
 }
 .group h3 {
