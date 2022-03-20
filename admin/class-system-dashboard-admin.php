@@ -1554,6 +1554,72 @@ class System_Dashboard_Admin {
 	}
 
 	/**
+	 * Get error reporting levels
+	 *
+	 * @link https://plugins.svn.wordpress.org/query-monitor/tags/3.8.2/collectors/environment.php
+	 * @since 1.6.0
+	 */
+	public function sd_error_reporting() {
+
+		$error_reporting = error_reporting();
+
+		$levels = array(
+			'E_ERROR' => false,
+			'E_WARNING' => false,
+			'E_PARSE' => false,
+			'E_NOTICE' => false,
+			'E_CORE_ERROR' => false,
+			'E_CORE_WARNING' => false,
+			'E_COMPILE_ERROR' => false,
+			'E_COMPILE_WARNING' => false,
+			'E_USER_ERROR' => false,
+			'E_USER_WARNING' => false,
+			'E_USER_NOTICE' => false,
+			'E_STRICT' => false,
+			'E_RECOVERABLE_ERROR' => false,
+			'E_DEPRECATED' => false,
+			'E_USER_DEPRECATED' => false,
+			'E_ALL' => false,
+		);
+
+		foreach ( $levels as $level => $reported ) {
+			if ( defined( $level ) ) {
+				$c = constant( $level );
+				if ( $error_reporting & $c ) {
+					$levels[ $level ] = true;
+				}
+			}
+		}
+
+		$output = '';
+		$error_types = '';
+
+		$output .= $this->sd_html( 'accordions-start-simple' );
+		$output .= $this->sd_html( 'accordion-head', 'View Details' );
+
+		foreach ( $levels as $type => $status ) {
+
+			if ( $status ) {
+				$symbol = '<div class="sd__symbol sd__symbol--green">&check;</div>';
+			} else {
+				$symbol = '<div class="sd__symbol sd__symbol--red">&cross;</div>';				
+			}
+
+			$error_types .= $this->sd_html( 'field-content-start' );
+			$error_types .= $this->sd_html( 'field-content-first', $type );
+			$error_types .= $this->sd_html( 'field-content-second', $symbol );
+			$error_types .= $this->sd_html( 'field-content-end' );
+
+		}
+
+		$output .= $this->sd_html( 'accordion-body', $error_types );
+		$output .= $this->sd_html( 'accordions-end' );
+
+		return $output;
+
+	}
+
+	/**
 	 * Get directory size (including all sub-directories and files)
 	 * 
 	 * @link https://plugins.svn.wordpress.org/ressources/trunk/ressources.php
@@ -6388,17 +6454,23 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Extensions Loaded',
-										'content'	=> implode(", ", get_loaded_extensions() )
+										'content'	=> implode(", ", get_loaded_extensions() ),
 									),
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Disabled Functions',
-										'content'	=> str_replace( ",", ", ", ini_get( 'disable_functions' ) )
+										'content'	=> str_replace( ",", ", ", ini_get( 'disable_functions' ) ),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Error Reporting',
+										'subtitle'	=> error_reporting(),
+										'content'	=> $this->sd_error_reporting(),
 									),
 									array(
 										'type'		=> 'content',
 										'title'		=> 'cURL',
-										'content'	=> curl_version()['version'].' | '.curl_version()['ssl_version']
+										'content'	=> curl_version()['version'].' | '.curl_version()['ssl_version'],
 									),
 									array(
 										'type'		=> 'content',
@@ -6413,7 +6485,7 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'SoapClient',
-										'content'	=> ( class_exists('SoapClient') ? 'Yes' : 'No' )
+										'content'	=> ( class_exists('SoapClient') ? 'Yes' : 'No' ),
 									),
 									array(
 										'type'		=> 'content',
