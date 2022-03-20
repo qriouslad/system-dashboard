@@ -5117,6 +5117,11 @@ class System_Dashboard_Admin {
 			'options' 	=> array(
 				array(
 					'type'		=> 'link',
+					'name'		=> 'Option Reference',
+					'pointer'	=> 'https://web.archive.org/web/20220318094858/https://codex.wordpress.org/Option_Reference',
+				),
+				array(
+					'type'		=> 'link',
 					'name'		=> 'Understanding and Working With the WordPress Options Table',
 					'pointer'	=> 'https://code.tutsplus.com/tutorials/understanding-and-working-with-the-wordpress-options-table--cms-21119',
 				),
