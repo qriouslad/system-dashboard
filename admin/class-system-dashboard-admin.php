@@ -20,6 +20,7 @@
  * @subpackage System_Dashboard/admin
  * @author     Bowo <hello@bowo.io>
  */
+
 class System_Dashboard_Admin {
 
 	/**
@@ -1664,6 +1665,8 @@ class System_Dashboard_Admin {
 
 			if ( $filename == 'robots.txt' ) {
 
+				add_filter( 'robots_txt', array( $this, 'sd_robots_sitemap' ), 0, 2 );
+
 				ob_start();
 
 				do_robots();
@@ -1682,6 +1685,31 @@ class System_Dashboard_Admin {
 
 			$output = $file_content;
 
+		}
+
+		return $output;
+
+	}
+
+	/**
+	 * Add default WP sitemap URL to robots.txt if site is set to public / crawlable, i.e. blog_public option equals 1
+	 *
+	 * @link wp-includes/sitemaps/class-wp-sitemaps.php
+	 * @link wp-includes/sitemaps/class-wp-sitemaps-index.php
+	 * @since 1.5.2
+	 */
+	public function sd_robots_sitemap( $output, $public ) {
+
+		global $wp_rewrite;
+
+		if ( ! $wp_rewrite->using_permalinks() ) {
+			$sitemap_url = home_url( '/?sitemap=index' );
+		}
+
+		$sitemap_url = home_url( '/wp-sitemap.xml' );
+
+		if ( $public ) {
+			$output .= "\nSitemap: " . esc_url( $sitemap_url ) . "\n";
 		}
 
 		return $output;
