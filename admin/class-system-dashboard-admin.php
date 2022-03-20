@@ -86,11 +86,41 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_html( $partial, $content = '', $classes = '', $data_attributes = array(), $id = '' ) {
 
+		if ( !empty( $classes ) ) {
+
+			$additional_classes = ' ' . $classes;
+			$class_output = ' class="' . $classes . '"';
+
+		} else {
+
+			$additional_classes = '';
+			$class_output = '';
+
+		}
+
 		$data_atts = '';
 
 		foreach ( $data_attributes as $key => $value ) {
 
-			$data_atts .= 'data-' . $key . '="' . $value . '"';
+			if ( empty( $value ) ) {
+
+				$data_atts = 'data-' . $key . ' ';
+
+			} else {
+
+				$data_atts .= 'data-' . $key . '="' . $value . '" ';
+
+			}
+
+		}
+
+		if ( !empty( $id ) ) {
+
+			$id_output = ' id="' . $id . '"';
+
+		} else {
+
+			$id_output = '';
 
 		}
 
@@ -98,19 +128,27 @@ class System_Dashboard_Admin {
 
 		if ( $partial == 'accordions-start' ) {
 
-			return '<div class="group"><dl class="mc-collapsible" data-controls="data-controls">';
+			return '<div class="group" ' . $data_atts . '><dl class="mc-collapsible" data-controls="data-controls">';
+
+		} elseif ( $partial == 'accordions-start-margin-default' ) {
+
+			return '<div class="group margin-default" ' . $data_atts . '><dl class="mc-collapsible" data-controls="data-controls">';
+
+		} elseif ( $partial == 'accordions-start-simple-margin-default' ) {
+
+			return '<div class="group margin-default" ' . $data_atts . '><dl class="mc-collapsible">';
 
 		} elseif ( $partial == 'accordions-start-simple' ) {
 
-			return '<div class="group"><dl class="mc-collapsible">';
+			return '<div class="group" ' . $data_atts . '><dl class="mc-collapsible">';
 
 		} elseif ( $partial == 'accordions-start-left' ) {
 
-			return '<div class="group"><dl class="mc-collapsible ac-left">';
+			return '<div class="group" ' . $data_atts . '><dl class="mc-collapsible ac-left">';
 
 		} elseif ( $partial == 'accordion-head' ) {
 
-			return '<dt id ="' . $id . '" class="' . $classes . '" ' . $data_atts . '>' . $content . '</dt>';
+			return '<dt ' . $id_output . $class_output . $data_atts . '>' . $content . '</dt>';
 
 		} elseif ( $partial == 'accordion-body' ) {
 
@@ -120,21 +158,25 @@ class System_Dashboard_Admin {
 
 			return '</dl></div>';
 
-		} 
+		} elseif ( $partial == 'search-filter' ) {
+
+			return '<div class="field-parts search-filter"><div class="field-part first-part full-width"><input type="text" placeholder="Search..." ' . $data_atts . ' /></div></div>';
+
+		}
 
 		// Field content
 
 		elseif ( $partial == 'field-content-start' ) {
 
-			return '<div class="field-parts ' . $classes . '">';
+			return '<div class="field-parts ' . $additional_classes . '" '. $data_atts .'>';
 
 		} elseif ( $partial == 'field-content-first' ) {
 
-			return '<div class="field-part first-part ' . $classes . '">' . $content . '</div>';
+			return '<div class="field-part first-part ' . $additional_classes . '">' . $content . '</div>';
 
 		} elseif ( $partial == 'field-content-second' ) {
 
-			return '<div class="field-part second-part ' . $classes . '">' . $content . '</div>';
+			return '<div class="field-part second-part ' . $additional_classes . '">' . $content . '</div>';
 
 		} elseif ( $partial == 'field-content-end' ) {
 
@@ -933,6 +975,8 @@ class System_Dashboard_Admin {
 		$output = '';
 		$private_custom_fields = array();
 		$public_custom_fields = array();
+		$private_custom_fields_count = 0;
+		$public_custom_fields_count = 0;
 
 		foreach ( $meta_keys as $meta_key ) {
 
@@ -942,10 +986,14 @@ class System_Dashboard_Admin {
 				$private_custom_fields[] = $meta_key;
 				sort( $private_custom_fields );
 
+				$private_custom_fields_count++;
+
 			} else {
 
 				$public_custom_fields[] = $meta_key;
 				sort( $public_custom_fields );
+
+				$public_custom_fields_count++;
 
 			}
 
@@ -971,7 +1019,15 @@ class System_Dashboard_Admin {
 
 			}
 
-		}
+		} elseif ( $type == 'public-count' ) {
+
+			$output = $public_custom_fields_count;
+
+		} elseif ( $type == 'private-count' ) {
+
+			$output = $private_custom_fields_count;
+
+		} else {}
 
 		// return '<pre>' . print_r( $private_custom_fields, true ) . '</pre>';
 		return $output;
@@ -1554,6 +1610,72 @@ class System_Dashboard_Admin {
 	}
 
 	/**
+	 * Get error reporting levels
+	 *
+	 * @link https://plugins.svn.wordpress.org/query-monitor/tags/3.8.2/collectors/environment.php
+	 * @since 1.6.0
+	 */
+	public function sd_error_reporting() {
+
+		$error_reporting = error_reporting();
+
+		$levels = array(
+			'E_ERROR' => false,
+			'E_WARNING' => false,
+			'E_PARSE' => false,
+			'E_NOTICE' => false,
+			'E_CORE_ERROR' => false,
+			'E_CORE_WARNING' => false,
+			'E_COMPILE_ERROR' => false,
+			'E_COMPILE_WARNING' => false,
+			'E_USER_ERROR' => false,
+			'E_USER_WARNING' => false,
+			'E_USER_NOTICE' => false,
+			'E_STRICT' => false,
+			'E_RECOVERABLE_ERROR' => false,
+			'E_DEPRECATED' => false,
+			'E_USER_DEPRECATED' => false,
+			'E_ALL' => false,
+		);
+
+		foreach ( $levels as $level => $reported ) {
+			if ( defined( $level ) ) {
+				$c = constant( $level );
+				if ( $error_reporting & $c ) {
+					$levels[ $level ] = true;
+				}
+			}
+		}
+
+		$output = '';
+		$error_types = '';
+
+		$output .= $this->sd_html( 'accordions-start-simple' );
+		$output .= $this->sd_html( 'accordion-head', 'View Details' );
+
+		foreach ( $levels as $type => $status ) {
+
+			if ( $status ) {
+				$symbol = '<div class="sd__symbol sd__symbol--green">&check;</div>';
+			} else {
+				$symbol = '<div class="sd__symbol sd__symbol--red">&cross;</div>';				
+			}
+
+			$error_types .= $this->sd_html( 'field-content-start' );
+			$error_types .= $this->sd_html( 'field-content-first', $type );
+			$error_types .= $this->sd_html( 'field-content-second', $symbol );
+			$error_types .= $this->sd_html( 'field-content-end' );
+
+		}
+
+		$output .= $this->sd_html( 'accordion-body', $error_types );
+		$output .= $this->sd_html( 'accordions-end' );
+
+		return $output;
+
+	}
+
+	/**
 	 * Get directory size (including all sub-directories and files)
 	 * 
 	 * @link https://plugins.svn.wordpress.org/ressources/trunk/ressources.php
@@ -2048,6 +2170,17 @@ class System_Dashboard_Admin {
 		$options_noncore_count = 0;
 
 		$output = '';
+
+		if ( $type == 'wpcore' ) {
+
+			$output .= $this->sd_html( 'search-filter', '', '', ['search-options-wpcore' => ''] );
+
+		} elseif ( $type == 'noncore' ) {
+
+			$output .= $this->sd_html( 'search-filter', '', '', ['search-options-noncore' => ''] );
+
+		}
+
 		$names = '';
 
 		global $wpdb;
@@ -2110,7 +2243,13 @@ class System_Dashboard_Admin {
 								'name'		=> $name,
 							);
 
-							$output .= $this->sd_html( 'accordions-start-simple');
+							// Search filter data attributes
+							$search_atts = array(
+								'opt-core'	=> '',
+								'opt-core-name'	=> $name,
+							);
+
+							$output .= $this->sd_html( 'accordions-start-simple-margin-default', '', '', $search_atts );
 							$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' | ' . $autoloaded . $size . $value_type, 'option__name', $data_atts, 'option-name-'.$id );
 							$output .= $this->sd_html( 'accordion-body', $content );
 							$output .= $this->sd_html( 'accordions-end' );
@@ -2131,7 +2270,13 @@ class System_Dashboard_Admin {
 								'name'		=> $name,
 							);
 
-							$output .= $this->sd_html( 'accordions-start-simple');
+							// Search filter data attributes
+							$search_atts = array(
+								'opt-noncore'	=> '',
+								'opt-noncore-name'	=> $name,
+							);
+
+							$output .= $this->sd_html( 'accordions-start-simple-margin-default', '', '', $search_atts );
 							$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' | ' . $autoloaded . $size . $value_type, 'option__name', $data_atts, 'option-name-'.$id );
 							$output .= $this->sd_html( 'accordion-body', $content );
 							$output .= $this->sd_html( 'accordions-end' );
@@ -2529,6 +2674,10 @@ class System_Dashboard_Admin {
 		$action_hooks_count = 0;
 		$filter_hooks_count = 0;
 
+		// Add search filter box
+		$action_hooks .= $this->sd_html( 'search-filter', '', '', ['search-wpcore-action-hooks' => ''] );
+		$filter_hooks .= $this->sd_html( 'search-filter', '', '', ['search-wpcore-filter-hooks' => ''] );
+
 		foreach ( $hooks as $hook ) {
 
 			$hook_name_clean = str_replace("{", "", $hook['name']);
@@ -2537,7 +2686,13 @@ class System_Dashboard_Admin {
 
 			if ( strpos( $hook['type'], 'action' ) !== false ) {
 
-				$action_hooks .= $this->sd_html( 'field-content-start' );
+				// Search filter data attributes
+				$search_atts = array(
+					'core-act-hook'			=> '',
+					'core-act-hook-name'	=> $hook['name'],
+				);
+
+				$action_hooks .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
 				$action_hooks .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/' . $hook_name_clean . '/" target="_blank">'. $hook['name'] . '</a> <br /><span>' . $hook['file'] . '</span>' );
 				$action_hooks .= $this->sd_html( 'field-content-second', $hook['description'] );
 				$action_hooks .= $this->sd_html( 'field-content-end' );
@@ -2546,7 +2701,13 @@ class System_Dashboard_Admin {
 
 			} elseif ( strpos( $hook['type'], 'filter' ) !== false ) {
 
-				$filter_hooks .= $this->sd_html( 'field-content-start' );
+				// Search filter data attributes
+				$search_atts = array(
+					'core-fil-hook'			=> '',
+					'core-fil-hook-name'	=> $hook['name'],
+				);
+
+				$filter_hooks .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
 				$filter_hooks .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/' . $hook_name_clean . '/" target="_blank">'. $hook['name'] . '</a> <br /><span>' . $hook['file'] . '</span>' );
 				$filter_hooks .= $this->sd_html( 'field-content-second', $hook['description'] );
 				$filter_hooks .= $this->sd_html( 'field-content-end' );
@@ -2894,6 +3055,8 @@ class System_Dashboard_Admin {
 
 		if ( $type == 'core' ) {
 
+			$output .= $this->sd_html( 'search-filter', '', '', ['search-functions-wpcore' => ''] );
+
 			foreach( $functions_core as $function ) {
 
 				$function_lc = strtolower( $function );
@@ -2904,7 +3067,13 @@ class System_Dashboard_Admin {
 					$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
 				}
 
-				$output .= $this->sd_html( 'field-content-start' );
+				// Search filter data attributes
+				$search_atts = array(
+					'fn-core'	=> '',
+					'fn-core-name'	=> $function_lc,
+				);
+
+				$output .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
 				$output .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/functions/' . $function_lc . '/" target="_blank">' . $function .'</a><br /><a href="' . $wp_file_base_url . $filename . '" class="link-muted" target="_blank">' . $filename .'</a>', 'full-width' );
 				$output .= $this->sd_html( 'field-content-end' );
 
@@ -2986,10 +3155,24 @@ class System_Dashboard_Admin {
 
 			}
 
-			$output = $this->sd_html( 'accordions-start-simple' );
+			$output .= $this->sd_html( 'accordions-start-simple-margin-default' );
 			$output .= $this->sd_html( 'accordion-head', $this->sd_active_theme( 'name' ) . ' v' . $this->sd_active_theme( 'version' ) . ' ( ' . $functions_count . ' functions)' );
 			$output .= $this->sd_html( 'accordion-body', $functions_output );
 			$output .= $this->sd_html( 'accordions-end' );
+
+		} elseif ( $type == 'core-count' ) {
+
+			$output = count( $functions_core );
+
+
+		} elseif ( $type == 'plugins-count' ) {
+
+			$output = count( $functions_plugins );
+
+
+		} elseif ( $type == 'themes-count' ) {
+
+			$output = count( $functions_themes );
 
 		} else {}
 
@@ -5613,7 +5796,7 @@ class System_Dashboard_Admin {
 										'accordions'	=> array(
 
 											array(
-												'title'		=> 'View Public Fields',
+												'title'		=> 'View Public Fields (' . $this->sd_get_all_custom_fields( 'public-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -5622,7 +5805,7 @@ class System_Dashboard_Admin {
 												),
 											),
 											array(
-												'title'		=> 'View Private Fields',
+												'title'		=> 'View Private Fields (' . $this->sd_get_all_custom_fields( 'private-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -5944,7 +6127,7 @@ class System_Dashboard_Admin {
 									array(
 										'id'		=> 'hooks_wpcore',
 										'type'		=> 'accordion',
-										'title'		=> 'WordPress Core v5.9',
+										'title'		=> 'Core (v5.9)',
 										'subtitle'	=> 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each hook.',
 										'accordions'	=> array(
 
@@ -6106,7 +6289,7 @@ class System_Dashboard_Admin {
 										'subtitle'		=> 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each function.',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Functions',
+												'title'		=> 'View Functions'  . ' (' . $this->sd_get_all_user_functions( 'core-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -6123,7 +6306,7 @@ class System_Dashboard_Admin {
 										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Functions',
+												'title'		=> 'View Functions'  . ' (' . $this->sd_get_all_user_functions( 'themes-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -6140,7 +6323,7 @@ class System_Dashboard_Admin {
 										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Functions',
+												'title'		=> 'View Functions'  . ' (' . $this->sd_get_all_user_functions( 'plugins-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -6388,17 +6571,23 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Extensions Loaded',
-										'content'	=> implode(", ", get_loaded_extensions() )
+										'content'	=> implode(", ", get_loaded_extensions() ),
 									),
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Disabled Functions',
-										'content'	=> str_replace( ",", ", ", ini_get( 'disable_functions' ) )
+										'content'	=> str_replace( ",", ", ", ini_get( 'disable_functions' ) ),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Error Reporting',
+										'subtitle'	=> error_reporting(),
+										'content'	=> $this->sd_error_reporting(),
 									),
 									array(
 										'type'		=> 'content',
 										'title'		=> 'cURL',
-										'content'	=> curl_version()['version'].' | '.curl_version()['ssl_version']
+										'content'	=> curl_version()['version'].' | '.curl_version()['ssl_version'],
 									),
 									array(
 										'type'		=> 'content',
@@ -6413,7 +6602,7 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'SoapClient',
-										'content'	=> ( class_exists('SoapClient') ? 'Yes' : 'No' )
+										'content'	=> ( class_exists('SoapClient') ? 'Yes' : 'No' ),
 									),
 									array(
 										'type'		=> 'content',

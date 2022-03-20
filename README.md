@@ -78,8 +78,8 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 
 * Total number of options
 * Total number and size of autoloaded options
-* List of options from WordPress core with ID, autoload, size and type info
-* List of options from plugins and theme with ID, autoload, size and type info
+* Filterable list of options from WordPress core with ID, autoload, size and type info
+* Filterable list of options from plugins and theme with ID, autoload, size and type info
 * AJAX loading of option value with interactive tree viewer for array and object value types 
 
 #### Transients: 
@@ -97,7 +97,7 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 
 #### Hooks:
 
-* List of action and filter hooks from WordPress core with description, originating file path and link to WordPress Code Reference for each hook
+* Filterable list of action and filter hooks from WordPress core with description, originating file path and link to WordPress Code Reference for each hook
 * List of action and filter hooks from the active theme, with description, originating file path and link to file preview in the theme file editor
 * List of action and filter hooks from active plugins, with description, originating file path and link to file preview in the plugin file editor
 
@@ -109,7 +109,7 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 
 #### Functions:
 
-* List of functions from WordPress core with the originating file path and link to WordPress Code Reference for each function
+* Filterable list of functions from WordPress core with the originating file path and link to WordPress Code Reference for each function
 * List of functions from the active theme with the originating file path and link to preview the file in the theme file editor
 * List of functions from active plugins with the originating file path and link to preview the file in the plugin file editor
 
@@ -211,7 +211,14 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
-## Changelog
+## Changeog
+
+### 1.6.0 (March 2022)
+
+* Add search filter on the following modules: Options (core and non-core), Hooks (core), Functions (core)
+* Add counter for the following modules: Custom Fields (public and private), Functions (core, themes, plugins) 
+* Fix: output of custom id and classes for several HTML partials in sd_html()
+* Fix: miscellaneous CSS styling
 
 ### 1.5.2 (March 2022)
 
