@@ -264,7 +264,10 @@ class System_Dashboard_Admin {
 
 		$tests_failed = ( $issue_counts['recommended'] * 0.5 ) + ( $issue_counts['critical'] * 1.5 );
 
-		$tests_score = 100 - ceil( ( $tests_failed / $tests_total ) * 100 );
+		$tests_score = 0;
+		if ( $tests_total > 0 ) {
+			$tests_score = 100 - ceil( ( $tests_failed / $tests_total ) * 100 );
+		}
 
 		if ( ( 80 <= $tests_score ) && ( 0 === (int) $issue_counts['critical'] ) ) {
 
@@ -1250,7 +1253,7 @@ class System_Dashboard_Admin {
 
 		}
 
-		return $cpu_core_count;		
+		return (int)$cpu_core_count;
 	}
 
 	/**
@@ -1263,7 +1266,7 @@ class System_Dashboard_Admin {
 
 		if ( $this->is_shell_exec_enabled() ) {
 
-			$cpu_core_count = $this-> sd_cpu_core_count();
+			$cpu_core_count = $this->sd_cpu_core_count();
 			$cpu_load_average = shell_exec("uptime");
 			$cpu_load_average_array = explode( ", ", $cpu_load_average );
 
