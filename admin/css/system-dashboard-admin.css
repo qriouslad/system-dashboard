@@ -163,6 +163,11 @@
     top: .25em;
 }
 
+.option__value ul.json-dict li {
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
 .option__value .json-string,
 .option__value .json-literal {
     font-weight: 600;
