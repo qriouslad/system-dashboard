@@ -1253,7 +1253,7 @@ class System_Dashboard_Admin {
 
 		}
 
-		return (int)$cpu_core_count;
+		return $cpu_core_count;
 	}
 
 	/**
@@ -1267,6 +1267,10 @@ class System_Dashboard_Admin {
 		if ( $this->is_shell_exec_enabled() ) {
 
 			$cpu_core_count = $this->sd_cpu_core_count();
+			if ( !is_numeric( $cpu_core_count ) ) {
+				$cpu_core_count = 1;
+			}
+
 			$cpu_load_average = shell_exec("uptime");
 			$cpu_load_average_array = explode( ", ", $cpu_load_average );
 
