@@ -2260,28 +2260,37 @@ class System_Dashboard_Admin {
 					$name = $option->option_name;
 
 					$value = maybe_unserialize( $option->option_value );
-					$value_type = gettype( $value );
+					$value_type_raw = gettype( $value );
 
 					$autoload = $option->autoload;
+
 					$size_raw = $wpdb->get_var( $wpdb->prepare( "SELECT LENGTH(option_value) FROM $wpdb->options WHERE option_name = %s LIMIT 1", $name ) );
+					$size_formatted = size_format( $size_raw );
 
 					if ( !empty( $value ) ) {
-						$size = 'size: ' . size_format( $size_raw );
-						$value_type = ' - type: ' . $value_type;
+						$size = 'size: ' . $size_formatted;
+						$size_formatted_array = explode( " ", $size_formatted );
+						$size_order = strtolower( $size_formatted_array[1] );
+						$value_type = ' - type: ' . $value_type_raw;
 					} elseif( ( empty( $value ) ) && is_numeric( $value ) ) {
-						$size = 'size: ' . size_format( $size_raw );
+						$size = 'size: ' . $size_formatted;
+						$size_formatted_array = explode( " ", $size_formatted );
+						$size_order = strtolower( $size_formatted_array[1] );
 						$value_type = ' - type: ' . $value_type;
 					} else {
 						$size = 'empty ';
+						$size_order = 'empty';
 						$value_type = '';
 					}
 
 					if ( $autoload == 'yes' ) {
 						$autoloaded = 'autoloaded - ';
+						$autoloaded_string = '_autoloaded';
 						$autoloaded_count++;
 						$autoloaded_size += $size_raw;
 					} else {
 						$autoloaded = '';					
+						$autoloaded_string = '';
 					}
 
 					// Ignore options with name starting with underscore as they are transients
@@ -2306,7 +2315,7 @@ class System_Dashboard_Admin {
 								// Search filter data attributes
 								$search_atts = array(
 									'opt-core'	=> '',
-									'opt-core-name'	=> $name,
+									'opt-core-name'	=> $name . $autoloaded_string . '_' . $size_order . '_' . $value_type_raw,
 								);
 
 								$output .= $this->sd_html( 'accordions-start-simple-margin-default', '', '', $search_atts );
@@ -2333,7 +2342,7 @@ class System_Dashboard_Admin {
 								// Search filter data attributes
 								$search_atts = array(
 									'opt-noncore'	=> '',
-									'opt-noncore-name'	=> $name,
+									'opt-noncore-name'	=> $name . $autoloaded_string . '_' . $size_order . '_' . $value_type_raw,
 								);
 
 								$output .= $this->sd_html( 'accordions-start-simple-margin-default', '', '', $search_atts );
