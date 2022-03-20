@@ -154,6 +154,28 @@ class System_Dashboard {
 	}
 
 	/**
+	 * Check if current screen is this plugin's (System Dashboard plugin's) main page
+	 *
+	 * @since 1.6.1
+	 */
+	public function is_sd() {
+
+		$request_uri = $_SERVER['REQUEST_URI']; // e.g. /wp-admin/index.php?page=system-dashboard
+
+		if ( strpos( $request_uri, 'index.php?page=' . $this->plugin_name ) !== false ) {
+
+			return true; // Yes, this is the system dashboard page
+
+		} else {
+
+			return false; // Nope, this is NOT the system dashboard page
+
+
+		}
+
+	}
+
+	/**
 	 * Register all of the hooks related to the admin area functionality
 	 * of the plugin.
 	 *
@@ -166,12 +188,22 @@ class System_Dashboard {
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-		if ( is_admin() ) {
+
+		// Only process dashboard functions if the current page is the dashboard page. Otherwise, only show the 'System' link under the Dashboard menu.
+
+		if ( is_admin() && $this->is_sd() ) {
+
 			$this->loader->add_action( 'csf_loaded', $plugin_admin, 'sd_dashboard_page' );
+
+		} elseif ( is_admin() && ( ! $this->is_sd() ) ) {
+
+			$this->loader->add_action( 'admin_menu', $plugin_admin, 'sd_register_submenu' );
+
 		}
-		// $this->loader->add_action( 'admin_menu', $plugin_admin, 'sd_dashboard_page' );
+
 		$this->loader->add_filter( 'plugin_action_links_'.$this->plugin_name.'/'.$this->plugin_name.'.php', $plugin_admin, 'sd_add_plugin_action_links' );
 		// $this->loader->add_filter( 'plugin_row_meta', $plugin_admin, 'sd_add_plugin_meta_links', $this->plugin_name.'/'.$this->plugin_name.'.php', 'data', 'active' );
+
 		$this->loader->add_action( 'admin_footer', $plugin_admin, 'sd_ajax_calls' );
 		$this->loader->add_action( 'wp_ajax_sd_option_value', $plugin_admin, 'sd_option_value' );
 	}
