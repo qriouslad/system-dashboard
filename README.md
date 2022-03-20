@@ -211,7 +211,7 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
-## Changeog
+## Changelog
 
 ### 1.7.2 (March 2022)
 
