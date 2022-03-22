@@ -2170,6 +2170,47 @@ class System_Dashboard_Admin {
 	}
 
 	/**
+	 * Display rewrite rules
+	 *
+	 * @param string $type list | total_count
+	 * @since 1.8.0
+	 */
+	public function sd_rewrite_rules( $type = 'list' ) {
+
+		$rewrite_rules = get_option( 'rewrite_rules' );
+
+		$output = '';
+		$count = 0;
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<strong>URL Structure</strong>' );
+		$output .= $this->sd_html( 'field-content-second', '<strong>Query Parameters</strong>' );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		foreach ( $rewrite_rules as $key => $value ) {
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', $key, 'long-value' );
+			$output .= $this->sd_html( 'field-content-second', $value, 'long-value' );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$count++;
+
+		}
+
+		if ( $type == 'list' ) {
+
+			return $output;
+
+		} elseif ( $type == 'total_count' ) {
+
+			return $count;
+
+		}
+
+	}
+
+	/**
 	 * Get options that are not transients
 	 *
 	 * @link http://plugins.svn.wordpress.org/options-inspector/tags/2.1.1/option-inspector.php
@@ -5906,87 +5947,6 @@ class System_Dashboard_Admin {
 								),
 							),
 
-							array(
-								'title' => 'Viewer',
-								'fields' => array(
-
-									array(
-										'id'		=> 'viewer_wpconfig',
-										'type'		=> 'accordion',
-										'title'		=> 'wp-config.php',
-										'subtitle'	=> 'WordPress main configuration file',
-										'class'		=> 'sd-viewer',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_file_viewer( 'wp-config.php' ),
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'id'		=> 'viewer_htaccess',
-										'type'		=> 'accordion',
-										'title'		=> '.htaccess',
-										'subtitle'	=> 'Apache server configuration only for the directory the file is in',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_file_viewer( '.htaccess' ),
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'id'		=> 'viewer_robots',
-										'type'		=> 'accordion',
-										'title'		=> 'robots.txt',
-										'subtitle'	=> 'Tell search engine crawlers which URLs they can access on your site',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_file_viewer( 'robots.txt' ),
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Sitemap',
-										'subtitle'	=> 'Contains information for search engines to crawl your site more efficiently',
-										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'WordPress REST API',
-										'subtitle'	=> 'An interface for external applications to interact with WordPress',
-										'content'	=> '<a href="/wp-json/wp/v2" target="_blank">Access now &raquo;</a>',
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Tools',
-										'content'	=> $this->sd_tools( 'viewer' ),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'References',
-										'content'	=> $this->sd_references( 'viewer' ),
-									),
-
-								),
-							),
 
 						),
 					),
@@ -6158,6 +6118,62 @@ class System_Dashboard_Admin {
 
 								),
 							),
+
+
+							array(
+								'title'		=> 'Rewrite Rules',
+								'fields'	=> array(
+
+									array(
+										'type'		=> 'content',
+										'content'	=> '<strong>Total</strong>: ' . $this->sd_rewrite_rules( 'total_count' ) . ' rules',
+									),
+
+									array(
+										'type'		=> 'content',
+										'content'	=> $this->sd_rewrite_rules( 'list' ),
+									),
+
+								),
+							),
+
+							// array(
+							// 	'title'		=> 'Emails',
+							// 	'fields'	=> array(
+							// 		array(
+							// 			'type'		=> 'content',
+							// 			'title'		=> 'Sent Emails',
+							// 			'content'	=> '',
+							// 			// 'content'	=> $this->get_sent_emails(),
+							// 		),
+
+							// 	),
+							// ),
+
+							// 	),
+							// ),
+
+							// array(
+							// 	'title'		=> 'Logs',
+							// 	'fields'	=> array(
+							// 		array(
+							// 			'type'		=> 'content',
+							// 			'title'		=> 'Error Log',
+							// 			'content'	=> '',
+							// 			// 'content'	=> $this->get_errors_log(),
+							// 		),
+							// 	),
+							// ),
+
+						),
+					),
+
+					array(
+						'id'		=> 'wordpress',
+						'type'		=> 'tabbed',
+						'title' 	=> ' ',
+						'class'		=> 'wordpress-more-tabs',
+						'tabs'		=> array(
 
 							array(
 								'title'		=> 'Hooks',
@@ -6423,47 +6439,87 @@ class System_Dashboard_Admin {
 								),
 							),
 
-							// array(
-							// 	'title'		=> 'Emails',
-							// 	'fields'	=> array(
-							// 		array(
-							// 			'type'		=> 'content',
-							// 			'title'		=> 'Sent Emails',
-							// 			'content'	=> '',
-							// 			// 'content'	=> $this->get_sent_emails(),
-							// 		),
+							array(
+								'title' => 'Viewer',
+								'fields' => array(
 
-							// 	),
-							// ),
+									array(
+										'id'		=> 'viewer_wpconfig',
+										'type'		=> 'accordion',
+										'title'		=> 'wp-config.php',
+										'subtitle'	=> 'WordPress main configuration file',
+										'class'		=> 'sd-viewer',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_file_viewer( 'wp-config.php' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'viewer_htaccess',
+										'type'		=> 'accordion',
+										'title'		=> '.htaccess',
+										'subtitle'	=> 'Apache server configuration only for the directory the file is in',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_file_viewer( '.htaccess' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'viewer_robots',
+										'type'		=> 'accordion',
+										'title'		=> 'robots.txt',
+										'subtitle'	=> 'Tell search engine crawlers which URLs they can access on your site',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_file_viewer( 'robots.txt' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Sitemap',
+										'subtitle'	=> 'Contains information for search engines to crawl your site more efficiently',
+										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'WordPress REST API',
+										'subtitle'	=> 'An interface for external applications to interact with WordPress',
+										'content'	=> '<a href="/wp-json/wp/v2" target="_blank">Access now &raquo;</a>',
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Tools',
+										'content'	=> $this->sd_tools( 'viewer' ),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'References',
+										'content'	=> $this->sd_references( 'viewer' ),
+									),
 
-							// array(
-							// 	'title'		=> 'Options',
-							// 	'fields'	=> array(
-							// 		array(
-							// 			'type'		=> 'content',
-							// 			'title'		=> 'WordPress Core',
-							// 			'content'	=> '',
-							// 		),
-							// 		array(
-							// 			'type'		=> 'content',
-							// 			'title'		=> 'Active Theme and Plugins',
-							// 			'content'	=> '',
-							// 		),
-
-							// 	),
-							// ),
-
-							// array(
-							// 	'title'		=> 'Logs',
-							// 	'fields'	=> array(
-							// 		array(
-							// 			'type'		=> 'content',
-							// 			'title'		=> 'Error Log',
-							// 			'content'	=> '',
-							// 			// 'content'	=> $this->get_errors_log(),
-							// 		),
-							// 	),
-							// ),
+								),
+							),
 
 						),
 					),
