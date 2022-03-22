@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.2  
-Stable tag: 1.7.2  
+Stable tag: 1.8.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -67,13 +67,6 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 * List of user roles and users count for each
 * List of roles and capabilities. Including custom roles and custom capabilities.
 
-#### (File) Viewer: 
-
-* wp-config.php viewer
-* .htaccess viewer
-* robots.txt viewer
-* Links to sitemap and REST API
-
 #### Options: 
 
 * Total number of options
@@ -94,6 +87,14 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 #### Cron (Jobs):
 
 * List of cron job hooks and recurrences
+
+#### Rewrite Rules:
+
+* List of rewrite rules
+
+#### Shortcodes:
+
+* List of shortcodes and renderers (callback functions)
 
 #### Hooks:
 
@@ -117,6 +118,13 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 
 * List of defined constants by WordPress core (categorized), as well as by theme and plugins
 * Documentation of each constant from WordPress core
+
+#### (File) Viewer: 
+
+* wp-config.php viewer
+* .htaccess viewer
+* robots.txt viewer
+* Links to sitemap and REST API
 
 ### Server Modules 
 
@@ -212,6 +220,12 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 1.8.0 (March 2022)
+
+* [NEW] Rewrite Rules module 
+* [NEW] Shortcodes module 
+* Database: added DB engine info in Key Info section
 
 ### 1.7.2 (March 2022)
 
