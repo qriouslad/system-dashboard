@@ -127,13 +127,12 @@ class System_Dashboard {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/codestar-framework/codestar-framework.php';
 
-		$this->loader = new System_Dashboard_Loader();
-
 		/**
 		 * Include libraries/classes added via composer
 		 */
         require_once plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/autoload.php';
 
+		$this->loader = new System_Dashboard_Loader();
 	}
 
 	/**

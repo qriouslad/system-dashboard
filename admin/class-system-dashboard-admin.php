@@ -63,7 +63,7 @@ class System_Dashboard_Admin {
 	public function enqueue_styles() {
 
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/system-dashboard-admin.css', array(), $this->version, 'all' );
-		wp_enqueue_style( $this->plugin_name . 'json-viewer', plugin_dir_url( __FILE__ ) . 'css/jquery.json-viewer.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name . '-json-viewer', plugin_dir_url( __FILE__ ) . 'css/jquery.json-viewer.css', array(), $this->version, 'all' );
 
 	}
 
@@ -75,7 +75,7 @@ class System_Dashboard_Admin {
 	public function enqueue_scripts() {
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/system-dashboard-admin.js', array( 'jquery' ), $this->version, false );
-		wp_enqueue_script( $this->plugin_name . 'json-viewer', plugin_dir_url( __FILE__ ) . 'js/jquery.json-viewer.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name . '-json-viewer', plugin_dir_url( __FILE__ ) . 'js/jquery.json-viewer.js', array( 'jquery' ), $this->version, false );
 
 	}
 
@@ -191,7 +191,7 @@ class System_Dashboard_Admin {
 	 *
 	 * @since 1.0.0
 	 */
-	public function wp_urls_dirs_paths() {
+	public function sd_tests() {
 
 		$output = '';
 
@@ -221,6 +221,20 @@ class System_Dashboard_Admin {
 		$output .= 'get_template_directory() - ' . get_stylesheet_directory() . '<br />';
 		$output .= 'get_stylesheet_directory() - ' . get_stylesheet_directory() . '<br />';
 		$output .= 'get_stylesheet_directory_uri() - ' . get_stylesheet_directory() . '<br />';
+
+		if ( class_exists( 'Syn' ) ) {
+			$output .= 'Syn class exist';
+		} elseif ( class_exists( 'Syntaxo' )) {
+			$output .= 'Syntaxo class exist';
+		} elseif ( class_exists( 'Syntaxo()' ) ) {
+			$output .= 'Syntaxo() class exist';
+		} elseif ( class_exists( '\Syn\Syntaxo()' ) ) {
+			$output .= '\Syn\Syntaxo() class exist';
+		} elseif ( class_exists( '\Syn\Syntaxo' ) ) {
+			$output .= '\Syn\Syntaxo class exist';
+		} else {
+			$output .= 'Class does not exist';			
+		}
 
 		return $output;
 
@@ -5901,6 +5915,7 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'wp-config.php',
 										'subtitle'	=> 'WordPress main configuration file',
+										'class'		=> 'sd-viewer',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
@@ -6673,17 +6688,17 @@ class System_Dashboard_Admin {
 								),
 							),
 
-							// array(
-							// 	'title' => 'Tests',
-							// 	'fields' => array(
+							array(
+								'title' => 'Tests',
+								'fields' => array(
 
-							// 		array(
-							// 			'type'		=> 'content',
-							// 			'content'	=> $this->wp_urls_dirs_paths(),
-							// 		),
+									array(
+										'type'		=> 'content',
+										'content'	=> $this->sd_tests(),
+									),
 
-							// 	),
-							// ),
+								),
+							),
 
 						),
 					),
