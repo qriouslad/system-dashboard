@@ -2211,6 +2211,85 @@ class System_Dashboard_Admin {
 	}
 
 	/**
+	 * Function to retrieve a displayable string representing the callback.
+	 *
+	 * @link https://plugins.svn.wordpress.org/debug-bar-shortcodes/tags/2.0.3/class-debug-bar-shortcodes-render.php
+	 * @param mixed $callback A callback.
+	 * @return string
+	 */
+	public function sd_determine_callback_type( $callback ) {
+
+		if ( ( ! is_string( $callback ) && ! is_object( $callback ) ) && ( ! is_array( $callback ) || ( is_array( $callback ) && ( ! is_string( $callback[0] ) && ! is_object( $callback[0] ) ) ) ) ) {
+			// Type 1 - not a callback.
+			return '';
+		}
+		elseif ( is_string( $callback ) && false === strpos( $callback, '::' ) ) {
+			// Type 4 - simple string function (includes lambda's).
+			return sanitize_text_field( $callback ) . '()';
+		}
+		elseif ( is_string( $callback ) && false !== strpos( $callback, '::' ) ) {
+			// Type 5 - static class method calls - string.
+			return '[<em>class</em>] ' . str_replace( '::', ' :: ', sanitize_text_field( $callback ) ) . '()';
+		}
+		elseif ( is_array( $callback ) && ( is_string( $callback[0] ) && is_string( $callback[1] ) ) ) {
+			// Type 6 - static class method calls - array.
+			return '[<em>class</em>] ' . sanitize_text_field( $callback[0] ) . ' :: ' . sanitize_text_field( $callback[1] ) . '()';
+		}
+		elseif ( is_array( $callback ) && ( is_object( $callback[0] ) && is_string( $callback[1] ) ) ) {
+			// Type 7 - object method calls.
+			return '[<em>object</em>] ' . get_class( $callback[0] ) . ' -> ' . sanitize_text_field( $callback[1] ) . '()';
+		}
+		else {
+			// Type 8 - undetermined.
+			return '<pre>' . var_export( $callback, true ) . '</pre>';
+		}
+	}
+
+	/**
+	 * Display shortcodes
+	 *
+	 * @param string $type list | total_count
+	 * @since 1.8.0
+	 */
+	public function sd_shortcodes( $type = 'list' ) {
+
+		global $shortcode_tags;
+
+		$output = '';
+
+		if ( ( is_array( $shortcode_tags ) ) && ( !empty( $shortcode_tags ) ) ) {
+
+			ksort( $shortcode_tags );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', '<strong>Shortcode</strong>' );
+			$output .= $this->sd_html( 'field-content-second', '<strong>Rendered By</strong>' );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			foreach ( $shortcode_tags as $shortcode => $callback ) {
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', '[' . $shortcode . ']' );
+				$output .= $this->sd_html( 'field-content-second', $this->sd_determine_callback_type( $callback ) );
+				$output .= $this->sd_html( 'field-content-end' );
+
+			}
+
+			if ( $type == 'list' ) {
+
+				return $output;
+
+			} else {
+
+				return count( $shortcode_tags );
+
+			}
+
+		}
+
+	}
+
+	/**
 	 * Get options that are not transients
 	 *
 	 * @link http://plugins.svn.wordpress.org/options-inspector/tags/2.1.1/option-inspector.php
@@ -6132,6 +6211,23 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'content'	=> $this->sd_rewrite_rules( 'list' ),
+									),
+
+								),
+							),
+
+							array(
+								'title'		=> 'Shortcodes',
+								'fields'	=> array(
+
+									array(
+										'type'		=> 'content',
+										'content'	=> '<strong>Total</strong>: ' . $this->sd_shortcodes( 'total_count' ) . ' shortcodes',
+									),
+
+									array(
+										'type'		=> 'content',
+										'content'	=> $this->sd_shortcodes( 'list' ),
 									),
 
 								),
