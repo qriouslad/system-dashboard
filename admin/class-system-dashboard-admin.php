@@ -2014,6 +2014,9 @@ class System_Dashboard_Admin {
 
 		global $wpdb;
 
+		$default_storage_engine_query = $wpdb->get_row("SHOW VARIABLES LIKE 'default_storage_engine'");
+		$default_storage_engine = $default_storage_engine_query->Value;
+
 		$innodb_buffer_pool_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'innodb_buffer_pool_size'");
 		$innodb_buffer_pool_size = $this->sd_format_filesize( $innodb_buffer_pool_size_query->Value );
 
@@ -2043,6 +2046,10 @@ class System_Dashboard_Admin {
 			array(
 				'name'					=> 'Client Version',
 				'value'					=> $this->sd_db_client( 'client_version' ),
+			),
+			array(
+				'name'					=> 'Engine',
+				'value'					=> $default_storage_engine,
 			),
 			array(
 				'name'					=> 'Host',
