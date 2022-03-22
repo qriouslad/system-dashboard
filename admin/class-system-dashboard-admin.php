@@ -63,7 +63,7 @@ class System_Dashboard_Admin {
 	public function enqueue_styles() {
 
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/system-dashboard-admin.css', array(), $this->version, 'all' );
-		wp_enqueue_style( $this->plugin_name . 'json-viewer', plugin_dir_url( __FILE__ ) . 'css/jquery.json-viewer.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name . '-json-viewer', plugin_dir_url( __FILE__ ) . 'css/jquery.json-viewer.css', array(), $this->version, 'all' );
 
 	}
 
@@ -75,7 +75,7 @@ class System_Dashboard_Admin {
 	public function enqueue_scripts() {
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/system-dashboard-admin.js', array( 'jquery' ), $this->version, false );
-		wp_enqueue_script( $this->plugin_name . 'json-viewer', plugin_dir_url( __FILE__ ) . 'js/jquery.json-viewer.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name . '-json-viewer', plugin_dir_url( __FILE__ ) . 'js/jquery.json-viewer.js', array( 'jquery' ), $this->version, false );
 
 	}
 
@@ -191,7 +191,7 @@ class System_Dashboard_Admin {
 	 *
 	 * @since 1.0.0
 	 */
-	public function wp_urls_dirs_paths() {
+	public function sd_tests() {
 
 		$output = '';
 
@@ -221,6 +221,20 @@ class System_Dashboard_Admin {
 		$output .= 'get_template_directory() - ' . get_stylesheet_directory() . '<br />';
 		$output .= 'get_stylesheet_directory() - ' . get_stylesheet_directory() . '<br />';
 		$output .= 'get_stylesheet_directory_uri() - ' . get_stylesheet_directory() . '<br />';
+
+		if ( class_exists( 'Syn' ) ) {
+			$output .= 'Syn class exist';
+		} elseif ( class_exists( 'Syntaxo' )) {
+			$output .= 'Syntaxo class exist';
+		} elseif ( class_exists( 'Syntaxo()' ) ) {
+			$output .= 'Syntaxo() class exist';
+		} elseif ( class_exists( '\Syn\Syntaxo()' ) ) {
+			$output .= '\Syn\Syntaxo() class exist';
+		} elseif ( class_exists( '\Syn\Syntaxo' ) ) {
+			$output .= '\Syn\Syntaxo class exist';
+		} else {
+			$output .= 'Class does not exist';			
+		}
 
 		return $output;
 
@@ -255,6 +269,12 @@ class System_Dashboard_Admin {
 		if ( !empty( wp_get_theme()->get( 'Author' ) ) ) {
 
 			$output .= 'by <a href="'.wp_get_theme()->get( 'AuthorURI' ).'" target="_blank">'. wp_get_theme()->get( 'Author' ) .'</a><br />';
+
+		}
+
+		if ( ! function_exists( 'get_plugins' ) ) {
+
+		    require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 		}
 
@@ -1994,6 +2014,9 @@ class System_Dashboard_Admin {
 
 		global $wpdb;
 
+		$default_storage_engine_query = $wpdb->get_row("SHOW VARIABLES LIKE 'default_storage_engine'");
+		$default_storage_engine = $default_storage_engine_query->Value;
+
 		$innodb_buffer_pool_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'innodb_buffer_pool_size'");
 		$innodb_buffer_pool_size = $this->sd_format_filesize( $innodb_buffer_pool_size_query->Value );
 
@@ -2023,6 +2046,10 @@ class System_Dashboard_Admin {
 			array(
 				'name'					=> 'Client Version',
 				'value'					=> $this->sd_db_client( 'client_version' ),
+			),
+			array(
+				'name'					=> 'Engine',
+				'value'					=> $default_storage_engine,
 			),
 			array(
 				'name'					=> 'Host',
@@ -2153,6 +2180,126 @@ class System_Dashboard_Admin {
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Display rewrite rules
+	 *
+	 * @param string $type list | total_count
+	 * @since 1.8.0
+	 */
+	public function sd_rewrite_rules( $type = 'list' ) {
+
+		$rewrite_rules = get_option( 'rewrite_rules' );
+
+		$output = '';
+		$count = 0;
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<strong>URL Structure</strong>' );
+		$output .= $this->sd_html( 'field-content-second', '<strong>Query Parameters</strong>' );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		foreach ( $rewrite_rules as $key => $value ) {
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', $key, 'long-value' );
+			$output .= $this->sd_html( 'field-content-second', $value, 'long-value' );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$count++;
+
+		}
+
+		if ( $type == 'list' ) {
+
+			return $output;
+
+		} elseif ( $type == 'total_count' ) {
+
+			return $count;
+
+		}
+
+	}
+
+	/**
+	 * Function to retrieve a displayable string representing the callback.
+	 *
+	 * @link https://plugins.svn.wordpress.org/debug-bar-shortcodes/tags/2.0.3/class-debug-bar-shortcodes-render.php
+	 * @param mixed $callback A callback.
+	 * @return string
+	 */
+	public function sd_determine_callback_type( $callback ) {
+
+		if ( ( ! is_string( $callback ) && ! is_object( $callback ) ) && ( ! is_array( $callback ) || ( is_array( $callback ) && ( ! is_string( $callback[0] ) && ! is_object( $callback[0] ) ) ) ) ) {
+			// Type 1 - not a callback.
+			return '';
+		}
+		elseif ( is_string( $callback ) && false === strpos( $callback, '::' ) ) {
+			// Type 4 - simple string function (includes lambda's).
+			return sanitize_text_field( $callback ) . '()';
+		}
+		elseif ( is_string( $callback ) && false !== strpos( $callback, '::' ) ) {
+			// Type 5 - static class method calls - string.
+			return '[<em>class</em>] ' . str_replace( '::', ' :: ', sanitize_text_field( $callback ) ) . '()';
+		}
+		elseif ( is_array( $callback ) && ( is_string( $callback[0] ) && is_string( $callback[1] ) ) ) {
+			// Type 6 - static class method calls - array.
+			return '[<em>class</em>] ' . sanitize_text_field( $callback[0] ) . ' :: ' . sanitize_text_field( $callback[1] ) . '()';
+		}
+		elseif ( is_array( $callback ) && ( is_object( $callback[0] ) && is_string( $callback[1] ) ) ) {
+			// Type 7 - object method calls.
+			return '[<em>object</em>] ' . get_class( $callback[0] ) . ' -> ' . sanitize_text_field( $callback[1] ) . '()';
+		}
+		else {
+			// Type 8 - undetermined.
+			return '<pre>' . var_export( $callback, true ) . '</pre>';
+		}
+	}
+
+	/**
+	 * Display shortcodes
+	 *
+	 * @param string $type list | total_count
+	 * @since 1.8.0
+	 */
+	public function sd_shortcodes( $type = 'list' ) {
+
+		global $shortcode_tags;
+
+		$output = '';
+
+		if ( ( is_array( $shortcode_tags ) ) && ( !empty( $shortcode_tags ) ) ) {
+
+			ksort( $shortcode_tags );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', '<strong>Shortcode</strong>' );
+			$output .= $this->sd_html( 'field-content-second', '<strong>Rendered By</strong>' );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			foreach ( $shortcode_tags as $shortcode => $callback ) {
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', '[' . $shortcode . ']' );
+				$output .= $this->sd_html( 'field-content-second', $this->sd_determine_callback_type( $callback ) );
+				$output .= $this->sd_html( 'field-content-end' );
+
+			}
+
+			if ( $type == 'list' ) {
+
+				return $output;
+
+			} else {
+
+				return count( $shortcode_tags );
+
+			}
+
+		}
+
 	}
 
 	/**
@@ -5892,86 +6039,6 @@ class System_Dashboard_Admin {
 								),
 							),
 
-							array(
-								'title' => 'Viewer',
-								'fields' => array(
-
-									array(
-										'id'		=> 'viewer_wpconfig',
-										'type'		=> 'accordion',
-										'title'		=> 'wp-config.php',
-										'subtitle'	=> 'WordPress main configuration file',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_file_viewer( 'wp-config.php' ),
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'id'		=> 'viewer_htaccess',
-										'type'		=> 'accordion',
-										'title'		=> '.htaccess',
-										'subtitle'	=> 'Apache server configuration only for the directory the file is in',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_file_viewer( '.htaccess' ),
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'id'		=> 'viewer_robots',
-										'type'		=> 'accordion',
-										'title'		=> 'robots.txt',
-										'subtitle'	=> 'Tell search engine crawlers which URLs they can access on your site',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_file_viewer( 'robots.txt' ),
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Sitemap',
-										'subtitle'	=> 'Contains information for search engines to crawl your site more efficiently',
-										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'WordPress REST API',
-										'subtitle'	=> 'An interface for external applications to interact with WordPress',
-										'content'	=> '<a href="/wp-json/wp/v2" target="_blank">Access now &raquo;</a>',
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Tools',
-										'content'	=> $this->sd_tools( 'viewer' ),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'References',
-										'content'	=> $this->sd_references( 'viewer' ),
-									),
-
-								),
-							),
 
 						),
 					),
@@ -6143,6 +6210,79 @@ class System_Dashboard_Admin {
 
 								),
 							),
+
+
+							array(
+								'title'		=> 'Rewrite Rules',
+								'fields'	=> array(
+
+									array(
+										'type'		=> 'content',
+										'content'	=> '<strong>Total</strong>: ' . $this->sd_rewrite_rules( 'total_count' ) . ' rules',
+									),
+
+									array(
+										'type'		=> 'content',
+										'content'	=> $this->sd_rewrite_rules( 'list' ),
+									),
+
+								),
+							),
+
+							array(
+								'title'		=> 'Shortcodes',
+								'fields'	=> array(
+
+									array(
+										'type'		=> 'content',
+										'content'	=> '<strong>Total</strong>: ' . $this->sd_shortcodes( 'total_count' ) . ' shortcodes',
+									),
+
+									array(
+										'type'		=> 'content',
+										'content'	=> $this->sd_shortcodes( 'list' ),
+									),
+
+								),
+							),
+
+							// array(
+							// 	'title'		=> 'Emails',
+							// 	'fields'	=> array(
+							// 		array(
+							// 			'type'		=> 'content',
+							// 			'title'		=> 'Sent Emails',
+							// 			'content'	=> '',
+							// 			// 'content'	=> $this->get_sent_emails(),
+							// 		),
+
+							// 	),
+							// ),
+
+							// 	),
+							// ),
+
+							// array(
+							// 	'title'		=> 'Logs',
+							// 	'fields'	=> array(
+							// 		array(
+							// 			'type'		=> 'content',
+							// 			'title'		=> 'Error Log',
+							// 			'content'	=> '',
+							// 			// 'content'	=> $this->get_errors_log(),
+							// 		),
+							// 	),
+							// ),
+
+						),
+					),
+
+					array(
+						'id'		=> 'wordpress',
+						'type'		=> 'tabbed',
+						'title' 	=> ' ',
+						'class'		=> 'wordpress-more-tabs',
+						'tabs'		=> array(
 
 							array(
 								'title'		=> 'Hooks',
@@ -6408,47 +6548,87 @@ class System_Dashboard_Admin {
 								),
 							),
 
-							// array(
-							// 	'title'		=> 'Emails',
-							// 	'fields'	=> array(
-							// 		array(
-							// 			'type'		=> 'content',
-							// 			'title'		=> 'Sent Emails',
-							// 			'content'	=> '',
-							// 			// 'content'	=> $this->get_sent_emails(),
-							// 		),
+							array(
+								'title' => 'Viewer',
+								'fields' => array(
 
-							// 	),
-							// ),
+									array(
+										'id'		=> 'viewer_wpconfig',
+										'type'		=> 'accordion',
+										'title'		=> 'wp-config.php',
+										'subtitle'	=> 'WordPress main configuration file',
+										'class'		=> 'sd-viewer',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_file_viewer( 'wp-config.php' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'viewer_htaccess',
+										'type'		=> 'accordion',
+										'title'		=> '.htaccess',
+										'subtitle'	=> 'Apache server configuration only for the directory the file is in',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_file_viewer( '.htaccess' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'viewer_robots',
+										'type'		=> 'accordion',
+										'title'		=> 'robots.txt',
+										'subtitle'	=> 'Tell search engine crawlers which URLs they can access on your site',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_file_viewer( 'robots.txt' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Sitemap',
+										'subtitle'	=> 'Contains information for search engines to crawl your site more efficiently',
+										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'WordPress REST API',
+										'subtitle'	=> 'An interface for external applications to interact with WordPress',
+										'content'	=> '<a href="/wp-json/wp/v2" target="_blank">Access now &raquo;</a>',
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Tools',
+										'content'	=> $this->sd_tools( 'viewer' ),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'References',
+										'content'	=> $this->sd_references( 'viewer' ),
+									),
 
-							// array(
-							// 	'title'		=> 'Options',
-							// 	'fields'	=> array(
-							// 		array(
-							// 			'type'		=> 'content',
-							// 			'title'		=> 'WordPress Core',
-							// 			'content'	=> '',
-							// 		),
-							// 		array(
-							// 			'type'		=> 'content',
-							// 			'title'		=> 'Active Theme and Plugins',
-							// 			'content'	=> '',
-							// 		),
-
-							// 	),
-							// ),
-
-							// array(
-							// 	'title'		=> 'Logs',
-							// 	'fields'	=> array(
-							// 		array(
-							// 			'type'		=> 'content',
-							// 			'title'		=> 'Error Log',
-							// 			'content'	=> '',
-							// 			// 'content'	=> $this->get_errors_log(),
-							// 		),
-							// 	),
-							// ),
+								),
+							),
 
 						),
 					),
@@ -6673,17 +6853,17 @@ class System_Dashboard_Admin {
 								),
 							),
 
-							// array(
-							// 	'title' => 'Tests',
-							// 	'fields' => array(
+							array(
+								'title' => 'Tests',
+								'fields' => array(
 
-							// 		array(
-							// 			'type'		=> 'content',
-							// 			'content'	=> $this->wp_urls_dirs_paths(),
-							// 		),
+									array(
+										'type'		=> 'content',
+										'content'	=> $this->sd_tests(),
+									),
 
-							// 	),
-							// ),
+								),
+							),
 
 						),
 					),

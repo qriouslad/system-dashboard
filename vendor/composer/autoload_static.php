@@ -38,10 +38,10 @@ class ComposerStaticInit76247d18a200e108654b5c5f5fececc6
         array (
             'phpDocumentor' => 
             array (
-                0 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
-                1 => __DIR__ . '/..' . '/phpdocumentor/reflection/src',
-                2 => __DIR__ . '/..' . '/phpdocumentor/reflection/tests/unit',
-                3 => __DIR__ . '/..' . '/phpdocumentor/reflection/tests/mocks',
+                0 => __DIR__ . '/..' . '/phpdocumentor/reflection/src',
+                1 => __DIR__ . '/..' . '/phpdocumentor/reflection/tests/unit',
+                2 => __DIR__ . '/..' . '/phpdocumentor/reflection/tests/mocks',
+                3 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
             ),
         ),
         'P' => 
