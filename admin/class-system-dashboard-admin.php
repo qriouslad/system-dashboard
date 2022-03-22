@@ -272,6 +272,12 @@ class System_Dashboard_Admin {
 
 		}
 
+		if ( ! function_exists( 'get_plugins' ) ) {
+
+		    require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+		}
+
 		$output .= '<strong>Plugins</strong>: <br /><a href="/wp-admin/plugins.php" target="_blank">' . count( get_plugins() ) . ' installed</a><br /><a href="/wp-admin/plugins.php?plugin_status=active" target="_blank">' . count( get_option( 'active_plugins' ) ) . ' active</a><br />';
 
 		$output .= '<strong>Timezone</strong>: <br />' . get_option( 'timezone_string' ) . '<br />';
