@@ -227,7 +227,7 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 
 ## Changelog
 
-### 1.8.0 (March 2022)
+### 1.9.0 (March 2022)
 
 * [NEW] Globals module: Categorized list of all WordPress core global variables, PHP super globals and non WP core globals.
 * Add tools and references for Rewrite Rules and Shortcodes modules
