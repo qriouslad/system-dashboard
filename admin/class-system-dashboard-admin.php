@@ -2687,6 +2687,8 @@ class System_Dashboard_Admin {
 
 				}
 
+				// Get option value
+
 				jQuery('.option__name').click( function() {
 
 					var optionName = this.dataset.name;
@@ -2752,6 +2754,43 @@ class System_Dashboard_Admin {
 
 								jQuery('#transient-name-' + transientId).attr('data-loaded','yes');
 								jQuery('#spinner-' + transientId).fadeOut( 0 );
+
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get global variable's value
+
+				jQuery('.global__name').click( function() {
+
+					var name = this.dataset.name;
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_global_value',
+								'global_name':name
+							},
+							success:function(data) {
+
+								if ( isJsonString(data) ) {
+									var dataObj = JSON.parse(data);
+									jQuery('#global_id_' + name).jsonViewer(dataObj,{collapsed: true, rootCollapsable: false, withQuotes: false, withLinks: false});
+								} else {
+									jQuery('#global_id_' + name).prepend(data);
+								}
+
+								jQuery('#global-name-' + name).attr('data-loaded','yes');
+								jQuery('#spinner-' + name).fadeOut( 0 );
 
 							},
 							erro:function(errorThrown) {
@@ -3337,6 +3376,511 @@ class System_Dashboard_Admin {
 		} else {}
 
 		return $output;
+
+	}
+
+	/**
+	 * Get global variables
+	 *
+	 *
+	 * @param string $type single | group
+	 * @param string $name e.g. shortcode_args
+	 * @since 1.9.00
+	 */
+	public function sd_globals( $type = 'single', $name = 'shortcode_tags', $call = 'ajax' ) {
+
+		$all_wpcore_globals = array(
+			'wp_version', // Version globals
+			'wp_db_version',
+			'tinymce_version',
+			'manifest_version',
+			'required_php_version',
+			'required_mysql_version',
+			'wpdb', // Common globals
+			'wp_post_types',
+			'_wp_post_type_features',
+			'wp_post_statuses',
+			'post_type_meta_caps',
+			'wp_taxonomies',
+			'wp_roles',
+			'wp_user_roles',
+			'wp_scripts',
+			'wp_styles',
+			'wp_rewrite',
+			'wp_actions',
+			'wp_filter',
+			'wp_current_filter',
+			'wp_sitemaps',
+			'allowedposttags',
+			'allowedtags',
+			'allowedentitynames',
+			'allowedxmlentitynames',
+			'phpmailer',
+			'wp_object_cache',
+			'_wp_using_ext_object_cache',
+			'wp_filesystem',
+			'wp_theme_directories', // Themes plugins globals
+			'theme_dir',
+			'_wp_theme_features',
+			'_wp_registered_theme_features',
+			'wp_did_header',
+			'content_width',
+			'custom_image_header',
+			'custom_background',
+			'editor_styles',
+			'wp_customize',
+			'wp_plugin_paths',
+			'plugin_data',
+			'wp_registered_settings',
+			'wp_meta_keys',
+			'concatenate_scripts',
+			'compress_scripts',
+			'compress_css',
+			'shortcode_tags', // Various globals
+			'_wp_registered_nav_menus',
+			'wp_meta_boxes',
+			'wp_registered_sidebars',
+			'wp_registered_widgets',
+			'wp_registered_widget_controls',
+			'wp_registered_widget_updates',
+			'wp_widget_factory',
+			'sidebars_widgets',
+			'_wp_sidebars_widgets',
+			'_wp_deprecated_widgets_callbacks',
+			'_wp_additional_image_sizes',
+			'wpsmiliestrans',
+			'wp_smiliessearch',
+			'wp_embed',
+			'wp_oembed',
+			'block_core_latest_posts_excerpt_length',
+			'upgrading',
+			'timestart',
+			'comment_depth',
+			'current_screen', // Admin globals
+			'pagenow',
+			'post_type',
+			'menu',
+			'submenu',
+			'admin_page_hooks',
+			'wp_admin_bar',
+			'current_user', // Current user globals
+			'user_login',
+			'userdata',
+			'user_level',
+			'user_ID',
+			'user_email',
+			'user_url',
+			'user_identity',
+			'login_grace_period',
+			'wp', // Main WP Query globals
+			'wp_query',
+			'wp_the_query',
+			'query_string',
+			'posts',
+			'post',
+			'request',
+			'single',
+			'id',
+			'super_admins', // Multisite globals
+			'table_prefix',
+			'blog_id',
+			'switched',
+			'_wp_switched_stack',
+			'wp_local_package', // Locales & localization globals
+			'locale',
+			'wp_locale',
+			'wp_locale_switcher',
+			'text_direction',
+			'l10n',
+			'l10n_unloaded',
+			'weekday',
+			'weekday_initial',
+			'weekday_abbrev',
+			'month',
+			'month_abbrev',
+			'wp_rest_server', // REST API globals
+			'wp_rest_additional_fields',
+			'wp_rest_application_password_status',
+			'wp_rest_auth_cookie',
+			'is_lynx', // Browser detection globals
+			'is_gecko',
+			'is_winIE',
+			'is_macIE',
+			'is_opera',
+			'is_NS4',
+			'is_safari',
+			'is_chrome',
+			'is_iphone',
+			'is_IE',
+			'is_edge',
+			'is_nginx', // Web server detection globals
+			'is_apache',
+			'is_IIS',
+			'is_iis7',
+			'post', // Posts loop globals
+			'authordata',
+			'currentday',
+			'currentmonth',
+			'page',
+			'pages',
+			'multipage',
+			'numpages',
+			'more',
+			'comment', // Comments loop globals
+			'template' // Front-end globals
+		);
+
+		$php_super_globals = array(
+			'_SERVER',
+			'_GET',
+			'_POST',
+			'_FILES',
+			'_COOKIE',
+			'_SESSION',
+			'_REQUEST',
+			'_ENV',
+			'PHP_SELF',
+		);
+
+		// Version globals
+		$version_globals = array(
+			'wp_version',
+			'wp_db_version',
+			'tinymce_version',
+			'manifest_version',
+			'required_php_version',
+			'required_mysql_version',
+		);
+
+		// Common globals
+		$common_globals = array(
+			'wpdb',
+			'wp_post_types',
+			'_wp_post_type_features',
+			'wp_post_statuses',
+			'post_type_meta_caps',
+			'wp_taxonomies',
+			'wp_roles',
+			'wp_user_roles',
+			'wp_scripts',
+			'wp_styles',
+			'wp_rewrite',
+			'wp_actions',
+			'wp_filter',
+			'wp_current_filter',
+			'wp_sitemaps',
+			'allowedposttags',
+			'allowedtags',
+			'allowedentitynames',
+			'allowedxmlentitynames',
+			'phpmailer',
+			'wp_object_cache',
+			'_wp_using_ext_object_cache',
+			'wp_filesystem',
+		);
+
+		// Themes plugins globals
+		$themes_plugins_globals = array(
+			'wp_theme_directories',
+			'theme_dir',
+			'_wp_theme_features',
+			'_wp_registered_theme_features',
+			'wp_did_header',
+			'content_width',
+			'custom_image_header',
+			'custom_background',
+			'editor_styles',
+			'wp_customize',
+			'wp_plugin_paths',
+			'plugin_data',
+			'wp_registered_settings',
+			'wp_meta_keys',
+			'concatenate_scripts',
+			'compress_scripts',
+			'compress_css',
+		);
+
+		// Various globals
+		$various_globals = array(
+			'shortcode_tags',
+			'_wp_registered_nav_menus',
+			'wp_meta_boxes',
+			'wp_registered_sidebars',
+			'wp_registered_widgets',
+			'wp_registered_widget_controls',
+			'wp_registered_widget_updates',
+			'wp_widget_factory',
+			'sidebars_widgets',
+			'_wp_sidebars_widgets',
+			'_wp_deprecated_widgets_callbacks',
+			'_wp_additional_image_sizes',
+			'wpsmiliestrans',
+			'wp_smiliessearch',
+			'wp_embed',
+			'wp_oembed',
+			'block_core_latest_posts_excerpt_length',
+			'upgrading',
+			'timestart',
+			'comment_depth',
+		);
+
+		// Admin globals
+		$admin_globals = array(
+			'current_screen',
+			'pagenow',
+			'post_type',
+			'menu',
+			'submenu',
+			'admin_page_hooks',
+			'wp_admin_bar',
+		);
+
+		// Current user globals
+		$current_user_globals = array(
+			'current_user',
+			'user_login',
+			'userdata',
+			'user_level',
+			'user_ID',
+			'user_email',
+			'user_url',
+			'user_identity',
+			'login_grace_period',
+		);
+
+		// Main WP Query globals
+		$main_wp_query_globals = array(
+			'wp',
+			'wp_query',
+			'wp_the_query',
+			'query_string',
+			'posts',
+			'post',
+			'request',
+			'single',
+			'id',
+		);
+
+		// Multisite globals
+		$multisite_globals = array(
+			'super_admins',
+			'table_prefix',
+			'blog_id',
+			'switched',
+			'_wp_switched_stack',
+		);
+
+		// Locales & localization globals
+		$locales_localization_globals = array(
+			'wp_local_package',
+			'locale',
+			'wp_locale',
+			'wp_locale_switcher',
+			'text_direction',
+			'l10n',
+			'l10n_unloaded',
+			'weekday',
+			'weekday_initial',
+			'weekday_abbrev',
+			'month',
+			'month_abbrev',
+		);
+
+		// REST API globals
+		$rest_api_globals = array(
+			'wp_rest_server',
+			'wp_rest_additional_fields',
+			'wp_rest_application_password_status',
+			'wp_rest_auth_cookie',
+		);
+
+		// Browser detection globals
+		$browser_detection_globals = array(
+			'is_lynx',
+			'is_gecko',
+			'is_winIE',
+			'is_macIE',
+			'is_opera',
+			'is_NS4',
+			'is_safari',
+			'is_chrome',
+			'is_iphone',
+			'is_IE',
+			'is_edge',
+		);
+
+		// Web server detection globals
+		$web_server_detection_globals = array(
+			'is_nginx',
+			'is_apache',
+			'is_IIS',
+			'is_iis7',
+		);
+
+		// Posts loop globals
+		$posts_loop_globals = array(
+			'post',
+			'authordata',
+			'currentday',
+			'currentmonth',
+			'page',
+			'pages',
+			'multipage',
+			'numpages',
+			'more',
+		);
+
+		// Comments loop globals
+		$comments_loop_globals = array(
+			'comment',
+		);
+
+		// Front-end globals
+		$frontend_globals = array(
+			'template'
+		);
+
+		// Non WP core globals
+
+		// $non_wpcore_globals = array_keys( $GLOBALS );
+
+		$all_globals = array_keys( $GLOBALS );
+
+		$non_wpcore_globals = array();
+
+		foreach ( $all_globals as $global ) {
+
+			if ( ( !in_array( $global, $all_wpcore_globals ) ) && ( !in_array( $global, $php_super_globals ) ) ) {
+
+				$non_wpcore_globals[] = $global;
+
+			}
+
+		}
+
+		// Process output 
+
+		$content = '';
+		$output = '';
+
+		if ( $type == 'single' ) {
+
+			if ( $call == 'ajax' ) {
+
+				$content .= $this->sd_html( 'field-content-start' );
+				$content .= $this->sd_html( 'field-content-first','<div class="global__value-div"><div id="spinner-' . $name . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="global_id_' . $name . '" class="global__value"></div>', 'full-width long-value' );
+				$content .= $this->sd_html( 'field-content-end' );
+
+				$data_atts = array(
+					'name'		=> $name,
+					'loaded'	=> 'no',
+				);
+
+				$output .= $this->sd_html( 'accordions-start-simple');
+				$output .= $this->sd_html( 'accordion-head', $name, 'global__name', $data_atts, 'global-name-' . $name );
+				$output .= $this->sd_html( 'accordion-body', $content );
+				$output .= $this->sd_html( 'accordions-end' );
+
+				return $output;
+
+			} elseif ( $call == 'no_ajax' ) {
+
+				global $$name;
+
+				$output .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
+				$output .= $this->sd_html( 'field-content-first', '<strong>' . $name . '</strong>', 'full-width' );
+				$output .= $this->sd_html( 'field-content-second', '<pre>' . print_r( $$name, true ) . '</pre>', 'full-width long-value' );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				return $output;
+
+			}
+
+		} elseif ( $type == 'group' ) {
+
+			foreach ( $$name as $global_name ) {
+
+				if ( $call == 'ajax' ) {
+
+					$content = $this->sd_html( 'field-content-start' );
+					$content .= $this->sd_html( 'field-content-first','<div class="global__value-div"><div id="spinner-' . $global_name . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="global_id_' . $global_name . '" class="global__value"></div>', 'full-width long-value' );
+					$content .= $this->sd_html( 'field-content-end' );
+
+					$data_atts = array(
+						'name'		=> $global_name,
+						'loaded'	=> 'no',
+					);
+
+					$output .= $this->sd_html( 'accordions-start-simple');
+					$output .= $this->sd_html( 'accordion-head', $global_name, 'global__name', $data_atts, 'global-name-' . $global_name );
+					$output .= $this->sd_html( 'accordion-body', $content );
+					$output .= $this->sd_html( 'accordions-end' );
+
+				} elseif ( $call == 'no_ajax' ) {
+
+					global $global_name;
+
+					$output .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
+					$output .= $this->sd_html( 'field-content-first', '<strong>' . $global_name . '</strong>', 'full-width' );
+					$output .= $this->sd_html( 'field-content-second', '<pre>' . print_r( $global_name, true ) . '</pre>', 'full-width long-value' );
+					$output .= $this->sd_html( 'field-content-end' );
+
+				}
+
+			}
+
+			return $output;
+
+		}
+
+	}
+
+	/**
+	 * Get value of a global variable
+	 *
+	 * @link https://sharewebdesign.com/blog/wordpress-ajax-call/
+	 * @since 1.3.0
+	 */
+	public function sd_global_value() {
+
+		if ( isset( $_REQUEST ) ) {
+
+			$global_name = $_REQUEST['global_name'];
+
+			global $$global_name;
+
+			$global_value = $$global_name;
+
+			$global_value_type = gettype( $global_value );
+
+			if  ( ( $global_value_type == 'array' ) || ( $global_value_type == 'object' ) ) {
+
+				// JSON_UNESCAPED_SLASHES will remove backslashes used for escaping, e.g. \' will become just '. stripslashes will further remove backslashes using to escape backslashes, e.g. double \\ will become a single \. JSON_PRETTY_PRINT and <pre> beautifies the output on the HTML side.
+
+				// echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>'; // Raw JSON beautified
+				echo json_encode( $global_value ); // for JSON Tree viewer
+
+			} elseif ( $global_value_type == 'boolean' ) {
+
+				if ( $global_value ) {
+					echo 'true';
+				} else {
+					echo 'false';
+				}
+
+			} elseif ( ( $global_value_type == 'integer' ) || ( $global_value_type == 'string' ) ) {
+
+				echo '<pre>' . htmlspecialchars( $global_value ) . '</pre>'; // Raw JSON beautified
+
+			} else {}
+
+		} else {
+
+			echo 'None. Please define global variable\'s name first.';
+
+		}
+
+		wp_die();
 
 	}
 
@@ -5109,6 +5653,64 @@ class System_Dashboard_Admin {
 					'usenow'	=> '/wp-admin/options-general.php?page=crontrol_admin_options_page',
 				),
 			),
+			'rewrite_rules' 	=> array(
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Permalink Manager Lite',
+					'pointer'	=> 'permalink-manager',
+					'usenow'	=> 'url',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Custom Post Type Permalinks',
+					'pointer'	=> 'custom-post-type-permalinks',
+					'usenow'	=> 'url',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Combo WP Rewrite Slugs',
+					'pointer'	=> 'combo-wp-rewrite-slugs',
+					'usenow'	=> 'url',
+				),
+			),
+			'shortcodes' 	=> array(
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Post Snippets',
+					'pointer'	=> 'post-snippets',
+					'usenow'	=> 'url',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Code Snippets',
+					'pointer'	=> 'code-snippets',
+					'usenow'	=> 'url',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Unused Shortcodes',
+					'pointer'	=> 'unused-shortcodes',
+					'usenow'	=> 'url',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Remove Orphan Shortcodes',
+					'pointer'	=> 'remove-orphan-shortcodes',
+					'usenow'	=> 'url',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Shortcodes Finder',
+					'pointer'	=> 'shortcodes-finder',
+					'usenow'	=> 'url',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Shortcode Cleaner Lite',
+					'pointer'	=> 'shortcode-cleaner-lite',
+					'usenow'	=> 'url',
+				),
+			),
 			'hooks' 	=> array(
 				array(
 					'type'		=> 'plugin',
@@ -5528,6 +6130,50 @@ class System_Dashboard_Admin {
 					'pointer'	=> 'https://easyengine.io/tutorials/wordpress/wp-cron-crontab/',
 				),
 			),
+			'rewrite_rules' 	=> array(
+				array(
+					'type'		=> 'link',
+					'name'		=> 'WordPress Common APIs Handbook: Rewrite',
+					'pointer'	=> 'https://developer.wordpress.org/apis/handbook/rewrite/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'How To Rewrite URLs In WordPress',
+					'pointer'	=> 'https://paulund.co.uk/how-to-rewrite-urls-in-wordpress',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'Mastering WordPress rewrite rules',
+					'pointer'	=> 'https://brightminded.com/blog/mastering-wordpress-rewrite-rules/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'A (Mostly) Complete Guide to the WordPress Rewrite API',
+					'pointer'	=> 'https://www.pmg.com/blog/a-mostly-complete-guide-to-the-wordpress-rewrite-api',
+				),
+			),
+			'shortcodes' 	=> array(
+				array(
+					'type'		=> 'link',
+					'name'		=> 'WordPress Common APIs Handbook: The Shortcode API',
+					'pointer'	=> 'https://developer.wordpress.org/apis/handbook/shortcode/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'How to Add a Shortcode in WordPress? (Beginner’s Guide)',
+					'pointer'	=> 'https://www.wpbeginner.com/wp-tutorials/how-to-add-a-shortcode-in-wordpress/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'WordPress Shortcodes: A Complete Guide',
+					'pointer'	=> 'https://www.smashingmagazine.com/2012/05/wordpress-shortcodes-complete-guide/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'Th Ultimate Guide to WordPress Shortcodes (With Examples to Create Your Own)',
+					'pointer'	=> 'https://kinsta.com/blog/wordpress-shortcodes/',
+				),
+			),
 			'hooks' 	=> array(
 				array(
 					'type'		=> 'link',
@@ -5608,6 +6254,23 @@ class System_Dashboard_Admin {
 				// 	'name'		=> 'Title',
 				// 	'pointer'	=> '',
 				// ),
+			),
+			'globals' 	=> array(
+				array(
+					'type'		=> 'link',
+					'name'		=> 'Codex: Global Variables',
+					'pointer'	=> 'https://codex.wordpress.org/Global_Variables',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'Global Variables of WordPress',
+					'pointer'	=> 'https://wp-kama.com/1586/global-variables-in-wordpress',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'A Practical Use of WordPress Global Variables',
+					'pointer'	=> 'https://code.tutsplus.com/tutorials/a-practical-use-of-wordpress-global-variables--cms-20854',
+				),
 			),
 			'logs' 	=> array(
 				// array(
@@ -6225,6 +6888,16 @@ class System_Dashboard_Admin {
 										'type'		=> 'content',
 										'content'	=> $this->sd_rewrite_rules( 'list' ),
 									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Tools',
+										'content'	=> $this->sd_tools( 'rewrite_rules' ),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'References',
+										'content'	=> $this->sd_references( 'rewrite_rules' ),
+									),
 
 								),
 							),
@@ -6235,12 +6908,23 @@ class System_Dashboard_Admin {
 
 									array(
 										'type'		=> 'content',
-										'content'	=> '<strong>Total</strong>: ' . $this->sd_shortcodes( 'total_count' ) . ' shortcodes',
+										'title'		=> 'Total',
+										'content'	=> $this->sd_shortcodes( 'total_count' ) . ' shortcodes',
 									),
-
 									array(
 										'type'		=> 'content',
+										'title'		=> 'List',
 										'content'	=> $this->sd_shortcodes( 'list' ),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Tools',
+										'content'	=> $this->sd_tools( 'shortcodes' ),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'References',
+										'content'	=> $this->sd_references( 'shortcodes' ),
 									),
 
 								),
@@ -6505,6 +7189,297 @@ class System_Dashboard_Admin {
 										'type'		=> 'content',
 										'title'		=> 'References',
 										'content'	=> $this->sd_references( 'classes' ),
+									),
+
+								),
+							),
+
+							array(
+								'title'		=> 'Globals',
+								'fields'	=> array(
+
+									array(
+										'id'			=> 'version_globals',
+										'type'			=> 'accordion',
+										'title'			=> 'Version',
+										'accordions'  	=> array(
+											array(
+												'title'   => 'View',
+												'fields'  => array(
+													array(
+														'type'    => 'content',
+														'content' => $this->sd_globals( 'group', 'version_globals', 'ajax' ),
+													),                          
+												),
+											),
+										),
+									),
+									array(
+										'id'			=> 'common_globals',
+										'type'			=> 'accordion',
+										'title'			=> 'Common',
+										'accordions'	=> array(
+											array(
+												'title'   => 'View',
+												'fields'  => array(
+													array(
+														'type'    => 'content',
+														'content' => $this->sd_globals( 'group', 'common_globals', 'ajax' ),
+													),                          
+												),
+											),
+										),
+									),
+									array(
+										'id'			=> 'themes_plugins_globals',
+										'type'			=> 'accordion',
+										'title'			=> 'Themes & Plugins',
+										'accordions'  	=> array(
+											array(
+												'title'   => 'View',
+												'fields'  => array(
+													array(
+														'type'    => 'content',
+														'content' => $this->sd_globals( 'group', 'themes_plugins_globals', 'ajax' ),
+													),                          
+												),
+											),
+										),
+									),
+									array(
+										'id'			=> 'various_globals',
+										'type'			=> 'accordion',
+										'title'			=> 'Various',
+										'accordions'	=> array(
+											array(
+												'title'   => 'View',
+												'fields'  => array(
+													array(
+													'type'    => 'content',
+													'content' => $this->sd_globals( 'group', 'various_globals', 'ajax' ),
+													),                          
+												),
+											),
+										),
+									),
+									array(
+										'id'			=> 'admin_globals',
+										'type'			=> 'accordion',
+										'title'			=> 'Admin',
+										'accordions'	=> array(
+											array(
+												'title'   => 'View',
+												'fields'  => array(
+													array(
+														'type'    => 'content',
+														'content' => $this->sd_globals( 'group', 'admin_globals', 'ajax' ),
+													),                          
+												),
+											),
+										),
+									),
+									array(
+										'id'			=> 'current_user_globals',
+										'type'			=> 'accordion',
+										'title'			=> 'Current User',
+										'accordions'	=> array(
+											array(
+												'title'   => 'View',
+												'fields'  => array(
+													array(
+														'type'    => 'content',
+														'content' => $this->sd_globals( 'group', 'current_user_globals', 'ajax' ),
+													),                          
+												),
+											),
+										),
+									),
+									array(
+										'id'			=> 'main_wp_query_globals',
+										'type'			=> 'accordion',
+										'title'			=> 'Main Query',
+										'accordions'	=> array(
+											array(
+												'title'   => 'View',
+												'fields'  => array(
+													array(
+														'type'    => 'content',
+														'content' => $this->sd_globals( 'group', 'main_wp_query_globals', 'ajax' ),
+													),                          
+												),
+											),
+										),
+									),
+									array(
+										'id'			=> 'multisite_globals',
+										'type'			=> 'accordion',
+										'title'			=> 'Multisite',
+										'accordions'	=> array(
+										  array(
+										    'title'   => 'View',
+										    'fields'  => array(
+										      array(
+										        'type'    => 'content',
+										        'content' => $this->sd_globals( 'group', 'multisite_globals', 'ajax' ),
+										      ),                          
+										    ),
+										  ),
+										),
+									),
+									array(
+										'id'			=> 'locales_localization_globals',
+										'type'			=> 'accordion',
+										'title'			=> 'Locales & Localization',
+										'accordions'	=> array(
+											array(
+												'title'   => 'View',
+												'fields'  => array(
+													array(
+														'type'    => 'content',
+														'content' => $this->sd_globals( 'group', 'locales_localization_globals', 'ajax' ),
+													),                          
+												),
+											),
+										),
+									),
+									array(
+										'id'			=> 'rest_api_globals',
+										'type'			=> 'accordion',
+										'title'			=> 'REST API',
+										'accordions'	=> array(
+										  array(
+										    'title'   => 'View',
+										    'fields'  => array(
+										      array(
+										        'type'    => 'content',
+										        'content' => $this->sd_globals( 'group', 'rest_api_globals', 'ajax' ),
+										      ),                          
+										    ),
+										  ),
+										),
+									),
+									array(
+										'id'			=> 'browser_detection_globals',
+										'type'			=> 'accordion',
+										'title'			=> 'Browser Detection',
+										'accordions'	=> array(
+											array(
+												'title'   => 'View',
+												'fields'  => array(
+													array(
+														'type'    => 'content',
+														'content' => $this->sd_globals( 'group', 'browser_detection_globals', 'ajax' ),
+													),                          
+												),
+											),
+										),
+									),
+									array(
+										'id'			=> 'web_server_detection_globals',
+										'type'			=> 'accordion',
+										'title'			=> 'Web Server Detection',
+										'accordions'  => array(
+											array(
+												'title'   => 'View',
+												'fields'  => array(
+													array(
+														'type'    => 'content',
+														'content' => $this->sd_globals( 'group', 'web_server_detection_globals', 'ajax' ),
+													),                          
+												),
+											),
+										),
+									),
+									array(
+										'id'			=> 'posts_loop_globals',
+										'type'			=> 'accordion',
+										'title'			=> 'Posts Loop',
+										'accordions'	=> array(
+											array(
+												'title'   => 'View',
+												'fields'  => array(
+													array(
+														'type'    => 'content',
+														'content' => $this->sd_globals( 'group', 'posts_loop_globals', 'ajax' ),
+													),                          
+												),
+											),
+										),
+									),
+									array(
+										'id'			=> 'comments_loop_globals',
+										'type'			=> 'accordion',
+										'title'			=> 'Comments Loop',
+										'accordions'	=> array(
+											array(
+												'title'   => 'View',
+												'fields'  => array(
+													array(
+														'type'    => 'content',
+														'content' => $this->sd_globals( 'group', 'comments_loop_globals', 'ajax' ),
+													),                          
+												),
+											),
+										),
+									),
+									array(
+										'id'			=> 'frontend_globals',
+										'type'			=> 'accordion',
+										'title'			=> 'Front-End',
+										'accordions'	=> array(
+											array(
+												'title'   => 'View',
+												'fields'  => array(
+													array(
+														'type'    => 'content',
+														'content' => $this->sd_globals( 'group', 'frontend_globals', 'ajax' ),
+													),                          
+												),
+											),
+										),
+									),
+									array(
+										'id'			=> 'non_wpcore_globals',
+										'type'			=> 'accordion',
+										'title'			=> 'Non WordPress Core',
+										'accordions'	=> array(
+											array(
+												'title'   => 'View',
+												'fields'  => array(
+													array(
+														'type'    => 'content',
+														'content' => $this->sd_globals( 'group', 'non_wpcore_globals', 'ajax' ),
+													),                          
+												),
+											),
+										),
+									),
+									array(
+										'id'			=> 'constants_reference',
+										'type'			=> 'accordion',
+										'title'			=> 'PHP Super Globals',
+										'accordions'	=> array(
+											array(
+												'title'   => 'View',
+												'fields'  => array(
+													array(
+														'type'    => 'content',
+														'content' => $this->sd_globals( 'group', 'php_super_globals', 'ajax' ),
+													),                          
+												),
+											),
+										),
+									),
+
+									// array(
+									// 	'type'		=> 'content',
+									// 	'title'		=> 'Tools',
+									// 	'content'	=> $this->sd_tools( 'constants' ),
+									// ),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'References',
+										'content'	=> $this->sd_references( 'globals' ),
 									),
 
 								),
@@ -6853,17 +7828,17 @@ class System_Dashboard_Admin {
 								),
 							),
 
-							array(
-								'title' => 'Tests',
-								'fields' => array(
+							// array(
+							// 	'title' => 'Tests',
+							// 	'fields' => array(
 
-									array(
-										'type'		=> 'content',
-										'content'	=> $this->sd_tests(),
-									),
+							// 		array(
+							// 			'type'		=> 'content',
+							// 			'content'	=> $this->sd_tests(),
+							// 		),
 
-								),
-							),
+							// 	),
+							// ),
 
 						),
 					),

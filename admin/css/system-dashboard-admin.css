@@ -133,10 +133,12 @@
     color: #3c434a;
 }
 
-.option__value-div {
+.option__value-div,
+.global__value-div {
 }
 
-.option__value-div img {
+.option__value-div img,
+.global__value-div img {
     height: 1.5em;
     width: 1.5em;
     position: relative;
@@ -144,32 +146,44 @@
     margin-right: 2px;
 }
 
-.option__value {
+.option__value,
+.global__value {
     display: block;
     height: auto;
 }
 
-.option__value pre {
+.option__value pre,
+.global__value pre {
     word-break: break-all;
     white-space: pre-wrap;
 }
 
-.option__value.json-document {
+.option__value.json-document,
+.global__value.json-document {
     padding: 0;
 }
 
-.option__value a.json-toggle:before {
+.option__value a.json-toggle:before,
+.global__value a.json-toggle:before {
     font-size: 1em;
     top: .25em;
 }
 
-.option__value ul.json-dict li {
+.option__value a.json-toggle:hover:before,
+.global__value a.json-toggle:hover:before {
+    color: #3c434a;
+}
+
+.option__value ul.json-dict li,
+.global__value ul.json-dict li {
     margin-top: 3px;
     margin-bottom: 3px;
 }
 
 .option__value .json-string,
-.option__value .json-literal {
+.option__value .json-literal,
+.global__value .json-string,
+.global__value .json-literal {
     font-weight: 600;
 }
 
@@ -376,7 +390,7 @@ dl.mc-collapsible:not([data-style]).ac-left dt::before, dl.mc-collapsible:not([d
 }
 dl.mc-collapsible:not([data-style]).ac-left dt::before {
     font-size: 22px;
-    top: 20px;
+    top: 18px;
 }
 dl.mc-collapsible:not([data-style]).ac-left dt.active::before {
   transform: translateX(50%) translateY(-50%) rotate(0.25turn);

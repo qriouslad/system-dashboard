@@ -205,6 +205,7 @@ class System_Dashboard {
 
 		$this->loader->add_action( 'admin_footer', $plugin_admin, 'sd_ajax_calls' );
 		$this->loader->add_action( 'wp_ajax_sd_option_value', $plugin_admin, 'sd_option_value' );
+		$this->loader->add_action( 'wp_ajax_sd_global_value', $plugin_admin, 'sd_global_value' );
 	}
 
 	/**
