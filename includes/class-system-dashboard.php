@@ -208,6 +208,7 @@ class System_Dashboard {
 		$this->loader->add_action( 'wp_ajax_sd_global_value', $plugin_admin, 'sd_global_value' );
 		$this->loader->add_action( 'wp_ajax_sd_wp_rest_api', $plugin_admin, 'sd_wp_rest_api' );
 		$this->loader->add_action( 'wp_ajax_sd_php_info', $plugin_admin, 'sd_php_info' );
+		$this->loader->add_action( 'wp_ajax_sd_hooks', $plugin_admin, 'sd_hooks' );
 	}
 
 	/**

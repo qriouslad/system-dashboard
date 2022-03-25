@@ -2716,8 +2716,51 @@ class System_Dashboard_Admin {
 
 				}
 
+				// Initiate the collapsibles on newly loaded dt elements from AJAX call result
+				function initMcCollapsible( className ) {
+					document.querySelectorAll( className + " dl.mc-collapsible").forEach((dl) => {
+				        dl.querySelectorAll( className + " dt").forEach((dt) => {
+				            dt.addEventListener("click", (e) => {
+				                let dt = e.srcElement;
+				                let dl = dt.parentElement;
+				                console.dir(dt);
+				                console.log(`${dt.innerHTML} clicked`);
+				                const dd = dt.nextElementSibling;
+				                if ((dd === null || dd === void 0 ? void 0 : dd.tagName) != "DD") {
+				                    console.error('Details "DD" not found');
+				                    return;
+				                }
+				                console.log(`${dt.innerHTML} details is`);
+				                console.dir(dd);
+				                if (dt.classList.contains("active")) {
+				                    dt.classList.remove("active");
+				                    dd.style.maxHeight = 0; //Max hieght for the animation
+				                }
+				                else {
+				                    //Close other items if single mode
+				                    dl.getAttribute("data-single-mode") && openAll(dl, false);
+				                    //Activate current item
+				                    dt.classList.add("active");
+				                    // dd.style.maxHeight = dd.scrollHeight + "px"; //Max hieght for the animation
+				                    dd.style.maxHeight = "unset"; //Max hieght for the animation
+				                }
+				                //Check if all item are active for the controls and update accordingly
+				                if (dl.querySelector("div.control")) {
+				                    const closeStatus = dl.querySelectorAll("dt").length -
+				                        dl.querySelectorAll("dt.active").length;
+				                    closeStatus == 0
+				                        ? dl.querySelector("div.control").classList.add("controls-open")
+				                        : dl.querySelector("div.control").classList.remove("controls-open");
+				                }
+				            });
+				        });
+					});
+				}
+
 				jQuery('.restapi_viewer .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.phpinfo-details .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.theme-hooks .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.plugins-hooks .csf-accordion-title').attr('data-loaded','no');
 
 				// Get option value
 
@@ -2897,6 +2940,65 @@ class System_Dashboard_Admin {
 
 				});
 
+				// Get hooks of active theme
+
+				jQuery('.theme-hooks .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_hooks',
+								'type':'active_theme'
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#theme-hooks').prepend(data);
+								jQuery('.theme-hooks .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-theme-hooks').fadeOut( 0 );
+								initMcCollapsible( ".theme-hooks" );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get hooks of active plugins
+
+				jQuery('.plugins-hooks .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_hooks',
+								'type':'active_plugins'
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#plugins-hooks').prepend(data);
+								jQuery('.plugins-hooks .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-plugins-hooks').fadeOut( 0 );
+								initMcCollapsible( ".plugins-hooks" );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
 			} );
 
 		</script>
@@ -4155,89 +4257,224 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_hooks( $type = 'active_plugins' ) {
 
-		// This sd_hooks method can only works if shell_exec is enabled in PHP, so, check first.
-		if ( $this->is_shell_exec_enabled() ) {
+		if ( isset( $_REQUEST ) ) {
 
-			$base_dir_path = wp_upload_dir()['basedir'] . '/' . $this->plugin_name;
-			$hooks_base_dir_path = $base_dir_path . '/hooks';
-			$plugins_hooks_dir_path = $hooks_base_dir_path . '/plugins';
-			$themes_hooks_dir_path = $hooks_base_dir_path . '/themes';
+			$type = $_REQUEST['type'];
 
-			// Create base directories in Uploads folder
+			// This sd_hooks method can only works if shell_exec is enabled in PHP, so, check first.
+			if ( $this->is_shell_exec_enabled() ) {
 
-			if ( !is_dir( $base_dir_path ) ) {
+				$base_dir_path = wp_upload_dir()['basedir'] . '/' . $this->plugin_name;
+				$hooks_base_dir_path = $base_dir_path . '/hooks';
+				$plugins_hooks_dir_path = $hooks_base_dir_path . '/plugins';
+				$themes_hooks_dir_path = $hooks_base_dir_path . '/themes';
 
-				mkdir( $base_dir_path );
+				// Create base directories in Uploads folder
 
-				if ( !is_dir( $hooks_base_dir_path ) ) {
+				if ( !is_dir( $base_dir_path ) ) {
 
-					mkdir( $hooks_base_dir_path );
+					mkdir( $base_dir_path );
 
-				} else {}
+					if ( !is_dir( $hooks_base_dir_path ) ) {
 
-				if ( !is_dir( $plugins_hooks_dir_path ) ) {
+						mkdir( $hooks_base_dir_path );
 
-					mkdir( $plugins_hooks_dir_path );
+					} else {}
 
-				} else {}
+					if ( !is_dir( $plugins_hooks_dir_path ) ) {
 
-				if ( !is_dir( $themes_hooks_dir_path ) ) {
+						mkdir( $plugins_hooks_dir_path );
 
-					mkdir( $themes_hooks_dir_path );
+					} else {}
 
-				} else {}
+					if ( !is_dir( $themes_hooks_dir_path ) ) {
 
-			} else {
+						mkdir( $themes_hooks_dir_path );
 
-				// Base directory exist, proceed to generate hooks
+					} else {}
 
-				// Generate hooks for active plugins
+				} else {
 
-				if ( $type == 'active_plugins' ) {
+					// Base directory exist, proceed to generate hooks
 
-					$active_plugin_dirfile_names = $this->sd_active_plugins( 'original', 'raw' );
+					// Generate hooks for active plugins
 
-					$plugin_file_editor_base_url = '/wp-admin/plugin-editor.php?file=';
+					if ( $type == 'active_plugins' ) {
 
-					$output = $this->sd_html( 'accordions-start' );
+						$active_plugin_dirfile_names = $this->sd_active_plugins( 'original', 'raw' );
 
-					// $plugins_data = array();
+						$plugin_file_editor_base_url = '/wp-admin/plugin-editor.php?file=';
 
-					foreach ( $active_plugin_dirfile_names as $dirfile_name ) {
+						$output = $this->sd_html( 'accordions-start' );
 
-						// Get plugin info, looking for version number
-						$this_plugin_path = plugin_dir_path( __DIR__ );
-						$plugins_path = str_replace( $this->plugin_name.'/', "", $this_plugin_path );
-						$plugin_file_path = $plugins_path . $dirfile_name;
-						$plugins_data = get_plugin_data( $plugin_file_path );
+						// $plugins_data = array();
 
-						// Remove dot, slash and underscore from version
-						$plugin_version = str_replace( ".", "", $plugins_data['Version'] );
-						$plugin_version = str_replace( "-", "", $plugin_version );
-						$plugin_version = str_replace( "_", "", $plugin_version );
+						foreach ( $active_plugin_dirfile_names as $dirfile_name ) {
 
-						// Prepare directory name for plugins hooks output files. Each version has a different folder.
-						$dirfile_name_array = explode( "/", $dirfile_name);
-						$directory_name = $dirfile_name_array[0];
-						$plugin_hooks_path = $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version;
+							// Get plugin info, looking for version number
+							$this_plugin_path = plugin_dir_path( __DIR__ );
+							$plugins_path = str_replace( $this->plugin_name.'/', "", $this_plugin_path );
+							$plugin_file_path = $plugins_path . $dirfile_name;
+							$plugins_data = get_plugin_data( $plugin_file_path );
 
-						// Prepare shell command to generate hooks for the plugin
-						// Go to plugins root folder before executing wp-hooks-generator which is symlink to /johnbillion/wp-hooks-generator/src/generate.php. Make sure generator is executable. The additional '2>&1' is to output error response as well, without which, blank response is returned in case of error
+							// Remove dot, slash and underscore from version
+							$plugin_version = str_replace( ".", "", $plugins_data['Version'] );
+							$plugin_version = str_replace( "-", "", $plugin_version );
+							$plugin_version = str_replace( "_", "", $plugin_version );
 
-						$shell_command = 'cd ' . plugin_dir_path( __DIR__ ) . ' && chmod +x ./vendor/johnbillion/wp-hooks-generator/src/generate.php && ./vendor/johnbillion/wp-hooks-generator/src/generate.php --input=' . $plugins_path . $directory_name . ' --output=' . $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . ' 2>&1';
+							// Prepare directory name for plugins hooks output files. Each version has a different folder.
+							$dirfile_name_array = explode( "/", $dirfile_name);
+							$directory_name = $dirfile_name_array[0];
+							$plugin_hooks_path = $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version;
+
+							// Prepare shell command to generate hooks for the plugin
+							// Go to plugins root folder before executing wp-hooks-generator which is symlink to /johnbillion/wp-hooks-generator/src/generate.php. Make sure generator is executable. The additional '2>&1' is to output error response as well, without which, blank response is returned in case of error
+
+							$shell_command = 'cd ' . plugin_dir_path( __DIR__ ) . ' && chmod +x ./vendor/johnbillion/wp-hooks-generator/src/generate.php && ./vendor/johnbillion/wp-hooks-generator/src/generate.php --input=' . $plugins_path . $directory_name . ' --output=' . $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . ' 2>&1';
+
+							$shell_output = '';
+
+							// If no directory exist yet, create it
+							if ( !is_dir( $plugin_hooks_path ) ) {
+
+								mkdir( $plugin_hooks_path );
+
+							} else {}
+
+							// If no action hooks json have been generated for the plugin, generate it
+							if ( !is_file( $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . '/actions.json' ) ) {
+
+								$shell_output = shell_exec( $shell_command );
+
+								// delay execution of wp_remote_get by 0.25 seconds, so file writing process can be completed properly first.
+								sleep(0.25); 
+
+							}
+
+							// If hooks generation failed, output error message
+
+							if ( !is_file( $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . '/actions.json' ) ) {
+
+								$output .= $directory_name . '<pre>' . $shell_output . '</pre>';
+
+							}
+
+							$response = wp_remote_get( wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/plugins/' . $directory_name . '-' . $plugin_version . '/actions.json' );
+							$action_hooks_json = wp_remote_retrieve_body( $response );
+
+							$response = wp_remote_get(  wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/plugins/' . $directory_name . '-' . $plugin_version . '/filters.json'  );
+							$filter_hooks_json = wp_remote_retrieve_body( $response );
+
+							$action_hooks = json_decode( $action_hooks_json, TRUE )['hooks']; // convert into array
+							$filter_hooks = json_decode( $filter_hooks_json, TRUE )['hooks']; // convert into array
+
+							// Output action hooks
+
+							$output .= '<h4 class="mc-collapsible-title">' . $plugins_data['Name'] . ' v' . $plugins_data['Version'] . '</h4>';
+
+							if ( !empty( $action_hooks ) ) {
+								$action_hooks_count = count( $action_hooks );
+							} else {
+								$action_hooks_count = 0;
+							}
+
+							$output .= $this->sd_html( 'accordion-head', 'Action Hooks (' . $action_hooks_count . ')' );
+
+							$hooks_output = '';
+
+							foreach ( $action_hooks as $hook ) {
+
+								$plugin_file_editor_url = $plugin_file_editor_base_url . urlencode( $directory_name .'/'. $hook['file'] ) .'&plugin='. urlencode( $dirfile_name );
+
+								$hooks_output .= $this->sd_html( 'field-content-start' );
+								$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $plugin_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
+								$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'] );
+								$hooks_output .= $this->sd_html( 'field-content-end' );
+
+							}
+
+							if ( empty( $hooks_output ) ) {
+								$hooks_output .= $this->sd_html( 'field-content-start' );
+								$hooks_output .= $this->sd_html( 'field-content-first', 'There are no action hooks defined.', 'full-width' );
+								$hooks_output .= $this->sd_html( 'field-content-end' );
+							}
+
+							$output .= $this->sd_html( 'accordion-body', $hooks_output );
+
+							// Output filter hooks
+
+							if ( !empty( $filter_hooks ) ) {
+								$filter_hooks_count = count( $filter_hooks );
+							} else {
+								$filter_hooks_count = 0;
+							}
+
+							$output .= $this->sd_html( 'accordion-head', 'Filter Hooks (' . $filter_hooks_count . ')' );
+
+							$hooks_output = '';
+
+							foreach ( $filter_hooks as $hook ) {
+
+								$plugin_file_editor_url = $plugin_file_editor_base_url . urlencode( $directory_name .'/'. $hook['file'] ) .'&plugin='. urlencode( $dirfile_name );
+
+								$hooks_output .= $this->sd_html( 'field-content-start' );
+								$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $plugin_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
+								$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'] );
+								$hooks_output .= $this->sd_html( 'field-content-end' );
+
+							}
+
+							if ( empty( $hooks_output ) ) {
+								$hooks_output .= $this->sd_html( 'field-content-start' );
+								$hooks_output .= $this->sd_html( 'field-content-first', 'There are no filter hooks defined.', 'full-width' );
+								$hooks_output .= $this->sd_html( 'field-content-end' );
+							}
+
+							$output .= $this->sd_html( 'accordion-body', $hooks_output );
+
+						}
+
+						$output .= $this->sd_html( 'accordions-end' );
+
+						echo $output;
+
+					// Generate hooks for active theme
+
+					} elseif ( $type == 'active_theme' ) {
+
+						$theme_path = get_template_directory(); // absolute path to theme directory, without trailing slash
+						$theme_path_array = explode( "/", $theme_path );
+						$theme_dirname = end( $theme_path_array );
+						$theme_version = $this->sd_active_theme( 'version_trimmed' );
+
+						// Get theme hooks by first creating directory for hooks output files
+
+						$active_theme_hooks_path = $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version;
+
+						$theme_file_editor_base_url = '/wp-admin/theme-editor.php?file=';
+
+						$output = $this->sd_html( 'accordions-start' );
+
+						// Go to plugins root folder before executing wp-hooks-generator which is symlink to /johnbillion/wp-hooks-generator/src/generate.php. The additional '2>&1' is to output error response as well, without which, blank response is returned in case of error
+
+						$shell_command = 'cd ' . plugin_dir_path( __DIR__ ) . ' && chmod +x ./vendor/johnbillion/wp-hooks-generator/src/generate.php && ./vendor/johnbillion/wp-hooks-generator/src/generate.php --input=' . $theme_path . ' --output=' . $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version . ' 2>&1';
 
 						$shell_output = '';
 
-						// If no directory exist yet, create it
-						if ( !is_dir( $plugin_hooks_path ) ) {
+						// If no directory exist, create it and generate hooks files in it
 
-							mkdir( $plugin_hooks_path );
+						if ( !is_dir( $active_theme_hooks_path ) ) {
+
+							// Create directory
+							mkdir( $active_theme_hooks_path );
 
 						} else {}
 
-						// If no action hooks json have been generated for the plugin, generate it
-						if ( !is_file( $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . '/actions.json' ) ) {
+						// If no action hooks json have been generated for the theme, generate it
 
+						if ( !is_file( $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version . '/actions.json' ) ) {
+
+							// Generate hooks
 							$shell_output = shell_exec( $shell_command );
 
 							// delay execution of wp_remote_get by 0.25 seconds, so file writing process can be completed properly first.
@@ -4247,16 +4484,18 @@ class System_Dashboard_Admin {
 
 						// If hooks generation failed, output error message
 
-						if ( !is_file( $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . '/actions.json' ) ) {
+						if ( !is_file( $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version . '/actions.json' ) ) {
 
-							$output .= $directory_name . '<pre>' . $shell_output . '</pre>';
+							$output .= $theme_dirname . '<pre>' . $shell_output . '</pre>';
 
 						}
 
-						$response = wp_remote_get( wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/plugins/' . $directory_name . '-' . $plugin_version . '/actions.json' );
+						// Get json of action and filter hooks
+
+						$response = wp_remote_get( wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/themes/' . $theme_dirname . '-' . $theme_version . '/actions.json' );
 						$action_hooks_json = wp_remote_retrieve_body( $response );
 
-						$response = wp_remote_get(  wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/plugins/' . $directory_name . '-' . $plugin_version . '/filters.json'  );
+						$response = wp_remote_get( wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/themes/' . $theme_dirname . '-' . $theme_version . '/filters.json' );
 						$filter_hooks_json = wp_remote_retrieve_body( $response );
 
 						$action_hooks = json_decode( $action_hooks_json, TRUE )['hooks']; // convert into array
@@ -4264,7 +4503,7 @@ class System_Dashboard_Admin {
 
 						// Output action hooks
 
-						$output .= '<h4 class="mc-collapsible-title">' . $plugins_data['Name'] . ' v' . $plugins_data['Version'] . '</h4>';
+						$output .= '<h4 class="mc-collapsible-title">' . $this->sd_active_theme( 'name' ) . ' ' . $this->sd_active_theme( 'version' ) . '</h4>';
 
 						if ( !empty( $action_hooks ) ) {
 							$action_hooks_count = count( $action_hooks );
@@ -4278,24 +4517,22 @@ class System_Dashboard_Admin {
 
 						foreach ( $action_hooks as $hook ) {
 
-							$plugin_file_editor_url = $plugin_file_editor_base_url . urlencode( $directory_name .'/'. $hook['file'] ) .'&plugin='. urlencode( $dirfile_name );
+							$theme_file_editor_url = $theme_file_editor_base_url . $hook['file'];
 
 							$hooks_output .= $this->sd_html( 'field-content-start' );
-							$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $plugin_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
-							$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'] );
+							$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $theme_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
+							$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'], 'long-value' );
 							$hooks_output .= $this->sd_html( 'field-content-end' );
 
 						}
 
 						if ( empty( $hooks_output ) ) {
-							$hooks_output .= $this->sd_html( 'field-content-start' );
-							$hooks_output .= $this->sd_html( 'field-content-first', 'There are no action hooks defined.', 'full-width' );
-							$hooks_output .= $this->sd_html( 'field-content-end' );
+								$hooks_output .= $this->sd_html( 'field-content-start' );
+								$hooks_output .= $this->sd_html( 'field-content-first', 'There are no action hooks defined.', 'full-width' );
+								$hooks_output .= $this->sd_html( 'field-content-end' );
 						}
 
 						$output .= $this->sd_html( 'accordion-body', $hooks_output );
-
-						// Output filter hooks
 
 						if ( !empty( $filter_hooks ) ) {
 							$filter_hooks_count = count( $filter_hooks );
@@ -4303,16 +4540,18 @@ class System_Dashboard_Admin {
 							$filter_hooks_count = 0;
 						}
 
+						// Output filter hooks
+
 						$output .= $this->sd_html( 'accordion-head', 'Filter Hooks (' . $filter_hooks_count . ')' );
 
 						$hooks_output = '';
 
 						foreach ( $filter_hooks as $hook ) {
 
-							$plugin_file_editor_url = $plugin_file_editor_base_url . urlencode( $directory_name .'/'. $hook['file'] ) .'&plugin='. urlencode( $dirfile_name );
+							$theme_file_editor_url = $theme_file_editor_base_url . $hook['file'];
 
 							$hooks_output .= $this->sd_html( 'field-content-start' );
-							$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $plugin_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
+							$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $theme_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
 							$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'] );
 							$hooks_output .= $this->sd_html( 'field-content-end' );
 
@@ -4326,152 +4565,21 @@ class System_Dashboard_Admin {
 
 						$output .= $this->sd_html( 'accordion-body', $hooks_output );
 
-					}
+						$output .= $this->sd_html( 'accordions-end' );
 
-					$output .= $this->sd_html( 'accordions-end' );
-
-					return $output;
-
-				// Generate hooks for active theme
-
-				} elseif ( $type == 'active_theme' ) {
-
-					$theme_path = get_template_directory(); // absolute path to theme directory, without trailing slash
-					$theme_path_array = explode( "/", $theme_path );
-					$theme_dirname = end( $theme_path_array );
-					$theme_version = $this->sd_active_theme( 'version_trimmed' );
-
-					// Get theme hooks by first creating directory for hooks output files
-
-					$active_theme_hooks_path = $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version;
-
-					$theme_file_editor_base_url = '/wp-admin/theme-editor.php?file=';
-
-					$output = $this->sd_html( 'accordions-start' );
-
-					// Go to plugins root folder before executing wp-hooks-generator which is symlink to /johnbillion/wp-hooks-generator/src/generate.php. The additional '2>&1' is to output error response as well, without which, blank response is returned in case of error
-
-					$shell_command = 'cd ' . plugin_dir_path( __DIR__ ) . ' && chmod +x ./vendor/johnbillion/wp-hooks-generator/src/generate.php && ./vendor/johnbillion/wp-hooks-generator/src/generate.php --input=' . $theme_path . ' --output=' . $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version . ' 2>&1';
-
-					$shell_output = '';
-
-					// If no directory exist, create it and generate hooks files in it
-
-					if ( !is_dir( $active_theme_hooks_path ) ) {
-
-						// Create directory
-						mkdir( $active_theme_hooks_path );
+						echo $output;
 
 					} else {}
 
-					// If no action hooks json have been generated for the theme, generate it
+				}
 
-					if ( !is_file( $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version . '/actions.json' ) ) {
+			} else {
 
-						// Generate hooks
-						$shell_output = shell_exec( $shell_command );
+				$output = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
 
-						// delay execution of wp_remote_get by 0.25 seconds, so file writing process can be completed properly first.
-						sleep(0.25); 
-
-					}
-
-					// If hooks generation failed, output error message
-
-					if ( !is_file( $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version . '/actions.json' ) ) {
-
-						$output .= $theme_dirname . '<pre>' . $shell_output . '</pre>';
-
-					}
-
-					// Get json of action and filter hooks
-
-					$response = wp_remote_get( wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/themes/' . $theme_dirname . '-' . $theme_version . '/actions.json' );
-					$action_hooks_json = wp_remote_retrieve_body( $response );
-
-					$response = wp_remote_get( wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/themes/' . $theme_dirname . '-' . $theme_version . '/filters.json' );
-					$filter_hooks_json = wp_remote_retrieve_body( $response );
-
-					$action_hooks = json_decode( $action_hooks_json, TRUE )['hooks']; // convert into array
-					$filter_hooks = json_decode( $filter_hooks_json, TRUE )['hooks']; // convert into array
-
-					// Output action hooks
-
-					$output .= '<h4 class="mc-collapsible-title">' . $this->sd_active_theme( 'name' ) . ' ' . $this->sd_active_theme( 'version' ) . '</h4>';
-
-					if ( !empty( $action_hooks ) ) {
-						$action_hooks_count = count( $action_hooks );
-					} else {
-						$action_hooks_count = 0;
-					}
-
-					$output .= $this->sd_html( 'accordion-head', 'Action Hooks (' . $action_hooks_count . ')' );
-
-					$hooks_output = '';
-
-					foreach ( $action_hooks as $hook ) {
-
-						$theme_file_editor_url = $theme_file_editor_base_url . $hook['file'];
-
-						$hooks_output .= $this->sd_html( 'field-content-start' );
-						$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $theme_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
-						$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'], 'long-value' );
-						$hooks_output .= $this->sd_html( 'field-content-end' );
-
-					}
-
-					if ( empty( $hooks_output ) ) {
-							$hooks_output .= $this->sd_html( 'field-content-start' );
-							$hooks_output .= $this->sd_html( 'field-content-first', 'There are no action hooks defined.', 'full-width' );
-							$hooks_output .= $this->sd_html( 'field-content-end' );
-					}
-
-					$output .= $this->sd_html( 'accordion-body', $hooks_output );
-
-					if ( !empty( $filter_hooks ) ) {
-						$filter_hooks_count = count( $filter_hooks );
-					} else {
-						$filter_hooks_count = 0;
-					}
-
-					// Output filter hooks
-
-					$output .= $this->sd_html( 'accordion-head', 'Filter Hooks (' . $filter_hooks_count . ')' );
-
-					$hooks_output = '';
-
-					foreach ( $filter_hooks as $hook ) {
-
-						$theme_file_editor_url = $theme_file_editor_base_url . $hook['file'];
-
-						$hooks_output .= $this->sd_html( 'field-content-start' );
-						$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $theme_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
-						$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'] );
-						$hooks_output .= $this->sd_html( 'field-content-end' );
-
-					}
-
-					if ( empty( $hooks_output ) ) {
-						$hooks_output .= $this->sd_html( 'field-content-start' );
-						$hooks_output .= $this->sd_html( 'field-content-first', 'There are no filter hooks defined.', 'full-width' );
-						$hooks_output .= $this->sd_html( 'field-content-end' );
-					}
-
-					$output .= $this->sd_html( 'accordion-body', $hooks_output );
-
-					$output .= $this->sd_html( 'accordions-end' );
-
-					return $output;
-
-				} else {}
+				return $output;
 
 			}
-
-		} else {
-
-			$output = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
-
-			return $output;
 
 		}
 		
@@ -7125,14 +7233,15 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Current Theme',
 										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.',
-										'class'		=> 'sd__hooks',
+										'class'		=> 'sd__hooks theme-hooks',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View Hooks',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_hooks( 'active_theme' ),
+														// 'content'	=> $this->sd_hooks( 'active_theme' ),
+														'content'	=> '<div id="spinner-theme-hooks"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="theme-hooks"></div>', // AJAX loading via sd_hooks()
 													),													
 												),
 											),
@@ -7143,14 +7252,15 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Active Plugins',
 										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.',
-										'class'		=> 'sd__hooks',
+										'class'		=> 'sd__hooks plugins-hooks',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View Hooks',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_hooks( 'active_plugins' ),
+														// 'content'	=> $this->sd_hooks( 'active_plugins' ),
+														'content'	=> '<div id="spinner-plugins-hooks"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="plugins-hooks"></div>', // AJAX loading via sd_hooks()
 													),													
 												),
 											),
