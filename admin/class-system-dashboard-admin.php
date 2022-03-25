@@ -1794,12 +1794,12 @@ class System_Dashboard_Admin {
 	}
 
 	/**
-	 * File viewer
+	 * File and URL viewer
 	 *
 	 * @param string $filename
 	 * @since 1.5.0
 	 */
-	public function sd_file_viewer( $filename = '' ) {
+	public function sd_viewer( $filename = '' ) {
 
 		$file_path = ABSPATH . $filename;
 			
@@ -1807,13 +1807,11 @@ class System_Dashboard_Admin {
 
 			if ( $filename == 'robots.txt' ) {
 
-				add_filter( 'robots_txt', array( $this, 'sd_robots_sitemap' ), 0, 2 );
+				$response = wp_remote_get( get_site_url() . '/' . $filename );
 
-				ob_start();
+				$file_content = nl2br( trim( wp_remote_retrieve_body( $response ) ) );
 
-				do_robots();
-
-				$output = nl2br( trim( ob_get_clean() ) );
+				$output = $file_content;
 
 			} elseif ( $filename == 'wp-json/wp/v2' ) {
 
@@ -1850,7 +1848,6 @@ class System_Dashboard_Admin {
 
 			$response = wp_remote_get( get_site_url() . '/wp-json/wp/v2' );
 
-			// echo stripslashes( wp_remote_retrieve_body( $response ) );
 			echo trim( wp_remote_retrieve_body( $response ) );
 
 		}
@@ -7617,7 +7614,7 @@ class System_Dashboard_Admin {
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_file_viewer( 'wp-config.php' ),
+														'content'	=> $this->sd_viewer( 'wp-config.php' ),
 													),													
 												),
 											),
@@ -7634,7 +7631,7 @@ class System_Dashboard_Admin {
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_file_viewer( '.htaccess' ),
+														'content'	=> $this->sd_viewer( '.htaccess' ),
 													),													
 												),
 											),
@@ -7652,8 +7649,7 @@ class System_Dashboard_Admin {
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														// 'content'	=> $this->sd_file_viewer( 'wp-json/wp/v2' ),
-														'content'	=> '<div id="spinner-restapi"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="wp-rest-api-content"></div>',
+														'content'	=> '<div id="spinner-restapi"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="wp-rest-api-content"></div>', // AJAX loading via sd_wp_rest_api()
 													),													
 												),
 											),
@@ -7670,7 +7666,7 @@ class System_Dashboard_Admin {
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_file_viewer( 'robots.txt' ),
+														'content'	=> $this->sd_viewer( 'robots.txt' ),
 													),													
 												),
 											),
