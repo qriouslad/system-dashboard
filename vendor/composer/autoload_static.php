@@ -9,12 +9,18 @@ class ComposerStaticInit76247d18a200e108654b5c5f5fececc6
     public static $files = array (
         'fe1bcd0336136e435eaf197895daf81a' => __DIR__ . '/..' . '/nikic/php-parser/lib/bootstrap.php',
         '0b45d4bb62a2aad4918725a62ee1f33a' => __DIR__ . '/..' . '/johnbillion/wp-parser-lib/lib/runner.php',
+        'e889e4fa6bb84c1ecb014343620a7316' => __DIR__ . '/..' . '/mrsuh/php-var-sizeof/functions/var_sizeof.php',
+        '09aa7f8567a94637a3e283b113dd7de2' => __DIR__ . '/..' . '/mrsuh/php-var-sizeof/functions/var_class_sizeof.php',
     );
 
     public static $prefixLengthsPsr4 = array (
         'P' => 
         array (
             'Psr\\Log\\' => 8,
+        ),
+        'M' => 
+        array (
+            'Mrsuh\\' => 6,
         ),
         'C' => 
         array (
@@ -26,6 +32,10 @@ class ComposerStaticInit76247d18a200e108654b5c5f5fececc6
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
+        ),
+        'Mrsuh\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/mrsuh/php-var-sizeof/src',
         ),
         'Composer\\Installers\\' => 
         array (
@@ -54,7 +64,6 @@ class ComposerStaticInit76247d18a200e108654b5c5f5fececc6
     );
 
     public static $classMap = array (
-        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'WP_Parser\\File_Reflector' => __DIR__ . '/..' . '/johnbillion/wp-parser-lib/lib/class-file-reflector.php',
         'WP_Parser\\Function_Call_Reflector' => __DIR__ . '/..' . '/johnbillion/wp-parser-lib/lib/class-function-call-reflector.php',
         'WP_Parser\\Hook_Reflector' => __DIR__ . '/..' . '/johnbillion/wp-parser-lib/lib/class-hook-reflector.php',

@@ -6,7 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'WP_Parser\\File_Reflector' => $vendorDir . '/johnbillion/wp-parser-lib/lib/class-file-reflector.php',
     'WP_Parser\\Function_Call_Reflector' => $vendorDir . '/johnbillion/wp-parser-lib/lib/class-function-call-reflector.php',
     'WP_Parser\\Hook_Reflector' => $vendorDir . '/johnbillion/wp-parser-lib/lib/class-hook-reflector.php',
