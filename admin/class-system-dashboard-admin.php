@@ -1589,44 +1589,50 @@ class System_Dashboard_Admin {
 	}
 
 	/**
-	 * Get PHP detail specifications
+	 * Get PHP detail specifications (via AJAX call)
 	 * 
 	 * @link https://plugins.svn.wordpress.org/wp-server-stats/trunk/wp-server-stats.php
 	 * @since 1.0.0
 	 */
 	public function sd_php_info() {
 
-		if ( !class_exists( 'DOMDocument' ) ) {
-			return 'Please enable DOMDocument extension first.';
-		} else {
+		if ( isset( $_REQUEST ) ) {
 
-			ob_start();
-			phpinfo();
-			$phpinfo = ob_get_contents();
-			ob_end_clean();
 
-		    // Use DOMDocument to parse phpinfo()
-			libxml_use_internal_errors(true);
-			$html = new DOMDocument('1.0', 'UTF-8');
-			$html->loadHTML($phpinfo);
+			if ( !class_exists( 'DOMDocument' ) ) {
+				return 'Please enable DOMDocument extension first.';
+			} else {
 
-		    // Style process
-			$tables = $html->getElementsByTagName('table');
-			foreach ($tables as $table) {
-				$table->setAttribute('class', 'widefat'); // use WP default styles
+				ob_start();
+				phpinfo();
+				$phpinfo = ob_get_contents();
+				ob_end_clean();
+
+			    // Use DOMDocument to parse phpinfo()
+				libxml_use_internal_errors(true);
+				$html = new DOMDocument('1.0', 'UTF-8');
+				$html->loadHTML($phpinfo);
+
+			    // Style process
+				$tables = $html->getElementsByTagName('table');
+				foreach ($tables as $table) {
+					$table->setAttribute('class', 'widefat'); // use WP default styles
+				}
+
+			    // We only need the <body>
+				$xpath = new DOMXPath($html);
+				$body = $xpath->query('/html/body');
+
+			    // Save HTML fragment
+				libxml_use_internal_errors(false);
+				$phpinfo_html = $html->saveXml($body->item(0));
+
+				echo $phpinfo_html;
+
 			}
 
-		    // We only need the <body>
-			$xpath = new DOMXPath($html);
-			$body = $xpath->query('/html/body');
-
-		    // Save HTML fragment
-			libxml_use_internal_errors(false);
-			$phpinfo_html = $html->saveXml($body->item(0));
-
-			return $phpinfo_html;
-
 		}
+
 	}
 
 	/**
@@ -2415,7 +2421,7 @@ class System_Dashboard_Admin {
 						if ( in_array( $name, $wpcore_initial_options ) ) {
 
 							$content .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
-							$content .= $this->sd_html( 'field-content-first', '<div class="option__value-div"><div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="option_id_' . $id . '" class="option__value"></div>', 'full-width long-value' );
+							$content .= $this->sd_html( 'field-content-first', '<div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="option_id_' . $id . '" class="option__value ajax-value"></div>', 'full-width long-value' );
 							$content .= $this->sd_html( 'field-content-end' );
 
 							$data_atts = array(
@@ -2442,7 +2448,7 @@ class System_Dashboard_Admin {
 						if ( !in_array( $name, $wpcore_initial_options ) ) {
 
 							$content .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
-							$content .= $this->sd_html( 'field-content-first', '<div class="option__value-div"><div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="option_id_' . $id . '" class="option__value"></div>', 'full-width long-value' );
+							$content .= $this->sd_html( 'field-content-first', '<div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="option_id_' . $id . '" class="option__value ajax-value"></div>', 'full-width long-value' );
 							$content .= $this->sd_html( 'field-content-end' );
 
 							$data_atts = array(
@@ -2622,7 +2628,7 @@ class System_Dashboard_Admin {
 			}
 
 			$transient_content = $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
-			$transient_content .= $this->sd_html( 'field-content-first', '<div class="option__value-div"><div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="transient_id_' . $id . '" class="option__value"></div>', 'full-width long-value' );
+			$transient_content .= $this->sd_html( 'field-content-first', '<div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="transient_id_' . $id . '" class="option__value ajax-value"></div>', 'full-width long-value' );
 			$transient_content .= $this->sd_html( 'field-content-end' );
 			
 
@@ -2709,6 +2715,7 @@ class System_Dashboard_Admin {
 				}
 
 				jQuery('.restapi_viewer .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.phpinfo-details .csf-accordion-title').attr('data-loaded','no');
 
 				// Get option value
 
@@ -2850,6 +2857,34 @@ class System_Dashboard_Admin {
 								}
 								jQuery('.restapi_viewer .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-restapi').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get formatted phpinfo() content
+
+				jQuery('.phpinfo-details .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_php_info',
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#phpinfo-content').prepend(data);
+								jQuery('.phpinfo-details .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-phpinfo').fadeOut( 0 );
 							},
 							erro:function(errorThrown) {
 								console.log(errorThrown);
@@ -3826,7 +3861,7 @@ class System_Dashboard_Admin {
 			if ( $call == 'ajax' ) {
 
 				$content .= $this->sd_html( 'field-content-start' );
-				$content .= $this->sd_html( 'field-content-first','<div class="global__value-div"><div id="spinner-' . $name . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="global_id_' . $name . '" class="global__value"></div>', 'full-width long-value' );
+				$content .= $this->sd_html( 'field-content-first','<div id="spinner-' . $name . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="global_id_' . $name . '" class="global__value ajax-value"></div>', 'full-width long-value' );
 				$content .= $this->sd_html( 'field-content-end' );
 
 				$data_atts = array(
@@ -3861,7 +3896,7 @@ class System_Dashboard_Admin {
 				if ( $call == 'ajax' ) {
 
 					$content = $this->sd_html( 'field-content-start' );
-					$content .= $this->sd_html( 'field-content-first','<div class="global__value-div"><div id="spinner-' . $global_name . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="global_id_' . $global_name . '" class="global__value"></div>', 'full-width long-value' );
+					$content .= $this->sd_html( 'field-content-first','<div id="spinner-' . $global_name . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="global_id_' . $global_name . '" class="global__value ajax-value"></div>', 'full-width long-value' );
 					$content .= $this->sd_html( 'field-content-end' );
 
 					$data_atts = array(
@@ -7649,7 +7684,7 @@ class System_Dashboard_Admin {
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> '<div id="spinner-restapi"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="wp-rest-api-content"></div>', // AJAX loading via sd_wp_rest_api()
+														'content'	=> '<div id="spinner-restapi"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="wp-rest-api-content" class="ajax-value"></div>', // AJAX loading via sd_wp_rest_api()
 													),													
 												),
 											),
@@ -7678,12 +7713,6 @@ class System_Dashboard_Admin {
 										'subtitle'	=> 'Contains information for search engines to crawl your site more efficiently',
 										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
 									),
-									// array(
-									// 	'type'		=> 'content',
-									// 	'title'		=> 'WordPress REST API',
-									// 	'subtitle'	=> 'An interface for external applications to interact with WordPress',
-									// 	'content'	=> '<a href="/wp-json/wp/v2" target="_blank">Access now &raquo;</a>',
-									// ),
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Tools',
@@ -7911,7 +7940,8 @@ class System_Dashboard_Admin {
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_php_info( 'plugins' ),
+														// 'content'	=> $this->sd_php_info( 'plugins' ),
+														'content'	=> '<div id="spinner-phpinfo"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="phpinfo-content"></div>', // AJAX loading via sd_php_info()
 													),													
 												),
 											),

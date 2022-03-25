@@ -133,13 +133,7 @@
     color: #3c434a;
 }
 
-.option__value-div,
-.global__value-div {
-}
-
-.option__value-div img,
-.global__value-div img,
-#spinner-restapi img {
+img.spinner_inline {
     height: 1.5em;
     width: 1.5em;
     position: relative;
@@ -147,52 +141,36 @@
     margin-right: 2px;
 }
 
-.option__value,
-.global__value,
-#wp-rest-api-content {
+.ajax-value {
     display: block;
     height: auto;
 }
 
-.option__value pre,
-.global__value pre,
-#wp-rest-api-content pre {
+.ajax-value pre {
     word-break: break-all;
     white-space: pre-wrap;
 }
 
-.option__value.json-document,
-.global__value.json-document,
-#wp-rest-api-content.json-document {
+.ajax-value.json-document {
     padding: 0;
 }
 
-.option__value a.json-toggle:before,
-.global__value a.json-toggle:before,
-#wp-rest-api-content a.json-toggle:before {
+.ajax-value a.json-toggle:before {
     font-size: 1em;
     top: .25em;
 }
 
-.option__value a.json-toggle:hover:before,
-.global__value a.json-toggle:hover:before,
-#wp-rest-api-content a.json-toggle:hover:before {
+.ajax-value a.json-toggle:hover:before {
     color: #3c434a;
 }
 
-.option__value ul.json-dict li,
-.global__value ul.json-dict li,
-#wp-rest-api-content ul.json-dict li {
+.ajax-value ul.json-dict li {
     margin-top: 3px;
     margin-bottom: 3px;
 }
 
-.option__value .json-string,
-.option__value .json-literal,
-.global__value .json-string,
-.global__value .json-literal,
-#wp-rest-api-content .json-string,
-#wp-rest-api-content .json-literal {
+.ajax-value .json-string,
+.ajax-value .json-literal {
     font-weight: 600;
 }
 
