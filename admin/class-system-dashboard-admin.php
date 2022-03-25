@@ -7509,7 +7509,6 @@ class System_Dashboard_Admin {
 											),
 										),
 									),
-
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Tools',
@@ -7534,9 +7533,20 @@ class System_Dashboard_Admin {
 										'content'	=> $this->sd_shortcodes( 'total_count' ) . ' shortcodes',
 									),
 									array(
-										'type'		=> 'content',
+										'id'		=> 'shortcodes',
+										'type'		=> 'accordion',
 										'title'		=> 'List',
-										'content'	=> $this->sd_shortcodes( 'list' ),
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_shortcodes( 'list' ),
+													),													
+												),
+											),
+										),
 									),
 									array(
 										'type'		=> 'content',
