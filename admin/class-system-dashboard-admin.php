@@ -1815,6 +1815,12 @@ class System_Dashboard_Admin {
 
 				$output = nl2br( trim( ob_get_clean() ) );
 
+			} elseif ( $filename == 'wp-json/wp/v2' ) {
+
+				$response = wp_remote_get( get_site_url() . '/' . $filename );
+
+				$output = '<pre>' . print_r( json_decode( wp_remote_retrieve_body( $response ), true ), true ) . '</pre>';
+
 			} else {
 
 				$output = $file_path . ' does not exist';
@@ -1830,6 +1836,24 @@ class System_Dashboard_Admin {
 		}
 
 		return $output;
+
+	}
+
+	/**
+	 * Get WP REST API main response
+	 *
+	 * @since 2.0.0
+	 */
+	public function sd_wp_rest_api() {
+
+		if ( isset( $_REQUEST ) ) {
+
+			$response = wp_remote_get( get_site_url() . '/wp-json/wp/v2' );
+
+			// echo stripslashes( wp_remote_retrieve_body( $response ) );
+			echo trim( wp_remote_retrieve_body( $response ) );
+
+		}
 
 	}
 
@@ -2687,6 +2711,8 @@ class System_Dashboard_Admin {
 
 				}
 
+				jQuery('.restapi_viewer .csf-accordion-title').attr('data-loaded','no');
+
 				// Get option value
 
 				jQuery('.option__name').click( function() {
@@ -2792,6 +2818,41 @@ class System_Dashboard_Admin {
 								jQuery('#global-name-' + name).attr('data-loaded','yes');
 								jQuery('#spinner-' + name).fadeOut( 0 );
 
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get REST API JSON
+
+				jQuery('.restapi_viewer .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_wp_rest_api',
+							},
+							success:function(data) {
+
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+
+								if ( isJsonString(data) ) {
+									var dataObj = JSON.parse(data);
+									jQuery('#wp-rest-api-content').jsonViewer(dataObj,{collapsed: true, rootCollapsable: false, withQuotes: false, withLinks: false});
+								} else {
+									jQuery('#wp-rest-api-content').prepend(data);
+								}
+								jQuery('.restapi_viewer .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-restapi').fadeOut( 0 );
 							},
 							erro:function(errorThrown) {
 								console.log(errorThrown);
@@ -5478,6 +5539,12 @@ class System_Dashboard_Admin {
 				),
 				array(
 					'type'		=> 'plugin',
+					'name'		=> 'Better Search Replace',
+					'pointer'	=> 'better-search-replace',
+					'usenow'	=> '/wp-admin/tools.php?page=better-search-replace',
+				),
+				array(
+					'type'		=> 'plugin',
 					'name'		=> 'Query Monitor',
 					'pointer'	=> 'query-monitor',
 					'usenow'	=> '',
@@ -5651,6 +5718,12 @@ class System_Dashboard_Admin {
 					'name'		=> 'WP Crontrol',
 					'pointer'	=> 'wp-crontrol',
 					'usenow'	=> '/wp-admin/options-general.php?page=crontrol_admin_options_page',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Crony Cronjob Manager',
+					'pointer'	=> 'crony',
+					'usenow'	=> '/wp-admin/admin.php?page=crony',
 				),
 			),
 			'rewrite_rules' 	=> array(
@@ -6035,6 +6108,11 @@ class System_Dashboard_Admin {
 					'type'		=> 'link',
 					'name'		=> 'The Complete Guide to WordPress REST API Basics',
 					'pointer'	=> 'https://kinsta.com/blog/wordpress-rest-api/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'WordPress REST API: The Next Generation CMS Feature',
+					'pointer'	=> 'https://www.toptal.com/wordpress/beginners-guide-wordpress-rest-api',
 				),
 				array(
 					'type'		=> 'link',
@@ -7563,6 +7641,25 @@ class System_Dashboard_Admin {
 										),
 									),
 									array(
+										'id'		=> 'viewer_restapi',
+										'type'		=> 'accordion',
+										'title'		=> 'WordPress <a href="/wp-json/wp/v2" target="_blank">REST API</a>',
+										'subtitle'	=> 'An interface for applications to interact with WordPress',
+										'class'		=> 'restapi_viewer',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														// 'content'	=> $this->sd_file_viewer( 'wp-json/wp/v2' ),
+														'content'	=> '<div id="spinner-restapi"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="wp-rest-api-content"></div>',
+													),													
+												),
+											),
+										),
+									),
+									array(
 										'id'		=> 'viewer_robots',
 										'type'		=> 'accordion',
 										'title'		=> 'robots.txt',
@@ -7585,12 +7682,12 @@ class System_Dashboard_Admin {
 										'subtitle'	=> 'Contains information for search engines to crawl your site more efficiently',
 										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
 									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'WordPress REST API',
-										'subtitle'	=> 'An interface for external applications to interact with WordPress',
-										'content'	=> '<a href="/wp-json/wp/v2" target="_blank">Access now &raquo;</a>',
-									),
+									// array(
+									// 	'type'		=> 'content',
+									// 	'title'		=> 'WordPress REST API',
+									// 	'subtitle'	=> 'An interface for external applications to interact with WordPress',
+									// 	'content'	=> '<a href="/wp-json/wp/v2" target="_blank">Access now &raquo;</a>',
+									// ),
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Tools',
