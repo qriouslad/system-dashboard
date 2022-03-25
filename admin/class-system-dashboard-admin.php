@@ -1805,41 +1805,41 @@ class System_Dashboard_Admin {
 	 * @param string $filename
 	 * @since 1.5.0
 	 */
-	public function sd_viewer( $filename = '' ) {
+	public function sd_viewer() {
 
-		$file_path = ABSPATH . $filename;
-			
-		if ( !file_exists( $file_path ) ) {
+		if ( isset( $_REQUEST ) ) {
 
-			if ( $filename == 'robots.txt' ) {
+			$filename = $_REQUEST['filename'];
 
-				$response = wp_remote_get( get_site_url() . '/' . $filename );
+			$file_path = ABSPATH . $filename;
+				
+			if ( !file_exists( $file_path ) ) {
 
-				$file_content = nl2br( trim( wp_remote_retrieve_body( $response ) ) );
+				if ( $filename == 'robots.txt' ) {
 
-				$output = $file_content;
+					$response = wp_remote_get( get_site_url() . '/' . $filename );
 
-			} elseif ( $filename == 'wp-json/wp/v2' ) {
+					$file_content = nl2br( trim( wp_remote_retrieve_body( $response ) ) );
 
-				$response = wp_remote_get( get_site_url() . '/' . $filename );
+					$output = $file_content;
 
-				$output = '<pre>' . print_r( json_decode( wp_remote_retrieve_body( $response ), true ), true ) . '</pre>';
+				} else {
+
+					$output = $file_path . ' does not exist';
+
+				}
 
 			} else {
 
-				$output = $file_path . ' does not exist';
+				$file_content = nl2br( trim( file_get_contents( $file_path, true ) ) );
+
+				$output = $file_content;
 
 			}
 
-		} else {
-
-			$file_content = nl2br( trim( file_get_contents( $file_path, true ) ) );
-
-			$output = $file_content;
+			echo $output;
 
 		}
-
-		return $output;
 
 	}
 
@@ -2766,6 +2766,9 @@ class System_Dashboard_Admin {
 				jQuery('.phpinfo-details .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.theme-hooks .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.plugins-hooks .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.wpconfig .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.htaccess .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.robotstxt .csf-accordion-title').attr('data-loaded','no');
 
 				// Get option value
 
@@ -3032,6 +3035,94 @@ class System_Dashboard_Admin {
 					} else {}
 
 				});
+
+				// Get content of wp-config.php
+
+				jQuery('.wpconfig .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_viewer',
+								'filename':'wp-config.php'
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#wpconfig').prepend(data);
+								jQuery('.wpconfig .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-wpconfig').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get content of .htaccess
+
+				jQuery('.htaccess .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_viewer',
+								'filename':'.htaccess'
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#htaccess').prepend(data);
+								jQuery('.htaccess .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-htaccess').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get content of .htaccess
+
+				jQuery('.robotstxt .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_viewer',
+								'filename':'robots.txt'
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#robotstxt').prepend(data);
+								jQuery('.robotstxt .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-robotstxt').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
 			} );
 
 		</script>
@@ -7789,14 +7880,15 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'wp-config.php',
 										'subtitle'	=> 'WordPress main configuration file',
-										'class'		=> 'sd-viewer',
+										'class'		=> 'sd-viewer wpconfig',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_viewer( 'wp-config.php' ),
+														// 'content'	=> $this->sd_viewer( 'wp-config.php' ),
+														'content'	=> '<div id="spinner-wpconfig"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="wpconfig" class="ajax-value"></div>', // AJAX loading via viewer()
 													),													
 												),
 											),
@@ -7807,13 +7899,15 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> '.htaccess',
 										'subtitle'	=> 'Apache server configuration only for the directory the file is in',
+										'class'		=> 'htaccess',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_viewer( '.htaccess' ),
+														// 'content'	=> $this->sd_viewer( '.htaccess' ),
+														'content'	=> '<div id="spinner-htaccess"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="htaccess" class="ajax-value"></div>', // AJAX loading via viewer()
 													),													
 												),
 											),
@@ -7842,13 +7936,15 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'robots.txt',
 										'subtitle'	=> 'Tell search engine crawlers which URLs they can access on your site',
+										'class'		=> 'robotstxt',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_viewer( 'robots.txt' ),
+														// 'content'	=> $this->sd_viewer( 'robots.txt' ),
+														'content'	=> '<div id="spinner-robotstxt"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="robotstxt" class="ajax-value"></div>', // AJAX loading via viewer()
 													),													
 												),
 											),
