@@ -61,34 +61,34 @@
             }
         });
 
-        // Hooks - WP Core - Action
+        // Hooks - WP Core - Action -- script moved to sd_ajax_calls()
 
-        $('[data-search-wpcore-action-hooks]').on('keyup', function() {
-            var searchVal = $(this).val();
-            var filterItems = $('[data-core-act-hook]');
+        // $('[data-search-wpcore-action-hooks]').on('keyup', function() {
+        //     var searchVal = $(this).val();
+        //     var filterItems = $('[data-core-act-hook]');
 
-            if ( searchVal != '' ) {
-                filterItems.addClass('hidden');
-                $('[data-core-act-hook][data-core-act-hook-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
-            } else {
-                filterItems.removeClass('hidden');
-            }
-        });
+        //     if ( searchVal != '' ) {
+        //         filterItems.addClass('hidden');
+        //         $('[data-core-act-hook][data-core-act-hook-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
+        //     } else {
+        //         filterItems.removeClass('hidden');
+        //     }
+        // });
 
 
-        // Hooks - WP Core - Filter
+        // Hooks - WP Core - Filter -- script moved to sd_ajax_calls()
 
-        $('[data-search-wpcore-filter-hooks]').on('keyup', function() {
-            var searchVal = $(this).val();
-            var filterItems = $('[data-core-fil-hook]');
+        // $('[data-search-wpcore-filter-hooks]').on('keyup', function() {
+        //     var searchVal = $(this).val();
+        //     var filterItems = $('[data-core-fil-hook]');
 
-            if ( searchVal != '' ) {
-                filterItems.addClass('hidden');
-                $('[data-core-fil-hook][data-core-fil-hook-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
-            } else {
-                filterItems.removeClass('hidden');
-            }
-        });
+        //     if ( searchVal != '' ) {
+        //         filterItems.addClass('hidden');
+        //         $('[data-core-fil-hook][data-core-fil-hook-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
+        //     } else {
+        //         filterItems.removeClass('hidden');
+        //     }
+        // });
 
         // Functions - WP Core
 

@@ -86,8 +86,12 @@
 }
 
 .sd-options .field-parts.search-filter input[type="text"] {
-    min-width: 220px;
+    width: 48%;
     border: 1px solid #ddd;
+}
+
+.sd-options .search-filter-additional-info {
+    width: 48%;    
 }
 
 .sd-options .field-parts.flex-direction-column {
@@ -118,6 +122,13 @@
 
 .sd-options .field-part.full-width {
     width: 100%;
+}
+
+.sd-options .wpcore-hooks .field-part.full-width {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .sd-options .first-part > span {
@@ -457,6 +468,27 @@ dl.mc-collapsible[data-style=qa] dd {
     }
     .custom-fields-tabs .csf-accordion-item {
         width: 100%;
+    }
+
+    .sd-options .field-parts {
+        flex-direction: column;
+    }
+
+    .sd-options .field-part {
+        width: 100%;
+    }
+
+    .sd-options .field-parts.search-filter input[type="text"] {
+        width: 100%;
+        margin-bottom: 12px;
+    }
+
+    .sd-options .search-filter-additional-info {
+        width: 100%;    
+    }
+
+    .sd-options .wpcore-hooks .field-part.full-width {
+        flex-direction: column;
     }
 
 }
