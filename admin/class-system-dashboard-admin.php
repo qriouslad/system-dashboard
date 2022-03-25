@@ -2225,21 +2225,41 @@ class System_Dashboard_Admin {
 	 * Display cron jobs
 	 * 
 	 * @link https://plugins.svn.wordpress.org/wptools/tags/3.13/functions/functions_cron_manager.php
+	 * @link https://plugins.svn.wordpress.org/debug-bar-cron/tags/0.1.3/class-debug-bar-cron.php
 	 * @since 1.0.0
 	 */
-	public function sd_cron_jobs() {
+	public function sd_cron_events( $type = 'wpcore', $return = 'events' ) {
+
+		$wpcore_cron_hooks = array(
+			'wp_scheduled_delete',
+			'wp_scheduled_auto_draft_delete',
+			'upgrader_scheduled_cleanup',
+			'importer_scheduled_cleanup',
+			'publish_future_post',
+			'do_pings',
+			'wp_version_check',
+			'wp_update_plugins',
+			'wp_update_themes',
+			'wp_privacy_delete_old_export_files',
+			'wp_site_health_scheduled_check',
+		);
 
 		$crons = _get_cron_array();
 
-		$output = $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', '<strong>Hook</strong>' );
-		$output .= $this->sd_html( 'field-content-second', '<strong>Recurrence</strong>' );
-		$output .= $this->sd_html( 'field-content-end' );
+		$wpcore_crons = '';
+		$custom_crons = '';
+		$wpcore_crons_count = 0;
+		$custom_crons_count = 0;
+
+		$header = $this->sd_html( 'field-content-start' );
+		$header .= $this->sd_html( 'field-content-first', '<strong>Hook</strong>' );
+		$header .= $this->sd_html( 'field-content-second', '<strong>Recurrence</strong>' );
+		$header .= $this->sd_html( 'field-content-end' );
+
+		$wpcore_crons .= $header;
+		$custom_crons .= $header;
 
 		foreach ( $crons as $cron ) {
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', key( $cron ) );
 
 			foreach( $cron as $c ) {
 
@@ -2253,12 +2273,87 @@ class System_Dashboard_Admin {
 
 			}
 
-			$output .= $this->sd_html( 'field-content-second', $schedule );
-			$output .= $this->sd_html( 'field-content-end' );
+			if ( in_array( key( $cron ), $wpcore_cron_hooks ) ) {
+
+				$wpcore_crons .= $this->sd_html( 'field-content-start' );
+				$wpcore_crons .= $this->sd_html( 'field-content-first', key( $cron ), 'long-value' );
+				$wpcore_crons .= $this->sd_html( 'field-content-second', $schedule, 'long-value' );
+				$wpcore_crons .= $this->sd_html( 'field-content-end' );
+
+				$wpcore_crons_count++;
+
+			} else {
+
+				$custom_crons .= $this->sd_html( 'field-content-start' );
+				$custom_crons .= $this->sd_html( 'field-content-first', key( $cron ), 'long-value' );
+				$custom_crons .= $this->sd_html( 'field-content-second', $schedule, 'long-value' );
+				$custom_crons .= $this->sd_html( 'field-content-end' );
+
+				$custom_crons_count++;
+
+			}
 
 		}
 
-		return $output;
+		if ( $type == 'wpcore' ) {
+
+			if ( $return == 'events' ) {
+
+				return $wpcore_crons;
+
+			} elseif ( $return == 'count' ) {
+
+				return $wpcore_crons_count;
+
+			} else {}
+
+		} elseif ( $type == 'custom' ) {
+
+			if ( $return == 'events' ) {
+
+				return $custom_crons;
+
+			} elseif ( $return == 'count' ) {
+
+				return $custom_crons_count;
+
+			} else {}
+
+		} elseif ( $type == 'all' ) {
+
+			if ( $return == 'count' ) {
+
+				return count( $crons );
+
+			}
+
+		} elseif ( $type == 'schedules' ) {
+
+			$schedules = wp_get_schedules();
+
+			if ( $return == 'list' ) {
+
+				$output = '';
+
+				foreach ( $schedules as $interval_name => $data ) {
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $interval_name );
+					$output .= $this->sd_html( 'field-content-second', $data['display'] );
+					$output .= $this->sd_html( 'field-content-end' );
+
+				}
+
+				return $output;
+
+			} elseif ( $return == 'count' ) {
+
+				return count( $schedules );
+
+			}
+
+		}
+
 	}
 
 	/**
@@ -7191,7 +7286,7 @@ class System_Dashboard_Admin {
 									array(
 										'id'		=> 'wp_core_options',
 										'type'		=> 'accordion',
-										'title'		=> 'WordPress Core',
+										'title'		=> 'Core',
 										'subtitle'	=> $this->sd_options( 'wpcore_count' ) . ' options',
 										'accordions'	=> array(
 											array(
@@ -7319,8 +7414,59 @@ class System_Dashboard_Admin {
 								'fields'	=> array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Jobs',
-										'content'	=> $this->sd_cron_jobs(),
+										'title'		=> 'Total',
+										'content'	=> $this->sd_cron_events( 'all', 'count' ) . ' cron events',
+									),
+									array(
+										'id'		=> 'cron_events',
+										'type'		=> 'accordion',
+										'title'		=> 'Core',
+										'subtitle'		=> $this->sd_cron_events( 'wpcore', 'count' ) . ' events',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_cron_events( 'wpcore', 'events' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'cron_events',
+										'type'		=> 'accordion',
+										'title'		=> 'Theme & Plugins',
+										'subtitle'		=> $this->sd_cron_events( 'custom', 'count' ) . ' events',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_cron_events( 'custom', 'events' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'cron_events',
+										'type'		=> 'accordion',
+										'title'		=> 'Schedules',
+										'subtitle'		=> $this->sd_cron_events( 'schedules', 'count' ) . ' intervals',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_cron_events( 'schedules', 'list' ),
+													),													
+												),
+											),
+										),
 									),
 									array(
 										'type'		=> 'content',
@@ -7909,7 +8055,7 @@ class System_Dashboard_Admin {
 									array(
 										'id'			=> 'non_wpcore_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Non WordPress Core',
+										'title'			=> 'Theme & Plugins',
 										'accordions'	=> array(
 											array(
 												'title'   => 'View',
