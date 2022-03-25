@@ -2382,7 +2382,8 @@ class System_Dashboard_Admin {
 
 				$autoload = $option->autoload;
 
-				$size_raw = $wpdb->get_var( $wpdb->prepare( "SELECT LENGTH(option_value) FROM $wpdb->options WHERE option_name = %s LIMIT 1", $name ) );
+				// $size_raw = $wpdb->get_var( $wpdb->prepare( "SELECT LENGTH(option_value) FROM $wpdb->options WHERE option_name = %s LIMIT 1", $name ) );
+				$size_raw = strlen( $option->option_value );
 				$size_formatted = size_format( $size_raw );
 
 				if ( !empty( $value ) ) {
@@ -2573,7 +2574,8 @@ class System_Dashboard_Admin {
 
 			$id = $transient->option_id;
 			$autoload = $transient->autoload;
-			$size_raw = $wpdb->get_var( $wpdb->prepare( "SELECT LENGTH(option_value) FROM $wpdb->options WHERE option_name = %s LIMIT 1", $transient_name_full ) );
+			// $size_raw = $wpdb->get_var( $wpdb->prepare( "SELECT LENGTH(option_value) FROM $wpdb->options WHERE option_name = %s LIMIT 1", $transient_name_full ) );
+			$size_raw = strlen( $transient->option_value );
 			$value = maybe_unserialize( $transient->option_value );
 			$value_type = gettype( $value );
 
