@@ -293,59 +293,6 @@
         }
     },
     {
-        "name": "mrsuh/php-var-sizeof",
-        "version": "1.1.0",
-        "version_normalized": "1.1.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/mrsuh/php-var-sizeof.git",
-            "reference": "594ad699dff56e7b3ac2718debb486917c1c36d4"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/mrsuh/php-var-sizeof/zipball/594ad699dff56e7b3ac2718debb486917c1c36d4",
-            "reference": "594ad699dff56e7b3ac2718debb486917c1c36d4",
-            "shasum": ""
-        },
-        "require": {
-            "ext-ffi": "*",
-            "php": ">=7.4"
-        },
-        "require-dev": {
-            "maddhatter/markdown-table": "^1.0",
-            "phpunit/phpunit": "^9"
-        },
-        "time": "2022-01-30T12:09:14+00:00",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "functions/var_sizeof.php",
-                "functions/var_class_sizeof.php"
-            ],
-            "psr-4": {
-                "Mrsuh\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Sukhachev Anton",
-                "email": "mrsuh6@gmail.com"
-            }
-        ],
-        "description": "Provides functions for getting full size of any PHP variable",
-        "keywords": [
-            "memory_usage",
-            "sizeof",
-            "var_class_sizeof",
-            "var_sizeof"
-        ]
-    },
-    {
         "name": "nikic/php-parser",
         "version": "v1.4.1",
         "version_normalized": "1.4.1.0",
