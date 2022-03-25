@@ -1731,6 +1731,54 @@ class System_Dashboard_Admin {
 	}
 
 	/**
+	 * Get WP directory sizes
+	 *
+	 * @since 2.0.0
+	 */
+	public function sd_wp_dir_sizes() {
+
+		$output = '';
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'All directories and files' );
+		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'wp-admin directory' );
+		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-admin' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'wp-includes directory' );
+		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-includes' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'wp-content directory' );
+		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'Uploads directory' );
+		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/uploads' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'Plugins directory' );
+		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/plugins' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'Themes directory' );
+		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/themes' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		return $output;
+
+	}
+
+	/**
 	 * Get filesystem permission status
 	 *
 	 * @link wp-admin/includes/class-wp-debug-data.php
@@ -6797,32 +6845,23 @@ class System_Dashboard_Admin {
 										'content'	=> str_replace( "/wp-content", "", WP_CONTENT_DIR ),
 									),
 									array(
-										'type'		=> 'content',
-										'title'		=> 'All directories and files',
-										'content'	=> $this->sd_dir_size( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ),
+										'id'		=> 'directory_sizes',
+										'type'		=> 'accordion',
+										'title'		=> 'Directory Sizes',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_wp_dir_sizes(),
+													),													
+												),
+											),
+										),
 									),
 									array(
-										'type'		=> 'content',
-										'title'		=> 'wp-content directory',
-										'content'	=> $this->sd_dir_size( WP_CONTENT_DIR ),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Uploads directory',
-										'content'	=> $this->sd_dir_size( WP_CONTENT_DIR.'/uploads' ),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Plugins directory',
-										'content'	=> $this->sd_dir_size( WP_CONTENT_DIR.'/plugins' ),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Themes directory',
-										'content'	=> $this->sd_dir_size( WP_CONTENT_DIR.'/themes' ),
-									),
-									array(
-										'id'		=> 'db_filesystem_permissions',
+										'id'		=> 'filesystem_permissions',
 										'type'		=> 'accordion',
 										'title'		=> 'Filesystem Permissions',
 										'accordions'	=> array(
