@@ -2369,16 +2369,16 @@ class System_Dashboard_Admin {
 		$output = '';
 		$count = 0;
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', '<strong>URL Structure</strong>' );
-		$output .= $this->sd_html( 'field-content-second', '<strong>Query Parameters</strong>' );
-		$output .= $this->sd_html( 'field-content-end' );
+		// $output .= $this->sd_html( 'field-content-start' );
+		// $output .= $this->sd_html( 'field-content-first', '<strong>URL Structure</strong>' );
+		// $output .= $this->sd_html( 'field-content-second', '<strong>Query Parameters</strong>' );
+		// $output .= $this->sd_html( 'field-content-end' );
 
 		foreach ( $rewrite_rules as $key => $value ) {
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $key, 'long-value' );
-			$output .= $this->sd_html( 'field-content-second', $value, 'long-value' );
+			$output .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
+			$output .= $this->sd_html( 'field-content-first', $key, 'full-width long-value' );
+			$output .= $this->sd_html( 'field-content-second', '&#10132; ' . $value, 'full-width long-value' );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$count++;
@@ -7489,13 +7489,27 @@ class System_Dashboard_Admin {
 
 									array(
 										'type'		=> 'content',
-										'content'	=> '<strong>Total</strong>: ' . $this->sd_rewrite_rules( 'total_count' ) . ' rules',
+										'title'		=> 'Total',
+										'content'	=> $this->sd_rewrite_rules( 'total_count' ) . ' rules',
+									),
+									array(
+										'id'		=> 'rewrite_rules',
+										'type'		=> 'accordion',
+										'title'		=> 'List',
+										'subtitle'	=> 'URL Structure <br />&#10132; Query Parameters',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_rewrite_rules( 'list' ),
+													),													
+												),
+											),
+										),
 									),
 
-									array(
-										'type'		=> 'content',
-										'content'	=> $this->sd_rewrite_rules( 'list' ),
-									),
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Tools',
