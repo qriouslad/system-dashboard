@@ -2143,29 +2143,33 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_db_details() {
 
-		global $wpdb;
-		$dbinfo = $wpdb->get_results("SHOW VARIABLES");
+		if ( isset( $_REQUEST ) ) {
 
-		$output = '';
+			global $wpdb;
+			$dbinfo = $wpdb->get_results("SHOW VARIABLES");
 
-		if ( !empty( $dbinfo ) ) {
+			$output = '';
 
-			foreach( $dbinfo as $info ) {
+			if ( !empty( $dbinfo ) ) {
 
-				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $info->Variable_name );
-				$output .= $this->sd_html( 'field-content-second', $info->Value );
-				$output .= $this->sd_html( 'field-content-end' );
+				foreach( $dbinfo as $info ) {
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $info->Variable_name );
+					$output .= $this->sd_html( 'field-content-second', $info->Value );
+					$output .= $this->sd_html( 'field-content-end' );
+
+				}
+
+			} else {
+
+				$output .= 'Undetectable';
 
 			}
 
-		} else {
-
-			$output .= 'Undetectable';
+			echo $output;
 
 		}
-
-		return $output;
 
 	}
 
@@ -2758,6 +2762,7 @@ class System_Dashboard_Admin {
 				}
 
 				jQuery('.restapi_viewer .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.db-details .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.phpinfo-details .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.theme-hooks .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.plugins-hooks .csf-accordion-title').attr('data-loaded','no');
@@ -2902,6 +2907,34 @@ class System_Dashboard_Admin {
 								}
 								jQuery('.restapi_viewer .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-restapi').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get database detail specifications
+
+				jQuery('.db-details .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_db_details',
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#db-details').prepend(data);
+								jQuery('.db-details .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-db-details').fadeOut( 0 );
 							},
 							erro:function(errorThrown) {
 								console.log(errorThrown);
@@ -6708,13 +6741,15 @@ class System_Dashboard_Admin {
 										'id'		=> 'db_detail_specs',
 										'type'		=> 'accordion',
 										'title'		=> 'Detailed Specifications',
+										'class'		=> 'db-details',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_db_details(),
+														// 'content'	=> $this->sd_db_details(),
+														'content'	=> '<div id="spinner-db-details"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="db-details"></div>', // AJAX loading via sd_php_info()
 													),													
 												),
 											),
