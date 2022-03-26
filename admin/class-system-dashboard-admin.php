@@ -7078,9 +7078,20 @@ class System_Dashboard_Admin {
 								'fields'	=> array(
 
 									array(
-										'type'		=> 'content',
-										'title'		=> 'Media',
-										'content'	=> $this->sd_media_count_by_mime(),
+										'id'		=> 'media_count_by_mime',
+										'type'		=> 'accordion',
+										'title'		=> 'Media Count by Mime Type',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_media_count_by_mime(),
+													),													
+												),
+											),
+										),
 									),
 									array(
 										'id'		=> 'media_allowed_mime_types',
