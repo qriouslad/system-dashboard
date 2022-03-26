@@ -6930,59 +6930,6 @@ class System_Dashboard_Admin {
 						'subtitle'	=>  $this->sd_wp_overview(),
 						'class'		=> 'main-section',
 						'tabs'		=> array(
-
-							array(
-								'title' => 'Directories',
-								'fields' => array(
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Root path',
-										'content'	=> str_replace( "/wp-content", "", WP_CONTENT_DIR ),
-									),
-									array(
-										'id'		=> 'directory_sizes',
-										'type'		=> 'accordion',
-										'title'		=> 'Directory Sizes',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_wp_dir_sizes(),
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'id'		=> 'filesystem_permissions',
-										'type'		=> 'accordion',
-										'title'		=> 'Filesystem Permissions',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_filesystem_permissions(),
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Tools',
-										'content'	=> $this->sd_tools( 'directories' ),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'References',
-										'content'	=> $this->sd_references( 'directories' ),
-									),
-								),
-							),
 					
 							array(
 								'title'		=> 'Database',
@@ -7178,6 +7125,59 @@ class System_Dashboard_Admin {
 										'content'	=> $this->sd_references( 'media' ),
 									),
 
+								),
+							),
+
+							array(
+								'title' => 'Directories',
+								'fields' => array(
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Root path',
+										'content'	=> str_replace( "/wp-content", "", WP_CONTENT_DIR ),
+									),
+									array(
+										'id'		=> 'directory_sizes',
+										'type'		=> 'accordion',
+										'title'		=> 'Directory Sizes',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_wp_dir_sizes(),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'filesystem_permissions',
+										'type'		=> 'accordion',
+										'title'		=> 'Filesystem Permissions',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_filesystem_permissions(),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Tools',
+										'content'	=> $this->sd_tools( 'directories' ),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'References',
+										'content'	=> $this->sd_references( 'directories' ),
+									),
 								),
 							),
 
