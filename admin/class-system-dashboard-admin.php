@@ -1992,13 +1992,13 @@ class System_Dashboard_Admin {
 		foreach( $tables as $table ) {
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $table->Name );
+			$output .= $this->sd_html( 'field-content-first', $table->Name, 'long-value' );
 			$output .= $this->sd_html( 'field-content-second', $this->sd_format_filesize( $table->Data_length ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 		}
 
-		return $output;
+		echo $output;
 
 	}
 
@@ -2905,6 +2905,7 @@ class System_Dashboard_Admin {
 				}
 
 				jQuery('.restapi_viewer .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.db-tables .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.db-details .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.phpinfo-details .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(1) .csf-accordion-title').attr('data-loaded','no');
@@ -3055,6 +3056,34 @@ class System_Dashboard_Admin {
 								}
 								jQuery('.restapi_viewer .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-restapi').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get database tables
+
+				jQuery('.db-tables .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_db_tables',
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#db-tables').prepend(data);
+								jQuery('.db-tables .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-db-tables').fadeOut( 0 );
 							},
 							erro:function(errorThrown) {
 								console.log(errorThrown);
@@ -6948,13 +6977,15 @@ class System_Dashboard_Admin {
 										'id'		=> 'db_tables',
 										'type'		=> 'accordion',
 										'title'		=> 'Tables',
+										'class'		=> 'db-tables',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_db_tables(),
+														// 'content'	=> $this->sd_db_tables(),
+														'content'	=> '<div id="spinner-db-tables"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="db-tables"></div>', // AJAX loading via sd_db_tables()
 													),													
 												),
 											),
