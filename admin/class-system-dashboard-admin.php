@@ -8156,9 +8156,20 @@ class System_Dashboard_Admin {
 								'title'		=> 'Constants',
 								'fields'	=> array(
 									array(
-										'type'		=> 'content',
+										'id'		=> 'defined_constants',
+										'type'		=> 'accordion',
 										'title'		=> 'Defined Constants',
-										'content'	=> $this->sd_wp_constants( 'defined' ),
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_wp_constants( 'defined' ),
+													),													
+												),
+											),
+										),
 									),
 									array(
 										'id'		=> 'constants_reference',
@@ -8176,11 +8187,6 @@ class System_Dashboard_Admin {
 											),
 										),
 									),
-									// array(
-									// 	'type'		=> 'content',
-									// 	'title'		=> 'Tools',
-									// 	'content'	=> $this->sd_tools( 'constants' ),
-									// ),
 									array(
 										'type'		=> 'content',
 										'title'		=> 'References',
