@@ -2179,7 +2179,7 @@ class System_Dashboard_Admin {
 
 		}
 
-		return $output;
+		echo $output;
 
 	}
 
@@ -2906,6 +2906,7 @@ class System_Dashboard_Admin {
 
 				jQuery('.restapi_viewer .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.db-tables .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.db-specs .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.db-details .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.phpinfo-details .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(1) .csf-accordion-title').attr('data-loaded','no');
@@ -3084,6 +3085,34 @@ class System_Dashboard_Admin {
 								jQuery('#db-tables').prepend(data);
 								jQuery('.db-tables .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-db-tables').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get database key specifications
+
+				jQuery('.db-specs .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_db_specs',
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#db-specs').prepend(data);
+								jQuery('.db-specs .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-db-specs').fadeOut( 0 );
 							},
 							erro:function(errorThrown) {
 								console.log(errorThrown);
@@ -6995,13 +7024,15 @@ class System_Dashboard_Admin {
 										'id'		=> 'db_key_specs',
 										'type'		=> 'accordion',
 										'title'		=> 'Key Info',
+										'class'		=> 'db-specs',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_db_specs(),
+														// 'content'	=> $this->sd_db_specs(),
+														'content'	=> '<div id="spinner-db-specs"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="db-specs"></div>', // AJAX loading via sd_db_tables()
 													),													
 												),
 											),
