@@ -6989,23 +6989,13 @@ class System_Dashboard_Admin {
 								'fields'	=> array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'System',
-										'content'	=> $this->sd_get_mysql_version(),
+										'title'		=> 'System & Uptime',
+										'content'	=> $this->sd_get_mysql_version() . ' / ' . $this->sd_db_uptime(),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Uptime',
-										'content'	=> $this->sd_db_uptime(),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Data Size',
-										'content'	=> $this->sd_db_disk_usage( 'data' ),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Index Size',
-										'content'	=> $this->sd_db_disk_usage( 'index' ),
+										'title'		=> 'Data & Index Size',
+										'content'	=> $this->sd_db_disk_usage( 'data' ) . ' / ' . $this->sd_db_disk_usage( 'index' ),
 									),
 									array(
 										'id'		=> 'db_tables',
