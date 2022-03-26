@@ -7041,7 +7041,7 @@ class System_Dashboard_Admin {
 													array(
 														'type'		=> 'content',
 														// 'content'	=> $this->sd_db_details(),
-														'content'	=> '<div id="spinner-db-details"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="db-details"></div>', // AJAX loading via sd_php_info()
+														'content'	=> '<div id="spinner-db-details"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div><div id="db-details"></div>', // AJAX loading via sd_db_details()
 													),													
 												),
 											),
@@ -7065,19 +7065,36 @@ class System_Dashboard_Admin {
 								'title' => 'Post Types & Taxonomies',
 								'fields' => array(
 									array(
-										'type'		=> 'content',
-										'title'		=> 'Post types',
-										'content'	=> $this->sd_post_types_info(),
+										'id'		=> 'post_types',
+										'type'		=> 'accordion',
+										'title'		=> 'Post Types Post Count',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_post_types_info(),
+													),													
+												),
+											),
+										),
 									),
 									array(
-										'type'		=> 'content',
-										'title'		=> 'Taxonomies',
-										'content'	=> $this->sd_get_taxonomies_info(),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Comments',
-										'content'	=> get_comments( array( 'count' => true ) ),
+										'id'		=> 'taxonomies',
+										'type'		=> 'accordion',
+										'title'		=> 'Taxonomies Term Count',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_get_taxonomies_info(),
+													),													
+												),
+											),
+										),
 									),
 									array(
 										'id'		=> 'pttax_old_slugs',
