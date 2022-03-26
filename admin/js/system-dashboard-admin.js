@@ -186,15 +186,15 @@ function mcCollapsible() {
             dt.addEventListener("click", (e) => {
                 let dt = e.srcElement;
                 let dl = dt.parentElement;
-                console.dir(dt);
-                console.log(`${dt.innerHTML} clicked`);
+                // console.dir(dt);
+                // console.log(`${dt.innerHTML} clicked`);
                 const dd = dt.nextElementSibling;
                 if ((dd === null || dd === void 0 ? void 0 : dd.tagName) != "DD") {
-                    console.error('Details "DD" not found');
+                    // console.error('Details "DD" not found');
                     return;
                 }
-                console.log(`${dt.innerHTML} details is`);
-                console.dir(dd);
+                // console.log(`${dt.innerHTML} details is`);
+                // console.dir(dd);
                 if (dt.classList.contains("active")) {
                     dt.classList.remove("active");
                     dd.style.maxHeight = 0; //Max hieght for the animation

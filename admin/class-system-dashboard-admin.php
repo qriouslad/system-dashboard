@@ -2931,7 +2931,9 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_option_value',
-								'option_name':optionName
+								'option_name':optionName,
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 								// console.log('result: ' + optionId + ' - ' + data);
@@ -2970,7 +2972,9 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_option_value',
-								'option_name':transientName
+								'option_name':transientName,
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 								// console.log('result: ' + transientId + ' - ' + data);
@@ -3008,7 +3012,9 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_global_value',
-								'global_name':name
+								'global_name':name,
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 
@@ -3044,6 +3050,8 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_wp_rest_api',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 
@@ -3079,6 +3087,8 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_db_tables',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -3107,6 +3117,8 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_db_specs',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -3135,6 +3147,8 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_db_details',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -3163,6 +3177,8 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_php_info',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -3191,7 +3207,9 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_wpcore_hooks',
-								'type':'action'
+								'type':'action',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -3234,7 +3252,9 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_wpcore_hooks',
-								'type':'filter'
+								'type':'filter',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -3276,7 +3296,9 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_hooks',
-								'type':'active_theme'
+								'type':'active_theme',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -3336,7 +3358,9 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_viewer',
-								'filename':'wp-config.php'
+								'filename':'wp-config.php',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -3365,7 +3389,9 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_viewer',
-								'filename':'.htaccess'
+								'filename':'.htaccess',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -3394,7 +3420,9 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_viewer',
-								'filename':'robots.txt'
+								'filename':'robots.txt',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -4979,7 +5007,7 @@ class System_Dashboard_Admin {
 
 				$output = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
 
-				return $output;
+				echo $output;
 
 			}
 
@@ -6488,7 +6516,12 @@ class System_Dashboard_Admin {
 					'type'		=> 'link',
 					'name'		=> 'A Comprehensive Guide on WordPress Files and How to Use Them',
 					'pointer'	=> 'https://kinsta.com/knowledgebase/wordpress-files/',
-				),				
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'WordPress File Permissions: Complete Beginner’s Guide',
+					'pointer'	=> 'https://www.malcare.com/blog/wordpress-file-permissions/',
+				),
 			),
 			'database' 	=> array(
 				array(

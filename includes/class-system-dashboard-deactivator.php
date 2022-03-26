@@ -31,6 +31,10 @@ class System_Dashboard_Deactivator {
 	 */
 	public static function deactivate() {
 
+        $fast_ajax_file = WPMU_PLUGIN_DIR . '/fast-ajax.php';
+
+        unlink( $fast_ajax_file );
+
 	}
 
 }
