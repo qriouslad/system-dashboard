@@ -7241,16 +7241,27 @@ class System_Dashboard_Admin {
 							array(
 								'title' => 'Users',
 								'fields' => array(
+
 									array(
-										'type'		=> 'content',
+										'id'		=> 'user_count_by_role',
+										'type'		=> 'accordion',
 										'title'		=> 'Users Count by Role',
-										'content'	=> $this->sd_get_user_count_by_role( 'by_role' ),
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_get_user_count_by_role( 'by_role' ),
+													),													
+												),
+											),
+										),
 									),
 									array(
 										'id'		=> 'urc_tools',
 										'type'		=> 'accordion',
 										'title'		=> 'Roles & Capabilities',
-										// 'subtitle'	=> 'Includes custom capabilities',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
