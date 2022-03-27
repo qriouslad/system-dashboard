@@ -3603,6 +3603,7 @@ class System_Dashboard_Admin {
 				$hook_name_clean = str_replace("{", "", $hook['name']);
 				$hook_name_clean = str_replace("}", "", $hook_name_clean);
 				$hook_name_clean = str_replace("$", "", $hook_name_clean);
+				$hook_name_clean = str_replace(">", "-", $hook_name_clean);
 
 				if ( strpos( $hook['type'], 'action' ) !== false ) {
 
