@@ -188,22 +188,22 @@ img.spinner_inline {
     padding: 0;
 }
 
-.ajax-value a.json-toggle:before {
+.csf-field a.json-toggle:before {
     font-size: 1em;
     top: .25em;
 }
 
-.ajax-value a.json-toggle:hover:before {
+.csf-field a.json-toggle:hover:before {
     color: #3c434a;
 }
 
-.ajax-value ul.json-dict li {
+.csf-field ul.json-dict li {
     margin-top: 3px;
     margin-bottom: 3px;
 }
 
-.ajax-value .json-string,
-.ajax-value .json-literal {
+.csf-field .json-string,
+.csf-field .json-literal {
     font-weight: 600;
 }
 
