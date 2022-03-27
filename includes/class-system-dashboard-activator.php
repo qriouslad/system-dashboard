@@ -71,6 +71,11 @@ class System_Dashboard_Activator {
                             return $plugins;
                         }
 
+                        /* load all plugins if load_plugins is set to all */
+                        if ( $_REQUEST['load_plugins'] == 'all' )  {
+                            return $plugins;
+                        }
+
                         /* disable all plugins if none are told to load by the load_plugins array */
                         if ( !isset($_REQUEST['load_plugins']) || !$_REQUEST['load_plugins'] )  {
                             return array();
