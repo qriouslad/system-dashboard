@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.2  
-Stable tag: 2.0.0  
+Stable tag: 2.0.1  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -16,7 +16,7 @@ Centralized dashboard to monitor various WordPress components, stats and data, i
 
 ## Description
 
-This plugin provides a centralized dashboard to monitor various WordPress components, stats and data, including server hardware, software and resource usage. Queries are optimized and most modules employs fast AJAX loading of content and values, so the plugin loads fast despite having a total of 21 modules. It does not weight down wp-admin, and certainly not the front-end.
+This plugin provides a centralized dashboard to monitor various WordPress components, stats and data, including server hardware, software and resource usage. Queries are optimized and most modules employ fast AJAX loading of content and values, so the plugin loads fast despite having a total of 21 modules. It does not weight down wp-admin, and nothing is loaded on the front-end. To preview the screeshots more easily, visit the [github repo](https://github.com/qriouslad/system-dashboard).
 
 ### WordPress Modules (18)
 
@@ -235,14 +235,18 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 
 ## Changelog
 
+### 2.0.1 (March 2022)
+
+* Fix missing Fast AJAX MU Plugin for those upgrading from v1.9.0
+* Fix malformed Code Reference URLs for core hooks containing the '>' symbol, e.g. save_post_{$post->post_type}
+
 ### 2.0.0 (March 2022)
 
 * Optimize dashboard load time considerably by employing AJAX loading of module content, element and values
-* Implement an MU plugin that keeps AJAX calls fast by unloading all other plugins during the calls
+* Implement an MU plugin that keeps AJAX calls fast by unloading all other plugins during the AJAX calls
 * Optimize DB queries considerably on the Options and Transients module
 * Cron: split cron events between core and non-core
-* Rewrite Rules: improve module layout
-* Database, Post Types * Taxonomies, Media, Directories, Users: tidy up layout
+* Database, Post Types & Taxonomies, Media, Directories, Users, Rewrite Rules: tidy up layout
 * Add review, feedback and donate links in dashboard header
 
 ### 1.9.0 (March 2022)
