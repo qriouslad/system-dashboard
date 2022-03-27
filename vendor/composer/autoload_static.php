@@ -54,7 +54,6 @@ class ComposerStaticInit76247d18a200e108654b5c5f5fececc6
     );
 
     public static $classMap = array (
-        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'WP_Parser\\File_Reflector' => __DIR__ . '/..' . '/johnbillion/wp-parser-lib/lib/class-file-reflector.php',
         'WP_Parser\\Function_Call_Reflector' => __DIR__ . '/..' . '/johnbillion/wp-parser-lib/lib/class-function-call-reflector.php',
         'WP_Parser\\Hook_Reflector' => __DIR__ . '/..' . '/johnbillion/wp-parser-lib/lib/class-hook-reflector.php',

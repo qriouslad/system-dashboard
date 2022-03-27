@@ -31,6 +31,16 @@
 
      $(document).ready( function() {
 
+        // Add review and feedback buttons to header
+
+        var addReview = '<a href="https://wordpress.org/plugins/system-dashboard/#reviews" target="_blank" class="sd-header-action"><span>&starf;</span> Review</a>';
+        var giveFeedback = '<a href="https://wordpress.org/support/plugin/system-dashboard/" target="_blank" class="sd-header-action">&#10010; Feedback</a>';
+        var donate = '<a href="https://paypal.me/qriouslad" target="_blank" class="sd-header-action">&#10084; Donate</a>';
+
+        $(donate).prependTo('.csf-header-right');
+        $(giveFeedback).prependTo('.csf-header-right');
+        $(addReview).prependTo('.csf-header-right');
+
         // Search filter - https://codepen.io/alexerlandsson/pen/ZbyRoO
 
         // Options - WP Core
@@ -61,34 +71,34 @@
             }
         });
 
-        // Hooks - WP Core - Action
+        // Hooks - WP Core - Action -- script moved to sd_ajax_calls()
 
-        $('[data-search-wpcore-action-hooks]').on('keyup', function() {
-            var searchVal = $(this).val();
-            var filterItems = $('[data-core-act-hook]');
+        // $('[data-search-wpcore-action-hooks]').on('keyup', function() {
+        //     var searchVal = $(this).val();
+        //     var filterItems = $('[data-core-act-hook]');
 
-            if ( searchVal != '' ) {
-                filterItems.addClass('hidden');
-                $('[data-core-act-hook][data-core-act-hook-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
-            } else {
-                filterItems.removeClass('hidden');
-            }
-        });
+        //     if ( searchVal != '' ) {
+        //         filterItems.addClass('hidden');
+        //         $('[data-core-act-hook][data-core-act-hook-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
+        //     } else {
+        //         filterItems.removeClass('hidden');
+        //     }
+        // });
 
 
-        // Hooks - WP Core - Filter
+        // Hooks - WP Core - Filter -- script moved to sd_ajax_calls()
 
-        $('[data-search-wpcore-filter-hooks]').on('keyup', function() {
-            var searchVal = $(this).val();
-            var filterItems = $('[data-core-fil-hook]');
+        // $('[data-search-wpcore-filter-hooks]').on('keyup', function() {
+        //     var searchVal = $(this).val();
+        //     var filterItems = $('[data-core-fil-hook]');
 
-            if ( searchVal != '' ) {
-                filterItems.addClass('hidden');
-                $('[data-core-fil-hook][data-core-fil-hook-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
-            } else {
-                filterItems.removeClass('hidden');
-            }
-        });
+        //     if ( searchVal != '' ) {
+        //         filterItems.addClass('hidden');
+        //         $('[data-core-fil-hook][data-core-fil-hook-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
+        //     } else {
+        //         filterItems.removeClass('hidden');
+        //     }
+        // });
 
         // Functions - WP Core
 
@@ -186,15 +196,15 @@ function mcCollapsible() {
             dt.addEventListener("click", (e) => {
                 let dt = e.srcElement;
                 let dl = dt.parentElement;
-                console.dir(dt);
-                console.log(`${dt.innerHTML} clicked`);
+                // console.dir(dt);
+                // console.log(`${dt.innerHTML} clicked`);
                 const dd = dt.nextElementSibling;
                 if ((dd === null || dd === void 0 ? void 0 : dd.tagName) != "DD") {
-                    console.error('Details "DD" not found');
+                    // console.error('Details "DD" not found');
                     return;
                 }
-                console.log(`${dt.innerHTML} details is`);
-                console.dir(dd);
+                // console.log(`${dt.innerHTML} details is`);
+                // console.dir(dd);
                 if (dt.classList.contains("active")) {
                     dt.classList.remove("active");
                     dd.style.maxHeight = 0; //Max hieght for the animation

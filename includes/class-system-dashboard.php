@@ -203,9 +203,19 @@ class System_Dashboard {
 		$this->loader->add_filter( 'plugin_action_links_'.$this->plugin_name.'/'.$this->plugin_name.'.php', $plugin_admin, 'sd_add_plugin_action_links' );
 		// $this->loader->add_filter( 'plugin_row_meta', $plugin_admin, 'sd_add_plugin_meta_links', $this->plugin_name.'/'.$this->plugin_name.'.php', 'data', 'active' );
 
+		// Register AJAX callback functions
 		$this->loader->add_action( 'admin_footer', $plugin_admin, 'sd_ajax_calls' );
+		$this->loader->add_action( 'wp_ajax_sd_db_tables', $plugin_admin, 'sd_db_tables' );
+		$this->loader->add_action( 'wp_ajax_sd_db_specs', $plugin_admin, 'sd_db_specs' );
+		$this->loader->add_action( 'wp_ajax_sd_db_details', $plugin_admin, 'sd_db_details' );
 		$this->loader->add_action( 'wp_ajax_sd_option_value', $plugin_admin, 'sd_option_value' );
 		$this->loader->add_action( 'wp_ajax_sd_global_value', $plugin_admin, 'sd_global_value' );
+		$this->loader->add_action( 'wp_ajax_sd_wpcore_hooks', $plugin_admin, 'sd_wpcore_hooks' );
+		$this->loader->add_action( 'wp_ajax_sd_hooks', $plugin_admin, 'sd_hooks' );
+		$this->loader->add_action( 'wp_ajax_sd_constants', $plugin_admin, 'sd_constants' );
+		$this->loader->add_action( 'wp_ajax_sd_viewer', $plugin_admin, 'sd_viewer' );
+		$this->loader->add_action( 'wp_ajax_sd_wp_rest_api', $plugin_admin, 'sd_wp_rest_api' );
+		$this->loader->add_action( 'wp_ajax_sd_php_info', $plugin_admin, 'sd_php_info' );
 	}
 
 	/**

@@ -160,7 +160,7 @@ class System_Dashboard_Admin {
 
 		} elseif ( $partial == 'search-filter' ) {
 
-			return '<div class="field-parts search-filter"><div class="field-part first-part full-width"><input type="text" placeholder="Search..." ' . $data_atts . ' /></div></div>';
+			return '<div class="field-parts search-filter"><div class="field-part first-part full-width"><input type="text" placeholder="Search..." ' . $data_atts . ' /><div class="search-filter-additional-info">' . $content . '</div></div></div>';
 
 		}
 
@@ -181,6 +181,14 @@ class System_Dashboard_Admin {
 		} elseif ( $partial == 'field-content-end' ) {
 
 			return '</div>';
+
+		}
+
+		// Ajax call receiver div
+
+		elseif ( $partial == 'ajax-receiver' ) {
+
+			return '<div id="spinner-' . $content . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading...</div><div id="' . $content . '-content"></div>';
 
 		}
 
@@ -1589,44 +1597,50 @@ class System_Dashboard_Admin {
 	}
 
 	/**
-	 * Get PHP detail specifications
+	 * Get PHP detail specifications (via AJAX call)
 	 * 
 	 * @link https://plugins.svn.wordpress.org/wp-server-stats/trunk/wp-server-stats.php
 	 * @since 1.0.0
 	 */
 	public function sd_php_info() {
 
-		if ( !class_exists( 'DOMDocument' ) ) {
-			return 'Please enable DOMDocument extension first.';
-		} else {
+		if ( isset( $_REQUEST ) ) {
 
-			ob_start();
-			phpinfo();
-			$phpinfo = ob_get_contents();
-			ob_end_clean();
 
-		    // Use DOMDocument to parse phpinfo()
-			libxml_use_internal_errors(true);
-			$html = new DOMDocument('1.0', 'UTF-8');
-			$html->loadHTML($phpinfo);
+			if ( !class_exists( 'DOMDocument' ) ) {
+				return 'Please enable DOMDocument extension first.';
+			} else {
 
-		    // Style process
-			$tables = $html->getElementsByTagName('table');
-			foreach ($tables as $table) {
-				$table->setAttribute('class', 'widefat'); // use WP default styles
+				ob_start();
+				phpinfo();
+				$phpinfo = ob_get_contents();
+				ob_end_clean();
+
+			    // Use DOMDocument to parse phpinfo()
+				libxml_use_internal_errors(true);
+				$html = new DOMDocument('1.0', 'UTF-8');
+				$html->loadHTML($phpinfo);
+
+			    // Style process
+				$tables = $html->getElementsByTagName('table');
+				foreach ($tables as $table) {
+					$table->setAttribute('class', 'widefat'); // use WP default styles
+				}
+
+			    // We only need the <body>
+				$xpath = new DOMXPath($html);
+				$body = $xpath->query('/html/body');
+
+			    // Save HTML fragment
+				libxml_use_internal_errors(false);
+				$phpinfo_html = $html->saveXml($body->item(0));
+
+				echo $phpinfo_html;
+
 			}
 
-		    // We only need the <body>
-			$xpath = new DOMXPath($html);
-			$body = $xpath->query('/html/body');
-
-		    // Save HTML fragment
-			libxml_use_internal_errors(false);
-			$phpinfo_html = $html->saveXml($body->item(0));
-
-			return $phpinfo_html;
-
 		}
+
 	}
 
 	/**
@@ -1725,6 +1739,54 @@ class System_Dashboard_Admin {
 	}
 
 	/**
+	 * Get WP directory sizes
+	 *
+	 * @since 2.0.0
+	 */
+	public function sd_wp_dir_sizes() {
+
+		$output = '';
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'All directories and files' );
+		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'wp-admin directory' );
+		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-admin' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'wp-includes directory' );
+		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-includes' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'wp-content directory' );
+		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'Uploads directory' );
+		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/uploads' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'Plugins directory' );
+		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/plugins' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'Themes directory' );
+		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/themes' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		return $output;
+
+	}
+
+	/**
 	 * Get filesystem permission status
 	 *
 	 * @link wp-admin/includes/class-wp-debug-data.php
@@ -1794,42 +1856,63 @@ class System_Dashboard_Admin {
 	}
 
 	/**
-	 * File viewer
+	 * File and URL viewer
 	 *
 	 * @param string $filename
 	 * @since 1.5.0
 	 */
-	public function sd_file_viewer( $filename = '' ) {
+	public function sd_viewer() {
 
-		$file_path = ABSPATH . $filename;
-			
-		if ( !file_exists( $file_path ) ) {
+		if ( isset( $_REQUEST ) ) {
 
-			if ( $filename == 'robots.txt' ) {
+			$filename = $_REQUEST['filename'];
 
-				add_filter( 'robots_txt', array( $this, 'sd_robots_sitemap' ), 0, 2 );
+			$file_path = ABSPATH . $filename;
+				
+			if ( !file_exists( $file_path ) ) {
 
-				ob_start();
+				if ( $filename == 'robots.txt' ) {
 
-				do_robots();
+					$response = wp_remote_get( get_site_url() . '/' . $filename );
 
-				$output = nl2br( trim( ob_get_clean() ) );
+					$file_content = nl2br( trim( wp_remote_retrieve_body( $response ) ) );
+
+					$output = $file_content;
+
+				} else {
+
+					$output = $file_path . ' does not exist';
+
+				}
 
 			} else {
 
-				$output = $file_path . ' does not exist';
+				$file_content = nl2br( trim( file_get_contents( $file_path, true ) ) );
+
+				$output = $file_content;
 
 			}
 
-		} else {
-
-			$file_content = nl2br( trim( file_get_contents( $file_path, true ) ) );
-
-			$output = $file_content;
+			echo $output;
 
 		}
 
-		return $output;
+	}
+
+	/**
+	 * Get WP REST API main response
+	 *
+	 * @since 2.0.0
+	 */
+	public function sd_wp_rest_api() {
+
+		if ( isset( $_REQUEST ) ) {
+
+			$response = wp_remote_get( get_site_url() . '/wp-json/wp/v2' );
+
+			echo trim( wp_remote_retrieve_body( $response ) );
+
+		}
 
 	}
 
@@ -1917,13 +2000,13 @@ class System_Dashboard_Admin {
 		foreach( $tables as $table ) {
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $table->Name );
+			$output .= $this->sd_html( 'field-content-first', $table->Name, 'long-value' );
 			$output .= $this->sd_html( 'field-content-second', $this->sd_format_filesize( $table->Data_length ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 		}
 
-		return $output;
+		echo $output;
 
 	}
 
@@ -2104,7 +2187,7 @@ class System_Dashboard_Admin {
 
 		}
 
-		return $output;
+		echo $output;
 
 	}
 
@@ -2116,29 +2199,33 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_db_details() {
 
-		global $wpdb;
-		$dbinfo = $wpdb->get_results("SHOW VARIABLES");
+		if ( isset( $_REQUEST ) ) {
 
-		$output = '';
+			global $wpdb;
+			$dbinfo = $wpdb->get_results("SHOW VARIABLES");
 
-		if ( !empty( $dbinfo ) ) {
+			$output = '';
 
-			foreach( $dbinfo as $info ) {
+			if ( !empty( $dbinfo ) ) {
 
-				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $info->Variable_name );
-				$output .= $this->sd_html( 'field-content-second', $info->Value );
-				$output .= $this->sd_html( 'field-content-end' );
+				foreach( $dbinfo as $info ) {
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $info->Variable_name );
+					$output .= $this->sd_html( 'field-content-second', $info->Value );
+					$output .= $this->sd_html( 'field-content-end' );
+
+				}
+
+			} else {
+
+				$output .= 'Undetectable';
 
 			}
 
-		} else {
-
-			$output .= 'Undetectable';
+			echo $output;
 
 		}
-
-		return $output;
 
 	}
 
@@ -2146,21 +2233,41 @@ class System_Dashboard_Admin {
 	 * Display cron jobs
 	 * 
 	 * @link https://plugins.svn.wordpress.org/wptools/tags/3.13/functions/functions_cron_manager.php
+	 * @link https://plugins.svn.wordpress.org/debug-bar-cron/tags/0.1.3/class-debug-bar-cron.php
 	 * @since 1.0.0
 	 */
-	public function sd_cron_jobs() {
+	public function sd_cron_events( $type = 'wpcore', $return = 'events' ) {
+
+		$wpcore_cron_hooks = array(
+			'wp_scheduled_delete',
+			'wp_scheduled_auto_draft_delete',
+			'upgrader_scheduled_cleanup',
+			'importer_scheduled_cleanup',
+			'publish_future_post',
+			'do_pings',
+			'wp_version_check',
+			'wp_update_plugins',
+			'wp_update_themes',
+			'wp_privacy_delete_old_export_files',
+			'wp_site_health_scheduled_check',
+		);
 
 		$crons = _get_cron_array();
 
-		$output = $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', '<strong>Hook</strong>' );
-		$output .= $this->sd_html( 'field-content-second', '<strong>Recurrence</strong>' );
-		$output .= $this->sd_html( 'field-content-end' );
+		$wpcore_crons = '';
+		$custom_crons = '';
+		$wpcore_crons_count = 0;
+		$custom_crons_count = 0;
+
+		$header = $this->sd_html( 'field-content-start' );
+		$header .= $this->sd_html( 'field-content-first', '<strong>Hook</strong>' );
+		$header .= $this->sd_html( 'field-content-second', '<strong>Recurrence</strong>' );
+		$header .= $this->sd_html( 'field-content-end' );
+
+		$wpcore_crons .= $header;
+		$custom_crons .= $header;
 
 		foreach ( $crons as $cron ) {
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', key( $cron ) );
 
 			foreach( $cron as $c ) {
 
@@ -2174,12 +2281,87 @@ class System_Dashboard_Admin {
 
 			}
 
-			$output .= $this->sd_html( 'field-content-second', $schedule );
-			$output .= $this->sd_html( 'field-content-end' );
+			if ( in_array( key( $cron ), $wpcore_cron_hooks ) ) {
+
+				$wpcore_crons .= $this->sd_html( 'field-content-start' );
+				$wpcore_crons .= $this->sd_html( 'field-content-first', key( $cron ), 'long-value' );
+				$wpcore_crons .= $this->sd_html( 'field-content-second', $schedule, 'long-value' );
+				$wpcore_crons .= $this->sd_html( 'field-content-end' );
+
+				$wpcore_crons_count++;
+
+			} else {
+
+				$custom_crons .= $this->sd_html( 'field-content-start' );
+				$custom_crons .= $this->sd_html( 'field-content-first', key( $cron ), 'long-value' );
+				$custom_crons .= $this->sd_html( 'field-content-second', $schedule, 'long-value' );
+				$custom_crons .= $this->sd_html( 'field-content-end' );
+
+				$custom_crons_count++;
+
+			}
 
 		}
 
-		return $output;
+		if ( $type == 'wpcore' ) {
+
+			if ( $return == 'events' ) {
+
+				return $wpcore_crons;
+
+			} elseif ( $return == 'count' ) {
+
+				return $wpcore_crons_count;
+
+			} else {}
+
+		} elseif ( $type == 'custom' ) {
+
+			if ( $return == 'events' ) {
+
+				return $custom_crons;
+
+			} elseif ( $return == 'count' ) {
+
+				return $custom_crons_count;
+
+			} else {}
+
+		} elseif ( $type == 'all' ) {
+
+			if ( $return == 'count' ) {
+
+				return count( $crons );
+
+			}
+
+		} elseif ( $type == 'schedules' ) {
+
+			$schedules = wp_get_schedules();
+
+			if ( $return == 'list' ) {
+
+				$output = '';
+
+				foreach ( $schedules as $interval_name => $data ) {
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $interval_name );
+					$output .= $this->sd_html( 'field-content-second', $data['display'] );
+					$output .= $this->sd_html( 'field-content-end' );
+
+				}
+
+				return $output;
+
+			} elseif ( $return == 'count' ) {
+
+				return count( $schedules );
+
+			}
+
+		}
+
 	}
 
 	/**
@@ -2195,16 +2377,16 @@ class System_Dashboard_Admin {
 		$output = '';
 		$count = 0;
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', '<strong>URL Structure</strong>' );
-		$output .= $this->sd_html( 'field-content-second', '<strong>Query Parameters</strong>' );
-		$output .= $this->sd_html( 'field-content-end' );
+		// $output .= $this->sd_html( 'field-content-start' );
+		// $output .= $this->sd_html( 'field-content-first', '<strong>URL Structure</strong>' );
+		// $output .= $this->sd_html( 'field-content-second', '<strong>Query Parameters</strong>' );
+		// $output .= $this->sd_html( 'field-content-end' );
 
 		foreach ( $rewrite_rules as $key => $value ) {
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $key, 'long-value' );
-			$output .= $this->sd_html( 'field-content-second', $value, 'long-value' );
+			$output .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
+			$output .= $this->sd_html( 'field-content-first', $key, 'full-width long-value' );
+			$output .= $this->sd_html( 'field-content-second', '&#10132; ' . $value, 'full-width long-value' );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$count++;
@@ -2355,7 +2537,8 @@ class System_Dashboard_Admin {
 
 				$autoload = $option->autoload;
 
-				$size_raw = $wpdb->get_var( $wpdb->prepare( "SELECT LENGTH(option_value) FROM $wpdb->options WHERE option_name = %s LIMIT 1", $name ) );
+				// $size_raw = $wpdb->get_var( $wpdb->prepare( "SELECT LENGTH(option_value) FROM $wpdb->options WHERE option_name = %s LIMIT 1", $name ) );
+				$size_raw = strlen( $option->option_value );
 				$size_formatted = size_format( $size_raw );
 
 				if ( !empty( $value ) ) {
@@ -2394,7 +2577,7 @@ class System_Dashboard_Admin {
 						if ( in_array( $name, $wpcore_initial_options ) ) {
 
 							$content .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
-							$content .= $this->sd_html( 'field-content-first', '<div class="option__value-div"><div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="option_id_' . $id . '" class="option__value"></div>', 'full-width long-value' );
+							$content .= $this->sd_html( 'field-content-first', '<div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading...</div><div id="option_id_' . $id . '" class="option__value ajax-value"></div>', 'full-width long-value' );
 							$content .= $this->sd_html( 'field-content-end' );
 
 							$data_atts = array(
@@ -2421,7 +2604,7 @@ class System_Dashboard_Admin {
 						if ( !in_array( $name, $wpcore_initial_options ) ) {
 
 							$content .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
-							$content .= $this->sd_html( 'field-content-first', '<div class="option__value-div"><div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="option_id_' . $id . '" class="option__value"></div>', 'full-width long-value' );
+							$content .= $this->sd_html( 'field-content-first', '<div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading...</div><div id="option_id_' . $id . '" class="option__value ajax-value"></div>', 'full-width long-value' );
 							$content .= $this->sd_html( 'field-content-end' );
 
 							$data_atts = array(
@@ -2546,7 +2729,8 @@ class System_Dashboard_Admin {
 
 			$id = $transient->option_id;
 			$autoload = $transient->autoload;
-			$size_raw = $wpdb->get_var( $wpdb->prepare( "SELECT LENGTH(option_value) FROM $wpdb->options WHERE option_name = %s LIMIT 1", $transient_name_full ) );
+			// $size_raw = $wpdb->get_var( $wpdb->prepare( "SELECT LENGTH(option_value) FROM $wpdb->options WHERE option_name = %s LIMIT 1", $transient_name_full ) );
+			$size_raw = strlen( $transient->option_value );
 			$value = maybe_unserialize( $transient->option_value );
 			$value_type = gettype( $value );
 
@@ -2601,7 +2785,7 @@ class System_Dashboard_Admin {
 			}
 
 			$transient_content = $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
-			$transient_content .= $this->sd_html( 'field-content-first', '<div class="option__value-div"><div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="transient_id_' . $id . '" class="option__value"></div>', 'full-width long-value' );
+			$transient_content .= $this->sd_html( 'field-content-first', '<div id="spinner-' . $id . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading...</div><div id="transient_id_' . $id . '" class="option__value ajax-value"></div>', 'full-width long-value' );
 			$transient_content .= $this->sd_html( 'field-content-end' );
 			
 
@@ -2687,6 +2871,152 @@ class System_Dashboard_Admin {
 
 				}
 
+				// Initiate the collapsibles on newly loaded dt elements from AJAX call result
+				function initMcCollapsible( className ) {
+					document.querySelectorAll( className + " dl.mc-collapsible").forEach((dl) => {
+				        dl.querySelectorAll( className + " dt").forEach((dt) => {
+				            dt.addEventListener("click", (e) => {
+				                let dt = e.srcElement;
+				                let dl = dt.parentElement;
+				                console.dir(dt);
+				                console.log(`${dt.innerHTML} clicked`);
+				                const dd = dt.nextElementSibling;
+				                if ((dd === null || dd === void 0 ? void 0 : dd.tagName) != "DD") {
+				                    console.error('Details "DD" not found');
+				                    return;
+				                }
+				                console.log(`${dt.innerHTML} details is`);
+				                console.dir(dd);
+				                if (dt.classList.contains("active")) {
+				                    dt.classList.remove("active");
+				                    dd.style.maxHeight = 0; //Max hieght for the animation
+				                }
+				                else {
+				                    //Close other items if single mode
+				                    dl.getAttribute("data-single-mode") && openAll(dl, false);
+				                    //Activate current item
+				                    dt.classList.add("active");
+				                    // dd.style.maxHeight = dd.scrollHeight + "px"; //Max hieght for the animation
+				                    dd.style.maxHeight = "unset"; //Max hieght for the animation
+				                }
+				                //Check if all item are active for the controls and update accordingly
+				                if (dl.querySelector("div.control")) {
+				                    const closeStatus = dl.querySelectorAll("dt").length -
+				                        dl.querySelectorAll("dt.active").length;
+				                    closeStatus == 0
+				                        ? dl.querySelector("div.control").classList.add("controls-open")
+				                        : dl.querySelector("div.control").classList.remove("controls-open");
+				                }
+				            });
+				        });
+					});
+				}
+
+				jQuery('.db-tables .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.db-specs .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.db-details .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(1) .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.theme-hooks .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.plugins-hooks .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.constant-values .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.constant-docs .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.wpconfig .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.htaccess .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.restapi_viewer .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.robotstxt .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.phpinfo-details .csf-accordion-title').attr('data-loaded','no');
+
+				// Get database tables
+
+				jQuery('.db-tables .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_db_tables',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#db-tables-content').prepend(data);
+								jQuery('.db-tables .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-db-tables').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get database key specifications
+
+				jQuery('.db-specs .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_db_specs',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#db-specs-content').prepend(data);
+								jQuery('.db-specs .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-db-specs').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get database detail specifications
+
+				jQuery('.db-details .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_db_details',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#db-details-content').prepend(data);
+								jQuery('.db-details .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-db-details').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
 				// Get option value
 
 				jQuery('.option__name').click( function() {
@@ -2695,13 +3025,23 @@ class System_Dashboard_Admin {
 					var optionId = this.dataset.id;
 					var optionLoaded = this.dataset.loaded;
 
+					if ( optionName == 'active_plugins' ) {
+						var fastAjaxValue = false;
+						var loadedPlugins = 'all';
+					} else {
+						var fastAjaxValue = true;
+						var loadedPlugins = ["system-dashboard/system-dashboard.php"];
+					}
+
 					if ( optionLoaded == 'no' ) {
 
 						jQuery.ajax({
 							url: ajaxurl,
 							data: {
 								'action':'sd_option_value',
-								'option_name':optionName
+								'option_name':optionName,
+								'fast_ajax':fastAjaxValue,
+								'load_plugins':loadedPlugins
 							},
 							success:function(data) {
 								// console.log('result: ' + optionId + ' - ' + data);
@@ -2740,7 +3080,9 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_option_value',
-								'option_name':transientName
+								'option_name':transientName,
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 								// console.log('result: ' + transientId + ' - ' + data);
@@ -2765,6 +3107,157 @@ class System_Dashboard_Admin {
 
 				});
 
+				// Get WP core action hooks
+
+				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(1) .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_wpcore_hooks',
+								'type':'action',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#core-action-hooks-content').prepend(data);
+								jQuery('.wpcore-hooks .csf-accordion-item:nth-child(1) .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-core-action-hooks').fadeOut( 0 );
+
+								// Search filter script
+						        jQuery('[data-search-wpcore-action-hooks]').on('keyup', function() {
+						            var searchVal = jQuery(this).val();
+						            var filterItems = jQuery('[data-core-act-hook]');
+
+						            if ( searchVal != '' ) {
+						                filterItems.addClass('hidden');
+						                jQuery('[data-core-act-hook][data-core-act-hook-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
+						            } else {
+						                filterItems.removeClass('hidden');
+						            }
+						        });
+
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get WP core filter hooks
+
+				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(2) .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_wpcore_hooks',
+								'type':'filter',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#core-filter-hooks-content').prepend(data);
+								jQuery('.wpcore-hooks .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-core-filter-hooks').fadeOut( 0 );
+
+								// Search filter script
+						        jQuery('[data-search-wpcore-filter-hooks]').on('keyup', function() {
+						            var searchVal = jQuery(this).val();
+						            var filterItems = jQuery('[data-core-fil-hook]');
+
+						            if ( searchVal != '' ) {
+						                filterItems.addClass('hidden');
+						                jQuery('[data-core-fil-hook][data-core-fil-hook-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
+						            } else {
+						                filterItems.removeClass('hidden');
+						            }
+						        });
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get hooks of active theme
+
+				jQuery('.theme-hooks .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_hooks',
+								'type':'active_theme',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#theme-hooks-content').prepend(data);
+								jQuery('.theme-hooks .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-theme-hooks').fadeOut( 0 );
+								initMcCollapsible( ".theme-hooks" );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get hooks of active plugins
+
+				jQuery('.plugins-hooks .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_hooks',
+								'type':'active_plugins'
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#plugins-hooks-content').prepend(data);
+								jQuery('.plugins-hooks .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-plugins-hooks').fadeOut( 0 );
+								initMcCollapsible( ".plugins-hooks" );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
 				// Get global variable's value
 
 				jQuery('.global__name').click( function() {
@@ -2778,7 +3271,9 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_global_value',
-								'global_name':name
+								'global_name':name,
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 
@@ -2792,6 +3287,232 @@ class System_Dashboard_Admin {
 								jQuery('#global-name-' + name).attr('data-loaded','yes');
 								jQuery('#spinner-' + name).fadeOut( 0 );
 
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get defind constant values
+
+				jQuery('.constant-values .csf-accordion-title').click( function() {
+
+					var name = this.dataset.name;
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_constants',
+								'type':'defined',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#constant-values-content').prepend(data);
+								jQuery('.constant-values .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-constant-values').fadeOut( 0 );
+								initMcCollapsible( ".constant-values" );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get constant docs
+
+				jQuery('.constant-docs .csf-accordion-title').click( function() {
+
+					var name = this.dataset.name;
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_constants',
+								'type':'docs',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#constant-docs-content').prepend(data);
+								jQuery('.constant-docs .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-constant-docs').fadeOut( 0 );
+								initMcCollapsible( ".constant-docs" );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get content of wp-config.php
+
+				jQuery('.wpconfig .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_viewer',
+								'filename':'wp-config.php',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#wpconfig-content').prepend(data);
+								jQuery('.wpconfig .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-wpconfig').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get content of .htaccess
+
+				jQuery('.htaccess .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_viewer',
+								'filename':'.htaccess',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#htaccess-content').prepend(data);
+								jQuery('.htaccess .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-htaccess').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get content of .htaccess
+
+				jQuery('.robotstxt .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_viewer',
+								'filename':'robots.txt',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#robotstxt-content').prepend(data);
+								jQuery('.robotstxt .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-robotstxt').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get REST API JSON
+
+				jQuery('.restapi_viewer .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_wp_rest_api',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+
+								if ( isJsonString(data) ) {
+									var dataObj = JSON.parse(data);
+									jQuery('#restapi-content').jsonViewer(dataObj,{collapsed: true, rootCollapsable: false, withQuotes: false, withLinks: false});
+								} else {
+									jQuery('#restapi-content').prepend(data);
+								}
+								jQuery('.restapi_viewer .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-restapi').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get formatted phpinfo() content
+
+				jQuery('.phpinfo-details .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_php_info',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#phpinfo-content').prepend(data);
+								jQuery('.phpinfo-details .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-phpinfo').fadeOut( 0 );
 							},
 							erro:function(errorThrown) {
 								console.log(errorThrown);
@@ -2858,90 +3579,84 @@ class System_Dashboard_Admin {
 	 * @param string $return hooks | count
 	 * @since 1.0.0
 	 */
-	public function sd_wpcore_hooks( $type = 'action', $return = 'hooks' ) {
+	public function sd_wpcore_hooks() {
 
-		$wp_reference_base_url = 'https://developer.wordpress.org/reference/hooks';		
+		if ( isset( $_REQUEST ) ) {
 
-		$response = wp_remote_get( plugin_dir_url( __DIR__ ). 'admin/references/wpcore_hooks_actions_filters.json' );
-		$hooks_json = wp_remote_retrieve_body( $response );
+			$type = $_REQUEST['type'];
 
-		$hooks = json_decode( $hooks_json, TRUE ); // convert into array
+			$wp_reference_base_url = 'https://developer.wordpress.org/reference/hooks';		
 
-		$output = '';
-		$action_hooks = '';
-		$filter_hooks = '';
-		$action_hooks_count = 0;
-		$filter_hooks_count = 0;
+			$response = wp_remote_get( plugin_dir_url( __DIR__ ). 'admin/references/wpcore_hooks_actions_filters.json' );
+			$hooks_json = wp_remote_retrieve_body( $response );
 
-		// Add search filter box
-		$action_hooks .= $this->sd_html( 'search-filter', '', '', ['search-wpcore-action-hooks' => ''] );
-		$filter_hooks .= $this->sd_html( 'search-filter', '', '', ['search-wpcore-filter-hooks' => ''] );
+			$hooks = json_decode( $hooks_json, TRUE ); // convert into array
 
-		foreach ( $hooks as $hook ) {
+			$output = '';
+			$action_hooks = '';
+			$filter_hooks = '';
+			$action_hooks_count = 0;
+			$filter_hooks_count = 0;
 
-			$hook_name_clean = str_replace("{", "", $hook['name']);
-			$hook_name_clean = str_replace("}", "", $hook_name_clean);
-			$hook_name_clean = str_replace("$", "", $hook_name_clean);
+			foreach ( $hooks as $hook ) {
 
-			if ( strpos( $hook['type'], 'action' ) !== false ) {
+				$hook_name_clean = str_replace("{", "", $hook['name']);
+				$hook_name_clean = str_replace("}", "", $hook_name_clean);
+				$hook_name_clean = str_replace("$", "", $hook_name_clean);
 
-				// Search filter data attributes
-				$search_atts = array(
-					'core-act-hook'			=> '',
-					'core-act-hook-name'	=> $hook['name'],
-				);
+				if ( strpos( $hook['type'], 'action' ) !== false ) {
 
-				$action_hooks .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
-				$action_hooks .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/' . $hook_name_clean . '/" target="_blank">'. $hook['name'] . '</a> <br /><span>' . $hook['file'] . '</span>' );
-				$action_hooks .= $this->sd_html( 'field-content-second', $hook['description'] );
-				$action_hooks .= $this->sd_html( 'field-content-end' );
+					// Search filter data attributes
+					$search_atts = array(
+						'core-act-hook'			=> '',
+						'core-act-hook-name'	=> $hook['name'],
+					);
 
-				$action_hooks_count++;
+					$action_hooks .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
+					$action_hooks .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/' . $hook_name_clean . '/" target="_blank">'. $hook['name'] . '</a> <br /><span>' . $hook['file'] . '</span>' );
+					$action_hooks .= $this->sd_html( 'field-content-second', $hook['description'] );
+					$action_hooks .= $this->sd_html( 'field-content-end' );
 
-			} elseif ( strpos( $hook['type'], 'filter' ) !== false ) {
+					$action_hooks_count++;
 
-				// Search filter data attributes
-				$search_atts = array(
-					'core-fil-hook'			=> '',
-					'core-fil-hook-name'	=> $hook['name'],
-				);
+				} elseif ( strpos( $hook['type'], 'filter' ) !== false ) {
 
-				$filter_hooks .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
-				$filter_hooks .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/' . $hook_name_clean . '/" target="_blank">'. $hook['name'] . '</a> <br /><span>' . $hook['file'] . '</span>' );
-				$filter_hooks .= $this->sd_html( 'field-content-second', $hook['description'] );
-				$filter_hooks .= $this->sd_html( 'field-content-end' );
+					// Search filter data attributes
+					$search_atts = array(
+						'core-fil-hook'			=> '',
+						'core-fil-hook-name'	=> $hook['name'],
+					);
 
-				$filter_hooks_count++;
+					$filter_hooks .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
+					$filter_hooks .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/' . $hook_name_clean . '/" target="_blank">'. $hook['name'] . '</a> <br /><span>' . $hook['file'] . '</span>' );
+					$filter_hooks .= $this->sd_html( 'field-content-second', $hook['description'] );
+					$filter_hooks .= $this->sd_html( 'field-content-end' );
+
+					$filter_hooks_count++;
+
+				} else {}
+
+			}
+
+			if ( $type == 'action' ) {
+
+				// Add search filter box and total hooks count
+				$output .= $this->sd_html( 'search-filter', 'Total: ' . $action_hooks_count . ' hooks', '', ['search-wpcore-action-hooks' => ''] );
+
+				$output .= $action_hooks;
+
+			} elseif ( $type == 'filter' ) {
+
+				// Add search filter box and total hooks count
+				$output .= $this->sd_html( 'search-filter', 'Total: ' . $filter_hooks_count . ' hooks', '', ['search-wpcore-filter-hooks' => ''] );
+
+				$output .= $filter_hooks;
 
 			} else {}
+
+			echo $output;
 
 		}
-
-		if ( $type == 'action' ) {
-
-			if ( $return == 'hooks' ) {
-
-				return $action_hooks;
-
-			} elseif ( $return == 'count' ) {
-
-				return $action_hooks_count;
-
-			} else {}
-
-		} elseif ( $type == 'filter' ) {
-
-			if ( $return == 'hooks' ) {
-
-				return $filter_hooks;
-
-			} elseif ( $return == 'count' ) {
-
-				return $filter_hooks_count;
-
-			} else {}
-
-		} else {}
 
 	}
 
@@ -3768,7 +4483,7 @@ class System_Dashboard_Admin {
 			if ( $call == 'ajax' ) {
 
 				$content .= $this->sd_html( 'field-content-start' );
-				$content .= $this->sd_html( 'field-content-first','<div class="global__value-div"><div id="spinner-' . $name . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="global_id_' . $name . '" class="global__value"></div>', 'full-width long-value' );
+				$content .= $this->sd_html( 'field-content-first','<div id="spinner-' . $name . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading...</div><div id="global_id_' . $name . '" class="global__value ajax-value"></div>', 'full-width long-value' );
 				$content .= $this->sd_html( 'field-content-end' );
 
 				$data_atts = array(
@@ -3803,7 +4518,7 @@ class System_Dashboard_Admin {
 				if ( $call == 'ajax' ) {
 
 					$content = $this->sd_html( 'field-content-start' );
-					$content .= $this->sd_html( 'field-content-first','<div class="global__value-div"><div id="spinner-' . $global_name . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading value...</div></div><div id="global_id_' . $global_name . '" class="global__value"></div>', 'full-width long-value' );
+					$content .= $this->sd_html( 'field-content-first','<div id="spinner-' . $global_name . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading...</div><div id="global_id_' . $global_name . '" class="global__value ajax-value"></div>', 'full-width long-value' );
 					$content .= $this->sd_html( 'field-content-end' );
 
 					$data_atts = array(
@@ -4058,21 +4773,27 @@ class System_Dashboard_Admin {
 	 * @param string $type Accepts 'active_plugins', 'active_theme'
 	 * @since 1.0.0
 	 */
-	public function sd_hooks( $type = 'active_plugins' ) {
+	public function sd_hooks() {
 
-		// This sd_hooks method can only works if shell_exec is enabled in PHP, so, check first.
-		if ( $this->is_shell_exec_enabled() ) {
+		if ( isset( $_REQUEST ) ) {
 
-			$base_dir_path = wp_upload_dir()['basedir'] . '/' . $this->plugin_name;
-			$hooks_base_dir_path = $base_dir_path . '/hooks';
-			$plugins_hooks_dir_path = $hooks_base_dir_path . '/plugins';
-			$themes_hooks_dir_path = $hooks_base_dir_path . '/themes';
+			$type = $_REQUEST['type'];
 
-			// Create base directories in Uploads folder
+			// This sd_hooks method can only works if shell_exec is enabled in PHP, so, check first.
+			if ( $this->is_shell_exec_enabled() ) {
 
-			if ( !is_dir( $base_dir_path ) ) {
+				$base_dir_path = wp_upload_dir()['basedir'] . '/' . $this->plugin_name;
+				$hooks_base_dir_path = $base_dir_path . '/hooks';
+				$plugins_hooks_dir_path = $hooks_base_dir_path . '/plugins';
+				$themes_hooks_dir_path = $hooks_base_dir_path . '/themes';
 
-				mkdir( $base_dir_path );
+				// Create base directories in Uploads folder if they don't exist
+
+				if ( !is_dir( $base_dir_path ) ) {
+
+					mkdir( $base_dir_path );
+
+				}
 
 				if ( !is_dir( $hooks_base_dir_path ) ) {
 
@@ -4091,10 +4812,6 @@ class System_Dashboard_Admin {
 					mkdir( $themes_hooks_dir_path );
 
 				} else {}
-
-			} else {
-
-				// Base directory exist, proceed to generate hooks
 
 				// Generate hooks for active plugins
 
@@ -4235,7 +4952,7 @@ class System_Dashboard_Admin {
 
 					$output .= $this->sd_html( 'accordions-end' );
 
-					return $output;
+					echo $output;
 
 				// Generate hooks for active theme
 
@@ -4366,17 +5083,17 @@ class System_Dashboard_Admin {
 
 					$output .= $this->sd_html( 'accordions-end' );
 
-					return $output;
+					echo $output;
 
 				} else {}
 
+			} else {
+
+				$output = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+
+				echo $output;
+
 			}
-
-		} else {
-
-			$output = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
-
-			return $output;
 
 		}
 		
@@ -4387,1043 +5104,1049 @@ class System_Dashboard_Admin {
 	 * 
 	 * @since 1.0.0
 	 */
-	public function sd_wp_constants( $category = 'general' ) {
+	public function sd_constants() {
 
-		$wp_constants = array(
+		if ( isset( $_REQUEST ) ) {
 
-			'general'	=> array(
-				'title'		=> 'General',
-				'constants'	=> array(
-					array(
-						'name'		=> 'AUTOSAVE_INTERVAL',
-						'description'	=> 'Defines an interval, in which WordPress should do an autosave.',
-						'value'			=> 'Time in seconds (Default: 60)',
-					),
-					array(
-						'name'		=> 'CORE_UPGRADE_SKIP_NEW_BUNDLED',
-						'description'	=> 'Allows you to skip new bundles files like plugins and/or themes on upgrades.',
-						'value'			=> 'true|false',
-					),
-					array(
-						'name'		=> 'DISABLE_WP_CRON',
-						'description'	=> 'Deactivates the cron function of WordPress.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'EMPTY_TRASH_DAYS',
-						'description'	=> 'Controls the number of days before WordPress permanently deletes posts, pages, attachments, and comments, from the trash bin.',
-						'value'			=> 'time in days (Default: 30)',
-					),
-					array(
-						'name'		=> 'IMAGE_EDIT_OVERWRITE',
-						'description'	=> 'Allows WordPress to override an image after editing or to save the image as a copy.',
-						'value'			=> 'true|false',
-					),
-					array(
-						'name'		=> 'MEDIA_TRASH',
-						'description'	=> '(De)activates the trash bin function for media.',
-						'value'			=> 'true|false (Default: false)',
-					),
-					array(
-						'name'		=> 'WPLANG',
-						'description'	=> 'Defines the language which WordPress should use.',
-						'value'			=> 'e.g. en_US | de_DE',
-					),
-					array(
-						'name'		=> 'WP_DEFAULT_THEME',
-						'description'	=> 'Defines a default theme for new sites, also used as fallback for a broken theme.',
-						'value'			=> 'template name (Default: twentyeleven)',
-					),
-					array(
-						'name'		=> 'WP_CRON_LOCK_TIMEOUT',
-						'description'	=> 'Defines a period of time in which only one cronjob will be fired. Since WordPress 3.3.',
-						'value'			=> 'time in seconds (Default: 60)',
-					),
-					array(
-						'name'		=> 'WP_MAIL_INTERVAL',
-						'description'	=> 'Defines a period of time in which only one mail request can be done.',
-						'value'			=> 'time in seconds (Default: 300)',
-					),
-					array(
-						'name'		=> 'WP_POST_REVISIONS',
-						'description'	=> '(De)activates the revision function for posts. A number greater than 0 defines the number of revisions for one post.',
-						'value'			=> 'true|false|number (Default: true)',
-					),
-					array(
-						'name'		=> 'WP_MAX_MEMORY_LIMIT',
-						'description'	=> 'Allows you to change the maximum memory limit for some WordPress functions.',
-						'value'			=> '(Default: 256M)',
-					),
-					array(
-						'name'		=> 'WP_MEMORY_LIMIT',
-						'description'	=> 'Defines the memory limit for WordPress.',
-						'value'			=> '(Default: 32M, for Multisite 64M)',
-					),
-					array(
-						'name'		=> 'WP_AUTO_UPDATE_CORE',
-						'description'	=> 'Manages core auto-updates.',
-						'value'			=> 'true | false | minor',
-					),
-					array(
-						'name'		=> 'AUTOMATIC_UPDATER_DISABLED',
-						'description'	=> 'Disables the auto-update engine introduced in version 3.7.',
-						'value'			=> 'true | valse',
-					),
-					array(
-						'name'		=> 'REST_API_VERSION',
-						'description'	=> 'Version of REST API in WordPress core.',
-						'value'			=> '',
-					),
-				)
-			),
+			$type = $_REQUEST['type'];
 
-			'status'	=> array(
-				'title'		=> 'Status',
-				'constants'	=> array(
-					array(
-						'name'		=> 'APP_REQUEST',
-						'description'	=> 'Will be defined if it’s an Atom Publishing Protocol request.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'COMMENTS_TEMPLATE',
-						'description'	=> 'Will be defined if the comments template is loaded.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'DOING_AJAX',
-						'description'	=> 'Will be defined if it’s an AJAX request.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'DOING_AUTOSAVE',
-						'description'	=> 'Will be defined if WordPress is doing an autosave for posts.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'DOING_CRON',
-						'description'	=> 'Will be defined if WordPress is doing a cronjob.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'IFRAME_REQUEST',
-						'description'	=> 'Will be defined if it’s an inlineframe request.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'IS_PROFILE_PAGE',
-						'description'	=> 'Will be defined if a user change his profile settings.',
-						'value'			=> 'tre',
-					),
-					array(
-						'name'		=> 'SHORTINIT',
-						'description'	=> 'Can be defined to load only the half of WordPress.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'	=> 'WP_ADMIN',
-						'description'	=> 'Will be defined if it’s a request in backend of WordPress.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'WP_BLOG_ADMIN',
-						'description'	=> 'Will be defined if it’s a request in /wp-admin/.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'WP_IMPORTING',
-						'description'	=> 'Will be defined if WordPress is importing data.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'WP_INSTALLING',
-						'description'	=> 'Will be defined on an new installation or on an upgrade.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'WP_INSTALLING_NETWORK',
-						'description'	=> 'Will be defined if it’s a request in network admin or on installing a network. Since WordPress 3.3, previous WP_NETWORK_ADMIN_PAGE.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'WP_LOAD_IMPORTERS',
-						'description'	=> 'Will be defined if you visit the importer overview (Tools → Importer).',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'WP_NETWORK_ADMIN',
-						'description'	=> 'Will be defined if it’s a request in /wp-admin/network/.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'WP_REPAIRING',
-						'description'	=> 'Will be defined if it’s a request to /wp-admin/maint/repair.php.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'WP_SETUP_CONFIG',
-						'description'	=> 'Will be defined if WordPress will be installed or configured.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'WP_UNINSTALL_PLUGIN',
-						'description'	=> 'Will be defined if a plugin wil be uninstalled (for uninstall.php).',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'WP_USER_ADMIN',
-						'description'	=> 'Will be defined if it’s a request in /wp-admin/user/.',
-						'value'			=> 'values',
-					),
-					array(
-						'name'		=> 'XMLRPC_REQUEST',
-						'description'	=> 'Will be defined if it’s a request over the XML-RPC API.',
-						'value'			=> 'true',
-					),
-				)
-			),
+			$wp_constants = array(
 
-			'database'	=> array(
-				'title'		=> 'Database',
-				'constants'	=> array(
-					array(
-						'name'		=> 'DB_CHARSET',
-						'description'	=> 'Defines the database charset.',
-						'value'			=> 'See MySQL docs (Default: utf8)',
-					),
-					array(
-						'name'		=> 'DB_COLLATE',
-						'description'	=> 'Defines the database collation.',
-						'value'			=> 'See MySQL docs (Default: utf8_general_ci)',
-					),
-					array(
-						'name'		=> 'DB_HOST',
-						'description'	=> 'Defines the database host.',
-						'value'			=> 'IP address, domain and/or port (Default: localhost)',
-					),
-					array(
-						'name'		=> 'DB_NAME',
-						'description'	=> 'Defines the database name.',
-						'value'			=> '',
-					),
-					array(
-						'name'		=> 'DB_USER',
-						'description'	=> 'Defines the database user.',
-						'value'			=> '',
-					),
-					array(
-						'name'		=> 'DB_PASSWORD',
-						'description'	=> 'Defines the database password.',
-						'value'			=> '',
-					),
-					array(
-						'name'		=> 'WP_ALLOW_REPAIR',
-						'description'	=> 'Allows you to automatically repair and optimize the database tables via /wp-admin/maint/repair.php.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'CUSTOM_USER_TABLE',
-						'description'	=> 'Allows you to define a custom user table.',
-						'value'			=> 'table name',
-					),
-					array(
-						'name'		=> 'CUSTOM_USER_META_TABLE',
-						'description'	=> 'Allows you to define a custom user meta table.',
-						'value'			=> 'table name',
-					),
-				)
-			),
+				'general'	=> array(
+					'title'		=> 'General',
+					'constants'	=> array(
+						array(
+							'name'		=> 'AUTOSAVE_INTERVAL',
+							'description'	=> 'Defines an interval, in which WordPress should do an autosave.',
+							'value'			=> 'Time in seconds (Default: 60)',
+						),
+						array(
+							'name'		=> 'CORE_UPGRADE_SKIP_NEW_BUNDLED',
+							'description'	=> 'Allows you to skip new bundles files like plugins and/or themes on upgrades.',
+							'value'			=> 'true|false',
+						),
+						array(
+							'name'		=> 'DISABLE_WP_CRON',
+							'description'	=> 'Deactivates the cron function of WordPress.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'EMPTY_TRASH_DAYS',
+							'description'	=> 'Controls the number of days before WordPress permanently deletes posts, pages, attachments, and comments, from the trash bin.',
+							'value'			=> 'time in days (Default: 30)',
+						),
+						array(
+							'name'		=> 'IMAGE_EDIT_OVERWRITE',
+							'description'	=> 'Allows WordPress to override an image after editing or to save the image as a copy.',
+							'value'			=> 'true|false',
+						),
+						array(
+							'name'		=> 'MEDIA_TRASH',
+							'description'	=> '(De)activates the trash bin function for media.',
+							'value'			=> 'true|false (Default: false)',
+						),
+						array(
+							'name'		=> 'WPLANG',
+							'description'	=> 'Defines the language which WordPress should use.',
+							'value'			=> 'e.g. en_US | de_DE',
+						),
+						array(
+							'name'		=> 'WP_DEFAULT_THEME',
+							'description'	=> 'Defines a default theme for new sites, also used as fallback for a broken theme.',
+							'value'			=> 'template name (Default: twentyeleven)',
+						),
+						array(
+							'name'		=> 'WP_CRON_LOCK_TIMEOUT',
+							'description'	=> 'Defines a period of time in which only one cronjob will be fired. Since WordPress 3.3.',
+							'value'			=> 'time in seconds (Default: 60)',
+						),
+						array(
+							'name'		=> 'WP_MAIL_INTERVAL',
+							'description'	=> 'Defines a period of time in which only one mail request can be done.',
+							'value'			=> 'time in seconds (Default: 300)',
+						),
+						array(
+							'name'		=> 'WP_POST_REVISIONS',
+							'description'	=> '(De)activates the revision function for posts. A number greater than 0 defines the number of revisions for one post.',
+							'value'			=> 'true|false|number (Default: true)',
+						),
+						array(
+							'name'		=> 'WP_MAX_MEMORY_LIMIT',
+							'description'	=> 'Allows you to change the maximum memory limit for some WordPress functions.',
+							'value'			=> '(Default: 256M)',
+						),
+						array(
+							'name'		=> 'WP_MEMORY_LIMIT',
+							'description'	=> 'Defines the memory limit for WordPress.',
+							'value'			=> '(Default: 32M, for Multisite 64M)',
+						),
+						array(
+							'name'		=> 'WP_AUTO_UPDATE_CORE',
+							'description'	=> 'Manages core auto-updates.',
+							'value'			=> 'true | false | minor',
+						),
+						array(
+							'name'		=> 'AUTOMATIC_UPDATER_DISABLED',
+							'description'	=> 'Disables the auto-update engine introduced in version 3.7.',
+							'value'			=> 'true | valse',
+						),
+						array(
+							'name'		=> 'REST_API_VERSION',
+							'description'	=> 'Version of REST API in WordPress core.',
+							'value'			=> '',
+						),
+					)
+				),
 
-			'paths_dirs_links'	=> array(
-				'title'		=> 'Paths, Directories & Links',
-				'constants'	=> array(
-					array(
-						'name'		=> 'ABSPATH',
-						'description'	=> 'Absolute path to the WordPress root dir.',
-						'value'			=> 'path to wp-load.php',
-					),
-					array(
-						'name'		=> 'WPINC',
-						'description'	=> 'Relative path to the /wp-includes/. You can’t change it.',
-						'value'			=> 'wp-includes',
-					),
-					array(
-						'name'		=> 'WP_LANG_DIR',
-						'description'	=> 'Absolute path to the folder with language files.',
-						'value'			=> 'WP_CONTENT_DIR /languages or WP_CONTENT_DIR WPINC /languages',
-					),
-					array(
-						'name'		=> 'WP_PLUGIN_DIR',
-						'description'	=> 'Absolute path to the plugins dir.',
-						'value'			=> 'WP_CONTENT_DIR /plugins',
-					),
-					array(
-						'name'		=> 'WP_PLUGIN_URL',
-						'description'	=> 'URL to the plugins dir.',
-						'value'			=> 'WP_CONTENT_URL /plugins',
-					),
-					array(
-						'name'		=> 'WP_CONTENT_DIR',
-						'description'	=> 'Absolute path to thewp-content dir.',
-						'value'			=> 'ABSPATH /wp-content',
-					),
-					array(
-						'name'		=> 'WP_CONTENT_URL',
-						'description'	=> 'URL to the wp-content dir.',
-						'value'			=> '{Site URL}/wp-content',
-					),
-					array(
-						'name'		=> 'WP_HOME',
-						'description'	=> 'Home URL of your WordPress.',
-						'value'			=> '',
-					),
-					array(
-						'name'		=> 'WP_SITEURL',
-						'description'	=> 'URL to the WordPress root dir.',
-						'value'			=> 'values',
-					),
-					array(
-						'name'		=> 'WP_TEMP_DIR',
-						'description'	=> 'Absolute path to a dir, where temporary files can be saved.',
-						'value'			=> '',
-					),
-					array(
-						'name'		=> 'WPMU_PLUGIN_DIR',
-						'description'	=> 'Absolute path to the must use plugin dir.',
-						'value'			=> 'WP_CONTENT_DIR /mu-plugins',
-					),
-					array(
-						'name'		=> 'WPMU_PLUGIN_URL',
-						'description'	=> 'URL to the must use plugin dir.',
-						'value'			=> 'WP_CONTENT_URL /mu-plugins',
-					),
-					array(
-						'name'		=> 'PLUGINDIR',
-						'description'	=> 'Allows for the plugins directory to be moved from the default location.',
-						'value'			=> 'wp-content/plugins ',
-					),
-					array(
-						'name'		=> 'MUPLUGINDIR',
-						'description'	=> 'Allows for the mu-plugins directory to be moved from the default location.',
-						'value'			=> 'wp-content/mu-plugins',
-					),
-				)
-			),
+				'status'	=> array(
+					'title'		=> 'Status',
+					'constants'	=> array(
+						array(
+							'name'		=> 'APP_REQUEST',
+							'description'	=> 'Will be defined if it’s an Atom Publishing Protocol request.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'COMMENTS_TEMPLATE',
+							'description'	=> 'Will be defined if the comments template is loaded.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'DOING_AJAX',
+							'description'	=> 'Will be defined if it’s an AJAX request.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'DOING_AUTOSAVE',
+							'description'	=> 'Will be defined if WordPress is doing an autosave for posts.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'DOING_CRON',
+							'description'	=> 'Will be defined if WordPress is doing a cronjob.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'IFRAME_REQUEST',
+							'description'	=> 'Will be defined if it’s an inlineframe request.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'IS_PROFILE_PAGE',
+							'description'	=> 'Will be defined if a user change his profile settings.',
+							'value'			=> 'tre',
+						),
+						array(
+							'name'		=> 'SHORTINIT',
+							'description'	=> 'Can be defined to load only the half of WordPress.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'	=> 'WP_ADMIN',
+							'description'	=> 'Will be defined if it’s a request in backend of WordPress.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'WP_BLOG_ADMIN',
+							'description'	=> 'Will be defined if it’s a request in /wp-admin/.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'WP_IMPORTING',
+							'description'	=> 'Will be defined if WordPress is importing data.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'WP_INSTALLING',
+							'description'	=> 'Will be defined on an new installation or on an upgrade.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'WP_INSTALLING_NETWORK',
+							'description'	=> 'Will be defined if it’s a request in network admin or on installing a network. Since WordPress 3.3, previous WP_NETWORK_ADMIN_PAGE.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'WP_LOAD_IMPORTERS',
+							'description'	=> 'Will be defined if you visit the importer overview (Tools → Importer).',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'WP_NETWORK_ADMIN',
+							'description'	=> 'Will be defined if it’s a request in /wp-admin/network/.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'WP_REPAIRING',
+							'description'	=> 'Will be defined if it’s a request to /wp-admin/maint/repair.php.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'WP_SETUP_CONFIG',
+							'description'	=> 'Will be defined if WordPress will be installed or configured.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'WP_UNINSTALL_PLUGIN',
+							'description'	=> 'Will be defined if a plugin wil be uninstalled (for uninstall.php).',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'WP_USER_ADMIN',
+							'description'	=> 'Will be defined if it’s a request in /wp-admin/user/.',
+							'value'			=> 'values',
+						),
+						array(
+							'name'		=> 'XMLRPC_REQUEST',
+							'description'	=> 'Will be defined if it’s a request over the XML-RPC API.',
+							'value'			=> 'true',
+						),
+					)
+				),
 
-			'file_system_connections'	=> array(
-				'title'		=> 'File System & Connections',
-				'constants'	=> array(
-					array(
-						'name'		=> 'FS_CHMOD_DIR',
-						'description'	=> 'Defines the read and write permissions for directories.',
-						'value'			=> 'See PHP handbook (Default: 0755)',
-					),
-					array(
-						'name'		=> 'FS_CHMOD_FILE',
-						'description'	=> 'Defines the read and write permissions for files.',
-						'value'			=> 'ee PHP handbook (Default: 0644)',
-					),
-					array(
-						'name'		=> 'FS_CONNECT_TIMEOUT',
-						'description'	=> 'Defines a timeout for building a connection.',
-						'value'			=> 'time in seconds (Default: 30)',
-					),
-					array(
-						'name'		=> 'FS_METHOD',
-						'description'	=> 'Defines the method to connect to the filesystem.',
-						'value'			=> 'direct|ssh|ftpext|ftpsockets',
-					),
-					array(
-						'name'		=> 'FS_TIMEOUT',
-						'description'	=> 'Defines a timeout after a connection has been lost.',
-						'value'			=> 'time in seconds (Default: 30)',
-					),
-					array(
-						'name'		=> 'FTP_BASE',
-						'description'	=> 'Path to the WordPress root dir.',
-						'value'			=> 'ABSPATH',
-					),
-					array(
-						'name'		=> 'FTP_CONTENT_DIR',
-						'description'	=> 'Path to the /wp-content/ dir.',
-						'value'			=> 'WP_CONTENT_DIR',
-					),
-					array(
-						'name'		=> 'FTP_HOST',
-						'description'	=> 'Defines the FTP host.',
-						'value'			=> 'IP Adresse, Domain und/oder Port',
-					),
-					array(
-						'name'		=> 'FTP_LANG_DIR',
-						'description'	=> 'Path to the folder with language files.',
-						'value'			=> 'WP_LANG_DIR',
-					),
-					array(
-						'name'		=> 'FTP_PASS',
-						'description'	=> 'Defines the FTP password.',
-						'value'			=> '',
-					),
-					array(
-						'name'		=> 'FTP_PLUGIN_DIR',
-						'description'	=> 'Path to the plugin dir.',
-						'value'			=> 'WP_PLUGIN_DIR',
-					),
-					array(
-						'name'		=> 'FTP_PRIKEY',
-						'description'	=> 'Defines a private key for SSH.',
-						'value'			=> '',
-					),
-					array(
-						'name'		=> 'FTP_PUBKEY',
-						'description'	=> 'Defines a public key for SSH.',
-						'value'			=> '',
-					),
-					array(
-						'name'		=> 'FTP_SSH',
-						'description'	=> '(De)activates SSH.',
-						'value'			=> 'true|false',
-					),
-					array(
-						'name'		=> 'FTP_SSL',
-						'description'	=> '(De)activates SSL.',
-						'value'			=> 'true|false',
-					),
-					array(
-						'name'		=> 'FTP_USER',
-						'description'	=> 'Defines the FTP username.',
-						'value'			=> '',
-					),
-					array(
-						'name'		=> 'WP_PROXY_BYPASS_HOSTS',
-						'description'	=> 'Allows you to define some adresses which shouldn’t be passed through a proxy.',
-						'value'			=> 'www.example.com, *.example.org',
-					),
-					array(
-						'name'		=> 'WP_PROXY_HOST',
-						'description'	=> 'Defines the proxy address.',
-						'value'			=> 'IP address or domain',
-					),
-					array(
-						'name'		=> 'WP_PROXY_PASSWORD',
-						'description'	=> 'Defines the proxy password.',
-						'value'			=> '',
-					),
-					array(
-						'name'		=> 'WP_PROXY_PORT',
-						'description'	=> 'Defines the proxy port.',
-						'value'			=> '',
-					),
-					array(
-						'name'		=> 'WP_PROXY_USERNAME',
-						'description'	=> 'Defines the proxy username.',
-						'value'			=> '',
-					),
-					array(
-						'name'		=> 'WP_HTTP_BLOCK_EXTERNAL',
-						'description'	=> 'Allows you to block external request.',
-						'value'			=> 'true|false',
-					),
-					array(
-						'name'		=> 'WP_ACCESSIBLE_HOSTS',
-						'description'	=> 'If WP_HTTP_BLOCK_EXTERNAL is defined you can add hosts which shouldn’t be blocked.',
-						'value'			=> 'www.example.com, *.example.org',
-					),
-				)
-			),
+				'database'	=> array(
+					'title'		=> 'Database',
+					'constants'	=> array(
+						array(
+							'name'		=> 'DB_CHARSET',
+							'description'	=> 'Defines the database charset.',
+							'value'			=> 'See MySQL docs (Default: utf8)',
+						),
+						array(
+							'name'		=> 'DB_COLLATE',
+							'description'	=> 'Defines the database collation.',
+							'value'			=> 'See MySQL docs (Default: utf8_general_ci)',
+						),
+						array(
+							'name'		=> 'DB_HOST',
+							'description'	=> 'Defines the database host.',
+							'value'			=> 'IP address, domain and/or port (Default: localhost)',
+						),
+						array(
+							'name'		=> 'DB_NAME',
+							'description'	=> 'Defines the database name.',
+							'value'			=> '',
+						),
+						array(
+							'name'		=> 'DB_USER',
+							'description'	=> 'Defines the database user.',
+							'value'			=> '',
+						),
+						array(
+							'name'		=> 'DB_PASSWORD',
+							'description'	=> 'Defines the database password.',
+							'value'			=> '',
+						),
+						array(
+							'name'		=> 'WP_ALLOW_REPAIR',
+							'description'	=> 'Allows you to automatically repair and optimize the database tables via /wp-admin/maint/repair.php.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'CUSTOM_USER_TABLE',
+							'description'	=> 'Allows you to define a custom user table.',
+							'value'			=> 'table name',
+						),
+						array(
+							'name'		=> 'CUSTOM_USER_META_TABLE',
+							'description'	=> 'Allows you to define a custom user meta table.',
+							'value'			=> 'table name',
+						),
+					)
+				),
 
-			'multisite'	=> array(
-				'title'		=> 'WordPress Multisite',
-				'constants'	=> array(
-					array(
-						'name'		=> 'ALLOW_SUBDIRECTORY_INSTALL',
-						'description'	=> 'Allows you to install Multisite in a subdirectory.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'BLOGUPLOADDIR',
-						'description'	=> 'Absolute path to the site specific upload dir.',
-						'value'			=> 'WP_CONTENT_DIR /blogs.dir/{Blog ID}/files/',
-					),
-					array(
-						'name'		=> 'BLOG_ID_CURRENT_SITE',
-						'description'	=> 'Blog ID of the main site.',
-						'value'			=> '1',
-					),
-					array(
-						'name'		=> 'DOMAIN_CURRENT_SITE',
-						'description'	=> 'Domain of the main site.',
-						'value'			=> 'domain',
-					),
-					array(
-						'name'		=> 'DIEONDBERROR',
-						'description'	=> 'When defined database errors will be displayed on screen.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'ERRORLOGFILE',
-						'description'	=> 'When defined database erros will be logged into a file.',
-						'value'			=> 'absolute path to a writeable file',
-					),
-					array(
-						'name'		=> 'MULTISITE',
-						'description'	=> 'Will be defined if Multisite is used.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'NOBLOGREDIRECT',
-						'description'	=> 'Defines an URL of a site on which WordPress should redirect, if registration is closed or a site doesn’t exists.',
-						'value'			=> '%siteurl% for mainsite or custom URL',
-					),
-					array(
-						'name'		=> 'PATH_CURRENT_SITE',
-						'description'	=> 'Path to the main site.',
-						'value'			=> '',
-					),
-					array(
-						'name'		=> 'UPLOADBLOGSDIR',
-						'description'	=> 'Path to the upload base dir, relative to ABSPATH.',
-						'value'			=> 'wp-content/blogs.dir',
-					),
-					array(
-						'name'		=> 'SITE_ID_CURRENT_SITE',
-						'description'	=> 'Network ID of the main site.',
-						'value'			=> '1',
-					),
-					array(
-						'name'		=> 'SUBDOMAIN_INSTALL',
-						'description'	=> 'Defines if it’s a subdomain install or not.',
-						'value'			=> 'true|false',
-					),
-					array(
-						'name'		=> 'SUNRISE',
-						'description'	=> 'When defined WordPres will load the /wp-content/sunrise.php file.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'		=> 'UPLOADS',
-						'description'	=> 'Path to site specific upload dir, relative to ABSPATH.',
-						'value'			=> 'UPLOADBLOGSDIR /{blogid}/files/',
-					),
-					array(
-						'name'		=> 'WPMU_ACCEL_REDIRECT',
-						'description'	=> '(De)activates support for X-Sendfile Header.',
-						'value'			=> 'true|false (Default: false)',
-					),
-					array(
-						'name'		=> 'WPMU_SENDFILE',
-						'description'	=> '(De)activates support for X-Accel-Redirect Header.',
-						'value'			=> 'true|false (Default: false)',
-					),
-					array(
-						'name'		=> 'WP_ALLOW_MULTISITE',
-						'description'	=> 'When defined the multisite function will be accessible (Tools → Network Setup).',
-						'value'			=> 'true',
-					),
-				)
-			),
+				'paths_dirs_links'	=> array(
+					'title'		=> 'Paths, Directories & Links',
+					'constants'	=> array(
+						array(
+							'name'		=> 'ABSPATH',
+							'description'	=> 'Absolute path to the WordPress root dir.',
+							'value'			=> 'path to wp-load.php',
+						),
+						array(
+							'name'		=> 'WPINC',
+							'description'	=> 'Relative path to the /wp-includes/. You can’t change it.',
+							'value'			=> 'wp-includes',
+						),
+						array(
+							'name'		=> 'WP_LANG_DIR',
+							'description'	=> 'Absolute path to the folder with language files.',
+							'value'			=> 'WP_CONTENT_DIR /languages or WP_CONTENT_DIR WPINC /languages',
+						),
+						array(
+							'name'		=> 'WP_PLUGIN_DIR',
+							'description'	=> 'Absolute path to the plugins dir.',
+							'value'			=> 'WP_CONTENT_DIR /plugins',
+						),
+						array(
+							'name'		=> 'WP_PLUGIN_URL',
+							'description'	=> 'URL to the plugins dir.',
+							'value'			=> 'WP_CONTENT_URL /plugins',
+						),
+						array(
+							'name'		=> 'WP_CONTENT_DIR',
+							'description'	=> 'Absolute path to thewp-content dir.',
+							'value'			=> 'ABSPATH /wp-content',
+						),
+						array(
+							'name'		=> 'WP_CONTENT_URL',
+							'description'	=> 'URL to the wp-content dir.',
+							'value'			=> '{Site URL}/wp-content',
+						),
+						array(
+							'name'		=> 'WP_HOME',
+							'description'	=> 'Home URL of your WordPress.',
+							'value'			=> '',
+						),
+						array(
+							'name'		=> 'WP_SITEURL',
+							'description'	=> 'URL to the WordPress root dir.',
+							'value'			=> 'values',
+						),
+						array(
+							'name'		=> 'WP_TEMP_DIR',
+							'description'	=> 'Absolute path to a dir, where temporary files can be saved.',
+							'value'			=> '',
+						),
+						array(
+							'name'		=> 'WPMU_PLUGIN_DIR',
+							'description'	=> 'Absolute path to the must use plugin dir.',
+							'value'			=> 'WP_CONTENT_DIR /mu-plugins',
+						),
+						array(
+							'name'		=> 'WPMU_PLUGIN_URL',
+							'description'	=> 'URL to the must use plugin dir.',
+							'value'			=> 'WP_CONTENT_URL /mu-plugins',
+						),
+						array(
+							'name'		=> 'PLUGINDIR',
+							'description'	=> 'Allows for the plugins directory to be moved from the default location.',
+							'value'			=> 'wp-content/plugins ',
+						),
+						array(
+							'name'		=> 'MUPLUGINDIR',
+							'description'	=> 'Allows for the mu-plugins directory to be moved from the default location.',
+							'value'			=> 'wp-content/mu-plugins',
+						),
+					)
+				),
 
-			'cache_compression'	=> array(
-				'title'		=> 'Cache & Compression',
-				'constants'	=> array(
-					array(
-						'name'		=> 'WP_CACHE',
-						'description'	=> 'When defined WordPres will load the /wp-content/advanced-cache.php file.',
-						'value'			=> 'true|false (Default: false)',
-					),
-					array(
-						'name'		=> 'WP_CACHE_KEY_SALT',
-						'description'	=> 'Secret key.',
-						'value'			=> '',
-					),
-					array(
-						'name'		=> 'COMPRESS_CSS',
-						'description'	=> '(De)activates the compressing of stylesheets.',
-						'value'			=> 'true|false',
-					),
-					array(
-						'name'		=> 'COMPRESS_SCRIPTS',
-						'description'	=> '(De)activates the compressing of Javascript files.',
-						'value'			=> 'true|false',
-					),
-					array(
-						'name'		=> 'CONCATENATE_SCRIPTS',
-						'description'	=> '(De)activates the consolidation of Javascript or CSS files before compressing.',
-						'value'			=> 'true|false',
-					),
-					array(
-						'name'		=> 'ENFORCE_GZIP',
-						'description'	=> '(De)activates gzip output.',
-						'value'			=> 'true|false',
-					),
-				)
-			),
+				'file_system_connections'	=> array(
+					'title'		=> 'File System & Connections',
+					'constants'	=> array(
+						array(
+							'name'		=> 'FS_CHMOD_DIR',
+							'description'	=> 'Defines the read and write permissions for directories.',
+							'value'			=> 'See PHP handbook (Default: 0755)',
+						),
+						array(
+							'name'		=> 'FS_CHMOD_FILE',
+							'description'	=> 'Defines the read and write permissions for files.',
+							'value'			=> 'ee PHP handbook (Default: 0644)',
+						),
+						array(
+							'name'		=> 'FS_CONNECT_TIMEOUT',
+							'description'	=> 'Defines a timeout for building a connection.',
+							'value'			=> 'time in seconds (Default: 30)',
+						),
+						array(
+							'name'		=> 'FS_METHOD',
+							'description'	=> 'Defines the method to connect to the filesystem.',
+							'value'			=> 'direct|ssh|ftpext|ftpsockets',
+						),
+						array(
+							'name'		=> 'FS_TIMEOUT',
+							'description'	=> 'Defines a timeout after a connection has been lost.',
+							'value'			=> 'time in seconds (Default: 30)',
+						),
+						array(
+							'name'		=> 'FTP_BASE',
+							'description'	=> 'Path to the WordPress root dir.',
+							'value'			=> 'ABSPATH',
+						),
+						array(
+							'name'		=> 'FTP_CONTENT_DIR',
+							'description'	=> 'Path to the /wp-content/ dir.',
+							'value'			=> 'WP_CONTENT_DIR',
+						),
+						array(
+							'name'		=> 'FTP_HOST',
+							'description'	=> 'Defines the FTP host.',
+							'value'			=> 'IP Adresse, Domain und/oder Port',
+						),
+						array(
+							'name'		=> 'FTP_LANG_DIR',
+							'description'	=> 'Path to the folder with language files.',
+							'value'			=> 'WP_LANG_DIR',
+						),
+						array(
+							'name'		=> 'FTP_PASS',
+							'description'	=> 'Defines the FTP password.',
+							'value'			=> '',
+						),
+						array(
+							'name'		=> 'FTP_PLUGIN_DIR',
+							'description'	=> 'Path to the plugin dir.',
+							'value'			=> 'WP_PLUGIN_DIR',
+						),
+						array(
+							'name'		=> 'FTP_PRIKEY',
+							'description'	=> 'Defines a private key for SSH.',
+							'value'			=> '',
+						),
+						array(
+							'name'		=> 'FTP_PUBKEY',
+							'description'	=> 'Defines a public key for SSH.',
+							'value'			=> '',
+						),
+						array(
+							'name'		=> 'FTP_SSH',
+							'description'	=> '(De)activates SSH.',
+							'value'			=> 'true|false',
+						),
+						array(
+							'name'		=> 'FTP_SSL',
+							'description'	=> '(De)activates SSL.',
+							'value'			=> 'true|false',
+						),
+						array(
+							'name'		=> 'FTP_USER',
+							'description'	=> 'Defines the FTP username.',
+							'value'			=> '',
+						),
+						array(
+							'name'		=> 'WP_PROXY_BYPASS_HOSTS',
+							'description'	=> 'Allows you to define some adresses which shouldn’t be passed through a proxy.',
+							'value'			=> 'www.example.com, *.example.org',
+						),
+						array(
+							'name'		=> 'WP_PROXY_HOST',
+							'description'	=> 'Defines the proxy address.',
+							'value'			=> 'IP address or domain',
+						),
+						array(
+							'name'		=> 'WP_PROXY_PASSWORD',
+							'description'	=> 'Defines the proxy password.',
+							'value'			=> '',
+						),
+						array(
+							'name'		=> 'WP_PROXY_PORT',
+							'description'	=> 'Defines the proxy port.',
+							'value'			=> '',
+						),
+						array(
+							'name'		=> 'WP_PROXY_USERNAME',
+							'description'	=> 'Defines the proxy username.',
+							'value'			=> '',
+						),
+						array(
+							'name'		=> 'WP_HTTP_BLOCK_EXTERNAL',
+							'description'	=> 'Allows you to block external request.',
+							'value'			=> 'true|false',
+						),
+						array(
+							'name'		=> 'WP_ACCESSIBLE_HOSTS',
+							'description'	=> 'If WP_HTTP_BLOCK_EXTERNAL is defined you can add hosts which shouldn’t be blocked.',
+							'value'			=> 'www.example.com, *.example.org',
+						),
+					)
+				),
 
-			'themes'	=> array(
-				'title'		=> 'Theme',
-				'constants'	=> array(
-					array(
-						'name'	=> 'BACKGROUND_IMAGE',
-						'description'	=> 'Defines the default background image.',
-						'value'			=> '',
-					),
-					array(
-						'name'	=> 'HEADER_IMAGE',
-						'description'	=> 'Defines the default header image.',
-						'value'			=> '',
-					),
-					array(
-						'name'	=> 'HEADER_IMAGE_HEIGHT',
-						'description'	=> 'Specifies the height of the header image.',
-						'value'			=> '',
-					),
-					array(
-						'name'	=> 'HEADER_IMAGE_WIDTH',
-						'description'	=> 'Defines the width of the header image.',
-						'value'			=> '',
-					),
-					array(
-						'name'	=> 'HEADER_TEXTCOLOR',
-						'description'	=> 'Determines the color of the header text.',
-						'value'			=> '',
-					),
-					array(
-						'name'	=> 'NO_HEADER_TEXT',
-						'description'	=> 'Enables or disables support for header text.',
-						'value'			=> 'true|false',
-					),
-					array(
-						'name'	=> 'STYLESHEETPATH',
-						'description'	=> 'Specifies the absolute path to the theme folder, which is the folder where the current parent or child theme\'s stylesheet file is located. It does not contain a trailing slash. See also. get_stylesheet_directory().',
-						'value'			=> '',
-					),
-					array(
-						'name'	=> 'TEMPLATEPATH',
-						'description'	=> 'Specifies an absolute path from the root of the site to the current theme (parent, not child). Does not contain a slash at the end. See "Theme Loading". get_template_directory().',
-						'value'			=> 'values',
-					),
-					array(
-						'name'	=> 'WP_USE_THEMES',
-						'description'	=> 'Enables or disables theme loading.',
-						'value'			=> 'true|false',
-					),
-				)
-			),
+				'multisite'	=> array(
+					'title'		=> 'WordPress Multisite',
+					'constants'	=> array(
+						array(
+							'name'		=> 'ALLOW_SUBDIRECTORY_INSTALL',
+							'description'	=> 'Allows you to install Multisite in a subdirectory.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'BLOGUPLOADDIR',
+							'description'	=> 'Absolute path to the site specific upload dir.',
+							'value'			=> 'WP_CONTENT_DIR /blogs.dir/{Blog ID}/files/',
+						),
+						array(
+							'name'		=> 'BLOG_ID_CURRENT_SITE',
+							'description'	=> 'Blog ID of the main site.',
+							'value'			=> '1',
+						),
+						array(
+							'name'		=> 'DOMAIN_CURRENT_SITE',
+							'description'	=> 'Domain of the main site.',
+							'value'			=> 'domain',
+						),
+						array(
+							'name'		=> 'DIEONDBERROR',
+							'description'	=> 'When defined database errors will be displayed on screen.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'ERRORLOGFILE',
+							'description'	=> 'When defined database erros will be logged into a file.',
+							'value'			=> 'absolute path to a writeable file',
+						),
+						array(
+							'name'		=> 'MULTISITE',
+							'description'	=> 'Will be defined if Multisite is used.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'NOBLOGREDIRECT',
+							'description'	=> 'Defines an URL of a site on which WordPress should redirect, if registration is closed or a site doesn’t exists.',
+							'value'			=> '%siteurl% for mainsite or custom URL',
+						),
+						array(
+							'name'		=> 'PATH_CURRENT_SITE',
+							'description'	=> 'Path to the main site.',
+							'value'			=> '',
+						),
+						array(
+							'name'		=> 'UPLOADBLOGSDIR',
+							'description'	=> 'Path to the upload base dir, relative to ABSPATH.',
+							'value'			=> 'wp-content/blogs.dir',
+						),
+						array(
+							'name'		=> 'SITE_ID_CURRENT_SITE',
+							'description'	=> 'Network ID of the main site.',
+							'value'			=> '1',
+						),
+						array(
+							'name'		=> 'SUBDOMAIN_INSTALL',
+							'description'	=> 'Defines if it’s a subdomain install or not.',
+							'value'			=> 'true|false',
+						),
+						array(
+							'name'		=> 'SUNRISE',
+							'description'	=> 'When defined WordPres will load the /wp-content/sunrise.php file.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'		=> 'UPLOADS',
+							'description'	=> 'Path to site specific upload dir, relative to ABSPATH.',
+							'value'			=> 'UPLOADBLOGSDIR /{blogid}/files/',
+						),
+						array(
+							'name'		=> 'WPMU_ACCEL_REDIRECT',
+							'description'	=> '(De)activates support for X-Sendfile Header.',
+							'value'			=> 'true|false (Default: false)',
+						),
+						array(
+							'name'		=> 'WPMU_SENDFILE',
+							'description'	=> '(De)activates support for X-Accel-Redirect Header.',
+							'value'			=> 'true|false (Default: false)',
+						),
+						array(
+							'name'		=> 'WP_ALLOW_MULTISITE',
+							'description'	=> 'When defined the multisite function will be accessible (Tools → Network Setup).',
+							'value'			=> 'true',
+						),
+					)
+				),
 
-			'blocks'	=> array(
-				'title'		=> 'Blocks',
-				'constants'	=> array(
-					array(
-						'name'	=> 'WP_TEMPLATE_PART_AREA_HEADER',
-						'description'	=> 'Constant for supported wp_template_part_area taxonomy (related to blocks)',
-						'value'			=> 'header',
-					),
-					array(
-						'name'	=> 'WP_TEMPLATE_PART_AREA_FOOTER',
-						'description'	=> 'Constant for supported wp_template_part_area taxonomy (related to blocks)',
-						'value'			=> 'footer',
-					),
-					array(
-						'name'	=> 'WP_TEMPLATE_PART_AREA_SIDEBAR',
-						'description'	=> 'Constant for supported wp_template_part_area taxonomy (related to blocks)',
-						'value'			=> 'sidebar',
-					),
-					array(
-						'name'	=> 'WP_TEMPLATE_PART_AREA_UNCATEGORIZED',
-						'description'	=> 'Constant for supported wp_template_part_area taxonomy (related to blocks)',
-						'value'			=> 'uncategorized',
+				'cache_compression'	=> array(
+					'title'		=> 'Cache & Compression',
+					'constants'	=> array(
+						array(
+							'name'		=> 'WP_CACHE',
+							'description'	=> 'When defined WordPres will load the /wp-content/advanced-cache.php file.',
+							'value'			=> 'true|false (Default: false)',
+						),
+						array(
+							'name'		=> 'WP_CACHE_KEY_SALT',
+							'description'	=> 'Secret key.',
+							'value'			=> '',
+						),
+						array(
+							'name'		=> 'COMPRESS_CSS',
+							'description'	=> '(De)activates the compressing of stylesheets.',
+							'value'			=> 'true|false',
+						),
+						array(
+							'name'		=> 'COMPRESS_SCRIPTS',
+							'description'	=> '(De)activates the compressing of Javascript files.',
+							'value'			=> 'true|false',
+						),
+						array(
+							'name'		=> 'CONCATENATE_SCRIPTS',
+							'description'	=> '(De)activates the consolidation of Javascript or CSS files before compressing.',
+							'value'			=> 'true|false',
+						),
+						array(
+							'name'		=> 'ENFORCE_GZIP',
+							'description'	=> '(De)activates gzip output.',
+							'value'			=> 'true|false',
+						),
+					)
+				),
+
+				'themes'	=> array(
+					'title'		=> 'Theme',
+					'constants'	=> array(
+						array(
+							'name'	=> 'BACKGROUND_IMAGE',
+							'description'	=> 'Defines the default background image.',
+							'value'			=> '',
+						),
+						array(
+							'name'	=> 'HEADER_IMAGE',
+							'description'	=> 'Defines the default header image.',
+							'value'			=> '',
+						),
+						array(
+							'name'	=> 'HEADER_IMAGE_HEIGHT',
+							'description'	=> 'Specifies the height of the header image.',
+							'value'			=> '',
+						),
+						array(
+							'name'	=> 'HEADER_IMAGE_WIDTH',
+							'description'	=> 'Defines the width of the header image.',
+							'value'			=> '',
+						),
+						array(
+							'name'	=> 'HEADER_TEXTCOLOR',
+							'description'	=> 'Determines the color of the header text.',
+							'value'			=> '',
+						),
+						array(
+							'name'	=> 'NO_HEADER_TEXT',
+							'description'	=> 'Enables or disables support for header text.',
+							'value'			=> 'true|false',
+						),
+						array(
+							'name'	=> 'STYLESHEETPATH',
+							'description'	=> 'Specifies the absolute path to the theme folder, which is the folder where the current parent or child theme\'s stylesheet file is located. It does not contain a trailing slash. See also. get_stylesheet_directory().',
+							'value'			=> '',
+						),
+						array(
+							'name'	=> 'TEMPLATEPATH',
+							'description'	=> 'Specifies an absolute path from the root of the site to the current theme (parent, not child). Does not contain a slash at the end. See "Theme Loading". get_template_directory().',
+							'value'			=> 'values',
+						),
+						array(
+							'name'	=> 'WP_USE_THEMES',
+							'description'	=> 'Enables or disables theme loading.',
+							'value'			=> 'true|false',
+						),
+					)
+				),
+
+				'blocks'	=> array(
+					'title'		=> 'Blocks',
+					'constants'	=> array(
+						array(
+							'name'	=> 'WP_TEMPLATE_PART_AREA_HEADER',
+							'description'	=> 'Constant for supported wp_template_part_area taxonomy (related to blocks)',
+							'value'			=> 'header',
+						),
+						array(
+							'name'	=> 'WP_TEMPLATE_PART_AREA_FOOTER',
+							'description'	=> 'Constant for supported wp_template_part_area taxonomy (related to blocks)',
+							'value'			=> 'footer',
+						),
+						array(
+							'name'	=> 'WP_TEMPLATE_PART_AREA_SIDEBAR',
+							'description'	=> 'Constant for supported wp_template_part_area taxonomy (related to blocks)',
+							'value'			=> 'sidebar',
+						),
+						array(
+							'name'	=> 'WP_TEMPLATE_PART_AREA_UNCATEGORIZED',
+							'description'	=> 'Constant for supported wp_template_part_area taxonomy (related to blocks)',
+							'value'			=> 'uncategorized',
+						),
 					),
 				),
-			),
 
-			'debug'	=> array(
-				'title'		=> 'Debug',
-				'constants'	=> array(
-					array(
-						'name'		=> 'SAVEQUERIES',
-						'description'	=> '(De)activates the saving of database queries in an array ($wpdb->queries).',
-						'value'			=> 'true|false',
-					),
-					array(
-						'name'		=> 'SCRIPT_DEBUG',
-						'description'	=> '(De)activates the loading of compressed Javascript and CSS files.',
-						'value'			=> 'true|false',
-					),
-					array(
-						'name'		=> 'WP_DEBUG',
-						'description'	=> '(De)activates the debug mode in WordPress.',
-						'value'			=> 'true|false (Default: false)',
-					),
-					array(
-						'name'		=> 'WP_DEBUG_DISPLAY',
-						'description'	=> '(De)activates the display of errors on the screen.',
-						'value'			=> 'true|false|null (Default: true)',
-					),
-					array(
-						'name'		=> 'WP_DEBUG_LOG',
-						'description'	=> '(De)activates the writing of errors to the /wp-content/debug.log file.',
-						'value'			=> 'true|false (Default: false)',
-					),
-					array(
-						'name'	=> 'WP_LOCAL_DEV',
-						'description'	=> 'The default constant is not used anywhere in the core, but is intended as a general standard to enable, for example, some additional functionality when this constant is defined.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'	=> 'WP_START_TIMESTAMP',
-						'description'	=> 'WP code start time stamp - set as microtime( true ) at the moment of early file connection wp-includes/default-constants.php. Introduced in WP 5.2.',
-						'value'			=> '',
-					),
-					array(
-						'name'	=> 'WP_TESTS_CONFIG_FILE_PATH',
-						'description'	=> 'Location of the wp-tests-config.php file which is used for PHPUnit tests.',
-						'value'			=> '',
-					),
-				)
-			),
+				'debug'	=> array(
+					'title'		=> 'Debug',
+					'constants'	=> array(
+						array(
+							'name'		=> 'SAVEQUERIES',
+							'description'	=> '(De)activates the saving of database queries in an array ($wpdb->queries).',
+							'value'			=> 'true|false',
+						),
+						array(
+							'name'		=> 'SCRIPT_DEBUG',
+							'description'	=> '(De)activates the loading of compressed Javascript and CSS files.',
+							'value'			=> 'true|false',
+						),
+						array(
+							'name'		=> 'WP_DEBUG',
+							'description'	=> '(De)activates the debug mode in WordPress.',
+							'value'			=> 'true|false (Default: false)',
+						),
+						array(
+							'name'		=> 'WP_DEBUG_DISPLAY',
+							'description'	=> '(De)activates the display of errors on the screen.',
+							'value'			=> 'true|false|null (Default: true)',
+						),
+						array(
+							'name'		=> 'WP_DEBUG_LOG',
+							'description'	=> '(De)activates the writing of errors to the /wp-content/debug.log file.',
+							'value'			=> 'true|false (Default: false)',
+						),
+						array(
+							'name'	=> 'WP_LOCAL_DEV',
+							'description'	=> 'The default constant is not used anywhere in the core, but is intended as a general standard to enable, for example, some additional functionality when this constant is defined.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'	=> 'WP_START_TIMESTAMP',
+							'description'	=> 'WP code start time stamp - set as microtime( true ) at the moment of early file connection wp-includes/default-constants.php. Introduced in WP 5.2.',
+							'value'			=> '',
+						),
+						array(
+							'name'	=> 'WP_TESTS_CONFIG_FILE_PATH',
+							'description'	=> 'Location of the wp-tests-config.php file which is used for PHPUnit tests.',
+							'value'			=> '',
+						),
+					)
+				),
 
-			'security_cookies'	=> array(
-				'title'		=> 'Security & Cookies',
-				'constants'	=> array(
-					array(
-						'name'	=> 'ADMIN_COOKIE_PATH',
-						'description'	=> 'Path to directory /wp-admin/.',
-						'value'			=> 'SITECOOKIEPATH wp-admin Or for Multisite subdirectory ``SITECOOKIEPATH```',
-					),
-					array(
-						'name'	=> 'ALLOW_UNFILTERED_UPLOADS',
-						'description'	=> 'Allows unfiltered uploads by admins.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'	=> 'AUTH_COOKIE',
-						'description'	=> 'Cookie name for the authentication.',
-						'value'			=> 'wordpress_ COOKIEHASH',
-					),
-					array(
-						'name'	=> 'AUTH_KEY',
-						'description'	=> 'Secret key.',
-						'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
-					),
-					array(
-						'name'	=> 'AUTH_SALT',
-						'description'	=> 'Secret key.',
-						'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
-					),
-					array(
-						'name'	=> 'COOKIEHASH',
-						'description'	=> 'Hash for generating cookie names.',
-						'value'			=> '',
-					),
-					array(
-						'name'	=> 'COOKIEPATH',
-						'description'	=> 'Path to WordPress root dir.',
-						'value'			=> 'Home URL without http(s)://',
-					),
-					array(
-						'name'	=> 'COOKIE_DOMAIN',
-						'description'	=> 'Domain of the WordPress installation.',
-						'value'			=> 'false or for Multisite with subdomains .domain of the main site',
-					),
-					array(
-						'name'	=> 'CUSTOM_TAGS',
-						'description'	=> 'Allows you to override the list of secure HTML tags. See /wp-includes/kses.php.',
-						'value'			=> 'true|false (Default: false)',
-					),
-					array(
-						'name'	=> 'DISALLOW_FILE_EDIT',
-						'description'	=> 'Allows you to disallow theme and plugin edits via WordPress editor.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'	=> 'DISALLOW_FILE_MODS',
-						'description'	=> 'Allows you to disallow the editing, updating, installing and deleting of plugins, themes and core files via WordPress Backend.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'	=> 'DISALLOW_UNFILTERED_HTML',
-						'description'	=> 'Allows you to disallow unfiltered HTML for every user, admins too.',
-						'value'			=> 'true',
-					),
-					array(
-						'name'	=> 'FORCE_SSL_ADMIN',
-						'description'	=> 'Activates SSL for logins and in the backend.',
-						'value'			=> 'true|false (Default: false)',
-					),
-					array(
-						'name'	=> 'FORCE_SSL_LOGIN',
-						'description'	=> 'Activates SSL for logins.',
-						'value'			=> 'true|false (Default: false)',
-					),
-					array(
-						'name'	=> 'LOGGED_IN_COOKIE',
-						'description'	=> 'Cookie name for logins.',
-						'value'			=> 'wordpress_logged_in_ COOKIEHASH',
-					),
-					array(
-						'name'	=> 'LOGGED_IN_KEY',
-						'description'	=> 'Secret key.',
-						'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
-					),
-					array(
-						'name'	=> 'LOGGED_IN_SALT',
-						'description'	=> 'Secret key.',
-						'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
-					),
-					array(
-						'name'	=> 'NONCE_KEY',
-						'description'	=> 'Secret key.',
-						'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
-					),
-					array(
-						'name'	=> 'NONCE_SALT',
-						'description'	=> 'Secret key.',
-						'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
-					),
-					array(
-						'name'	=> 'PASS_COOKIE',
-						'description'	=> 'Cookie name for the password.',
-						'value'			=> 'wordpresspass_ COOKIEHASH',
-					),
-					array(
-						'name'	=> 'PLUGINS_COOKIE_PATH',
-						'description'	=> 'Path to the plugins dir.',
-						'value'			=> 'WP_PLUGIN_URL without http(s)://',
-					),
-					array(
-						'name'	=> 'SECURE_AUTH_COOKIE',
-						'description'	=> 'Cookie name for the SSL authentication.',
-						'value'			=> 'wordpress_sec_ COOKIEHASH',
-					),
-					array(
-						'name'	=> 'SECURE_AUTH_KEY',
-						'description'	=> 'Secret key.',
-						'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
-					),
-					array(
-						'name'	=> 'SECURE_AUTH_SALT',
-						'description'	=> 'Secret key.',
-						'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
-					),
-					array(
-						'name'	=> 'SITECOOKIEPATH',
-						'description'	=> 'Path of you site.',
-						'value'			=> 'Site URL without http(s)://',
-					),
-					array(
-						'name'	=> 'TEST_COOKIE',
-						'description'	=> 'Cookie name for the test cookie.',
-						'value'			=> 'wordpress_test_cookie',
-					),
-					array(
-						'name'	=> 'USER_COOKIE',
-						'description'	=> 'Cookie name for users.',
-						'value'			=> 'wordpressuser_ COOKIEHASH',
-					),
-					array(
-						'name'	=> 'WP_FEATURE_BETTER_PASSWORDS',
-						'description'	=> '',
-						'value'			=> 'true|false',
-					),
-					array(
-						'name'	=> 'RECOVERY_MODE_COOKIE',
-						'description'	=> '',
-						'value'			=> '',
-					),
-				)
-			),
+				'security_cookies'	=> array(
+					'title'		=> 'Security & Cookies',
+					'constants'	=> array(
+						array(
+							'name'	=> 'ADMIN_COOKIE_PATH',
+							'description'	=> 'Path to directory /wp-admin/.',
+							'value'			=> 'SITECOOKIEPATH wp-admin Or for Multisite subdirectory ``SITECOOKIEPATH```',
+						),
+						array(
+							'name'	=> 'ALLOW_UNFILTERED_UPLOADS',
+							'description'	=> 'Allows unfiltered uploads by admins.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'	=> 'AUTH_COOKIE',
+							'description'	=> 'Cookie name for the authentication.',
+							'value'			=> 'wordpress_ COOKIEHASH',
+						),
+						array(
+							'name'	=> 'AUTH_KEY',
+							'description'	=> 'Secret key.',
+							'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
+						),
+						array(
+							'name'	=> 'AUTH_SALT',
+							'description'	=> 'Secret key.',
+							'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
+						),
+						array(
+							'name'	=> 'COOKIEHASH',
+							'description'	=> 'Hash for generating cookie names.',
+							'value'			=> '',
+						),
+						array(
+							'name'	=> 'COOKIEPATH',
+							'description'	=> 'Path to WordPress root dir.',
+							'value'			=> 'Home URL without http(s)://',
+						),
+						array(
+							'name'	=> 'COOKIE_DOMAIN',
+							'description'	=> 'Domain of the WordPress installation.',
+							'value'			=> 'false or for Multisite with subdomains .domain of the main site',
+						),
+						array(
+							'name'	=> 'CUSTOM_TAGS',
+							'description'	=> 'Allows you to override the list of secure HTML tags. See /wp-includes/kses.php.',
+							'value'			=> 'true|false (Default: false)',
+						),
+						array(
+							'name'	=> 'DISALLOW_FILE_EDIT',
+							'description'	=> 'Allows you to disallow theme and plugin edits via WordPress editor.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'	=> 'DISALLOW_FILE_MODS',
+							'description'	=> 'Allows you to disallow the editing, updating, installing and deleting of plugins, themes and core files via WordPress Backend.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'	=> 'DISALLOW_UNFILTERED_HTML',
+							'description'	=> 'Allows you to disallow unfiltered HTML for every user, admins too.',
+							'value'			=> 'true',
+						),
+						array(
+							'name'	=> 'FORCE_SSL_ADMIN',
+							'description'	=> 'Activates SSL for logins and in the backend.',
+							'value'			=> 'true|false (Default: false)',
+						),
+						array(
+							'name'	=> 'FORCE_SSL_LOGIN',
+							'description'	=> 'Activates SSL for logins.',
+							'value'			=> 'true|false (Default: false)',
+						),
+						array(
+							'name'	=> 'LOGGED_IN_COOKIE',
+							'description'	=> 'Cookie name for logins.',
+							'value'			=> 'wordpress_logged_in_ COOKIEHASH',
+						),
+						array(
+							'name'	=> 'LOGGED_IN_KEY',
+							'description'	=> 'Secret key.',
+							'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
+						),
+						array(
+							'name'	=> 'LOGGED_IN_SALT',
+							'description'	=> 'Secret key.',
+							'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
+						),
+						array(
+							'name'	=> 'NONCE_KEY',
+							'description'	=> 'Secret key.',
+							'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
+						),
+						array(
+							'name'	=> 'NONCE_SALT',
+							'description'	=> 'Secret key.',
+							'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
+						),
+						array(
+							'name'	=> 'PASS_COOKIE',
+							'description'	=> 'Cookie name for the password.',
+							'value'			=> 'wordpresspass_ COOKIEHASH',
+						),
+						array(
+							'name'	=> 'PLUGINS_COOKIE_PATH',
+							'description'	=> 'Path to the plugins dir.',
+							'value'			=> 'WP_PLUGIN_URL without http(s)://',
+						),
+						array(
+							'name'	=> 'SECURE_AUTH_COOKIE',
+							'description'	=> 'Cookie name for the SSL authentication.',
+							'value'			=> 'wordpress_sec_ COOKIEHASH',
+						),
+						array(
+							'name'	=> 'SECURE_AUTH_KEY',
+							'description'	=> 'Secret key.',
+							'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
+						),
+						array(
+							'name'	=> 'SECURE_AUTH_SALT',
+							'description'	=> 'Secret key.',
+							'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
+						),
+						array(
+							'name'	=> 'SITECOOKIEPATH',
+							'description'	=> 'Path of you site.',
+							'value'			=> 'Site URL without http(s)://',
+						),
+						array(
+							'name'	=> 'TEST_COOKIE',
+							'description'	=> 'Cookie name for the test cookie.',
+							'value'			=> 'wordpress_test_cookie',
+						),
+						array(
+							'name'	=> 'USER_COOKIE',
+							'description'	=> 'Cookie name for users.',
+							'value'			=> 'wordpressuser_ COOKIEHASH',
+						),
+						array(
+							'name'	=> 'WP_FEATURE_BETTER_PASSWORDS',
+							'description'	=> '',
+							'value'			=> 'true|false',
+						),
+						array(
+							'name'	=> 'RECOVERY_MODE_COOKIE',
+							'description'	=> '',
+							'value'			=> '',
+						),
+					)
+				),
 
-			'time'	=> array(
-				'title'		=> 'Time',
-				'constants'	=> array(
-					array(
-						'name'		=> 'MINUTE_IN_SECONDS',
-						'description'	=> 'Minute in seconds',
-						'value'			=> '60',
-					),
-					array(
-						'name'		=> 'HOUR_IN_SECONDS',
-						'description'	=> 'Hour in seconds',
-						'value'			=> '60 * MINUTE_IN_SECONDS',
-					),
-					array(
-						'name'		=> 'DAY_IN_SECONDS',
-						'description'	=> 'Day (day) in seconds',
-						'value'			=> '24 * HOUR_IN_SECONDS',
-					),
-					array(
-						'name'		=> 'WEEK_IN_SECONDS',
-						'description'	=> 'Week in seconds',
-						'value'			=> '7 * DAY_IN_SECONDS',
-					),
-					array(
-						'name'		=> 'MONTH_IN_SECONDS',
-						'description'	=> 'Month in seconds',
-						'value'			=> '30 * DAY_IN_SECONDS',
-					),
-					array(
-						'name'		=> 'YEAR_IN_SECONDS',
-						'description'	=> 'Year in seconds ',
-						'value'			=> '365 * DAY_IN_SECONDS',
-					),
-				)
-			),
+				'time'	=> array(
+					'title'		=> 'Time',
+					'constants'	=> array(
+						array(
+							'name'		=> 'MINUTE_IN_SECONDS',
+							'description'	=> 'Minute in seconds',
+							'value'			=> '60',
+						),
+						array(
+							'name'		=> 'HOUR_IN_SECONDS',
+							'description'	=> 'Hour in seconds',
+							'value'			=> '60 * MINUTE_IN_SECONDS',
+						),
+						array(
+							'name'		=> 'DAY_IN_SECONDS',
+							'description'	=> 'Day (day) in seconds',
+							'value'			=> '24 * HOUR_IN_SECONDS',
+						),
+						array(
+							'name'		=> 'WEEK_IN_SECONDS',
+							'description'	=> 'Week in seconds',
+							'value'			=> '7 * DAY_IN_SECONDS',
+						),
+						array(
+							'name'		=> 'MONTH_IN_SECONDS',
+							'description'	=> 'Month in seconds',
+							'value'			=> '30 * DAY_IN_SECONDS',
+						),
+						array(
+							'name'		=> 'YEAR_IN_SECONDS',
+							'description'	=> 'Year in seconds ',
+							'value'			=> '365 * DAY_IN_SECONDS',
+						),
+					)
+				),
 
-			'filesize'	=> array(
-				'title'		=> 'File Size',
-				'constants'	=> array(
-					array(
-						'name'		=> 'KB_IN_BYTES',
-						'description'	=> 'KiloByte in Bytes',
-						'value'			=> '1024',
-					),
-					array(
-						'name'		=> 'MB_IN_BYTES',
-						'description'	=> 'MegaByte in Bytes',
-						'value'			=> '1048576',
-					),
-					array(
-						'name'		=> 'GB_IN_BYTES',
-						'description'	=> 'GigaByte in Bytes',
-						'value'			=> '1073741824',
-					),
-					array(
-						'name'		=> 'TB_IN_BYTES',
-						'description'	=> 'TeraByte in Bytes',
-						'value'			=> '1099511627776',
-					),
-				)
-			),
+				'filesize'	=> array(
+					'title'		=> 'File Size',
+					'constants'	=> array(
+						array(
+							'name'		=> 'KB_IN_BYTES',
+							'description'	=> 'KiloByte in Bytes',
+							'value'			=> '1024',
+						),
+						array(
+							'name'		=> 'MB_IN_BYTES',
+							'description'	=> 'MegaByte in Bytes',
+							'value'			=> '1048576',
+						),
+						array(
+							'name'		=> 'GB_IN_BYTES',
+							'description'	=> 'GigaByte in Bytes',
+							'value'			=> '1073741824',
+						),
+						array(
+							'name'		=> 'TB_IN_BYTES',
+							'description'	=> 'TeraByte in Bytes',
+							'value'			=> '1099511627776',
+						),
+					)
+				),
 
-		);
-	
+			);
+		
 
-		$wp_constants_array = array();
-		$output = '';
+			$wp_constants_array = array();
+			$output = '';
 
-		// Output all defined constants by category
+			// Output all defined constants by category
 
-		if ( $category == 'defined' ) {
+			if ( $type == 'defined' ) {
 
-			$output .= $this->sd_html( 'accordions-start' );
+				$output .= $this->sd_html( 'accordions-start' );
 
-			foreach ( $wp_constants as $category ) {
+				foreach ( $wp_constants as $category ) {
 
-				$category_title = $category['title'];
-				$defined_constants = array();
-				$constants_output = '';
+					$category_title = $category['title'];
+					$defined_constants = array();
+					$constants_output = '';
 
-				foreach ( $category['constants'] as $constant ) {
+					foreach ( $category['constants'] as $constant ) {
 
-					$wp_constants_array[] = $constant['name'];
+						$wp_constants_array[] = $constant['name'];
 
-					if ( ( defined( $constant['name'] ) ) && ( !empty( constant( $constant['name'] ) ) ) ) {
+						if ( ( defined( $constant['name'] ) ) && ( !empty( constant( $constant['name'] ) ) ) ) {
 
-						$constant_name = $constant['name'];
-						$constant_value = constant( $constant['name'] );
+							$constant_name = $constant['name'];
+							$constant_value = constant( $constant['name'] );
 
-						$constants_output .= $this->sd_html( 'field-content-start' );
-						$constants_output .= $this->sd_html( 'field-content-first', $constant_name );
-						$constants_output .= $this->sd_html( 'field-content-second', wp_kses_post( $constant_value ), 'long-value' );
-						$constants_output .= $this->sd_html( 'field-content-end' );
+							$constants_output .= $this->sd_html( 'field-content-start' );
+							$constants_output .= $this->sd_html( 'field-content-first', $constant_name );
+							$constants_output .= $this->sd_html( 'field-content-second', wp_kses_post( $constant_value ), 'long-value' );
+							$constants_output .= $this->sd_html( 'field-content-end' );
 
-						$defined_constants[] = $constant_name;
+							$defined_constants[] = $constant_name;
+
+						}
+
+					}
+
+					// Only output categories with at least one defined constant
+
+					if ( count( $defined_constants ) > 0 ) {
+
+						$output .= $this->sd_html( 'accordion-head', $category_title );
+						$output .= $this->sd_html( 'accordion-body', $constants_output );
 
 					}
 
 				}
 
-				// Only output categories with at least one defined constant
+				// Get constants defined by themes and plugins
 
-				if ( count( $defined_constants ) > 0 ) {
+				$php_constants = get_defined_constants( true );
+				$php_user_constants = $php_constants['user'];
+				$plugins_themes_constants = array();
+				$plugins_themes_constants_output = '';
 
-					$output .= $this->sd_html( 'accordion-head', $category_title );
+				foreach ( $php_user_constants as $constant_name => $constant_value ) {
+
+					if ( !in_array( $constant_name, $wp_constants_array ) ) {
+
+						$plugins_themes_constants[] = array(
+							$constant_name => $constant_value,
+						);
+
+						$constant_value_type = gettype( $constant_value );
+
+						// Prevent PHP array-to-string conversion warning 
+						if ( $constant_value_type == 'array' ) {
+							$constant_value = serialize( $constant_value );
+						}
+
+						$plugins_themes_constants_output .= $this->sd_html( 'field-content-start' );
+						$plugins_themes_constants_output .= $this->sd_html( 'field-content-first', $constant_name, 'long-value' );
+						$plugins_themes_constants_output .= $this->sd_html( 'field-content-second', wp_kses_post( $constant_value ), 'long-value' );
+						$plugins_themes_constants_output .= $this->sd_html( 'field-content-end' );
+
+					}
+
+				}
+
+				if ( !empty( $plugins_themes_constants ) ) {
+
+					$output .= $this->sd_html( 'accordion-head', 'From Themes and Plugins' );
+					$output .= $this->sd_html( 'accordion-body', $plugins_themes_constants_output );
+
+				}
+
+				$output .= $this->sd_html( 'accordions-end' );
+
+			} elseif ( $type == 'docs' ) {
+
+				$output .= $this->sd_html( 'accordions-start' );
+
+				foreach ( $wp_constants as $category ) {
+
+					$constants_output = '';
+
+					$output .= $this->sd_html( 'accordion-head', $category['title'] );
+
+					foreach ( $category['constants'] as $constant ) {
+
+						$constants_output .= $this->sd_html( 'field-content-start' );
+						$constants_output .= $this->sd_html( 'field-content-first', $constant['name'] . '<br />Value: ' . $constant['value'] );
+						$constants_output .= $this->sd_html( 'field-content-second', $constant['description'] );
+						$constants_output .= $this->sd_html( 'field-content-end' );
+
+					}
+
 					$output .= $this->sd_html( 'accordion-body', $constants_output );
 
 				}
 
-			}
+				$output .= $this->sd_html( 'accordions-end' );
 
-			// Get constants defined by themes and plugins
+			} else {
 
-			$php_constants = get_defined_constants( true );
-			$php_user_constants = $php_constants['user'];
-			$plugins_themes_constants = array();
-			$plugins_themes_constants_output = '';
+				$output .= '<h4>' . $wp_constants[$category]['title'] . '</h4>';			
 
-			foreach ( $php_user_constants as $constant_name => $constant_value ) {
+				foreach ( $wp_constants[$category]['constants'] as $constant ) {
 
-				if ( !in_array( $constant_name, $wp_constants_array ) ) {
-
-					$plugins_themes_constants[] = array(
-						$constant_name => $constant_value,
-					);
-
-					$constant_value_type = gettype( $constant_value );
-
-					// Prevent PHP array-to-string conversion warning 
-					if ( $constant_value_type == 'array' ) {
-						$constant_value = serialize( $constant_value );
-					}
-
-					$plugins_themes_constants_output .= $this->sd_html( 'field-content-start' );
-					$plugins_themes_constants_output .= $this->sd_html( 'field-content-first', $constant_name, 'long-value' );
-					$plugins_themes_constants_output .= $this->sd_html( 'field-content-second', wp_kses_post( $constant_value ), 'long-value' );
-					$plugins_themes_constants_output .= $this->sd_html( 'field-content-end' );
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $constant['name'] . ' <br />Possible value(s): ' . wp_kses_post( $constant['value'] ) );
+					$output .= $this->sd_html( 'field-content-second', $constant['description'] );
+					$output .= $this->sd_html( 'field-content-end' );
 
 				}
 
 			}
 
-			if ( !empty( $plugins_themes_constants ) ) {
-
-				$output .= $this->sd_html( 'accordion-head', 'From Themes and Plugins' );
-				$output .= $this->sd_html( 'accordion-body', $plugins_themes_constants_output );
-
-			}
-
-			$output .= $this->sd_html( 'accordions-end' );
-
-		} elseif ( $category == 'all' ) {
-
-			$output .= $this->sd_html( 'accordions-start' );
-
-			foreach ( $wp_constants as $category ) {
-
-				$constants_output = '';
-
-				$output .= $this->sd_html( 'accordion-head', $category['title'] );
-
-				foreach ( $category['constants'] as $constant ) {
-
-					$constants_output .= $this->sd_html( 'field-content-start' );
-					$constants_output .= $this->sd_html( 'field-content-first', $constant['name'] . '<br />Value: ' . $constant['value'] );
-					$constants_output .= $this->sd_html( 'field-content-second', $constant['description'] );
-					$constants_output .= $this->sd_html( 'field-content-end' );
-
-				}
-
-				$output .= $this->sd_html( 'accordion-body', $constants_output );
-
-			}
-
-			$output .= $this->sd_html( 'accordions-end' );
-
-		} else {
-
-			$output .= '<h4>' . $wp_constants[$category]['title'] . '</h4>';			
-
-			foreach ( $wp_constants[$category]['constants'] as $constant ) {
-
-				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $constant['name'] . ' <br />Possible value(s): ' . wp_kses_post( $constant['value'] ) );
-				$output .= $this->sd_html( 'field-content-second', $constant['description'] );
-				$output .= $this->sd_html( 'field-content-end' );
-
-			}
+			echo $output;
 
 		}
-
-		return $output;
 
 	}
 
@@ -5475,6 +6198,12 @@ class System_Dashboard_Admin {
 					'name'		=> 'Database Browser',
 					'pointer'	=> 'database-browser',
 					'usenow'	=> '/wp-admin/tools.php?page=databasebrowser',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Better Search Replace',
+					'pointer'	=> 'better-search-replace',
+					'usenow'	=> '/wp-admin/tools.php?page=better-search-replace',
 				),
 				array(
 					'type'		=> 'plugin',
@@ -5651,6 +6380,12 @@ class System_Dashboard_Admin {
 					'name'		=> 'WP Crontrol',
 					'pointer'	=> 'wp-crontrol',
 					'usenow'	=> '/wp-admin/options-general.php?page=crontrol_admin_options_page',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Crony Cronjob Manager',
+					'pointer'	=> 'crony',
+					'usenow'	=> '/wp-admin/admin.php?page=crony',
 				),
 			),
 			'rewrite_rules' 	=> array(
@@ -5871,7 +6606,12 @@ class System_Dashboard_Admin {
 					'type'		=> 'link',
 					'name'		=> 'A Comprehensive Guide on WordPress Files and How to Use Them',
 					'pointer'	=> 'https://kinsta.com/knowledgebase/wordpress-files/',
-				),				
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'WordPress File Permissions: Complete Beginner’s Guide',
+					'pointer'	=> 'https://www.malcare.com/blog/wordpress-file-permissions/',
+				),
 			),
 			'database' 	=> array(
 				array(
@@ -6035,6 +6775,11 @@ class System_Dashboard_Admin {
 					'type'		=> 'link',
 					'name'		=> 'The Complete Guide to WordPress REST API Basics',
 					'pointer'	=> 'https://kinsta.com/blog/wordpress-rest-api/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'WordPress REST API: The Next Generation CMS Feature',
+					'pointer'	=> 'https://www.toptal.com/wordpress/beginners-guide-wordpress-rest-api',
 				),
 				array(
 					'type'		=> 'link',
@@ -6366,103 +7111,34 @@ class System_Dashboard_Admin {
 						'subtitle'	=>  $this->sd_wp_overview(),
 						'class'		=> 'main-section',
 						'tabs'		=> array(
-
-							array(
-								'title' => 'Directories',
-								'fields' => array(
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Root path',
-										'content'	=> str_replace( "/wp-content", "", WP_CONTENT_DIR ),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'All directories and files',
-										'content'	=> $this->sd_dir_size( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'wp-content directory',
-										'content'	=> $this->sd_dir_size( WP_CONTENT_DIR ),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Uploads directory',
-										'content'	=> $this->sd_dir_size( WP_CONTENT_DIR.'/uploads' ),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Plugins directory',
-										'content'	=> $this->sd_dir_size( WP_CONTENT_DIR.'/plugins' ),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Themes directory',
-										'content'	=> $this->sd_dir_size( WP_CONTENT_DIR.'/themes' ),
-									),
-									array(
-										'id'		=> 'db_filesystem_permissions',
-										'type'		=> 'accordion',
-										'title'		=> 'Filesystem Permissions',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_filesystem_permissions(),
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Tools',
-										'content'	=> $this->sd_tools( 'directories' ),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'References',
-										'content'	=> $this->sd_references( 'directories' ),
-									),
-								),
-							),
 					
 							array(
 								'title'		=> 'Database',
 								'fields'	=> array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'System',
-										'content'	=> $this->sd_get_mysql_version(),
+										'title'		=> 'System & Uptime',
+										'content'	=> $this->sd_get_mysql_version() . ' / ' . $this->sd_db_uptime(),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Uptime',
-										'content'	=> $this->sd_db_uptime(),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Data Size',
-										'content'	=> $this->sd_db_disk_usage( 'data' ),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Index Size',
-										'content'	=> $this->sd_db_disk_usage( 'index' ),
+										'title'		=> 'Data & Index Size',
+										'content'	=> $this->sd_db_disk_usage( 'data' ) . ' / ' . $this->sd_db_disk_usage( 'index' ),
 									),
 									array(
 										'id'		=> 'db_tables',
 										'type'		=> 'accordion',
 										'title'		=> 'Tables',
+										'class'		=> 'db-tables',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_db_tables(),
+														// 'content'	=> $this->sd_db_tables(),
+														// 'content'	=> '<div id="spinner-db-tables"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading...</div><div id="db-tables"></div>', // AJAX loading via sd_db_tables()
+														'content'	=> $this->sd_html( 'ajax-receiver', 'db-tables' ), // AJAX loading via sd_db_tables()
 													),													
 												),
 											),
@@ -6472,13 +7148,16 @@ class System_Dashboard_Admin {
 										'id'		=> 'db_key_specs',
 										'type'		=> 'accordion',
 										'title'		=> 'Key Info',
+										'class'		=> 'db-specs',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_db_specs(),
+														// 'content'	=> $this->sd_db_specs(),
+														// 'content'	=> '<div id="spinner-db-specs"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading...</div><div id="db-specs"></div>', // AJAX loading via sd_db_tables()
+														'content'	=> $this->sd_html( 'ajax-receiver', 'db-specs' ), // AJAX loading via sd_db_specs()
 													),													
 												),
 											),
@@ -6488,13 +7167,16 @@ class System_Dashboard_Admin {
 										'id'		=> 'db_detail_specs',
 										'type'		=> 'accordion',
 										'title'		=> 'Detailed Specifications',
+										'class'		=> 'db-details',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_db_details(),
+														// 'content'	=> $this->sd_db_details(),
+														// 'content'	=> '<div id="spinner-db-details"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading...</div><div id="db-details"></div>', // AJAX loading via sd_db_details()
+														'content'	=> $this->sd_html( 'ajax-receiver', 'db-details' ), // AJAX loading via sd_db_details()
 													),													
 												),
 											),
@@ -6518,19 +7200,36 @@ class System_Dashboard_Admin {
 								'title' => 'Post Types & Taxonomies',
 								'fields' => array(
 									array(
-										'type'		=> 'content',
-										'title'		=> 'Post types',
-										'content'	=> $this->sd_post_types_info(),
+										'id'		=> 'post_types',
+										'type'		=> 'accordion',
+										'title'		=> 'Post Types Post Count',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_post_types_info(),
+													),													
+												),
+											),
+										),
 									),
 									array(
-										'type'		=> 'content',
-										'title'		=> 'Taxonomies',
-										'content'	=> $this->sd_get_taxonomies_info(),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Comments',
-										'content'	=> get_comments( array( 'count' => true ) ),
+										'id'		=> 'taxonomies',
+										'type'		=> 'accordion',
+										'title'		=> 'Taxonomies Term Count',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_get_taxonomies_info(),
+													),													
+												),
+											),
+										),
 									),
 									array(
 										'id'		=> 'pttax_old_slugs',
@@ -6567,9 +7266,20 @@ class System_Dashboard_Admin {
 								'fields'	=> array(
 
 									array(
-										'type'		=> 'content',
-										'title'		=> 'Media',
-										'content'	=> $this->sd_media_count_by_mime(),
+										'id'		=> 'media_count_by_mime',
+										'type'		=> 'accordion',
+										'title'		=> 'Media Count by Mime Type',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_media_count_by_mime(),
+													),													
+												),
+											),
+										),
 									),
 									array(
 										'id'		=> 'media_allowed_mime_types',
@@ -6614,6 +7324,59 @@ class System_Dashboard_Admin {
 										'content'	=> $this->sd_references( 'media' ),
 									),
 
+								),
+							),
+
+							array(
+								'title' => 'Directories',
+								'fields' => array(
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Root path',
+										'content'	=> str_replace( "/wp-content", "", WP_CONTENT_DIR ),
+									),
+									array(
+										'id'		=> 'directory_sizes',
+										'type'		=> 'accordion',
+										'title'		=> 'Directory Sizes',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_wp_dir_sizes(),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'filesystem_permissions',
+										'type'		=> 'accordion',
+										'title'		=> 'Filesystem Permissions',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_filesystem_permissions(),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Tools',
+										'content'	=> $this->sd_tools( 'directories' ),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'References',
+										'content'	=> $this->sd_references( 'directories' ),
+									),
 								),
 							),
 
@@ -6666,16 +7429,27 @@ class System_Dashboard_Admin {
 							array(
 								'title' => 'Users',
 								'fields' => array(
+
 									array(
-										'type'		=> 'content',
+										'id'		=> 'user_count_by_role',
+										'type'		=> 'accordion',
 										'title'		=> 'Users Count by Role',
-										'content'	=> $this->sd_get_user_count_by_role( 'by_role' ),
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_get_user_count_by_role( 'by_role' ),
+													),													
+												),
+											),
+										),
 									),
 									array(
 										'id'		=> 'urc_tools',
 										'type'		=> 'accordion',
 										'title'		=> 'Roles & Capabilities',
-										// 'subtitle'	=> 'Includes custom capabilities',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
@@ -6729,7 +7503,7 @@ class System_Dashboard_Admin {
 									array(
 										'id'		=> 'wp_core_options',
 										'type'		=> 'accordion',
-										'title'		=> 'WordPress Core',
+										'title'		=> 'Core',
 										'subtitle'	=> $this->sd_options( 'wpcore_count' ) . ' options',
 										'accordions'	=> array(
 											array(
@@ -6857,8 +7631,59 @@ class System_Dashboard_Admin {
 								'fields'	=> array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Jobs',
-										'content'	=> $this->sd_cron_jobs(),
+										'title'		=> 'Total',
+										'content'	=> $this->sd_cron_events( 'all', 'count' ) . ' cron events',
+									),
+									array(
+										'id'		=> 'cron_events',
+										'type'		=> 'accordion',
+										'title'		=> 'Core',
+										'subtitle'		=> $this->sd_cron_events( 'wpcore', 'count' ) . ' events',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_cron_events( 'wpcore', 'events' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'cron_events',
+										'type'		=> 'accordion',
+										'title'		=> 'Theme & Plugins',
+										'subtitle'		=> $this->sd_cron_events( 'custom', 'count' ) . ' events',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_cron_events( 'custom', 'events' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'cron_events',
+										'type'		=> 'accordion',
+										'title'		=> 'Schedules',
+										'subtitle'		=> $this->sd_cron_events( 'schedules', 'count' ) . ' intervals',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_cron_events( 'schedules', 'list' ),
+													),													
+												),
+											),
+										),
 									),
 									array(
 										'type'		=> 'content',
@@ -6881,12 +7706,25 @@ class System_Dashboard_Admin {
 
 									array(
 										'type'		=> 'content',
-										'content'	=> '<strong>Total</strong>: ' . $this->sd_rewrite_rules( 'total_count' ) . ' rules',
+										'title'		=> 'Total',
+										'content'	=> $this->sd_rewrite_rules( 'total_count' ) . ' rules',
 									),
-
 									array(
-										'type'		=> 'content',
-										'content'	=> $this->sd_rewrite_rules( 'list' ),
+										'id'		=> 'rewrite_rules',
+										'type'		=> 'accordion',
+										'title'		=> 'List',
+										'subtitle'	=> 'URL Structure <br />&#10132; Query Parameters',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_rewrite_rules( 'list' ),
+													),													
+												),
+											),
+										),
 									),
 									array(
 										'type'		=> 'content',
@@ -6912,9 +7750,20 @@ class System_Dashboard_Admin {
 										'content'	=> $this->sd_shortcodes( 'total_count' ) . ' shortcodes',
 									),
 									array(
-										'type'		=> 'content',
+										'id'		=> 'shortcodes',
+										'type'		=> 'accordion',
 										'title'		=> 'List',
-										'content'	=> $this->sd_shortcodes( 'list' ),
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_shortcodes( 'list' ),
+													),													
+												),
+											),
+										),
 									),
 									array(
 										'type'		=> 'content',
@@ -6930,33 +7779,101 @@ class System_Dashboard_Admin {
 								),
 							),
 
-							// array(
-							// 	'title'		=> 'Emails',
-							// 	'fields'	=> array(
-							// 		array(
-							// 			'type'		=> 'content',
-							// 			'title'		=> 'Sent Emails',
-							// 			'content'	=> '',
-							// 			// 'content'	=> $this->get_sent_emails(),
-							// 		),
+							array(
+								'title' => 'Viewer',
+								'fields' => array(
 
-							// 	),
-							// ),
+									array(
+										'id'		=> 'viewer_wpconfig',
+										'type'		=> 'accordion',
+										'title'		=> 'wp-config.php',
+										'subtitle'	=> 'WordPress main configuration file',
+										'class'		=> 'sd-viewer wpconfig',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_html( 'ajax-receiver', 'wpconfig' ), // AJAX loading via sd_viewer()
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'viewer_htaccess',
+										'type'		=> 'accordion',
+										'title'		=> '.htaccess',
+										'subtitle'	=> 'Apache server configuration only for the directory the file is in',
+										'class'		=> 'htaccess',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_html( 'ajax-receiver', 'htaccess' ), // AJAX loading via sd_viewer()
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'viewer_restapi',
+										'type'		=> 'accordion',
+										'title'		=> 'WordPress <a href="/wp-json/wp/v2" target="_blank">REST API</a>',
+										'subtitle'	=> 'An interface for applications to interact with WordPress',
+										'class'		=> 'restapi_viewer',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_html( 'ajax-receiver', 'restapi' ), // AJAX loading via sd_wp_rest_api()
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'viewer_robots',
+										'type'		=> 'accordion',
+										'title'		=> 'robots.txt',
+										'subtitle'	=> 'Tell search engine crawlers which URLs they can access on your site',
+										'class'		=> 'robotstxt',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_html( 'ajax-receiver', 'robotstxt' ), // AJAX loading via sd_viewer()
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Sitemap',
+										'subtitle'	=> 'Contains information for search engines to crawl your site more efficiently',
+										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Tools',
+										'content'	=> $this->sd_tools( 'viewer' ),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'References',
+										'content'	=> $this->sd_references( 'viewer' ),
+									),
 
-							// 	),
-							// ),
-
-							// array(
-							// 	'title'		=> 'Logs',
-							// 	'fields'	=> array(
-							// 		array(
-							// 			'type'		=> 'content',
-							// 			'title'		=> 'Error Log',
-							// 			'content'	=> '',
-							// 			// 'content'	=> $this->get_errors_log(),
-							// 		),
-							// 	),
-							// ),
+								),
+							),
 
 						),
 					),
@@ -6976,23 +7893,25 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Core (v5.9)',
 										'subtitle'	=> 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each hook.',
+										'class'		=> 'wpcore-hooks',
 										'accordions'	=> array(
-
 											array(
-												'title'		=> 'Action Hooks (' . $this->sd_wpcore_hooks( 'action', 'count' ) . ')',
+												'title'		=> 'View Action Hooks',
+												'class'		=> 'core-action-hooks',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_wpcore_hooks( 'action', 'hooks' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'core-action-hooks' ), // AJAX loading via sd_wpcore_hooks()
 													),													
 												),
 											),
 											array(
-												'title'		=> 'Filter Hooks (' . $this->sd_wpcore_hooks( 'filter', 'count' ) . ')',
+												'title'		=> 'View Filter Hooks',
+												'class'		=> 'core-filter-hooks',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_wpcore_hooks( 'filter', 'hooks' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'core-filter-hooks' ), // AJAX loading via sd_wpcore_hooks()
 													),													
 												),
 											),
@@ -7013,14 +7932,14 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Current Theme',
 										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.',
-										'class'		=> 'sd__hooks',
+										'class'		=> 'sd__hooks theme-hooks',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View Hooks',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_hooks( 'active_theme' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'theme-hooks' ), // AJAX loading via sd_hooks()
 													),													
 												),
 											),
@@ -7031,14 +7950,14 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Active Plugins',
 										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.',
-										'class'		=> 'sd__hooks',
+										'class'		=> 'sd__hooks plugins-hooks',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View Hooks',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_hooks( 'active_plugins' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'plugins-hooks' ), // AJAX loading via sd_hooks()
 													),													
 												),
 											),
@@ -7441,7 +8360,7 @@ class System_Dashboard_Admin {
 									array(
 										'id'			=> 'non_wpcore_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Non WordPress Core',
+										'title'			=> 'Theme & Plugins',
 										'accordions'	=> array(
 											array(
 												'title'   => 'View',
@@ -7470,12 +8389,6 @@ class System_Dashboard_Admin {
 											),
 										),
 									),
-
-									// array(
-									// 	'type'		=> 'content',
-									// 	'title'		=> 'Tools',
-									// 	'content'	=> $this->sd_tools( 'constants' ),
-									// ),
 									array(
 										'type'		=> 'content',
 										'title'		=> 'References',
@@ -7489,117 +8402,45 @@ class System_Dashboard_Admin {
 								'title'		=> 'Constants',
 								'fields'	=> array(
 									array(
-										'type'		=> 'content',
+										'id'		=> 'defined_constants',
+										'type'		=> 'accordion',
 										'title'		=> 'Defined Constants',
-										'content'	=> $this->sd_wp_constants( 'defined' ),
+										'class'		=> 'constant-values',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														// 'content'	=> $this->sd_constants( 'defined' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'constant-values' ), // AJAX loading via sd_constants()
+													),													
+												),
+											),
+										),
 									),
 									array(
 										'id'		=> 'constants_reference',
 										'type'		=> 'accordion',
 										'title'		=> 'Constants Documentation',
+										'class'		=> 'constant-docs',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_wp_constants( 'all' ),
+														// 'content'	=> $this->sd_constants( 'all' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'constant-docs' ), // AJAX loading via sd_constants()
 													),													
 												),
 											),
 										),
 									),
-									// array(
-									// 	'type'		=> 'content',
-									// 	'title'		=> 'Tools',
-									// 	'content'	=> $this->sd_tools( 'constants' ),
-									// ),
 									array(
 										'type'		=> 'content',
 										'title'		=> 'References',
 										'content'	=> $this->sd_references( 'constants' ),
-									),
-
-								),
-							),
-
-							array(
-								'title' => 'Viewer',
-								'fields' => array(
-
-									array(
-										'id'		=> 'viewer_wpconfig',
-										'type'		=> 'accordion',
-										'title'		=> 'wp-config.php',
-										'subtitle'	=> 'WordPress main configuration file',
-										'class'		=> 'sd-viewer',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_file_viewer( 'wp-config.php' ),
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'id'		=> 'viewer_htaccess',
-										'type'		=> 'accordion',
-										'title'		=> '.htaccess',
-										'subtitle'	=> 'Apache server configuration only for the directory the file is in',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_file_viewer( '.htaccess' ),
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'id'		=> 'viewer_robots',
-										'type'		=> 'accordion',
-										'title'		=> 'robots.txt',
-										'subtitle'	=> 'Tell search engine crawlers which URLs they can access on your site',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_file_viewer( 'robots.txt' ),
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Sitemap',
-										'subtitle'	=> 'Contains information for search engines to crawl your site more efficiently',
-										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'WordPress REST API',
-										'subtitle'	=> 'An interface for external applications to interact with WordPress',
-										'content'	=> '<a href="/wp-json/wp/v2" target="_blank">Access now &raquo;</a>',
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Tools',
-										'content'	=> $this->sd_tools( 'viewer' ),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'References',
-										'content'	=> $this->sd_references( 'viewer' ),
 									),
 
 								),
@@ -7818,7 +8659,7 @@ class System_Dashboard_Admin {
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_php_info( 'plugins' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'phpinfo' ), // AJAX loading via sd_php_info()
 													),													
 												),
 											),

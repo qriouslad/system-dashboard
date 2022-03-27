@@ -20,6 +20,28 @@
     display: none;
 }
 
+.sd-options .csf-header a {
+    text-decoration: none;
+    transition: .25s;
+}
+
+.sd-options .sd-header-action span {
+    font-size: 1.125em;
+}
+
+.sd-options .csf-header a:hover {
+    text-decoration: underline;
+}
+
+.sd-options .sd-header-action {
+    line-height: 30px;
+    margin-left: 16px;
+}
+
+.sd-options .sd-header-action:first-child {
+    margin-left: 0;
+}
+
 .sd-options .field-info-line {
     display:  block;
     width: 100%;
@@ -86,8 +108,12 @@
 }
 
 .sd-options .field-parts.search-filter input[type="text"] {
-    min-width: 220px;
+    width: 48%;
     border: 1px solid #ddd;
+}
+
+.sd-options .search-filter-additional-info {
+    width: 48%;    
 }
 
 .sd-options .field-parts.flex-direction-column {
@@ -120,6 +146,13 @@
     width: 100%;
 }
 
+.sd-options .wpcore-hooks .field-part.full-width {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .sd-options .first-part > span {
     color: #aaa;
 }
@@ -133,12 +166,7 @@
     color: #3c434a;
 }
 
-.option__value-div,
-.global__value-div {
-}
-
-.option__value-div img,
-.global__value-div img {
+img.spinner_inline {
     height: 1.5em;
     width: 1.5em;
     position: relative;
@@ -146,44 +174,36 @@
     margin-right: 2px;
 }
 
-.option__value,
-.global__value {
+.ajax-value {
     display: block;
     height: auto;
 }
 
-.option__value pre,
-.global__value pre {
+.ajax-value pre {
     word-break: break-all;
     white-space: pre-wrap;
 }
 
-.option__value.json-document,
-.global__value.json-document {
+.csf-field .json-document {
     padding: 0;
 }
 
-.option__value a.json-toggle:before,
-.global__value a.json-toggle:before {
+.csf-field a.json-toggle:before {
     font-size: 1em;
     top: .25em;
 }
 
-.option__value a.json-toggle:hover:before,
-.global__value a.json-toggle:hover:before {
+.csf-field a.json-toggle:hover:before {
     color: #3c434a;
 }
 
-.option__value ul.json-dict li,
-.global__value ul.json-dict li {
+.csf-field ul.json-dict li {
     margin-top: 3px;
     margin-bottom: 3px;
 }
 
-.option__value .json-string,
-.option__value .json-literal,
-.global__value .json-string,
-.global__value .json-literal {
+.csf-field .json-string,
+.csf-field .json-literal {
     font-weight: 600;
 }
 
@@ -470,6 +490,27 @@ dl.mc-collapsible[data-style=qa] dd {
     }
     .custom-fields-tabs .csf-accordion-item {
         width: 100%;
+    }
+
+    .sd-options .field-parts {
+        flex-direction: column;
+    }
+
+    .sd-options .field-part {
+        width: 100%;
+    }
+
+    .sd-options .field-parts.search-filter input[type="text"] {
+        width: 100%;
+        margin-bottom: 12px;
+    }
+
+    .sd-options .search-filter-additional-info {
+        width: 100%;    
+    }
+
+    .sd-options .wpcore-hooks .field-part.full-width {
+        flex-direction: column;
     }
 
 }
