@@ -33,11 +33,13 @@
 
         // Add review and feedback buttons to header
 
-        var $addReview = '<a href="https://wordpress.org/plugins/system-dashboard/#reviews" target="_blank" class="sd-header-action">Add review</a>';
-        var $giveFeedback = '<a href="https://wordpress.org/support/plugin/system-dashboard/" target="_blank" class="sd-header-action">Give feedback</a>';
+        var addReview = '<a href="https://wordpress.org/plugins/system-dashboard/#reviews" target="_blank" class="sd-header-action"><span>&starf;</span> Review</a>';
+        var giveFeedback = '<a href="https://wordpress.org/support/plugin/system-dashboard/" target="_blank" class="sd-header-action">&#10010; Feedback</a>';
+        var donate = '<a href="https://paypal.me/qriouslad" target="_blank" class="sd-header-action">&#10084; Donate</a>';
 
-        $($giveFeedback).prependTo('.csf-header-right');
-        $($addReview).prependTo('.csf-header-right');
+        $(donate).prependTo('.csf-header-right');
+        $(giveFeedback).prependTo('.csf-header-right');
+        $(addReview).prependTo('.csf-header-right');
 
         // Search filter - https://codepen.io/alexerlandsson/pen/ZbyRoO
 

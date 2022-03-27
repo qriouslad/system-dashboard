@@ -20,6 +20,19 @@
     display: none;
 }
 
+.sd-options .csf-header a {
+    text-decoration: none;
+    transition: .25s;
+}
+
+.sd-options .sd-header-action span {
+    font-size: 1.125em;
+}
+
+.sd-options .csf-header a:hover {
+    text-decoration: underline;
+}
+
 .sd-options .sd-header-action {
     line-height: 30px;
     margin-left: 16px;
