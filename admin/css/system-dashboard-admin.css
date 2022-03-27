@@ -20,6 +20,15 @@
     display: none;
 }
 
+.sd-options .sd-header-action {
+    line-height: 30px;
+    margin-left: 16px;
+}
+
+.sd-options .sd-header-action:first-child {
+    margin-left: 0;
+}
+
 .sd-options .field-info-line {
     display:  block;
     width: 100%;

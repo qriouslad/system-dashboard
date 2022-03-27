@@ -31,6 +31,14 @@
 
      $(document).ready( function() {
 
+        // Add review and feedback buttons to header
+
+        var $addReview = '<a href="https://wordpress.org/plugins/system-dashboard/#reviews" target="_blank" class="sd-header-action">Add review</a>';
+        var $giveFeedback = '<a href="https://wordpress.org/support/plugin/system-dashboard/" target="_blank" class="sd-header-action">Give feedback</a>';
+
+        $($giveFeedback).prependTo('.csf-header-right');
+        $($addReview).prependTo('.csf-header-right');
+
         // Search filter - https://codepen.io/alexerlandsson/pen/ZbyRoO
 
         // Options - WP Core
