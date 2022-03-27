@@ -16,7 +16,7 @@ Centralized dashboard to monitor various WordPress components, stats and data, i
 
 ## Description
 
-This plugin provides a centralized dashboard to monitor various WordPress components, stats and data, including server hardware, software and resource usage. Queries are optimized and most modules employ fast AJAX loading of content and values, so the plugin loads fast despite having a total of 21 modules. It does not weight down wp-admin, and nothing is loaded on the front-end. To preview the screeshots more easily, visit the [github repo](https://github.com/qriouslad/system-dashboard).
+This plugin provides a centralized dashboard to monitor various WordPress components, stats and data, including server hardware, software and resource usage. Queries are optimized and most modules employ fast AJAX loading of content and values, so the plugin loads fast despite having a total of 21 modules. It does not weight down wp-admin, and nothing is loaded on the front-end. To preview the module screenshots more easily, visit the [github repo](https://github.com/qriouslad/system-dashboard).
 
 ### WordPress Modules (18)
 
