@@ -230,19 +230,7 @@ class System_Dashboard_Admin {
 		$output .= 'get_stylesheet_directory() - ' . get_stylesheet_directory() . '<br />';
 		$output .= 'get_stylesheet_directory_uri() - ' . get_stylesheet_directory() . '<br />';
 
-		if ( class_exists( 'Syn' ) ) {
-			$output .= 'Syn class exist';
-		} elseif ( class_exists( 'Syntaxo' )) {
-			$output .= 'Syntaxo class exist';
-		} elseif ( class_exists( 'Syntaxo()' ) ) {
-			$output .= 'Syntaxo() class exist';
-		} elseif ( class_exists( '\Syn\Syntaxo()' ) ) {
-			$output .= '\Syn\Syntaxo() class exist';
-		} elseif ( class_exists( '\Syn\Syntaxo' ) ) {
-			$output .= '\Syn\Syntaxo class exist';
-		} else {
-			$output .= 'Class does not exist';			
-		}
+		$output .= 'FAST_AJAX: ' . FAST_AJAX;
 
 		return $output;
 
@@ -2837,12 +2825,105 @@ class System_Dashboard_Admin {
 	}
 
 	/**
+	 * Add fast AJAX MU plugin
+	 *
+	 * @link https://github.com/atwellpub/WordPress-Fast-Ajax-Mu-Plugin
+	 * @since 2.0.1
+	 */
+	public function sd_fast_ajax_mu() {
+
+        $fast_ajax_file = WPMU_PLUGIN_DIR . '/fast-ajax.php';
+
+        if ( !is_dir( WPMU_PLUGIN_DIR ) ) {
+
+            if ( is_writable( WP_CONTENT_DIR ) ) {
+
+                mkdir( WPMU_PLUGIN_DIR, 0755 );
+
+            } else {}
+
+        }
+
+        if ( is_dir( WPMU_PLUGIN_DIR ) ) {
+
+            if ( is_writeable( WPMU_PLUGIN_DIR ) ) {
+
+                // https://www.php.net/manual/en/language.types.string.php#language.types.string.syntax.nowdoc
+                $file_content = <<<'EOD'
+                    <?php
+
+                    define('FAST_AJAX' , true );
+
+                    /**
+                     * Enable Fast Ajax
+                     */
+                    add_filter( 'option_active_plugins', 'ajax_disable_plugins' );
+                    function ajax_disable_plugins($plugins){
+
+                        /* load all plugins if not in ajax mode */
+                        if ( !defined( 'DOING_AJAX' ) )  {
+                            return $plugins;
+                        }
+
+                        /* load all plugins if fast_ajax is set to false */
+                        if ( !isset($_REQUEST['fast_ajax']) || !$_REQUEST['fast_ajax'] )  {
+                            return $plugins;
+                        }
+
+                        /* load all plugins if load_plugins is set to all */
+                        if ( $_REQUEST['load_plugins'] == 'all' )  {
+                            return $plugins;
+                        }
+
+                        /* disable all plugins if none are told to load by the load_plugins array */
+                        if ( !isset($_REQUEST['load_plugins']) || !$_REQUEST['load_plugins'] )  {
+                            return array();
+                        }
+
+                        /* convert json */
+                        if (!is_array($_REQUEST['load_plugins']) && $_REQUEST['load_plugins']) {
+                            $_REQUEST['load_plugins'] = json_decode($_REQUEST['load_plugins'],true);
+                        }
+
+                        /* unset plugins not included in the load_plugins array */
+                        foreach ($plugins as $key => $plugin_path) {
+
+                            if (!in_array($plugin_path, $_REQUEST['load_plugins'] )) {
+                                unset($plugins[$key]);
+                            }
+
+                        }
+
+                        return $plugins;
+                    }
+                EOD;
+
+                file_put_contents( $fast_ajax_file, $file_content );
+
+            }
+
+        }
+
+	}
+
+	/**
 	 * Triggers varioius AJAX calls
 	 *
 	 * @link https://sharewebdesign.com/blog/wordpress-ajax-call/
 	 * @since 1.3.0
 	 */
 	public function sd_ajax_calls() {
+
+		if ( defined( 'FAST_AJAX' ) ) {
+
+			// Do nothing, Fast AJAX MU plugin has been installed
+
+		} else {
+
+			// Install Fast AJAX MU plugin for use in the following AJAX calls
+			$this->sd_fast_ajax_mu();
+
+		}
 
 		?>
 
