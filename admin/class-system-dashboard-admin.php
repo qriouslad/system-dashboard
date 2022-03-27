@@ -7779,6 +7779,102 @@ class System_Dashboard_Admin {
 								),
 							),
 
+							array(
+								'title' => 'Viewer',
+								'fields' => array(
+
+									array(
+										'id'		=> 'viewer_wpconfig',
+										'type'		=> 'accordion',
+										'title'		=> 'wp-config.php',
+										'subtitle'	=> 'WordPress main configuration file',
+										'class'		=> 'sd-viewer wpconfig',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_html( 'ajax-receiver', 'wpconfig' ), // AJAX loading via sd_viewer()
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'viewer_htaccess',
+										'type'		=> 'accordion',
+										'title'		=> '.htaccess',
+										'subtitle'	=> 'Apache server configuration only for the directory the file is in',
+										'class'		=> 'htaccess',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_html( 'ajax-receiver', 'htaccess' ), // AJAX loading via sd_viewer()
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'viewer_restapi',
+										'type'		=> 'accordion',
+										'title'		=> 'WordPress <a href="/wp-json/wp/v2" target="_blank">REST API</a>',
+										'subtitle'	=> 'An interface for applications to interact with WordPress',
+										'class'		=> 'restapi_viewer',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_html( 'ajax-receiver', 'restapi' ), // AJAX loading via sd_wp_rest_api()
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'viewer_robots',
+										'type'		=> 'accordion',
+										'title'		=> 'robots.txt',
+										'subtitle'	=> 'Tell search engine crawlers which URLs they can access on your site',
+										'class'		=> 'robotstxt',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_html( 'ajax-receiver', 'robotstxt' ), // AJAX loading via sd_viewer()
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Sitemap',
+										'subtitle'	=> 'Contains information for search engines to crawl your site more efficiently',
+										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Tools',
+										'content'	=> $this->sd_tools( 'viewer' ),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'References',
+										'content'	=> $this->sd_references( 'viewer' ),
+									),
+
+								),
+							),
+
 						),
 					),
 
@@ -8345,102 +8441,6 @@ class System_Dashboard_Admin {
 										'type'		=> 'content',
 										'title'		=> 'References',
 										'content'	=> $this->sd_references( 'constants' ),
-									),
-
-								),
-							),
-
-							array(
-								'title' => 'Viewer',
-								'fields' => array(
-
-									array(
-										'id'		=> 'viewer_wpconfig',
-										'type'		=> 'accordion',
-										'title'		=> 'wp-config.php',
-										'subtitle'	=> 'WordPress main configuration file',
-										'class'		=> 'sd-viewer wpconfig',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_html( 'ajax-receiver', 'wpconfig' ), // AJAX loading via sd_viewer()
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'id'		=> 'viewer_htaccess',
-										'type'		=> 'accordion',
-										'title'		=> '.htaccess',
-										'subtitle'	=> 'Apache server configuration only for the directory the file is in',
-										'class'		=> 'htaccess',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_html( 'ajax-receiver', 'htaccess' ), // AJAX loading via sd_viewer()
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'id'		=> 'viewer_restapi',
-										'type'		=> 'accordion',
-										'title'		=> 'WordPress <a href="/wp-json/wp/v2" target="_blank">REST API</a>',
-										'subtitle'	=> 'An interface for applications to interact with WordPress',
-										'class'		=> 'restapi_viewer',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_html( 'ajax-receiver', 'restapi' ), // AJAX loading via sd_wp_rest_api()
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'id'		=> 'viewer_robots',
-										'type'		=> 'accordion',
-										'title'		=> 'robots.txt',
-										'subtitle'	=> 'Tell search engine crawlers which URLs they can access on your site',
-										'class'		=> 'robotstxt',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_html( 'ajax-receiver', 'robotstxt' ), // AJAX loading via sd_viewer()
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Sitemap',
-										'subtitle'	=> 'Contains information for search engines to crawl your site more efficiently',
-										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Tools',
-										'content'	=> $this->sd_tools( 'viewer' ),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'References',
-										'content'	=> $this->sd_references( 'viewer' ),
 									),
 
 								),
