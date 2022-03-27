@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.2  
-Stable tag: 1.9.0  
+Stable tag: 2.0.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -16,10 +16,9 @@ Centralized dashboard to monitor various WordPress components, stats and data, i
 
 ## Description
 
-This plugin provides a centralized dashboard to monitor various WordPress components, stats and data, including server hardware, software and resource usage. 
+This plugin provides a centralized dashboard to monitor various WordPress components, stats and data, including server hardware, software and resource usage. Queries are optimized and most modules employs fast AJAX loading of content and values, so the plugin loads fast despite having a total of 21 modules. It does not weight down wp-admin, and certainly not the front-end.
 
-
-### WordPress Modules 
+### WordPress Modules (18)
 
 #### Overview: 
 
@@ -86,7 +85,7 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 
 #### Cron (Jobs):
 
-* List of cron job hooks and recurrences
+* List of cron event hooks and recurrences, categorized by core vs non-core
 
 #### Rewrite Rules:
 
@@ -95,6 +94,14 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 #### Shortcodes:
 
 * List of shortcodes and renderers (callback functions)
+
+#### Viewer: 
+
+* wp-config.php viewer
+* .htaccess viewer
+* REST API viewer
+* robots.txt viewer
+* Link to sitemap
 
 #### Hooks:
 
@@ -125,14 +132,7 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 * List of defined constants by WordPress core (categorized), as well as by theme and plugins
 * Documentation of each constant from WordPress core
 
-#### (File) Viewer: 
-
-* wp-config.php viewer
-* .htaccess viewer
-* robots.txt viewer
-* Links to sitemap and REST API
-
-### Server Modules 
+### Server Modules (3)
 
 #### Overview: 
 
@@ -172,52 +172,60 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 ### Technical Notes
 
 * Requires shell_exec and exec functions enabled for some modules to work properly. 
-* First load of the dashboard may take up to 60 seconds because the plugin is scanning hooks from active theme and plugins.
+* There's an MU plugin that unloads all other plugins for admin-ajax calls, so these calls stay fast no matter how complex and big your site is.
+* The longest first load is the Hooks > Active Plugins module, which scans action and filter hooks from all active plugins on the site. The more plugins are active, the longer it takes. If your server/hosting has a low execution time limit, you may need to load the module two or three times for the scan to complete. Once complete, subsequent loads of the module should be much much faster.
 
 ### Give Back
 
 * [A nice review](https://wordpress.org/plugins/system-dashboard/#reviews) would be great!
+* [Give feedback](https://wordpress.org/support/plugin/system-dashboard/) and help improve future versions.
 * [Github repo](https://github.com/qriouslad/system-dashboard) to contribute code.
-* [PayPal.me](https://paypal.me/qriouslad) to fuel my dev work with a supply of milk tea.
+* [Donate](https://paypal.me/qriouslad) and support my work. Close to 200 dev hours have been spent towards v2.0.0 so far.
 
 ## Screenshots
 
 1. The dashboard
    ![The dashboard](.wordpress-org/screenshot-1.png)
-2. WordPress overview & the Directories module
-   ![Directories module](.wordpress-org/screenshot-2.png)
-3. Database module
-   ![Database module](.wordpress-org/screenshot-3.png)
-4. Post Types & Taxonomies module
-   ![Post Types & Taxonomies module](.wordpress-org/screenshot-4.png)
-5. Media module
-   ![Media module](.wordpress-org/screenshot-5.png)
+2. WordPress overview & the Database module
+   ![WordPress overview & the Database module](.wordpress-org/screenshot-2.png)
+3. Post Types & Taxonomies module
+   ![Post Types & Taxonomies module](.wordpress-org/screenshot-3.png)
+4. Media module
+   ![Media module](.wordpress-org/screenshot-4.png)
+5. Directories module
+   ![Directories module](.wordpress-org/screenshot-5.png)
 6. Custom Fields module
    ![Custom Fields module](.wordpress-org/screenshot-6.png)
 7. Users module
    ![Users module](.wordpress-org/screenshot-7.png)
-8. File Viewer module
-   ![File Viewer module](.wordpress-org/screenshot-8.png)
-9. Options module
-   ![Options module](.wordpress-org/screenshot-9.png)
-10. Transients module
-   ![Transients module](.wordpress-org/screenshot-10.png)
-11. Cron module
-   ![Cron module](.wordpress-org/screenshot-11.png)
-12. Hooks module
-   ![Hooks module](.wordpress-org/screenshot-12.png)
-13. Classes module
-   ![Classes module](.wordpress-org/screenshot-13.png)
-14. Functions module
-   ![Functions module](.wordpress-org/screenshot-14.png)
-15. Constants module
-   ![Constants module](.wordpress-org/screenshot-15.png)
-16. Server overview and Monitor module
-   ![Server overview and Monitor module](.wordpress-org/screenshot-16.png)
-17. Hardware module
-   ![Hardware module](.wordpress-org/screenshot-17.png)
-18. PHP module
-   ![PHP module](.wordpress-org/screenshot-18.png)
+8. Options module
+   ![Options module](.wordpress-org/screenshot-8.png)
+9. Transients module
+   ![Transients module](.wordpress-org/screenshot-9.png)
+10. Cron module
+   ![Cron module](.wordpress-org/screenshot-10.png)
+11. Rewrite Rules module
+   ![Rewrite Rules module](.wordpress-org/screenshot-11.png)
+12. Shortcodes module
+   ![Shortcodes module](.wordpress-org/screenshot-12.png)
+13. Viewer module
+   ![Viewer module](.wordpress-org/screenshot-13.png)
+14. Hooks module
+   ![Hooks module](.wordpress-org/screenshot-14.png)
+15. Classes module
+   ![Classes module](.wordpress-org/screenshot-15.png)
+16. Functions module
+   ![Functions module](.wordpress-org/screenshot-16.png)
+17. Globals module
+   ![Globals module](.wordpress-org/screenshot-17.png)
+18. Constants module
+   ![Constants module](.wordpress-org/screenshot-18.png)
+19. Server overview and Monitor module
+   ![Server overview and Monitor module](.wordpress-org/screenshot-19.png)
+20. Hardware module
+   ![Hardware module](.wordpress-org/screenshot-20.png)
+21. PHP module
+   ![PHP module](.wordpress-org/screenshot-21.png)
 
 ## Frequently Asked Questions
 
@@ -227,9 +235,19 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 
 ## Changelog
 
+### 2.0.0 (March 2022)
+
+* Optimize dashboard load time considerably by employing AJAX loading of module content, element and values
+* Implement an MU plugin that keeps AJAX calls fast by unloading all other plugins during the calls
+* Optimize DB queries considerably on the Options and Transients module
+* Cron: split cron events between core and non-core
+* Rewrite Rules: improve module layout
+* Database, Post Types * Taxonomies, Media, Directories, Users: tidy up layout
+* Add review, feedback and donate links in dashboard header
+
 ### 1.9.0 (March 2022)
 
-* [NEW] Globals module: Categorized list of all WordPress core global variables, PHP super globals and non WP core globals.
+* [NEW] Globals module: Categorized list of all WordPress core global variables, PHP super globals and non WP core globals
 * Add tools and references for Rewrite Rules and Shortcodes modules
 
 ### 1.8.0 (March 2022)
@@ -244,7 +262,7 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 
 ### 1.7.1 (March 2022)
 
-* Only load System Dashboard on wp-admin pages and optimize how it is loaded there. Only execute demanding queries on the System Dashboard page. This resulted in much much less # of queries and faster load time on admin pages that is not the System Dashboard page.
+* Only load System Dashboard on wp-admin pages and optimize how it is loaded there. Only execute demanding queries on the System Dashboard page. This resulted in faster load time of admin pages that is not the System Dashboard page.
 * Options: Enable filtering of options by autoload status, value size and value type
 
 ### 1.6.0 (March 2022)
