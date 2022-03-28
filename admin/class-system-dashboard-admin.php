@@ -1409,23 +1409,23 @@ class System_Dashboard_Admin {
 	 * @link https://plugins.svn.wordpress.org/wp-server-stats/trunk/wp-server-stats.php
 	 * @since 1.0.0
 	 */
-	public function sd_total_ram()
-	{
-		$total_ram = get_transient('sd_total_ram');
+	public function sd_total_ram()	{
 
-		if ($total_ram === false) {
+		if ($this->is_shell_exec_enabled()) {
 
-			if ($this->is_shell_exec_enabled()) {
+			$total_ram = get_transient('sd_total_ram');
+
+			if ($total_ram === false) {
 
 				$total_ram = shell_exec("grep -w 'MemTotal' /proc/meminfo | grep -o -E '[0-9]+'");
 
 				set_transient('sd_total_ram', $total_ram, WEEK_IN_SECONDS);
 
-			} else {
-
-				$total_ram = 0;
-
 			}
+
+		} else {
+
+			$total_ram = 'Undetectable';
 
 		}
 
@@ -1446,7 +1446,7 @@ class System_Dashboard_Admin {
 
 		} else {
 
-			$ram_cache= 0;
+			$ram_cache= 'Undetectable';
 
 		}
 
@@ -1467,7 +1467,7 @@ class System_Dashboard_Admin {
 
 		} else {
 
-			$ram_buffer= 0;
+			$ram_buffer= 'Undetectable';
 
 		}
 
@@ -1486,17 +1486,25 @@ class System_Dashboard_Admin {
 
 			$free_ram = shell_exec("grep -w 'MemFree' /proc/meminfo | grep -o -E '[0-9]+'");
 
-			if( !is_null( $this->sd_ram_cache() ) || !is_null( $this->sd_ram_buffer() ) ) {
-				$ram_cache = is_null( $this->sd_ram_cache() ) ? 0 : (int) $this->sd_ram_cache();
-				$ram_buffer = is_null( $this->sd_ram_buffer() ) ? 0 : (int) $this->sd_ram_buffer();
-				$free_ram_final = (int) $free_ram + $ram_cache + $ram_buffer;
+			if ( ( $this->sd_ram_cache() != 'Undetectable' ) && ( $this->sd_ram_buffer() != 'Undetectable' ) ) {
+
+				if( !is_null( $this->sd_ram_cache() ) || !is_null( $this->sd_ram_buffer() ) ) {
+					$ram_cache = is_null( $this->sd_ram_cache() ) ? 0 : (int) $this->sd_ram_cache();
+					$ram_buffer = is_null( $this->sd_ram_buffer() ) ? 0 : (int) $this->sd_ram_buffer();
+					$free_ram_final = (int) $free_ram + $ram_cache + $ram_buffer;
+				} else {
+					$free_ram_final = $free_ram;
+				}
+
 			} else {
-				$free_ram_final = $free_ram;
+
+				$free_ram_final = 'Undetectable';
+
 			}
 
 		} else {
 
-			$free_ram_final = 0;
+			$free_ram_final = 'Undetectable';
 
 		}
 
@@ -1512,15 +1520,69 @@ class System_Dashboard_Admin {
 
 		if ($this->is_shell_exec_enabled()) {
 
-			$used_ram = $this->sd_format_filesize_kB( $this->sd_total_ram() - $this->sd_free_ram() ) .' ('. round( ( ( ( $this->sd_total_ram() - $this->sd_free_ram() ) / $this->sd_total_ram() ) * 100 ), 0).'%)';
+			$free_ram = $this->sd_free_ram();
+			$total_ram = $this->sd_total_ram();
+
+			if ( ( $free_ram != 'Undetectable' ) && ( $total_ram != 'Undetectable' ) ) {
+
+				$used_ram = $this->sd_format_filesize_kB( $total_ram - $free_ram ) .' ('. round( ( ( ( $total_ram - $free_ram ) / $total_ram ) * 100 ), 0).'%)';
+
+			} else {
+
+				$used_ram = 'Undetectable';
+
+			}		
 
 		} else {
 
-			$used_ram = '[Undetectable]';
+			$used_ram = 'Undetectable';
 
 		}
 
 		return $used_ram;
+
+	}
+
+	/**
+	 * Return RAM usage
+	 *
+	 * @since 2.0.2
+	 */
+	public function sd_ram_usage() {
+
+		$used_ram = $this->sd_used_ram();
+		$total_ram = $this->sd_total_ram();
+
+		if ( ( $used_ram != 'Undetectable' ) && ( $total_ram != 'Undetectable' ) ) {
+
+			return $used_ram .' used of '. $this->sd_format_filesize_kB( $total_ram ) .' total';
+
+		} else {
+
+			return 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+
+		}
+
+	}
+
+	/**
+	 * Return total RAM for display
+	 *
+	 * @since 2.0.2
+	 */
+	public function sd_total_ram_display() {
+
+		$total_ram = $this->sd_total_ram();
+
+		if ( $total_ram == 'Undetectable' ) {
+
+			return 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+
+		} else {
+
+			return $this->sd_format_filesize_kB( $total_ram );
+
+		}
 
 	}
 
@@ -8572,7 +8634,7 @@ class System_Dashboard_Admin {
 										'type'		=> 'content',
 										'title'		=> 'RAM Usage',
 										'subtitle'	=> 'At '. date( 'H:i:s', time() ),
-										'content'	=> $this->sd_used_ram() .' used of '. $this->sd_format_filesize_kB( $this->sd_total_ram() ) .' total',
+										'content'	=> $this->sd_ram_usage(),
 									),
 									array(
 										'type'		=> 'content',
@@ -8630,7 +8692,7 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Total RAM',
-										'content'	=> $this->sd_format_filesize_kB( $this->sd_total_ram() ),
+										'content'	=> $this->sd_total_ram_display(),
 									),
 									array(
 										'type'		=> 'content',
