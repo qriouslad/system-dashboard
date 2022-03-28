@@ -377,7 +377,18 @@ class System_Dashboard_Admin {
 
 		$output .= '<strong>Web Server</strong>: <br />' .$_SERVER['SERVER_SOFTWARE'] . ' | ' . php_sapi_name() . '<br />';
 
-		$output .= '<strong>IP Address</strong>: <br />' . $_SERVER['SERVER_ADDR'] . '<br />';
+		if ( function_exists( 'file_get_contents' ) ) {
+
+			if ( isset( $_SERVER['HTTP_X_SERVER_ADDR'] ) ) {
+
+				$output .= $_SERVER['HTTP_X_SERVER_ADDR'];
+
+			} else {
+
+				$output .= $_SERVER['SERVER_ADDR'];
+				
+			}
+		}
 
 		$output .= '<strong>Location</strong>: <br />' . $this->sd_server_location() . '<br />';
 
