@@ -1280,25 +1280,26 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_cpu_count() {
 
-				$cpu_count = get_transient('sd_cpu_count');
+		if ($this->is_shell_exec_enabled()) {
 
-				if ($cpu_count === false) {
+			$cpu_count = get_transient('sd_cpu_count');
 
-					if ($this->is_shell_exec_enabled()) {
+			if ($cpu_count === false) {
 
-						$cpu_count = shell_exec('cat /proc/cpuinfo |grep "physical id" | sort | uniq | wc -l');
+				$cpu_count = shell_exec('cat /proc/cpuinfo |grep "physical id" | sort | uniq | wc -l');
 
-						set_transient('sd_cpu_count', $cpu_count, WEEK_IN_SECONDS);
+				set_transient('sd_cpu_count', $cpu_count, WEEK_IN_SECONDS);
 
-					} else {
-
-						$cpu_count = 'Undetectable';
-
-					}
-				}
-
-				return $cpu_count;
 			}
+
+		} else {
+
+			$cpu_count = 'Undetectable';
+
+		}
+
+		return $cpu_count;
+	}
 
 	/**
 	 * Get server CPU core count
@@ -1308,25 +1309,47 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_cpu_core_count() {
 
-		$cpu_core_count = get_transient('sd_cpu_core_count');
+		if ($this->is_shell_exec_enabled()) {
 
-		if ($cpu_core_count === false) {
+			$cpu_core_count = get_transient('sd_cpu_core_count');
 
-			if ($this->is_shell_exec_enabled()) {
+			if ($cpu_core_count === false) {
 
 				$cpu_core_count = shell_exec("echo \"$((`cat /proc/cpuinfo | grep cores | grep -o -E '[0-9]+' | uniq` * `cat /proc/cpuinfo |grep 'physical id' | sort | uniq | wc -l`))\"");
 
 				set_transient('sd_cpu_core_count', $cpu_core_count, WEEK_IN_SECONDS);
 
-			} else {
-
-				$cpu_core_count =  'Undetectable';
-
 			}
+
+		} else {
+
+			$cpu_core_count =  'Undetectable';
 
 		}
 
 		return $cpu_core_count;
+	}
+
+	/**
+	 * Get CPUs and cores count
+	 *
+	 * @since 2.0.2
+	 */
+	public function sd_cpus_cores_count() {
+
+		$cpus_count = $this->sd_cpu_count();
+		$cores_count = $this->sd_cpu_core_count();
+
+		if ( ( $cpus_count != 'Undetectable' ) && ( $cores_count != 'Undetectable' ) ) {
+
+			return $this->sd_cpu_count(). ' CPUs / '. $this->sd_cpu_core_count() . ' cores';
+
+		} else {
+
+			return 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+
+		}
+
 	}
 
 	/**
@@ -8687,7 +8710,7 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'CPU / Cores',
-										'content'	=> $this->sd_cpu_count(). ' CPUs / '. $this->sd_cpu_core_count() . ' cores',
+										'content'	=> $this->sd_cpus_cores_count(),
 									),
 									array(
 										'type'		=> 'content',
