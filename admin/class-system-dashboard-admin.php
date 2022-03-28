@@ -1216,13 +1216,23 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_server_location() {
 
-		if ( function_exists( 'file_get_contents' ) && isset( $_SERVER['SERVER_ADDR'] ) ) {
+		if ( function_exists( 'file_get_contents' ) ) {
+
+			if ( isset( $_SERVER['HTTP_X_SERVER_ADDR'] ) ) {
+
+				$server_ip = $_SERVER['HTTP_X_SERVER_ADDR'];
+
+			} else {
+
+				$server_ip = $_SERVER['SERVER_ADDR'];
+				
+			}
 
 			$location_data = get_transient('sd_server_location');
 
 			if ($location_data === false) {
 
-				$location_data = unserialize( file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $_SERVER['SERVER_ADDR'] ) );
+				$location_data = unserialize( file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $server_ip ) );
 
 				set_transient('sd_server_location', $location_data, WEEK_IN_SECONDS);
 
