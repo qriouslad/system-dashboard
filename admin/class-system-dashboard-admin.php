@@ -1246,7 +1246,9 @@ class System_Dashboard_Admin {
 
 		}
 
-		return $location;
+		$location = trim(trim($location),',');
+
+		return empty($location) ? 'Undetectable' : $location;
 
 	}
 
