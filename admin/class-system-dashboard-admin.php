@@ -351,7 +351,7 @@ class System_Dashboard_Admin {
 			} elseif ( 1 === (int) $issue_counts['critical'] )  {
 				$output .= 'Your site has <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">a critical issue</a> that should be addressed as soon as possible. ';
 			} elseif ( $issue_counts['critical'] > 1 ) {
-				$ouput .= 'Your site has <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">critical issues</a> that should be addressed as soon as possible.';
+				$output .= 'Your site has <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">critical issues</a> that should be addressed as soon as possible.';
 			} elseif ( 1 === (int) $issue_counts['recommended'] ) {
 				$output .= 'Looking good, but <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">one thing</a> can be improved.';
 			} else {
