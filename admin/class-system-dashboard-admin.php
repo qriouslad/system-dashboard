@@ -351,7 +351,7 @@ class System_Dashboard_Admin {
 			} elseif ( 1 === (int) $issue_counts['critical'] )  {
 				$output .= 'Your site has <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">a critical issue</a> that should be addressed as soon as possible. ';
 			} elseif ( $issue_counts['critical'] > 1 ) {
-				$ouput .= 'Your site has <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">critical issues</a> that should be addressed as soon as possible.';
+				$output .= 'Your site has <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">critical issues</a> that should be addressed as soon as possible.';
 			} elseif ( 1 === (int) $issue_counts['recommended'] ) {
 				$output .= 'Looking good, but <a href="' . esc_url( admin_url( 'site-health.php' ) ) . '" target="_blank">one thing</a> can be improved.';
 			} else {
@@ -1216,13 +1216,23 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_server_location() {
 
-		if ( function_exists( 'file_get_contents' ) && isset( $_SERVER['SERVER_ADDR'] ) ) {
+		if ( function_exists( 'file_get_contents' ) ) {
+
+			if ( isset( $_SERVER['HTTP_X_SERVER_ADDR'] ) ) {
+
+				$server_ip = $_SERVER['HTTP_X_SERVER_ADDR'];
+
+			} else {
+
+				$server_ip = $_SERVER['SERVER_ADDR'];
+				
+			}
 
 			$location_data = get_transient('sd_server_location');
 
 			if ($location_data === false) {
 
-				$location_data = unserialize( file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $_SERVER['SERVER_ADDR'] ) );
+				$location_data = unserialize( file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $server_ip ) );
 
 				set_transient('sd_server_location', $location_data, WEEK_IN_SECONDS);
 
@@ -1280,25 +1290,26 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_cpu_count() {
 
-				$cpu_count = get_transient('sd_cpu_count');
+		if ($this->is_shell_exec_enabled()) {
 
-				if ($cpu_count === false) {
+			$cpu_count = get_transient('sd_cpu_count');
 
-					if ($this->is_shell_exec_enabled()) {
+			if ($cpu_count === false) {
 
-						$cpu_count = shell_exec('cat /proc/cpuinfo |grep "physical id" | sort | uniq | wc -l');
+				$cpu_count = shell_exec('cat /proc/cpuinfo |grep "physical id" | sort | uniq | wc -l');
 
-						set_transient('sd_cpu_count', $cpu_count, WEEK_IN_SECONDS);
+				set_transient('sd_cpu_count', $cpu_count, WEEK_IN_SECONDS);
 
-					} else {
-
-						$cpu_count = 'Undetectable';
-
-					}
-				}
-
-				return $cpu_count;
 			}
+
+		} else {
+
+			$cpu_count = 'Undetectable';
+
+		}
+
+		return $cpu_count;
+	}
 
 	/**
 	 * Get server CPU core count
@@ -1308,25 +1319,47 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_cpu_core_count() {
 
-		$cpu_core_count = get_transient('sd_cpu_core_count');
+		if ($this->is_shell_exec_enabled()) {
 
-		if ($cpu_core_count === false) {
+			$cpu_core_count = get_transient('sd_cpu_core_count');
 
-			if ($this->is_shell_exec_enabled()) {
+			if ($cpu_core_count === false) {
 
 				$cpu_core_count = shell_exec("echo \"$((`cat /proc/cpuinfo | grep cores | grep -o -E '[0-9]+' | uniq` * `cat /proc/cpuinfo |grep 'physical id' | sort | uniq | wc -l`))\"");
 
 				set_transient('sd_cpu_core_count', $cpu_core_count, WEEK_IN_SECONDS);
 
-			} else {
-
-				$cpu_core_count =  'Undetectable';
-
 			}
+
+		} else {
+
+			$cpu_core_count =  'Undetectable';
 
 		}
 
 		return $cpu_core_count;
+	}
+
+	/**
+	 * Get CPUs and cores count
+	 *
+	 * @since 2.0.2
+	 */
+	public function sd_cpus_cores_count() {
+
+		$cpus_count = $this->sd_cpu_count();
+		$cores_count = $this->sd_cpu_core_count();
+
+		if ( ( $cpus_count != 'Undetectable' ) && ( $cores_count != 'Undetectable' ) ) {
+
+			return $this->sd_cpu_count(). ' CPUs / '. $this->sd_cpu_core_count() . ' cores';
+
+		} else {
+
+			return 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+
+		}
+
 	}
 
 	/**
@@ -1409,23 +1442,23 @@ class System_Dashboard_Admin {
 	 * @link https://plugins.svn.wordpress.org/wp-server-stats/trunk/wp-server-stats.php
 	 * @since 1.0.0
 	 */
-	public function sd_total_ram()
-	{
-		$total_ram = get_transient('sd_total_ram');
+	public function sd_total_ram()	{
 
-		if ($total_ram === false) {
+		if ($this->is_shell_exec_enabled()) {
 
-			if ($this->is_shell_exec_enabled()) {
+			$total_ram = get_transient('sd_total_ram');
+
+			if ($total_ram === false) {
 
 				$total_ram = shell_exec("grep -w 'MemTotal' /proc/meminfo | grep -o -E '[0-9]+'");
 
 				set_transient('sd_total_ram', $total_ram, WEEK_IN_SECONDS);
 
-			} else {
-
-				$total_ram = 0;
-
 			}
+
+		} else {
+
+			$total_ram = 'Undetectable';
 
 		}
 
@@ -1446,7 +1479,7 @@ class System_Dashboard_Admin {
 
 		} else {
 
-			$ram_cache= 0;
+			$ram_cache= 'Undetectable';
 
 		}
 
@@ -1467,7 +1500,7 @@ class System_Dashboard_Admin {
 
 		} else {
 
-			$ram_buffer= 0;
+			$ram_buffer= 'Undetectable';
 
 		}
 
@@ -1486,17 +1519,25 @@ class System_Dashboard_Admin {
 
 			$free_ram = shell_exec("grep -w 'MemFree' /proc/meminfo | grep -o -E '[0-9]+'");
 
-			if( !is_null( $this->sd_ram_cache() ) || !is_null( $this->sd_ram_buffer() ) ) {
-				$ram_cache = is_null( $this->sd_ram_cache() ) ? 0 : (int) $this->sd_ram_cache();
-				$ram_buffer = is_null( $this->sd_ram_buffer() ) ? 0 : (int) $this->sd_ram_buffer();
-				$free_ram_final = (int) $free_ram + $ram_cache + $ram_buffer;
+			if ( ( $this->sd_ram_cache() != 'Undetectable' ) && ( $this->sd_ram_buffer() != 'Undetectable' ) ) {
+
+				if( !is_null( $this->sd_ram_cache() ) || !is_null( $this->sd_ram_buffer() ) ) {
+					$ram_cache = is_null( $this->sd_ram_cache() ) ? 0 : (int) $this->sd_ram_cache();
+					$ram_buffer = is_null( $this->sd_ram_buffer() ) ? 0 : (int) $this->sd_ram_buffer();
+					$free_ram_final = (int) $free_ram + $ram_cache + $ram_buffer;
+				} else {
+					$free_ram_final = $free_ram;
+				}
+
 			} else {
-				$free_ram_final = $free_ram;
+
+				$free_ram_final = 'Undetectable';
+
 			}
 
 		} else {
 
-			$free_ram_final = 0;
+			$free_ram_final = 'Undetectable';
 
 		}
 
@@ -1512,15 +1553,69 @@ class System_Dashboard_Admin {
 
 		if ($this->is_shell_exec_enabled()) {
 
-			$used_ram = $this->sd_format_filesize_kB( $this->sd_total_ram() - $this->sd_free_ram() ) .' ('. round( ( ( ( $this->sd_total_ram() - $this->sd_free_ram() ) / $this->sd_total_ram() ) * 100 ), 0).'%)';
+			$free_ram = $this->sd_free_ram();
+			$total_ram = $this->sd_total_ram();
+
+			if ( ( $free_ram != 'Undetectable' ) && ( $total_ram != 'Undetectable' ) ) {
+
+				$used_ram = $this->sd_format_filesize_kB( $total_ram - $free_ram ) .' ('. round( ( ( ( $total_ram - $free_ram ) / $total_ram ) * 100 ), 0).'%)';
+
+			} else {
+
+				$used_ram = 'Undetectable';
+
+			}		
 
 		} else {
 
-			$used_ram = '[Undetectable]';
+			$used_ram = 'Undetectable';
 
 		}
 
 		return $used_ram;
+
+	}
+
+	/**
+	 * Return RAM usage
+	 *
+	 * @since 2.0.2
+	 */
+	public function sd_ram_usage() {
+
+		$used_ram = $this->sd_used_ram();
+		$total_ram = $this->sd_total_ram();
+
+		if ( ( $used_ram != 'Undetectable' ) && ( $total_ram != 'Undetectable' ) ) {
+
+			return $used_ram .' used of '. $this->sd_format_filesize_kB( $total_ram ) .' total';
+
+		} else {
+
+			return 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+
+		}
+
+	}
+
+	/**
+	 * Return total RAM for display
+	 *
+	 * @since 2.0.2
+	 */
+	public function sd_total_ram_display() {
+
+		$total_ram = $this->sd_total_ram();
+
+		if ( $total_ram == 'Undetectable' ) {
+
+			return 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+
+		} else {
+
+			return $this->sd_format_filesize_kB( $total_ram );
+
+		}
 
 	}
 
@@ -1556,21 +1651,13 @@ class System_Dashboard_Admin {
 
 		if ( function_exists( 'disk_total_space' ) ) {
 
-			if ($this->is_shell_exec_enabled()) {
+			$total_disk_space = get_transient('sd_total_disk_space');
 
-				$total_disk_space = get_transient('sd_total_disk_space');
+			if ($total_disk_space === false) {
 
-				if ($total_disk_space === false) {
+					$total_disk_space = disk_total_space( dirname(__FILE__) );
 
-						$total_disk_space = disk_total_space( dirname(__FILE__) );
-
-						set_transient('sd_total_disk_space', $total_disk_space, WEEK_IN_SECONDS);
-
-				}
-
-			} else {
-
-				$total_disk_space = 'Undetectable';
+					set_transient('sd_total_disk_space', $total_disk_space, WEEK_IN_SECONDS);
 
 			}
 
@@ -1581,6 +1668,29 @@ class System_Dashboard_Admin {
 		}
 
 		return $total_disk_space;
+
+	}
+
+	/**
+	 * Get disk usage stats
+	 *
+	 * @since 2.0.2
+	 */
+	public function sd_disk_usage() {
+
+		$free_disk_space = $this->sd_free_disk_space();
+		$total_disk_space = $this->sd_total_disk_space();
+		$used_disk_space = $total_disk_space - $free_disk_space;
+
+		if ( ( $free_disk_space != 'Undetectable' ) && ( $total_disk_space != 'Undetectable' ) ) {
+
+			return $this->sd_format_filesize( $used_disk_space ) . ' used (' . round ( ( ( $used_disk_space / $total_disk_space ) * 100 ), 0 ) . '%) of ' . $this->sd_format_filesize( $total_disk_space ) . ' total';
+
+		} else {
+
+			return 'Undetectable';
+
+		}
 
 	}
 
@@ -8557,12 +8667,12 @@ class System_Dashboard_Admin {
 										'type'		=> 'content',
 										'title'		=> 'RAM Usage',
 										'subtitle'	=> 'At '. date( 'H:i:s', time() ),
-										'content'	=> $this->sd_used_ram() .' used of '. $this->sd_format_filesize_kB( $this->sd_total_ram() ) .' total',
+										'content'	=> $this->sd_ram_usage(),
 									),
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Disk Usage',
-										'content'	=> $this->sd_format_filesize( $this->sd_free_disk_space() ) . ' free (' . round ( ( ( $this->sd_free_disk_space() / $this->sd_total_disk_space() ) * 100 ), 0 ) . '%) of ' . $this->sd_format_filesize( $this->sd_total_disk_space() ) . ' total',
+										'content'	=> $this->sd_disk_usage(),
 									),
 									// array(
 									// 	'type'		=> 'content',
@@ -8610,12 +8720,12 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'CPU / Cores',
-										'content'	=> $this->sd_cpu_count(). ' CPUs / '. $this->sd_cpu_core_count() . ' cores',
+										'content'	=> $this->sd_cpus_cores_count(),
 									),
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Total RAM',
-										'content'	=> $this->sd_format_filesize_kB( $this->sd_total_ram() ),
+										'content'	=> $this->sd_total_ram_display(),
 									),
 									array(
 										'type'		=> 'content',
