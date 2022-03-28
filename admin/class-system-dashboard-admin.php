@@ -1556,21 +1556,13 @@ class System_Dashboard_Admin {
 
 		if ( function_exists( 'disk_total_space' ) ) {
 
-			if ($this->is_shell_exec_enabled()) {
+			$total_disk_space = get_transient('sd_total_disk_space');
 
-				$total_disk_space = get_transient('sd_total_disk_space');
+			if ($total_disk_space === false) {
 
-				if ($total_disk_space === false) {
+					$total_disk_space = disk_total_space( dirname(__FILE__) );
 
-						$total_disk_space = disk_total_space( dirname(__FILE__) );
-
-						set_transient('sd_total_disk_space', $total_disk_space, WEEK_IN_SECONDS);
-
-				}
-
-			} else {
-
-				$total_disk_space = 'Undetectable';
+					set_transient('sd_total_disk_space', $total_disk_space, WEEK_IN_SECONDS);
 
 			}
 
@@ -1581,6 +1573,29 @@ class System_Dashboard_Admin {
 		}
 
 		return $total_disk_space;
+
+	}
+
+	/**
+	 * Get disk usage stats
+	 *
+	 * @since 2.0.2
+	 */
+	public function sd_disk_usage() {
+
+		$free_disk_space = $this->sd_free_disk_space();
+		$total_disk_space = $this->sd_total_disk_space();
+		$used_disk_space = $total_disk_space - $free_disk_space;
+
+		if ( ( $free_disk_space != 'Undetectable' ) && ( $total_disk_space != 'Undetectable' ) ) {
+
+			return $this->sd_format_filesize( $used_disk_space ) . ' used (' . round ( ( ( $used_disk_space / $total_disk_space ) * 100 ), 0 ) . '%) of ' . $this->sd_format_filesize( $total_disk_space ) . ' total';
+
+		} else {
+
+			return 'Undetectable';
+
+		}
 
 	}
 
@@ -8562,7 +8577,7 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Disk Usage',
-										'content'	=> $this->sd_format_filesize( $this->sd_free_disk_space() ) . ' free (' . round ( ( ( $this->sd_free_disk_space() / $this->sd_total_disk_space() ) * 100 ), 0 ) . '%) of ' . $this->sd_format_filesize( $this->sd_total_disk_space() ) . ' total',
+										'content'	=> $this->sd_disk_usage(),
 									),
 									// array(
 									// 	'type'		=> 'content',
