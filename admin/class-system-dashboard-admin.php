@@ -6234,6 +6234,16 @@ class System_Dashboard_Admin {
 							$constant_name = $constant['name'];
 							$constant_value = constant( $constant['name'] );
 
+							switch(gettype( $constant_value ) ) {
+								case 'array':
+								case 'object':
+									$constant_value = '<pre>'.var_export($constant_value, true).'</pre>';
+								break;
+								case 'boolean':
+									$constant_value = true === $constant_value ? 'true' : 'false';
+								break;
+							}
+
 							$constants_output .= $this->sd_html( 'field-content-start' );
 							$constants_output .= $this->sd_html( 'field-content-first', $constant_name );
 							$constants_output .= $this->sd_html( 'field-content-second', wp_kses_post( $constant_value ), 'long-value' );
@@ -6274,8 +6284,18 @@ class System_Dashboard_Admin {
 						$constant_value_type = gettype( $constant_value );
 
 						// Prevent PHP array-to-string conversion warning 
-						if ( $constant_value_type == 'array' ) {
+						/*if ( $constant_value_type == 'array' ) {
 							$constant_value = serialize( $constant_value );
+						}*/
+
+						switch(gettype( $constant_value ) ) {
+							case 'array':
+							case 'object':
+								$constant_value = '<pre>'.var_export($constant_value, true).'</pre>';
+							break;
+							case 'boolean':
+								$constant_value = true === $constant_value ? 'true' : 'false';
+							break;
 						}
 
 						$plugins_themes_constants_output .= $this->sd_html( 'field-content-start' );
@@ -8919,5 +8939,4 @@ class System_Dashboard_Admin {
 		return $plugin_meta;
 
 	}
-
 }
