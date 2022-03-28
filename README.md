@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.2  
-Stable tag: 2.0.1  
+Stable tag: 2.0.2  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -234,6 +234,12 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.0.2 (March 2022)
+
+* Fix TypeError in disk usage calculation and typo in site health check function. Props to [@ivanarnaudov](https://profiles.wordpress.org/ivanarnaudov/).
+* Tidy up display of RAM usage and CPUs/cores count when shell_exec is not enabled
+* Improve server IP detection when using Apache by using HTTP_X_SERVER_ADDR
 
 ### 2.0.1 (March 2022)
 
