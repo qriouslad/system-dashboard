@@ -4160,9 +4160,7 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_global_value',
-								'global_name':name,
-								'fast_ajax':true,
-								'load_plugins':["system-dashboard/system-dashboard.php"]
+								'global_name':name
 							},
 							success:function(data) {
 
