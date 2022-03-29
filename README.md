@@ -175,9 +175,10 @@ To preview the module screenshots more easily, please scroll down the [github re
 
 ### Technical Notes
 
-* Requires shell_exec and exec functions enabled for some modules to work properly. 
-* There's an MU plugin that unloads all other plugins for admin-ajax calls, so these calls stay fast no matter how complex and big your site is.
-* The longest first load is the Hooks > Active Plugins module, which scans action and filter hooks from all active plugins on the site. The more plugins are active, the longer it takes. If your server/hosting has a low execution time limit, you may need to load the module two or three times for the scan to complete. Once complete, subsequent loads of the module should be much much faster.
+* Requires shell_exec and exec functions enabled for some modules to work properly. e.g. the Hooks > Active Plugins tool.
+* There's an MU (must-use) plugin that unloads all other plugins for admin-ajax calls initiated from the dashboard, so these calls stay fast no matter how complex and big your site is.
+* The longest first load is probably the Hooks > Active Plugins tool, which scans action and filter hooks from all active plugins on the site. The more plugins are active, the longer it takes. If your server/hosting has a low execution time limit, you may need to load the module two or three times for the scan to complete. Once complete, subsequent loads of the module should be much much faster.
+* This plugin has been tested to work with servers powered by NGINX, Apache and Litespeed, and also sites using PHP 8+.
 
 ### Give Back
 
