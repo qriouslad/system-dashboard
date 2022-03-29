@@ -1873,46 +1873,50 @@ class System_Dashboard_Admin {
 	 *
 	 * @since 2.0.0
 	 */
-	public function sd_wp_dir_sizes() {
+	public function sd_directory_sizes() {
 
-		$output = '';
+		if ( isset( $_REQUEST ) ) {
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'All directories and files' );
-		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ) );
-		$output .= $this->sd_html( 'field-content-end' );
+			$output = '';
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'wp-admin directory' );
-		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-admin' ) );
-		$output .= $this->sd_html( 'field-content-end' );
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'All directories and files' );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ) );
+			$output .= $this->sd_html( 'field-content-end' );
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'wp-includes directory' );
-		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-includes' ) );
-		$output .= $this->sd_html( 'field-content-end' );
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'wp-admin directory' );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-admin' ) );
+			$output .= $this->sd_html( 'field-content-end' );
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'wp-content directory' );
-		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR ) );
-		$output .= $this->sd_html( 'field-content-end' );
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'wp-includes directory' );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-includes' ) );
+			$output .= $this->sd_html( 'field-content-end' );
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'Uploads directory' );
-		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/uploads' ) );
-		$output .= $this->sd_html( 'field-content-end' );
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'wp-content directory' );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR ) );
+			$output .= $this->sd_html( 'field-content-end' );
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'Plugins directory' );
-		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/plugins' ) );
-		$output .= $this->sd_html( 'field-content-end' );
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'Uploads directory' );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/uploads' ) );
+			$output .= $this->sd_html( 'field-content-end' );
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'Themes directory' );
-		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/themes' ) );
-		$output .= $this->sd_html( 'field-content-end' );
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'Plugins directory' );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/plugins' ) );
+			$output .= $this->sd_html( 'field-content-end' );
 
-		return $output;
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'Themes directory' );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/themes' ) );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			echo $output;
+
+		}
 
 	}
 
@@ -1924,64 +1928,68 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_filesystem_permissions() {
 
-		$output = '';
+		if ( isset( $_REQUEST ) ) {
 
-		if ( wp_is_writable( ABSPATH ) ) {
-			$is_writable_abspath = 'Writeable';
-		} else {
-			$is_writable_abspath = 'Not writeable';			
+			$output = '';
+
+			if ( wp_is_writable( ABSPATH ) ) {
+				$is_writable_abspath = 'Writeable';
+			} else {
+				$is_writable_abspath = 'Not writeable';			
+			}
+
+			if ( wp_is_writable( WP_CONTENT_DIR ) ) {
+				$is_writable_wp_content_dir = 'Writeable';
+			} else {
+				$is_writable_wp_content_dir = 'Not writeable';			
+			}
+
+			if ( wp_is_writable( wp_upload_dir()['basedir'] ) ) {
+				$is_writable_upload_dir = 'Writeable';
+			} else {
+				$is_writable_upload_dir = 'Not writeable';			
+			}
+
+			if ( wp_is_writable( WP_PLUGIN_DIR ) ) {
+				$is_writable_wp_plugin_dir = 'Writeable';
+			} else {
+				$is_writable_wp_plugin_dir = 'Not writeable';			
+			}
+
+			if ( wp_is_writable( get_theme_root( get_template() ) ) ) {
+				$is_writable_template_directory = 'Writeable';
+			} else {
+				$is_writable_template_directory = 'Not writeable';			
+			}
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'The main WordPress directory' );
+			$output .= $this->sd_html( 'field-content-second', $is_writable_abspath );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'The wp-content directory' );
+			$output .= $this->sd_html( 'field-content-second', $is_writable_wp_content_dir );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'The uploads directory' );
+			$output .= $this->sd_html( 'field-content-second', $is_writable_upload_dir );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'The plugins directory' );
+			$output .= $this->sd_html( 'field-content-second', $is_writable_wp_plugin_dir );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'The themes directory' );
+			$output .= $this->sd_html( 'field-content-second', $is_writable_template_directory );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			echo $output;
+
 		}
-
-		if ( wp_is_writable( WP_CONTENT_DIR ) ) {
-			$is_writable_wp_content_dir = 'Writeable';
-		} else {
-			$is_writable_wp_content_dir = 'Not writeable';			
-		}
-
-		if ( wp_is_writable( wp_upload_dir()['basedir'] ) ) {
-			$is_writable_upload_dir = 'Writeable';
-		} else {
-			$is_writable_upload_dir = 'Not writeable';			
-		}
-
-		if ( wp_is_writable( WP_PLUGIN_DIR ) ) {
-			$is_writable_wp_plugin_dir = 'Writeable';
-		} else {
-			$is_writable_wp_plugin_dir = 'Not writeable';			
-		}
-
-		if ( wp_is_writable( get_theme_root( get_template() ) ) ) {
-			$is_writable_template_directory = 'Writeable';
-		} else {
-			$is_writable_template_directory = 'Not writeable';			
-		}
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'The main WordPress directory' );
-		$output .= $this->sd_html( 'field-content-second', $is_writable_abspath );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'The wp-content directory' );
-		$output .= $this->sd_html( 'field-content-second', $is_writable_wp_content_dir );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'The uploads directory' );
-		$output .= $this->sd_html( 'field-content-second', $is_writable_upload_dir );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'The plugins directory' );
-		$output .= $this->sd_html( 'field-content-second', $is_writable_wp_plugin_dir );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'The themes directory' );
-		$output .= $this->sd_html( 'field-content-second', $is_writable_template_directory );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		return $output;
 
 	}
 
@@ -3144,6 +3152,8 @@ class System_Dashboard_Admin {
 				jQuery('.media-count .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.mime-types .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.media-handling .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.directory-sizes .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.filesystem-permissions .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(1) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.theme-hooks .csf-accordion-title').attr('data-loaded','no');
@@ -3390,7 +3400,7 @@ class System_Dashboard_Admin {
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
 								jQuery('#mime-types-content').prepend(data);
-								jQuery('.mime-types-wordpress .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('.mime-types .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-mime-types').fadeOut( 0 );
 							},
 							erro:function(errorThrown) {
@@ -3420,7 +3430,7 @@ class System_Dashboard_Admin {
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
 								jQuery('#media-handling-content').prepend(data);
-								jQuery('.media-handling-wordpress .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('.media-handling .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-media-handling').fadeOut( 0 );
 							},
 							erro:function(errorThrown) {
@@ -3432,6 +3442,65 @@ class System_Dashboard_Admin {
 
 				});
 
+				// Get WP directory sizes
+
+				jQuery('.directory-sizes .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_directory_sizes',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#directory-sizes-content').prepend(data);
+								jQuery('.directory-sizes .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-directory-sizes').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get filesystem / directory permissions
+
+				jQuery('.filesystem-permissions .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_filesystem_permissions',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#filesystem-permissions-content').prepend(data);
+								jQuery('.filesystem-permissions .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-filesystem-permissions').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
 				// Get option value
 
 				jQuery('.option__name').click( function() {
@@ -7987,13 +8056,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'directory_sizes',
 										'type'		=> 'accordion',
 										'title'		=> 'Directory Sizes',
+										'class'		=> 'directory-sizes',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_wp_dir_sizes(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'directory-sizes' ), // AJAX loading via sd_directory_sizes()
 													),													
 												),
 											),
@@ -8003,13 +8073,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'filesystem_permissions',
 										'type'		=> 'accordion',
 										'title'		=> 'Filesystem Permissions',
+										'class'		=> 'filesystem-permissions',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_filesystem_permissions(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'filesystem-permissions' ), // AJAX loading via sd_filesystem_permissions()
 													),													
 												),
 											),

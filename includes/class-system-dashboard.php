@@ -214,6 +214,8 @@ class System_Dashboard {
 		$this->loader->add_action( 'wp_ajax_sd_media_count', $plugin_admin, 'sd_media_count' );
 		$this->loader->add_action( 'wp_ajax_sd_mime_types', $plugin_admin, 'sd_mime_types' );
 		$this->loader->add_action( 'wp_ajax_sd_media_handling', $plugin_admin, 'sd_media_handling' );
+		$this->loader->add_action( 'wp_ajax_sd_directory_sizes', $plugin_admin, 'sd_directory_sizes' );
+		$this->loader->add_action( 'wp_ajax_sd_filesystem_permissions', $plugin_admin, 'sd_filesystem_permissions' );
 		$this->loader->add_action( 'wp_ajax_sd_option_value', $plugin_admin, 'sd_option_value' );
 		$this->loader->add_action( 'wp_ajax_sd_global_value', $plugin_admin, 'sd_global_value' );
 		$this->loader->add_action( 'wp_ajax_sd_wpcore_hooks', $plugin_admin, 'sd_wpcore_hooks' );
