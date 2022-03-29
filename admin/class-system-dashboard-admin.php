@@ -3124,6 +3124,9 @@ class System_Dashboard_Admin {
 				jQuery('.core-classes .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.theme-classes .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.plugins-classes .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.core-functions .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.theme-functions .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.plugins-functions .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.constant-values .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.constant-docs .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpconfig .csf-accordion-title').attr('data-loaded','no');
@@ -3475,7 +3478,9 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_classes',
-								'type':'core'
+								'type':'core',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -3505,7 +3510,9 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_classes',
-								'type':'theme'
+								'type':'theme',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -3543,6 +3550,113 @@ class System_Dashboard_Admin {
 								jQuery('.plugins-classes .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-plugins-classes').fadeOut( 0 );
 								initMcCollapsible( ".plugins-classes" );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get functions from WP core
+
+				jQuery('.core-functions .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_functions',
+								'type':'core',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#core-functions-content').prepend(data);
+								jQuery('.core-functions .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-core-functions').fadeOut( 0 );
+
+								// Search filter script
+						        jQuery('[data-search-functions-wpcore]').on('keyup', function() {
+						            var searchVal = jQuery(this).val();
+						            var filterItems = jQuery('[data-fn-core]');
+
+						            if ( searchVal != '' ) {
+						                filterItems.addClass('hidden');
+						                jQuery('[data-fn-core][data-fn-core-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
+						            } else {
+						                filterItems.removeClass('hidden');
+						            }
+						        });
+
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get functions from active theme
+
+				jQuery('.theme-functions .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_functions',
+								'type':'theme',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#theme-functions-content').prepend(data);
+								jQuery('.theme-functions .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-theme-functions').fadeOut( 0 );
+								initMcCollapsible( ".theme-functions" );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get functions from active plugins
+
+				jQuery('.plugins-functions .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_functions',
+								'type':'plugins'
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#plugins-functions-content').prepend(data);
+								jQuery('.plugins-functions .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-plugins-functions').fadeOut( 0 );
+								initMcCollapsible( ".plugins-functions" );
 							},
 							erro:function(errorThrown) {
 								console.log(errorThrown);
@@ -4031,7 +4145,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_classes() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && isset( $_REQUEST['type'] ) ) {
 
 			$type = $_REQUEST['type'];
 
@@ -4229,14 +4343,14 @@ class System_Dashboard_Admin {
 	 * @link https://www.php.net/manual/en/class.reflectionfunction.php
 	 * @since 1.0.0
 	 */
-	public function sd_get_all_user_functions( $type = 'core' ) {
+	public function sd_functions( $count = 'core' ) {
 		$all_functions = get_defined_functions();
 		$user_functions = $all_functions['user'];
 		sort( $user_functions );
 
 		$functions_core = array();
 		$functions_plugins = array();
-		$functions_themes = array();
+		$functions_theme = array();
 
 		$output = '';
 		$wp_reference_base_url = 'https://developer.wordpress.org/reference';
@@ -4263,58 +4377,24 @@ class System_Dashboard_Admin {
 				}
 
 				if ( strpos( $filename, 'wp-content/themes' ) !== false ) {
-					$functions_themes[] = $function;
+					$functions_theme[] = $function;
 				}
 
 			}
 
 		}
 
-		if ( $type == 'core' ) {
+		// For AJAX calls
 
-			$output .= $this->sd_html( 'search-filter', '', '', ['search-functions-wpcore' => ''] );
+		if ( isset( $_REQUEST ) && isset( $_REQUEST['type'] ) ) {
 
-			foreach( $functions_core as $function ) {
+			$type = $_REQUEST['type'];
 
-				$function_lc = strtolower( $function );
-				$rf = new \ReflectionFunction( $function );
-				$filename = $rf->getFileName();
+			if ( $type == 'core' ) {
 
-				if ( ! empty( $filename ) ) {
-					$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
-				}
+				$output .= $this->sd_html( 'search-filter', '', '', ['search-functions-wpcore' => ''] );
 
-				// Search filter data attributes
-				$search_atts = array(
-					'fn-core'	=> '',
-					'fn-core-name'	=> $function_lc,
-				);
-
-				$output .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
-				$output .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/functions/' . $function_lc . '/" target="_blank">' . $function .'</a><br /><a href="' . $wp_file_base_url . $filename . '" class="link-muted" target="_blank">' . $filename .'</a>', 'full-width' );
-				$output .= $this->sd_html( 'field-content-end' );
-
-			}
-
-		} elseif ( $type == 'plugins' ) {
-
-			$active_plugin_dirfile_names = $this->sd_active_plugins( 'original', 'raw' );
-
-			$output .= $this->sd_html( 'accordions-start' );
-
-			foreach ( $active_plugin_dirfile_names as $dirfile_name ) {
-
-				$plugin_slug_array = explode( "/", $dirfile_name );
-				$plugin_slug = $plugin_slug_array[0];
-
-				$plugins_path = str_replace( $this->plugin_name . '/', "", plugin_dir_path( __DIR__ ) );
-				$plugin_file_path = $plugins_path . $dirfile_name;
-				$plugin_data = get_plugin_data( $plugin_file_path );
-		
-				$functions_output = '';
-				$functions_count = 0;
-
-				foreach( $functions_plugins as $function ) {
+				foreach( $functions_core as $function ) {
 
 					$function_lc = strtolower( $function );
 					$rf = new \ReflectionFunction( $function );
@@ -4322,78 +4402,132 @@ class System_Dashboard_Admin {
 
 					if ( ! empty( $filename ) ) {
 						$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
-						$filename_for_editor = urlencode( str_replace( "/wp-content/plugins/", "", $filename ) );
 					}
 
-					$filename_array = explode( "/", $filename );
-					$function_plugin_slug = $filename_array[3];
+					// Search filter data attributes
+					$search_atts = array(
+						'fn-core'	=> '',
+						'fn-core-name'	=> $function_lc,
+					);
 
-					if ( $plugin_slug == $function_plugin_slug ) {
-
-						$functions_output .= $this->sd_html( 'field-content-start' );
-						$functions_output .= $this->sd_html( 'field-content-first', $function .'<br /><a href="' . $plugin_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>', 'full-width' );
-						$functions_output .= $this->sd_html( 'field-content-end' );
-
-						$functions_count++;
-
-					}
+					$output .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
+					$output .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/functions/' . $function_lc . '/" target="_blank">' . $function .'</a><br /><a href="' . $wp_file_base_url . $filename . '" class="link-muted" target="_blank">' . $filename .'</a>', 'full-width' );
+					$output .= $this->sd_html( 'field-content-end' );
 
 				}
 
-				$output .= $this->sd_html( 'accordion-head', $plugin_data['Name'] . ' v' . $plugin_data['Version'] . ' (' . $functions_count . ' functions)' );
+				echo $output;
 
+			} elseif ( $type == 'plugins' ) {
+
+				$active_plugin_dirfile_names = $this->sd_active_plugins( 'original', 'raw' );
+
+				$output .= $this->sd_html( 'accordions-start' );
+
+				foreach ( $active_plugin_dirfile_names as $dirfile_name ) {
+
+					$plugin_slug_array = explode( "/", $dirfile_name );
+					$plugin_slug = $plugin_slug_array[0];
+
+					$plugins_path = str_replace( $this->plugin_name . '/', "", plugin_dir_path( __DIR__ ) );
+					$plugin_file_path = $plugins_path . $dirfile_name;
+					$plugin_data = get_plugin_data( $plugin_file_path );
+			
+					$functions_output = '';
+					$functions_count = 0;
+
+					foreach( $functions_plugins as $function ) {
+
+						$function_lc = strtolower( $function );
+						$rf = new \ReflectionFunction( $function );
+						$filename = $rf->getFileName();
+
+						if ( ! empty( $filename ) ) {
+							$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
+							$filename_for_editor = urlencode( str_replace( "/wp-content/plugins/", "", $filename ) );
+						}
+
+						$filename_array = explode( "/", $filename );
+						$function_plugin_slug = $filename_array[3];
+
+						if ( $plugin_slug == $function_plugin_slug ) {
+
+							$functions_output .= $this->sd_html( 'field-content-start' );
+							$functions_output .= $this->sd_html( 'field-content-first', $function .'<br /><a href="' . $plugin_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>', 'full-width' );
+							$functions_output .= $this->sd_html( 'field-content-end' );
+
+							$functions_count++;
+
+						}
+
+					}
+
+					$output .= $this->sd_html( 'accordion-head', $plugin_data['Name'] . ' v' . $plugin_data['Version'] . ' (' . $functions_count . ' functions)' );
+
+					$output .= $this->sd_html( 'accordion-body', $functions_output );
+
+				}
+
+				$output .= $this->sd_html( 'accordions-end' );
+
+				echo $output;
+
+			}  elseif ( $type == 'theme' ) {
+
+				$functions_output = '';
+				$functions_count = 0;
+
+				foreach( $functions_theme as $function ) {
+
+					$function_lc = strtolower( $function );
+					$rf = new \ReflectionFunction( $function );
+					$filename = $rf->getFileName();
+
+					if ( ! empty( $filename ) ) {
+	  					$filename_for_editor = $this->sd_prepare_theme_filename_for_preview( $filename );
+						$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
+					}
+
+					$functions_output .= $this->sd_html( 'field-content-start' );
+					$functions_output .= $this->sd_html( 'field-content-first', $function .'<br /><a href="' . $theme_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>', 'full-width' );
+					$functions_output .= $this->sd_html( 'field-content-end' );
+
+					$functions_count++;
+
+				}
+
+				$output .= $this->sd_html( 'accordions-start-simple-margin-default' );
+				$output .= $this->sd_html( 'accordion-head', $this->sd_active_theme( 'name' ) . ' v' . $this->sd_active_theme( 'version' ) . ' ( ' . $functions_count . ' functions)' );
 				$output .= $this->sd_html( 'accordion-body', $functions_output );
+				$output .= $this->sd_html( 'accordions-end' );
 
-			}
+				echo $output;
 
-			$output .= $this->sd_html( 'accordions-end' );
+			} else {}
 
-		}  elseif ( $type == 'themes' ) {
+		}
 
-			$functions_output = '';
-			$functions_count = 0;
+		// For direct function calls
 
-			foreach( $functions_themes as $function ) {
-
-				$function_lc = strtolower( $function );
-				$rf = new \ReflectionFunction( $function );
-				$filename = $rf->getFileName();
-
-				if ( ! empty( $filename ) ) {
-  					$filename_for_editor = $this->sd_prepare_theme_filename_for_preview( $filename );
-					$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
-				}
-
-				$functions_output .= $this->sd_html( 'field-content-start' );
-				$functions_output .= $this->sd_html( 'field-content-first', $function .'<br /><a href="' . $theme_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>', 'full-width' );
-				$functions_output .= $this->sd_html( 'field-content-end' );
-
-				$functions_count++;
-
-			}
-
-			$output .= $this->sd_html( 'accordions-start-simple-margin-default' );
-			$output .= $this->sd_html( 'accordion-head', $this->sd_active_theme( 'name' ) . ' v' . $this->sd_active_theme( 'version' ) . ' ( ' . $functions_count . ' functions)' );
-			$output .= $this->sd_html( 'accordion-body', $functions_output );
-			$output .= $this->sd_html( 'accordions-end' );
-
-		} elseif ( $type == 'core-count' ) {
+		if ( $count == 'core-count' ) {
 
 			$output = count( $functions_core );
 
+			return $output;
 
-		} elseif ( $type == 'plugins-count' ) {
+		} elseif ( $count == 'plugins-count' ) {
 
 			$output = count( $functions_plugins );
 
+			return $output;
 
-		} elseif ( $type == 'themes-count' ) {
+		} elseif ( $count == 'theme-count' ) {
 
-			$output = count( $functions_themes );
+			$output = count( $functions_theme );
+
+			return $output;
 
 		} else {}
-
-		return $output;
 
 	}
 
@@ -8359,13 +8493,14 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Core',
 										'subtitle'		=> 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each function.',
+										'class'		=> 'core-functions',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Functions'  . ' (' . $this->sd_get_all_user_functions( 'core-count' ) . ')',
+												'title'		=> 'View Functions'  . ' (' . $this->sd_functions( 'core-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_all_user_functions( 'core' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'core-functions' ), // AJAX loading via sd_functions()
 													),													
 												),
 											),
@@ -8376,13 +8511,14 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Current Theme',
 										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.',
+										'class'		=> 'theme-functions',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Functions'  . ' (' . $this->sd_get_all_user_functions( 'themes-count' ) . ')',
+												'title'		=> 'View Functions'  . ' (' . $this->sd_functions( 'theme-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_all_user_functions( 'themes' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'theme-functions' ), // AJAX loading via sd_functions()
 													),													
 												),
 											),
@@ -8393,13 +8529,14 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Active Plugins',
 										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.',
+										'class'		=> 'plugins-functions',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Functions'  . ' (' . $this->sd_get_all_user_functions( 'plugins-count' ) . ')',
+												'title'		=> 'View Functions'  . ' (' . $this->sd_functions( 'plugins-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_all_user_functions( 'plugins' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'plugins-functions' ), // AJAX loading via sd_functions()
 													),													
 												),
 											),

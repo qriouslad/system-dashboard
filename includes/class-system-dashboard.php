@@ -213,6 +213,7 @@ class System_Dashboard {
 		$this->loader->add_action( 'wp_ajax_sd_wpcore_hooks', $plugin_admin, 'sd_wpcore_hooks' );
 		$this->loader->add_action( 'wp_ajax_sd_hooks', $plugin_admin, 'sd_hooks' );
 		$this->loader->add_action( 'wp_ajax_sd_classes', $plugin_admin, 'sd_classes' );
+		$this->loader->add_action( 'wp_ajax_sd_functions', $plugin_admin, 'sd_functions' );
 		$this->loader->add_action( 'wp_ajax_sd_constants', $plugin_admin, 'sd_constants' );
 		$this->loader->add_action( 'wp_ajax_sd_viewer', $plugin_admin, 'sd_viewer' );
 		$this->loader->add_action( 'wp_ajax_sd_wp_rest_api', $plugin_admin, 'sd_wp_rest_api' );

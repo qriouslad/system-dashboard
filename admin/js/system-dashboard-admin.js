@@ -100,19 +100,19 @@
         //     }
         // });
 
-        // Functions - WP Core
+        // Functions - WP Core -- script moved to sd_ajax_calls()
 
-        $('[data-search-functions-wpcore]').on('keyup', function() {
-            var searchVal = $(this).val();
-            var filterItems = $('[data-fn-core]');
+        // $('[data-search-functions-wpcore]').on('keyup', function() {
+        //     var searchVal = $(this).val();
+        //     var filterItems = $('[data-fn-core]');
 
-            if ( searchVal != '' ) {
-                filterItems.addClass('hidden');
-                $('[data-fn-core][data-fn-core-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
-            } else {
-                filterItems.removeClass('hidden');
-            }
-        });
+        //     if ( searchVal != '' ) {
+        //         filterItems.addClass('hidden');
+        //         $('[data-fn-core][data-fn-core-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
+        //     } else {
+        //         filterItems.removeClass('hidden');
+        //     }
+        // });
 
      });
 
