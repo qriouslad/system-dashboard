@@ -490,38 +490,42 @@ class System_Dashboard_Admin {
 	 *
 	 * @since 1.0.0
 	 */
-	public function sd_get_taxonomies_info( $type = 'name' ) {
+	public function sd_taxonomies( $type = 'name' ) {
 
-		$taxonomies_info = '';
+		if ( isset( $_REQUEST ) ) {
 
-		$args = array(
-			'public' => true,
-		);
+			$taxonomies_info = '';
 
-		$output = 'names';
+			$args = array(
+				'public' => true,
+			);
 
-		$operator = 'and';
+			$output = 'names';
 
-		$taxonomies = get_taxonomies( $args, $output, $operator );
+			$operator = 'and';
 
-		if ( !empty( $taxonomies ) ) {
+			$taxonomies = get_taxonomies( $args, $output, $operator );
 
-			foreach ( $taxonomies as $taxonomy ) {
+			if ( !empty( $taxonomies ) ) {
 
-				$args = array(
-					'taxonomy'		=> $taxonomy,
-				);
+				foreach ( $taxonomies as $taxonomy ) {
 
-				$taxonomies_info .= $this->sd_html( 'field-content-start' );
-				$taxonomies_info .= $this->sd_html( 'field-content-first', $taxonomy );
-				$taxonomies_info .= $this->sd_html( 'field-content-second', wp_count_terms( $args ) . ' terms');
-				$taxonomies_info .= $this->sd_html( 'field-content-end' );
+					$args = array(
+						'taxonomy'		=> $taxonomy,
+					);
+
+					$taxonomies_info .= $this->sd_html( 'field-content-start' );
+					$taxonomies_info .= $this->sd_html( 'field-content-first', $taxonomy );
+					$taxonomies_info .= $this->sd_html( 'field-content-second', wp_count_terms( $args ) . ' terms');
+					$taxonomies_info .= $this->sd_html( 'field-content-end' );
+
+				}
 
 			}
 
-		}
+			echo $taxonomies_info;
 
-		return $taxonomies_info;
+		}
 
 	}
 
@@ -3122,6 +3126,7 @@ class System_Dashboard_Admin {
 				jQuery('.db-specs .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.db-details .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.post-types .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.taxonomies .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(1) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.theme-hooks .csf-accordion-title').attr('data-loaded','no');
@@ -3250,6 +3255,36 @@ class System_Dashboard_Admin {
 								jQuery('#post-types-content').prepend(data);
 								jQuery('.post-types .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-post-types').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get taxonomies list and terms count
+
+				jQuery('.taxonomies .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_taxonomies',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#taxonomies-content').prepend(data);
+								jQuery('.taxonomies .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-taxonomies').fadeOut( 0 );
 							},
 							erro:function(errorThrown) {
 								console.log(errorThrown);
@@ -7680,7 +7715,6 @@ class System_Dashboard_Admin {
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														// 'content'	=> $this->sd_post_types(),
 														'content'	=> $this->sd_html( 'ajax-receiver', 'post-types' ), // AJAX loading via sd_post_types()
 													),													
 												),
@@ -7691,13 +7725,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'taxonomies',
 										'type'		=> 'accordion',
 										'title'		=> 'Taxonomies Term Count',
+										'class'		=> 'taxonomies',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_taxonomies_info(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'taxonomies' ), // AJAX loading via sd_taxonomies()
 													),													
 												),
 											),
