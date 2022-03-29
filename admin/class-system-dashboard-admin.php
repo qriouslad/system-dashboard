@@ -2589,41 +2589,52 @@ class System_Dashboard_Admin {
 	 * @param string $type list | total_count
 	 * @since 1.8.0
 	 */
-	public function sd_shortcodes( $type = 'list' ) {
+	public function sd_shortcodes() {
 
-		global $shortcode_tags;
+		if ( isset( $_REQUEST ) ) {
 
-		$output = '';
+			global $shortcode_tags;
 
-		if ( ( is_array( $shortcode_tags ) ) && ( !empty( $shortcode_tags ) ) ) {
+			if ( ( is_array( $shortcode_tags ) ) && ( !empty( $shortcode_tags ) ) ) {
 
-			ksort( $shortcode_tags );
+				ksort( $shortcode_tags );
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', '<strong>Shortcode</strong>' );
-			$output .= $this->sd_html( 'field-content-second', '<strong>Rendered By</strong>' );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			foreach ( $shortcode_tags as $shortcode => $callback ) {
+				$output = '';
 
 				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', '[' . $shortcode . ']' );
-				$output .= $this->sd_html( 'field-content-second', $this->sd_determine_callback_type( $callback ) );
+				$output .= $this->sd_html( 'field-content-first', '<strong>Shortcode</strong>' );
+				$output .= $this->sd_html( 'field-content-second', '<strong>Rendered By</strong>' );
 				$output .= $this->sd_html( 'field-content-end' );
 
-			}
+				foreach ( $shortcode_tags as $shortcode => $callback ) {
 
-			if ( $type == 'list' ) {
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', '[' . $shortcode . ']' );
+					$output .= $this->sd_html( 'field-content-second', $this->sd_determine_callback_type( $callback ) );
+					$output .= $this->sd_html( 'field-content-end' );
 
-				return $output;
+				}
 
-			} else {
-
-				return count( $shortcode_tags );
+				echo $output;
 
 			}
 
 		}
+
+	}
+
+	/**
+	 * Return # of shortcodes
+	 *
+	 * @since 2.1.0
+	 */
+	public function sd_shortcodes_count() {
+
+		global $shortcode_tags;
+
+		$output = count( $shortcode_tags );
+
+		return $output;
 
 	}
 
@@ -3163,6 +3174,7 @@ class System_Dashboard_Admin {
 				jQuery('.custom-fields .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.user-count .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.roles-capabilities .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.shortcodes .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(1) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.theme-hooks .csf-accordion-title').attr('data-loaded','no');
@@ -3626,6 +3638,36 @@ class System_Dashboard_Admin {
 								jQuery('.roles-capabilities .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-roles-capabilities').fadeOut( 0 );
 								initMcCollapsible( ".roles-capabilities" );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get list of shorcodes and caller function
+
+				jQuery('.shortcodes .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_shortcodes',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#shortcodes-content').prepend(data);
+								jQuery('.shortcodes .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-shortcodes').fadeOut( 0 );
 							},
 							erro:function(errorThrown) {
 								console.log(errorThrown);
@@ -8603,19 +8645,20 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Total',
-										'content'	=> $this->sd_shortcodes( 'total_count' ) . ' shortcodes',
+										'content'	=> $this->sd_shortcodes_count() . ' shortcodes',
 									),
 									array(
 										'id'		=> 'shortcodes',
 										'type'		=> 'accordion',
 										'title'		=> 'List',
+										'class'		=> 'shortcodes',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_shortcodes( 'list' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'shortcodes' ), // AJAX loading via sd_shortcodes()
 													),													
 												),
 											),
