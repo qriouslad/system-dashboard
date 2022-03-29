@@ -3121,6 +3121,9 @@ class System_Dashboard_Admin {
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.theme-hooks .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.plugins-hooks .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.core-classes .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.theme-classes .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.plugins-classes .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.constant-values .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.constant-docs .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpconfig .csf-accordion-title').attr('data-loaded','no');
@@ -3450,6 +3453,96 @@ class System_Dashboard_Admin {
 								jQuery('.plugins-hooks .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-plugins-hooks').fadeOut( 0 );
 								initMcCollapsible( ".plugins-hooks" );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get classes and methods from WP core
+
+				jQuery('.core-classes .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_classes',
+								'type':'core'
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#core-classes-content').prepend(data);
+								jQuery('.core-classes .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-core-classes').fadeOut( 0 );
+								// initMcCollapsible( ".core-classes" );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get classes and methods from active theme
+
+				jQuery('.theme-classes .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_classes',
+								'type':'theme'
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#theme-classes-content').prepend(data);
+								jQuery('.theme-classes .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-theme-classes').fadeOut( 0 );
+								initMcCollapsible( ".theme-classes" );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get classes and methods from active plugins
+
+				jQuery('.plugins-classes .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_classes',
+								'type':'plugins'
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#plugins-classes-content').prepend(data);
+								jQuery('.plugins-classes .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-plugins-classes').fadeOut( 0 );
+								initMcCollapsible( ".plugins-classes" );
 							},
 							erro:function(errorThrown) {
 								console.log(errorThrown);
@@ -3936,105 +4029,57 @@ class System_Dashboard_Admin {
 	 * @link https://www.php.net/manual/en/reflectionclass.getfilename.php
 	 * @since 1.0.0
 	 */
-	public function sd_get_all_classes( $type = 'core' ) {
+	public function sd_classes() {
 
-		$output = '';
-		$wp_reference_base_url = 'https://developer.wordpress.org/reference';
-		$plugin_file_editor_base_url = '/wp-admin/plugin-editor.php?file=';
-		$theme_file_editor_base_url = '/wp-admin/theme-editor.php?file=';
+		if ( isset( $_REQUEST ) ) {
 
-		$classes = get_declared_classes();
+			$type = $_REQUEST['type'];
 
-		sort( $classes );
+			$output = '';
+			$wp_reference_base_url = 'https://developer.wordpress.org/reference';
+			$plugin_file_editor_base_url = '/wp-admin/plugin-editor.php?file=';
+			$theme_file_editor_base_url = '/wp-admin/theme-editor.php?file=';
 
-		$classes_core = array();
-		$classes_plugins = array();
-		$classes_themes = array();
+			$classes = get_declared_classes();
 
-		foreach( $classes as $class ) {
+			sort( $classes );
 
-			// Get the filename where class is defined
-			// https://www.php.net/manual/en/reflectionclass.getfilename.php
-			$rc = new \ReflectionClass( $class );
-			$filename = $rc->getFileName();
+			$classes_core = array();
+			$classes_plugins = array();
+			$classes_themes = array();
 
-			if ( ! empty( $filename ) ) {
-				$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
+			foreach( $classes as $class ) {
 
-				if ( strpos( $filename, 'wp-includes' ) !== false ) {
-					$classes_core[] = $class;
-				}
-
-				if ( strpos( $filename, 'wp-content/plugins' ) !== false ) {
-					$classes_plugins[] = $class;
-				}
-
-				if ( strpos( $filename, 'wp-content/themes' ) !== false ) {
-					$classes_themes[] = $class;
-				}
-
-			}
-
-		}
-
-		if ( $type == 'core' ) {
-
-			$classes_output = '';
-			$class_count = 0;
-
-			foreach( $classes_core as $class ) {
-
-				$class_lc = strtolower( $class );
+				// Get the filename where class is defined
+				// https://www.php.net/manual/en/reflectionclass.getfilename.php
 				$rc = new \ReflectionClass( $class );
 				$filename = $rc->getFileName();
 
 				if ( ! empty( $filename ) ) {
 					$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
+
+					if ( strpos( $filename, 'wp-includes' ) !== false ) {
+						$classes_core[] = $class;
+					}
+
+					if ( strpos( $filename, 'wp-content/plugins' ) !== false ) {
+						$classes_plugins[] = $class;
+					}
+
+					if ( strpos( $filename, 'wp-content/themes' ) !== false ) {
+						$classes_themes[] = $class;
+					}
+
 				}
-
-				$class_methods = get_class_methods( $class );
-				$class_methods_output = '';
-
-				foreach ( $class_methods as $method ) {
-
-					$class_methods_output .= '<div class="field-part-item">' . $method . '</div>';
-
-				}
-
-				$classes_output .= $this->sd_html( 'field-content-start' );
-				$classes_output .= $this->sd_html( 'field-content-first', '<strong>' . $class .'</strong> (' . count( $class_methods ) . ' methods)<br /><a href="' . $wp_reference_base_url . '/classes/' . $class_lc . '/" target="_blank">' . $filename .'</a>' . $class_methods_output, 'full-width' );
-				$classes_output .= $this->sd_html( 'field-content-end' );
-
-				$class_count++;
 
 			}
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', '<strong>There are ' . $class_count . ' classes in total</strong>', 'full-width' );
-			$output .= $this->sd_html( 'field-content-end' );
+			if ( $type == 'core' ) {
 
-			$output .= $classes_output;
-
-		} elseif ( $type == 'plugins' ) {
-
-			$active_plugin_dirfile_names = $this->sd_active_plugins( 'original', 'raw' );
-
-			$output .= $this->sd_html( 'accordions-start' );
-
-			// for each 'plugin-slug/plugin-slug.php'
-			foreach ( $active_plugin_dirfile_names as $dirfile_name ) {
-
-				$plugin_slug_array = explode( "/", $dirfile_name );
-				$plugin_slug = $plugin_slug_array[0];
-
-				$plugins_path = str_replace( $this->plugin_name . '/', "", plugin_dir_path( __DIR__ ) );
-				$plugin_file_path = $plugins_path . $dirfile_name;
-				$plugin_data = get_plugin_data( $plugin_file_path );
-		
 				$classes_output = '';
-				$classes_count = 0;
+				$class_count = 0;
 
-				foreach( $classes_plugins as $class ) {
+				foreach( $classes_core as $class ) {
 
 					$class_lc = strtolower( $class );
 					$rc = new \ReflectionClass( $class );
@@ -4042,83 +4087,138 @@ class System_Dashboard_Admin {
 
 					if ( ! empty( $filename ) ) {
 						$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
-						$filename_for_editor = urlencode( str_replace( "/wp-content/plugins/", "", $filename ) );
 					}
 
-					$filename_array = explode( "/", $filename );
-					$class_plugin_slug = $filename_array[3];
+					$class_methods = get_class_methods( $class );
+					$class_methods_output = '';
 
-					if ( $plugin_slug == $class_plugin_slug ) {
+					foreach ( $class_methods as $method ) {
 
-						$class_methods = get_class_methods( $class );
-						$class_methods_output = '';
+						$class_methods_output .= '<div class="field-part-item">' . $method . '</div>';
 
-						foreach ( $class_methods as $method ) {
+					}
 
-							$class_methods_output .= '<div class="field-part-item">' . $method . '</div>';
+					$classes_output .= $this->sd_html( 'field-content-start' );
+					$classes_output .= $this->sd_html( 'field-content-first', '<strong>' . $class .'</strong> (' . count( $class_methods ) . ' methods)<br /><a href="' . $wp_reference_base_url . '/classes/' . $class_lc . '/" target="_blank">' . $filename .'</a>' . $class_methods_output, 'full-width' );
+					$classes_output .= $this->sd_html( 'field-content-end' );
+
+					$class_count++;
+
+				}
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', '<strong>There are ' . $class_count . ' classes in total</strong>', 'full-width' );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				$output .= $classes_output;
+
+			} elseif ( $type == 'plugins' ) {
+
+				$active_plugin_dirfile_names = $this->sd_active_plugins( 'original', 'raw' );
+
+				$output .= $this->sd_html( 'accordions-start' );
+
+				// for each 'plugin-slug/plugin-slug.php'
+				foreach ( $active_plugin_dirfile_names as $dirfile_name ) {
+
+					$plugin_slug_array = explode( "/", $dirfile_name );
+					$plugin_slug = $plugin_slug_array[0];
+
+					$plugins_path = str_replace( $this->plugin_name . '/', "", plugin_dir_path( __DIR__ ) );
+					$plugin_file_path = $plugins_path . $dirfile_name;
+					$plugin_data = get_plugin_data( $plugin_file_path );
+			
+					$classes_output = '';
+					$classes_count = 0;
+
+					foreach( $classes_plugins as $class ) {
+
+						$class_lc = strtolower( $class );
+						$rc = new \ReflectionClass( $class );
+						$filename = $rc->getFileName();
+
+						if ( ! empty( $filename ) ) {
+							$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
+							$filename_for_editor = urlencode( str_replace( "/wp-content/plugins/", "", $filename ) );
+						}
+
+						$filename_array = explode( "/", $filename );
+						$class_plugin_slug = $filename_array[3];
+
+						if ( $plugin_slug == $class_plugin_slug ) {
+
+							$class_methods = get_class_methods( $class );
+							$class_methods_output = '';
+
+							foreach ( $class_methods as $method ) {
+
+								$class_methods_output .= '<div class="field-part-item">' . $method . '</div>';
+
+							}
+
+							$classes_output .= $this->sd_html( 'field-content-start' );
+							$classes_output .= $this->sd_html( 'field-content-first', '<strong>' . $class . '</strong> (' . count( $class_methods ) . ' methods)<br /><a href="' . $plugin_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>' . $class_methods_output, 'full-width' );
+							$classes_output .= $this->sd_html( 'field-content-end' );
+							$classes_count++;
 
 						}
 
-						$classes_output .= $this->sd_html( 'field-content-start' );
-						$classes_output .= $this->sd_html( 'field-content-first', '<strong>' . $class . '</strong> (' . count( $class_methods ) . ' methods)<br /><a href="' . $plugin_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>' . $class_methods_output, 'full-width' );
-						$classes_output .= $this->sd_html( 'field-content-end' );
-						$classes_count++;
+					}
+
+					$output .= $this->sd_html( 'accordion-head', $plugin_data['Name'] . ' v' . $plugin_data['Version'] . ' (' . $classes_count . ' classes)' );
+
+					$output .= $this->sd_html( 'accordion-body', $classes_output );
+
+				}
+
+				$output .= $this->sd_html( 'accordions-end' );
+
+			}  elseif ( $type == 'theme' ) {
+
+				$classes_output = '';
+				$classes_count = 0;
+
+				foreach( $classes_themes as $class ) {
+
+					$class_lc = strtolower( $class );
+					$rc = new \ReflectionClass( $class );
+					$filename = $rc->getFileName();
+
+					if ( ! empty( $filename ) ) {
+	  					$filename_for_editor = $this->sd_prepare_theme_filename_for_preview( $filename );
+					}
+
+					$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
+
+					$class_methods = get_class_methods( $class );
+					$class_methods_output = '';
+
+					foreach ( $class_methods as $method ) {
+
+						$class_methods_output .= '<div class="field-part-item">' . $method . '</div>';
 
 					}
 
+					$class_vars = get_class_vars( $class );
+
+					$classes_output .= $this->sd_html( 'field-content-start' );
+					$classes_output .= $this->sd_html( 'field-content-first', '<strong>' . $class .'</strong> (' . count( $class_methods ) . ' methods)<br /><a href="' . $theme_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>' . $class_methods_output, 'full-width' );
+					$classes_output .= $this->sd_html( 'field-content-end' );
+					$classes_count++;
+
 				}
 
-				$output .= $this->sd_html( 'accordion-head', $plugin_data['Name'] . ' v' . $plugin_data['Version'] . ' (' . $classes_count . ' classes)' );
-
+				$output = $this->sd_html( 'accordions-start-simple' );
+				$output .= $this->sd_html( 'accordion-head', $this->sd_active_theme( 'name' ) . ' v' . $this->sd_active_theme( 'version' ) . ' (' . $classes_count . ' classes)' );
 				$output .= $this->sd_html( 'accordion-body', $classes_output );
+				$output .= $this->sd_html( 'accordions-end' );
 
-			}
+			} else {}
 
-			$output .= $this->sd_html( 'accordions-end' );
+		}
 
-		}  elseif ( $type == 'themes' ) {
+		echo $output;
 
-			$classes_output = '';
-			$classes_count = 0;
-
-			foreach( $classes_themes as $class ) {
-
-				$class_lc = strtolower( $class );
-				$rc = new \ReflectionClass( $class );
-				$filename = $rc->getFileName();
-
-				if ( ! empty( $filename ) ) {
-  					$filename_for_editor = $this->sd_prepare_theme_filename_for_preview( $filename );
-				}
-
-				$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
-
-				$class_methods = get_class_methods( $class );
-				$class_methods_output = '';
-
-				foreach ( $class_methods as $method ) {
-
-					$class_methods_output .= '<div class="field-part-item">' . $method . '</div>';
-
-				}
-
-				$class_vars = get_class_vars( $class );
-
-				$classes_output .= $this->sd_html( 'field-content-start' );
-				$classes_output .= $this->sd_html( 'field-content-first', '<strong>' . $class .'</strong> (' . count( $class_methods ) . ' methods)<br /><a href="' . $theme_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>' . $class_methods_output, 'full-width' );
-				$classes_output .= $this->sd_html( 'field-content-end' );
-				$classes_count++;
-
-			}
-
-			$output = $this->sd_html( 'accordions-start-simple' );
-			$output .= $this->sd_html( 'accordion-head', $this->sd_active_theme( 'name' ) . ' v' . $this->sd_active_theme( 'version' ) . ' (' . $classes_count . ' classes)' );
-			$output .= $this->sd_html( 'accordion-body', $classes_output );
-			$output .= $this->sd_html( 'accordions-end' );
-
-		} else {}
-
-		return $output;
 	}
 
 	/**
@@ -8188,13 +8288,14 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Core',
 										'subtitle'		=> 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each class.',
+										'class'		=> 'core-classes',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View Classes and Methods',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_all_classes( 'core' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'core-classes' ), // AJAX loading via sd_classes()
 													),													
 												),
 											),
@@ -8205,13 +8306,14 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Current Theme',
 										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.',
+										'class'		=> 'theme-classes',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View Classes and Methods',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_all_classes( 'themes' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'theme-classes' ), // AJAX loading via sd_classes()
 													),													
 												),
 											),
@@ -8222,13 +8324,14 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Active Plugins',
 										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.',
+										'class'		=> 'plugins-classes',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View Classes and Methods',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_all_classes( 'plugins' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'plugins-classes' ), // AJAX loading via sd_classes()
 													),													
 												),
 											),
