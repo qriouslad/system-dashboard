@@ -208,6 +208,7 @@ class System_Dashboard {
 		$this->loader->add_action( 'wp_ajax_sd_db_tables', $plugin_admin, 'sd_db_tables' );
 		$this->loader->add_action( 'wp_ajax_sd_db_specs', $plugin_admin, 'sd_db_specs' );
 		$this->loader->add_action( 'wp_ajax_sd_db_details', $plugin_admin, 'sd_db_details' );
+		$this->loader->add_action( 'wp_ajax_sd_post_types', $plugin_admin, 'sd_post_types' );
 		$this->loader->add_action( 'wp_ajax_sd_option_value', $plugin_admin, 'sd_option_value' );
 		$this->loader->add_action( 'wp_ajax_sd_global_value', $plugin_admin, 'sd_global_value' );
 		$this->loader->add_action( 'wp_ajax_sd_wpcore_hooks', $plugin_admin, 'sd_wpcore_hooks' );

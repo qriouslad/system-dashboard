@@ -460,24 +460,28 @@ class System_Dashboard_Admin {
 	 * @link https://plugins.trac.wordpress.org/browser/wp-system-info/trunk/class/common.php
 	 * @since 1.0.0
 	 */
-	public function sd_post_types_info(){
+	public function sd_post_types(){
 
-		global $wpdb;
+		if ( isset( $_REQUEST ) ) {
 
-		$post_types = $wpdb->get_results( "SELECT post_type AS 'type', count(1) AS 'count' FROM {$wpdb->posts} GROUP BY post_type ORDER BY count DESC;" );
+			global $wpdb;
 
-		$output = '';
+			$post_types = $wpdb->get_results( "SELECT post_type AS 'type', count(1) AS 'count' FROM {$wpdb->posts} GROUP BY post_type ORDER BY count DESC;" );
 
-		foreach ( $post_types as $post_type ) {
+			$output = '';
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $post_type->type );
-			$output .= $this->sd_html( 'field-content-second', $post_type->count );
-			$output .= $this->sd_html( 'field-content-end' );
+			foreach ( $post_types as $post_type ) {
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', $post_type->type );
+				$output .= $this->sd_html( 'field-content-second', $post_type->count );
+				$output .= $this->sd_html( 'field-content-end' );
+
+			}
+
+			echo $output;
 
 		}
-
-		return $output;
 
 	}
 
@@ -3117,6 +3121,7 @@ class System_Dashboard_Admin {
 				jQuery('.db-tables .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.db-specs .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.db-details .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.post-types .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(1) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.theme-hooks .csf-accordion-title').attr('data-loaded','no');
@@ -3215,6 +3220,36 @@ class System_Dashboard_Admin {
 								jQuery('#db-details-content').prepend(data);
 								jQuery('.db-details .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-db-details').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get post count by post type
+
+				jQuery('.post-types .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_post_types',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#post-types-content').prepend(data);
+								jQuery('.post-types .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-post-types').fadeOut( 0 );
 							},
 							erro:function(errorThrown) {
 								console.log(errorThrown);
@@ -7611,8 +7646,6 @@ class System_Dashboard_Admin {
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														// 'content'	=> $this->sd_db_details(),
-														// 'content'	=> '<div id="spinner-db-details"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading...</div><div id="db-details"></div>', // AJAX loading via sd_db_details()
 														'content'	=> $this->sd_html( 'ajax-receiver', 'db-details' ), // AJAX loading via sd_db_details()
 													),													
 												),
@@ -7640,13 +7673,15 @@ class System_Dashboard_Admin {
 										'id'		=> 'post_types',
 										'type'		=> 'accordion',
 										'title'		=> 'Post Types Post Count',
+										'class'		=> 'post-types',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_post_types_info(),
+														// 'content'	=> $this->sd_post_types(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'post-types' ), // AJAX loading via sd_post_types()
 													),													
 												),
 											),
