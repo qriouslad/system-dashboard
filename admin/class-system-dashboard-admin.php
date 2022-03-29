@@ -765,184 +765,184 @@ class System_Dashboard_Admin {
 	 * @param string $return role_names | role_capabilities
 	 * @since 1.0.0
 	 */
-	public function sd_get_user_roles_capabilities( $return = 'all' ) {
+	public function sd_roles_capabilities( $return = 'all' ) {
 
-		$default_wp_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
+		if ( isset( $_REQUEST ) ) {
 
-		$default_capabilities = array(
-			'create_sites',
-			'delete_sites',
-			'manage_network',
-			'manage_sites',
-			'manage_network_users',
-			'manage_network_plugins',
-			'manage_network_themes',
-			'manage_network_options',
-			'upgrade_network',
-			'setup_network',
-			'activate_plugins',
-			'delete_others_pages',
-			'delete_others_posts',
-			'delete_pages',
-			'delete_posts',
-			'delete_private_pages',
-			'delete_private_posts',
-			'delete_published_pages',
-			'delete_published_posts',
-			'edit_dashboard',
-			'edit_others_pages',
-			'edit_others_posts',
-			'edit_pages',
-			'edit_posts',
-			'edit_private_pages',
-			'edit_private_posts',
-			'edit_published_pages',
-			'edit_published_posts',
-			'edit_theme_options',
-			'export',
-			'import',
-			'list_users',
-			'manage_categories',
-			'manage_links',
-			'manage_options',
-			'moderate_comments',
-			'promote_users',
-			'publish_pages',
-			'publish_posts',
-			'read_private_pages',
-			'read_private_posts',
-			'read',
-			'remove_users',
-			'switch_themes',
-			'upload_files',
-			'customize',
-			'delete_site',
-			'update_core',
-			'update_plugins',
-			'update_themes',
-			'install_plugins',
-			'install_themes',
-			'delete_themes',
-			'delete_plugins',
-			'edit_plugins',
-			'edit_themes',
-			'edit_files',
-			'edit_users',
-			'add_users',
-			'create_users',
-			'delete_users',
-			'unfiltered_html',
-			'unfiltered_upload',
-			'level_10',
-			'level_9',
-			'level_8',
-			'level_7',
-			'level_6',
-			'level_5',
-			'level_4',
-			'level_3',
-			'level_2',
-			'level_1',
-			'level_0',
-		);
+			$default_wp_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
 
-		// https://paulund.co.uk/get-database-table-prefix-in-wordpress
-		global $wpdb;
-		$table_prefix = $wpdb->prefix;
+			$default_capabilities = array(
+				'create_sites',
+				'delete_sites',
+				'manage_network',
+				'manage_sites',
+				'manage_network_users',
+				'manage_network_plugins',
+				'manage_network_themes',
+				'manage_network_options',
+				'upgrade_network',
+				'setup_network',
+				'activate_plugins',
+				'delete_others_pages',
+				'delete_others_posts',
+				'delete_pages',
+				'delete_posts',
+				'delete_private_pages',
+				'delete_private_posts',
+				'delete_published_pages',
+				'delete_published_posts',
+				'edit_dashboard',
+				'edit_others_pages',
+				'edit_others_posts',
+				'edit_pages',
+				'edit_posts',
+				'edit_private_pages',
+				'edit_private_posts',
+				'edit_published_pages',
+				'edit_published_posts',
+				'edit_theme_options',
+				'export',
+				'import',
+				'list_users',
+				'manage_categories',
+				'manage_links',
+				'manage_options',
+				'moderate_comments',
+				'promote_users',
+				'publish_pages',
+				'publish_posts',
+				'read_private_pages',
+				'read_private_posts',
+				'read',
+				'remove_users',
+				'switch_themes',
+				'upload_files',
+				'customize',
+				'delete_site',
+				'update_core',
+				'update_plugins',
+				'update_themes',
+				'install_plugins',
+				'install_themes',
+				'delete_themes',
+				'delete_plugins',
+				'edit_plugins',
+				'edit_themes',
+				'edit_files',
+				'edit_users',
+				'add_users',
+				'create_users',
+				'delete_users',
+				'unfiltered_html',
+				'unfiltered_upload',
+				'level_10',
+				'level_9',
+				'level_8',
+				'level_7',
+				'level_6',
+				'level_5',
+				'level_4',
+				'level_3',
+				'level_2',
+				'level_1',
+				'level_0',
+			);
 
-		$user_roles_option_name = $table_prefix . 'user_roles';
+			// https://paulund.co.uk/get-database-table-prefix-in-wordpress
 
-		$roles_capabilities = get_option( $user_roles_option_name );
+			global $wpdb;
 
-		$default_roles = array();
-		$custom_roles = array();
-		
-		$output = $this->sd_html( 'accordions-start' );
+			$table_prefix = $wpdb->prefix;
+			$user_roles_option_name = $table_prefix . 'user_roles';
+			$roles_capabilities = get_option( $user_roles_option_name );
 
-		foreach ( $roles_capabilities as $roleslug => $role_properties ) {
+			$default_roles = array();
+			$custom_roles = array();
+			
+			$output = $this->sd_html( 'accordions-start' );
 
-			$role_default_capabilities = array();
-			$role_custom_capabilities = array();
-			$role_default_caps_string = '';
-			$role_custom_caps_string = '';
+			foreach ( $roles_capabilities as $roleslug => $role_properties ) {
 
-			if ( in_array( $roleslug, $default_wp_roles ) ) {
+				$role_default_capabilities = array();
+				$role_custom_capabilities = array();
+				$role_default_caps_string = '';
+				$role_custom_caps_string = '';
 
-				// $output .= $roleslug . ' is default.<br />';
-				$role_type = 'Defaul role';
-				$default_roles[] = $roleslug;
+				if ( in_array( $roleslug, $default_wp_roles ) ) {
 
-			} else {
-
-				// $output .= $roleslug . ' is custom.<br />';
-				$role_type = 'Custom role';
-				$custom_roles[] = $roleslug;
-
-			}
-
-			// foreach( $properties as $property_name => $property_value ) {
-
-			// }
-
-			$caps_output = '';
-
-			$role_title = $role_properties['name'] . ' (' . $roleslug . ') - ' . $role_type;
-
-			foreach ( $role_properties['capabilities'] as $capability => $enabled ) {
-
-				if ( in_array( $capability, $default_capabilities ) ) {
-
-					$role_default_capabilities[] = $capability;
-
-					$role_default_caps_string .= $capability . '<br />';
-
+					// $output .= $roleslug . ' is default.<br />';
+					$role_type = 'Defaul role';
+					$default_roles[] = $roleslug;
 
 				} else {
 
-					$role_custom_capabilities[] = $capability;
+					// $output .= $roleslug . ' is custom.<br />';
+					$role_type = 'Custom role';
+					$custom_roles[] = $roleslug;
 
-					$role_custom_caps_string .= $capability . '<br />';
+				}
+
+				$caps_output = '';
+
+				$role_title = $role_properties['name'] . ' (' . $roleslug . ') - ' . $role_type;
+
+				foreach ( $role_properties['capabilities'] as $capability => $enabled ) {
+
+					if ( in_array( $capability, $default_capabilities ) ) {
+
+						$role_default_capabilities[] = $capability;
+
+						$role_default_caps_string .= $capability . '<br />';
+
+
+					} else {
+
+						$role_custom_capabilities[] = $capability;
+
+						$role_custom_caps_string .= $capability . '<br />';
+					}
+
+				}
+
+				// if ( $property_name == 'name' ) {
+
+				// }
+
+				// if ( $property_name == 'capabilities' ) {
+
+				// }
+
+				if ( $return = 'all' ) {
+
+					$output .= $this->sd_html( 'accordion-head', $role_title );
+
+					$caps_output .= $this->sd_html( 'field-content-start', 'plain-content' );
+					$caps_output .= $this->sd_html( 'field-content-first', '<div class="field-part-title"><strong>Default capabilities:</strong></div>
+									<div class="field-part-content">' . $role_default_caps_string . '</div>' );
+					$caps_output .= $this->sd_html( 'field-content-second', '<div class="field-part-title"><strong>Custom capabilities:</strong></div>
+									<div class="field-part-content">' . $role_custom_caps_string . '</div>' );
+					$caps_output .= $this->sd_html( 'field-content-end' );
+
+
+					$output .= $this->sd_html( 'accordion-body', $caps_output );
+
+				} elseif ( $return = 'default_roles' ) {
+
+					$output .= '<pre>' . $default_roles . '</pre>';
+
+				} elseif ( $return = 'custom_roles' ) {
+
+					$output .= '<pre>' . $custom_roles . '</pre>';
+
 				}
 
 			}
 
-			// if ( $property_name == 'name' ) {
+			$output .= $this->sd_html( 'accordions-end' );
 
-			// }
-
-			// if ( $property_name == 'capabilities' ) {
-
-			// }
-
-			if ( $return = 'all' ) {
-
-				$output .= $this->sd_html( 'accordion-head', $role_title );
-
-				$caps_output .= $this->sd_html( 'field-content-start', 'plain-content' );
-				$caps_output .= $this->sd_html( 'field-content-first', '<div class="field-part-title"><strong>Default capabilities:</strong></div>
-								<div class="field-part-content">' . $role_default_caps_string . '</div>' );
-				$caps_output .= $this->sd_html( 'field-content-second', '<div class="field-part-title"><strong>Custom capabilities:</strong></div>
-								<div class="field-part-content">' . $role_custom_caps_string . '</div>' );
-				$caps_output .= $this->sd_html( 'field-content-end' );
-
-
-				$output .= $this->sd_html( 'accordion-body', $caps_output );
-
-			} elseif ( $return = 'default_roles' ) {
-
-				$output .= '<pre>' . $default_roles . '</pre>';
-
-			} elseif ( $return = 'custom_roles' ) {
-
-				$output .= '<pre>' . $custom_roles . '</pre>';
-
-			}
+			echo $output;
 
 		}
-
-		$output .= $this->sd_html( 'accordions-end' );
-
-		return $output;
 
 	}
 
@@ -952,18 +952,12 @@ class System_Dashboard_Admin {
 	 * @link https://plugins.trac.wordpress.org/browser/cl-wp-info/trunk/class-cl-wp-info.php 
 	 * @since 1.0.0
 	 */
-	public function sd_get_user_count_by_role( $type ) {
+	public function sd_user_count() {
 
-		$users = count_users();
-		$output = '';
+		if ( isset( $_REQUEST ) ) {
 
-		if ( $type == 'total' ) {
-
-			$output .= '<div class="field-info-line full-width">' . $users['total_users'] .' users</div>';
-
-			return $output;
-
-		} elseif ( $type == 'by_role' ) {
+			$users = count_users();
+			$output = '';
 
 			$output .= $this->sd_html( 'field-content-start' );
 			$output .= $this->sd_html( 'field-content-first', 'All roles' );
@@ -971,6 +965,7 @@ class System_Dashboard_Admin {
 			$output .= $this->sd_html( 'field-content-end' );
 
 			foreach ( $users['avail_roles'] as $role => $count ) {
+
 				if ( !empty( $count ) ) {
 
 					$output .= $this->sd_html( 'field-content-start' );
@@ -979,11 +974,10 @@ class System_Dashboard_Admin {
 					$output .= $this->sd_html( 'field-content-end' );
 
 				}
+
 			}
 
-			// $output .= '<pre>' . print_r( $users['avail_roles'], true ) . '</pre>';
-
-			return $output;
+			echo $output;
 
 		}
 
@@ -3167,6 +3161,8 @@ class System_Dashboard_Admin {
 				jQuery('.filesystem-permissions .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.custom-fields .csf-accordion-item:nth-child(1) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.custom-fields .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.user-count .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.roles-capabilities .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(1) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.theme-hooks .csf-accordion-title').attr('data-loaded','no');
@@ -3569,6 +3565,67 @@ class System_Dashboard_Admin {
 								jQuery('.custom-fields .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-private-custom-fields').fadeOut( 0 );
 
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get user count by role
+
+				jQuery('.user-count .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_user_count',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#user-count-content').prepend(data);
+								jQuery('.user-count .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-user-count').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get user roles and capabilities
+
+				jQuery('.roles-capabilities .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_roles_capabilities',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#roles-capabilities-content').prepend(data);
+								jQuery('.roles-capabilities .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-roles-capabilities').fadeOut( 0 );
+								initMcCollapsible( ".roles-capabilities" );
 							},
 							erro:function(errorThrown) {
 								console.log(errorThrown);
@@ -8231,13 +8288,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'user_count_by_role',
 										'type'		=> 'accordion',
 										'title'		=> 'Users Count by Role',
+										'class'		=> 'user-count',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_user_count_by_role( 'by_role' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'user-count' ), // AJAX loading via sd_user_count()
 													),													
 												),
 											),
@@ -8247,13 +8305,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'urc_tools',
 										'type'		=> 'accordion',
 										'title'		=> 'Roles & Capabilities',
+										'class'		=> 'roles-capabilities',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_user_roles_capabilities(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'roles-capabilities' ), // AJAX loading via sd_roles_capabilities()
 													),													
 												),
 											),
