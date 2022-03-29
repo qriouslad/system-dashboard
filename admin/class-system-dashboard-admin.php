@@ -2513,17 +2513,11 @@ class System_Dashboard_Admin {
 	 * @param string $type list | total_count
 	 * @since 1.8.0
 	 */
-	public function sd_rewrite_rules( $type = 'list' ) {
+	public function sd_rewrite_rules() {
 
 		$rewrite_rules = get_option( 'rewrite_rules' );
 
 		$output = '';
-		$count = 0;
-
-		// $output .= $this->sd_html( 'field-content-start' );
-		// $output .= $this->sd_html( 'field-content-first', '<strong>URL Structure</strong>' );
-		// $output .= $this->sd_html( 'field-content-second', '<strong>Query Parameters</strong>' );
-		// $output .= $this->sd_html( 'field-content-end' );
 
 		foreach ( $rewrite_rules as $key => $value ) {
 
@@ -2532,19 +2526,24 @@ class System_Dashboard_Admin {
 			$output .= $this->sd_html( 'field-content-second', '&#10132; ' . $value, 'full-width long-value' );
 			$output .= $this->sd_html( 'field-content-end' );
 
-			$count++;
-
 		}
 
-		if ( $type == 'list' ) {
+		echo $output;
 
-			return $output;
+	}
 
-		} elseif ( $type == 'total_count' ) {
+	/**
+	 * Get # of rewrite rules
+	 *
+	 * @since 2.1.0
+	 */
+	public function sd_rewrite_rules_count() {
 
-			return $count;
+		$rewrite_rules = get_option( 'rewrite_rules' );
 
-		}
+		$output = count( $rewrite_rules );
+
+		return $output;
 
 	}
 
@@ -3174,6 +3173,7 @@ class System_Dashboard_Admin {
 				jQuery('.custom-fields .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.user-count .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.roles-capabilities .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.rewrite-rules .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.shortcodes .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(1) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','no');
@@ -3648,6 +3648,35 @@ class System_Dashboard_Admin {
 
 				});
 
+				// Get list of rewrite rules
+
+				jQuery('.rewrite-rules .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_rewrite_rules',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#rewrite-rules-content').prepend(data);
+								jQuery('.rewrite-rules .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-rewrite-rules').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
 				// Get list of shorcodes and caller function
 
 				jQuery('.shortcodes .csf-accordion-title').click( function() {
@@ -3659,9 +3688,7 @@ class System_Dashboard_Admin {
 						jQuery.ajax({
 							url: ajaxurl,
 							data: {
-								'action':'sd_shortcodes',
-								'fast_ajax':true,
-								'load_plugins':["system-dashboard/system-dashboard.php"]
+								'action':'sd_shortcodes'
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -8605,20 +8632,21 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Total',
-										'content'	=> $this->sd_rewrite_rules( 'total_count' ) . ' rules',
+										'content'	=> $this->sd_rewrite_rules_count() . ' rules',
 									),
 									array(
 										'id'		=> 'rewrite_rules',
 										'type'		=> 'accordion',
 										'title'		=> 'List',
 										'subtitle'	=> 'URL Structure <br />&#10132; Query Parameters',
+										'class'		=> 'rewrite-rules',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_rewrite_rules( 'list' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'rewrite-rules' ), // AJAX loading via sd_rewrite_rules()
 													),													
 												),
 											),

@@ -219,6 +219,7 @@ class System_Dashboard {
 		$this->loader->add_action( 'wp_ajax_sd_custom_fields', $plugin_admin, 'sd_custom_fields' );
 		$this->loader->add_action( 'wp_ajax_sd_user_count', $plugin_admin, 'sd_user_count' );
 		$this->loader->add_action( 'wp_ajax_sd_roles_capabilities', $plugin_admin, 'sd_roles_capabilities' );
+		$this->loader->add_action( 'wp_ajax_sd_rewrite_rules', $plugin_admin, 'sd_rewrite_rules' );
 		$this->loader->add_action( 'wp_ajax_sd_shortcodes', $plugin_admin, 'sd_shortcodes' );
 		$this->loader->add_action( 'wp_ajax_sd_option_value', $plugin_admin, 'sd_option_value' );
 		$this->loader->add_action( 'wp_ajax_sd_global_value', $plugin_admin, 'sd_global_value' );
