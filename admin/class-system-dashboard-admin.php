@@ -995,7 +995,7 @@ class System_Dashboard_Admin {
 	 * @link https://css-tricks.com/snippets/wordpress/dump-all-custom-fields/
 	 * @since 1.0.0
 	 */	
-	public function sd_get_all_custom_fields( $type = 'public' ) {
+	public function sd_custom_fields( $count = 'public-count' ) {
 
 		global $wpdb;
 
@@ -1047,38 +1047,49 @@ class System_Dashboard_Admin {
 
 		}
 
-		if ( $type == 'public' ) {
+		if ( isset( $_REQUEST ) && isset( $_REQUEST['type'] ) ) {
 
-			foreach( $public_custom_fields as $public_custom_field ) {
+			$type = $_REQUEST['type'];
 
-				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $public_custom_field, 'full-width' );
-				$output .= $this->sd_html( 'field-content-end' );
+			if ( $type == 'public' ) {
 
-			}
+				foreach( $public_custom_fields as $public_custom_field ) {
 
-		} elseif ( $type == 'private' ) {
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $public_custom_field, 'full-width' );
+					$output .= $this->sd_html( 'field-content-end' );
 
-			foreach( $private_custom_fields as $private_custom_field ) {
+				}
 
-				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $private_custom_field, 'field-full-width' );
-				$output .= $this->sd_html( 'field-content-end' );
+				echo $output;
 
-			}
+			} elseif ( $type == 'private' ) {
 
-		} elseif ( $type == 'public-count' ) {
+				foreach( $private_custom_fields as $private_custom_field ) {
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $private_custom_field, 'field-full-width' );
+					$output .= $this->sd_html( 'field-content-end' );
+
+				}
+
+				echo $output;
+
+			} else {}
+
+		}
+
+		if ( $count == 'public-count' ) {
 
 			$output = $public_custom_fields_count;
+			return $output;
 
-		} elseif ( $type == 'private-count' ) {
+		} elseif ( $count == 'private-count' ) {
 
 			$output = $private_custom_fields_count;
+			return $output;
 
 		} else {}
-
-		// return '<pre>' . print_r( $private_custom_fields, true ) . '</pre>';
-		return $output;
 
 	}
 
@@ -3154,6 +3165,8 @@ class System_Dashboard_Admin {
 				jQuery('.media-handling .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.directory-sizes .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.filesystem-permissions .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.custom-fields .csf-accordion-item:nth-child(1) .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.custom-fields .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(1) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.theme-hooks .csf-accordion-title').attr('data-loaded','no');
@@ -3501,6 +3514,71 @@ class System_Dashboard_Admin {
 					} else {}
 
 				});
+
+				// Get list of public custom fields
+
+				jQuery('.custom-fields .csf-accordion-item:nth-child(1) .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_custom_fields',
+								'type':'public',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#public-custom-fields-content').prepend(data);
+								jQuery('.custom-fields .csf-accordion-item:nth-child(1) .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-public-custom-fields').fadeOut( 0 );
+
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get list of private custom fields
+
+				jQuery('.custom-fields .csf-accordion-item:nth-child(2) .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_custom_fields',
+								'type':'private',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#private-custom-fields-content').prepend(data);
+								jQuery('.custom-fields .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-private-custom-fields').fadeOut( 0 );
+
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
 				// Get option value
 
 				jQuery('.option__name').click( function() {
@@ -8106,25 +8184,25 @@ class System_Dashboard_Admin {
 									array(
 										'id'		=> 'custom_fields',
 										'type'		=> 'accordion',
-										'class'		=> 'custom-fields-tabs',
 										'title'		=> 'By Type',
+										'class'		=> 'custom-fields',
 										'accordions'	=> array(
 
 											array(
-												'title'		=> 'View Public Fields (' . $this->sd_get_all_custom_fields( 'public-count' ) . ')',
+												'title'		=> 'View Public Fields (' . $this->sd_custom_fields( 'public-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_all_custom_fields( 'public' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'public-custom-fields' ), // AJAX loading via sd_custom_fields()
 													),													
 												),
 											),
 											array(
-												'title'		=> 'View Private Fields (' . $this->sd_get_all_custom_fields( 'private-count' ) . ')',
+												'title'		=> 'View Private Fields (' . $this->sd_custom_fields( 'private-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_all_custom_fields( 'private' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'private-custom-fields' ), // AJAX loading via sd_custom_fields()
 													),													
 												),
 											),
