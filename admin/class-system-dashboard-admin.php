@@ -538,16 +538,16 @@ class System_Dashboard_Admin {
 		$results_array = json_decode( json_encode( $results ), true );
 
 		$output = $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', '<strong>Old Slug >> Current Slug</strong>' );
-		$output .= $this->sd_html( 'field-content-second', '<strong>Post Title (ID - Type)</strong>' );
+		$output .= $this->sd_html( 'field-content-first', '<strong>Old Slug &#10132; Current Slug</strong>' );
+		$output .= $this->sd_html( 'field-content-second', '<strong>Post Title (Post Type - Post ID)</strong>' );
 		$output .= $this->sd_html( 'field-content-end' );			
 
 
 		foreach ( $results_array as $old_slug ) {
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $old_slug['meta_value'] . ' >> ' . get_post_field( 'post_name', $old_slug['post_id'] ) );
-			$output .= $this->sd_html( 'field-content-second', '<a href="'. get_the_permalink( $old_slug['post_id'] ) .'" target="_blank">' . get_the_title( $old_slug['post_id'] ) . '</a> (' . $old_slug['post_id'] . ' - ' . get_post_field( 'post_type', $old_slug['post_id'] ) . ')' );
+			$output .= $this->sd_html( 'field-content-first', $old_slug['meta_value'] . '<br />&#10132; ' . get_post_field( 'post_name', $old_slug['post_id'] ) );
+			$output .= $this->sd_html( 'field-content-second', '<a href="'. get_the_permalink( $old_slug['post_id'] ) .'" target="_blank">' . get_the_title( $old_slug['post_id'] ) . '</a><br />(' . get_post_field( 'post_type', $old_slug['post_id'] ) . ' - ' . $old_slug['post_id'] . ')' );
 			$output .= $this->sd_html( 'field-content-end' );			
 
 		}
