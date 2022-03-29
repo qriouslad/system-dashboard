@@ -2379,7 +2379,7 @@ class System_Dashboard_Admin {
 	 * @link https://plugins.svn.wordpress.org/debug-bar-cron/tags/0.1.3/class-debug-bar-cron.php
 	 * @since 1.0.0
 	 */
-	public function sd_cron_events( $type = 'wpcore', $return = 'events' ) {
+	public function sd_cron( $type = 'wpcore', $return = 'events' ) {
 
 		$wpcore_cron_hooks = array(
 			'wp_scheduled_delete',
@@ -8557,20 +8557,20 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Total',
-										'content'	=> $this->sd_cron_events( 'all', 'count' ) . ' cron events',
+										'content'	=> $this->sd_cron( 'all', 'count' ) . ' cron events',
 									),
 									array(
 										'id'		=> 'cron_events',
 										'type'		=> 'accordion',
 										'title'		=> 'Core',
-										'subtitle'		=> $this->sd_cron_events( 'wpcore', 'count' ) . ' events',
+										'subtitle'		=> $this->sd_cron( 'wpcore', 'count' ) . ' events',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_cron_events( 'wpcore', 'events' ),
+														'content'	=> $this->sd_cron( 'wpcore', 'events' ),
 													),													
 												),
 											),
@@ -8580,14 +8580,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'cron_events',
 										'type'		=> 'accordion',
 										'title'		=> 'Theme & Plugins',
-										'subtitle'		=> $this->sd_cron_events( 'custom', 'count' ) . ' events',
+										'subtitle'		=> $this->sd_cron( 'custom', 'count' ) . ' events',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_cron_events( 'custom', 'events' ),
+														'content'	=> $this->sd_cron( 'custom', 'events' ),
 													),													
 												),
 											),
@@ -8597,14 +8597,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'cron_events',
 										'type'		=> 'accordion',
 										'title'		=> 'Schedules',
-										'subtitle'		=> $this->sd_cron_events( 'schedules', 'count' ) . ' intervals',
+										'subtitle'		=> $this->sd_cron( 'schedules', 'count' ) . ' intervals',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_cron_events( 'schedules', 'list' ),
+														'content'	=> $this->sd_cron( 'schedules', 'list' ),
 													),													
 												),
 											),
