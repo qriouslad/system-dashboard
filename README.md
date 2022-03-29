@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.2  
-Stable tag: 2.0.2  
+Stable tag: 2.1.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -16,7 +16,7 @@ Centralized dashboard to monitor various WordPress components, stats and data, i
 
 ## Description
 
-This plugin provides a centralized dashboard to monitor various WordPress components, stats and data, including server hardware, software and resource usage. Queries are optimized and most modules employ fast AJAX loading of content and values, so the plugin loads fast despite having a total of 21 modules. It does not weight down wp-admin, and nothing is loaded on the front-end. To preview the module screenshots more easily, visit the [github repo](https://github.com/qriouslad/system-dashboard).
+This plugin provides a centralized dashboard to monitor various WordPress components, stats and data, including server hardware, software and resource usage. Queries are optimized and most modules employ fast AJAX loading of content and values, so the plugin loads fast despite having a total of 18 WordPress modules and 3 server modules. It does not weight down wp-admin, and nothing is loaded on the front-end. To preview the module screenshots more easily, visit the [github repo](https://github.com/qriouslad/system-dashboard).
 
 ### WordPress Modules (18)
 
@@ -235,11 +235,18 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 
 ## Changelog
 
+### 2.1.0 (March 2022)
+
+* Implement AJAX loading on the following modules: Classes, Functions, Post Types & Taxonomies, Media, Directories, Custom Fields, Users, Rewrite Rules, Shortcodes. This cuts down dashboard page load time to under 2 seconds (most of the time).
+* Post Types & Taxonomies: Improve layout of old slugs list
+* Globals: Disable usage of Fast AJAX as some globals are dependent on the full list of active plugins, e.g. shortcode_tags
+* Server overview: Improve server IP detection on Apache server by using HTTP_X_SERVER_ADDR server globals
+
 ### 2.0.2 (March 2022)
 
 * Fix TypeError in disk usage calculation and typo in site health check function. Props to [@ivanarnaudov](https://profiles.wordpress.org/ivanarnaudov/).
 * Tidy up display of RAM usage and CPUs/cores count when shell_exec is not enabled
-* Improve server IP detection when using Apache by using HTTP_X_SERVER_ADDR
+* Improve server location detection when using Apache by using IP address from HTTP_X_SERVER_ADDR server global
 
 ### 2.0.1 (March 2022)
 
