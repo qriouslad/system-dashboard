@@ -537,30 +537,34 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_old_slugs() {
 
-		global $wpdb;
+		if ( isset( $_REQUEST ) ) {
 
-		$query = "SELECT * FROM {$wpdb->prefix}postmeta WHERE meta_key = '_wp_old_slug' ORDER BY post_id";
+			global $wpdb;
 
-		$results = $wpdb->get_results( $query );
+			$query = "SELECT * FROM {$wpdb->prefix}postmeta WHERE meta_key = '_wp_old_slug' ORDER BY post_id";
 
-		$results_array = json_decode( json_encode( $results ), true );
+			$results = $wpdb->get_results( $query );
 
-		$output = $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', '<strong>Old Slug &#10132; Current Slug</strong>' );
-		$output .= $this->sd_html( 'field-content-second', '<strong>Post Title (Post Type - Post ID)</strong>' );
-		$output .= $this->sd_html( 'field-content-end' );			
+			$results_array = json_decode( json_encode( $results ), true );
 
-
-		foreach ( $results_array as $old_slug ) {
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $old_slug['meta_value'] . '<br />&#10132; ' . get_post_field( 'post_name', $old_slug['post_id'] ) );
-			$output .= $this->sd_html( 'field-content-second', '<a href="'. get_the_permalink( $old_slug['post_id'] ) .'" target="_blank">' . get_the_title( $old_slug['post_id'] ) . '</a><br />(' . get_post_field( 'post_type', $old_slug['post_id'] ) . ' - ' . $old_slug['post_id'] . ')' );
+			$output = $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', '<strong>Old Slug &#10132; Current Slug</strong>' );
+			$output .= $this->sd_html( 'field-content-second', '<strong>Post Title (Post Type - Post ID)</strong>' );
 			$output .= $this->sd_html( 'field-content-end' );			
 
-		}
 
-		return $output;
+			foreach ( $results_array as $old_slug ) {
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', $old_slug['meta_value'] . '<br />&#10132; ' . get_post_field( 'post_name', $old_slug['post_id'] ) );
+				$output .= $this->sd_html( 'field-content-second', '<a href="'. get_the_permalink( $old_slug['post_id'] ) .'" target="_blank">' . get_the_title( $old_slug['post_id'] ) . '</a><br />(' . get_post_field( 'post_type', $old_slug['post_id'] ) . ' - ' . $old_slug['post_id'] . ')' );
+				$output .= $this->sd_html( 'field-content-end' );			
+
+			}
+
+			echo $output;
+
+		}
 
 	}
 
@@ -570,32 +574,35 @@ class System_Dashboard_Admin {
 	 * @link https://plugins.trac.wordpress.org/browser/cl-wp-info/trunk/class-cl-wp-info.p	 
 	 * @since 1.0.0
 	 */
-	public function sd_media_count_by_mime(){
+	public function sd_media_count() {
 
-		$attachments_count = wp_count_attachments();
-		$output = '';
+		if ( isset( $_REQUEST ) ) {
 
-		foreach ( $attachments_count as $media_type => $media_num ) {
+			$attachments_count = wp_count_attachments();
+			$output = '';
 
-			if ( $media_num > 1 ) {
-				$unit = 'files';
-			} else {
-				$unit = 'file';
+			foreach ( $attachments_count as $media_type => $media_num ) {
+
+				if ( $media_num > 1 ) {
+					$unit = 'files';
+				} else {
+					$unit = 'file';
+				}
+
+		        if ( ! empty( $media_num ) && $media_type !== 'trash' ) {
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $media_type );
+					$output .= $this->sd_html( 'field-content-second', $media_num . ' ' . $unit);
+					$output .= $this->sd_html( 'field-content-end' );
+
+		        }
+
 			}
 
-	        if ( ! empty( $media_num ) && $media_type !== 'trash' ) {
-
-				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $media_type );
-				$output .= $this->sd_html( 'field-content-second', $media_num . ' ' . $unit);
-				$output .= $this->sd_html( 'field-content-end' );
-
-	        }
+			echo $output;
 
 		}
-
-		return $output;
-
 	}
 
 	/**
@@ -603,31 +610,33 @@ class System_Dashboard_Admin {
 	 *
 	 * @since 1.0.0
 	 */
-	public function sd_get_mime_types_file_extensions() {
+	public function sd_mime_types() {
 
-		$mime_types = get_allowed_mime_types();
+		if ( isset( $_REQUEST ) ) {
 
-		$output = '';
+			$mime_types = get_allowed_mime_types();
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', '<strong>File Extension(s)</strong>' );
-		$output .= $this->sd_html( 'field-content-second', '<strong>MIME Type</strong>' );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		foreach ( $mime_types as $extensions => $mime_type ) {
-
-			$extensions = str_replace( "|", " | ", $extensions );
+			$output = '';
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $extensions );
-			$output .= $this->sd_html( 'field-content-second', $mime_type, 'long-value' );
+			$output .= $this->sd_html( 'field-content-first', '<strong>File Extension(s)</strong>' );
+			$output .= $this->sd_html( 'field-content-second', '<strong>MIME Type</strong>' );
 			$output .= $this->sd_html( 'field-content-end' );
 
+			foreach ( $mime_types as $extensions => $mime_type ) {
+
+				$extensions = str_replace( "|", " | ", $extensions );
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', $extensions );
+				$output .= $this->sd_html( 'field-content-second', $mime_type, 'long-value' );
+				$output .= $this->sd_html( 'field-content-end' );
+
+			}
+
+			echo $output;
+
 		}
-
-		// $output .= '<pre>' . print_r( $mime_types, true ) . '</pre>';
-
-		return $output;
 
 	}
 
@@ -639,109 +648,113 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_media_handling() {
 
-		$output = '';
+		if ( isset( $_REQUEST ) ) {
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'Active editor' );
-		$output .= $this->sd_html( 'field-content-second', _wp_image_editor_choose() );
-		$output .= $this->sd_html( 'field-content-end' );
+			$output = '';
 
-		// Get ImageMagic information, if available.
-		if ( class_exists( 'Imagick' ) ) {
-			// Save the Imagick instance for later use.
-			$imagick             = new Imagick();
-			$imagemagick_version = $imagick->getVersion();
-		} else {
-			$imagemagick_version = __( 'Not available' );
-		}
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'Active editor' );
+			$output .= $this->sd_html( 'field-content-second', _wp_image_editor_choose() );
+			$output .= $this->sd_html( 'field-content-end' );
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'ImageMagick version number' );
-		$output .= $this->sd_html( 'field-content-second', ( is_array( $imagemagick_version ) ? $imagemagick_version['versionNumber'] : $imagemagick_version ) );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'ImageMagick version string' );
-		$output .= $this->sd_html( 'field-content-second', ( is_array( $imagemagick_version ) ? $imagemagick_version['versionString'] : $imagemagick_version ) );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$imagick_version = phpversion( 'imagick' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'Imagick version' );
-		$output .= $this->sd_html( 'field-content-second', ( $imagick_version ) ? $imagick_version : __( 'Not available' ) );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'Max size of post data allowed' );
-		$output .= $this->sd_html( 'field-content-second', ini_get( 'post_max_size' ) );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'Max size of an uploaded file' );
-		$output .= $this->sd_html( 'field-content-second', ini_get( 'upload_max_filesize' ) );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'Max number of files allowed' );
-		$output .= $this->sd_html( 'field-content-second', number_format( ini_get( 'max_file_uploads' ) ) );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		// Get GD information, if available.
-		if ( function_exists( 'gd_info' ) ) {
-			$gd = gd_info();
-		} else {
-			$gd = false;
-		}
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'GD version' );
-		$output .= $this->sd_html( 'field-content-second', ( is_array( $gd ) ? $gd['GD Version'] : 'Not available' ) );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$gd_image_formats     = array();
-		$gd_supported_formats = array(
-			'GIF Create' => 'GIF',
-			'JPEG'       => 'JPEG',
-			'PNG'        => 'PNG',
-			'WebP'       => 'WebP',
-			'BMP'        => 'BMP',
-			'AVIF'       => 'AVIF',
-			'HEIF'       => 'HEIF',
-			'TIFF'       => 'TIFF',
-			'XPM'        => 'XPM',
-		);
-
-		foreach ( $gd_supported_formats as $format_key => $format ) {
-			$index = $format_key . ' Support';
-			if ( isset( $gd[ $index ] ) && $gd[ $index ] ) {
-				array_push( $gd_image_formats, $format );
-			}
-		}
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'GD supported file formats' );
-		$output .= $this->sd_html( 'field-content-second', implode( ', ', $gd_image_formats ) );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		// Get Ghostscript information, if available.
-		if ( function_exists( 'exec' ) ) {
-			$gs = exec( 'gs --version' );
-
-			if ( empty( $gs ) ) {
-				$gs = 'Not available';
+			// Get ImageMagic information, if available.
+			if ( class_exists( 'Imagick' ) ) {
+				// Save the Imagick instance for later use.
+				$imagick             = new Imagick();
+				$imagemagick_version = $imagick->getVersion();
 			} else {
+				$imagemagick_version = __( 'Not available' );
 			}
-		} else {
-			$gs = 'Unable to determine if Ghostscript is installed';
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'ImageMagick version number' );
+			$output .= $this->sd_html( 'field-content-second', ( is_array( $imagemagick_version ) ? $imagemagick_version['versionNumber'] : $imagemagick_version ) );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'ImageMagick version string' );
+			$output .= $this->sd_html( 'field-content-second', ( is_array( $imagemagick_version ) ? $imagemagick_version['versionString'] : $imagemagick_version ) );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$imagick_version = phpversion( 'imagick' );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'Imagick version' );
+			$output .= $this->sd_html( 'field-content-second', ( $imagick_version ) ? $imagick_version : __( 'Not available' ) );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'Max size of post data allowed' );
+			$output .= $this->sd_html( 'field-content-second', ini_get( 'post_max_size' ) );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'Max size of an uploaded file' );
+			$output .= $this->sd_html( 'field-content-second', ini_get( 'upload_max_filesize' ) );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'Max number of files allowed' );
+			$output .= $this->sd_html( 'field-content-second', number_format( ini_get( 'max_file_uploads' ) ) );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			// Get GD information, if available.
+			if ( function_exists( 'gd_info' ) ) {
+				$gd = gd_info();
+			} else {
+				$gd = false;
+			}
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'GD version' );
+			$output .= $this->sd_html( 'field-content-second', ( is_array( $gd ) ? $gd['GD Version'] : 'Not available' ) );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$gd_image_formats     = array();
+			$gd_supported_formats = array(
+				'GIF Create' => 'GIF',
+				'JPEG'       => 'JPEG',
+				'PNG'        => 'PNG',
+				'WebP'       => 'WebP',
+				'BMP'        => 'BMP',
+				'AVIF'       => 'AVIF',
+				'HEIF'       => 'HEIF',
+				'TIFF'       => 'TIFF',
+				'XPM'        => 'XPM',
+			);
+
+			foreach ( $gd_supported_formats as $format_key => $format ) {
+				$index = $format_key . ' Support';
+				if ( isset( $gd[ $index ] ) && $gd[ $index ] ) {
+					array_push( $gd_image_formats, $format );
+				}
+			}
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'GD supported file formats' );
+			$output .= $this->sd_html( 'field-content-second', implode( ', ', $gd_image_formats ) );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			// Get Ghostscript information, if available.
+			if ( function_exists( 'exec' ) ) {
+				$gs = exec( 'gs --version' );
+
+				if ( empty( $gs ) ) {
+					$gs = 'Not available';
+				} else {
+				}
+			} else {
+				$gs = 'Unable to determine if Ghostscript is installed';
+			}
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'Ghostscript version' );
+			$output .= $this->sd_html( 'field-content-second', $gs );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			echo $output;
+
 		}
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'Ghostscript version' );
-		$output .= $this->sd_html( 'field-content-second', $gs );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		return $output;
 
 	}
 
@@ -3127,6 +3140,10 @@ class System_Dashboard_Admin {
 				jQuery('.db-details .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.post-types .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.taxonomies .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.old-slugs .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.media-count .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.mime-types .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.media-handling .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(1) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.theme-hooks .csf-accordion-title').attr('data-loaded','no');
@@ -3285,6 +3302,126 @@ class System_Dashboard_Admin {
 								jQuery('#taxonomies-content').prepend(data);
 								jQuery('.taxonomies .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-taxonomies').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get old slugs info
+
+				jQuery('.old-slugs .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_old_slugs',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#old-slugs-content').prepend(data);
+								jQuery('.old-slugs .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-old-slugs').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get media count by mime type
+
+				jQuery('.media-count .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_media_count',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#media-count-content').prepend(data);
+								jQuery('.media-count .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-media-count').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get list of allowed mime types and file extensions
+
+				jQuery('.mime-types .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_mime_types',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#mime-types-content').prepend(data);
+								jQuery('.mime-types-wordpress .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-mime-types').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get info on media handling
+
+				jQuery('.media-handling .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_media_handling',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#media-handling-content').prepend(data);
+								jQuery('.media-handling-wordpress .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-media-handling').fadeOut( 0 );
 							},
 							erro:function(errorThrown) {
 								console.log(errorThrown);
@@ -7742,13 +7879,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'pttax_old_slugs',
 										'type'		=> 'accordion',
 										'title'		=> 'Old Slugs',
+										'class'		=> 'old-slugs',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_old_slugs(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'old-slugs' ), // AJAX loading via sd_old_slugs()
 													),													
 												),
 											),
@@ -7776,13 +7914,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'media_count_by_mime',
 										'type'		=> 'accordion',
 										'title'		=> 'Media Count by Mime Type',
+										'class'		=> 'media-count',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_media_count_by_mime(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'media-count' ), // AJAX loading via sd_media_count()
 													),													
 												),
 											),
@@ -7792,13 +7931,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'media_allowed_mime_types',
 										'type'		=> 'accordion',
 										'title'		=> 'Allowed Mime Types',
+										'class'		=> 'mime-types',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_mime_types_file_extensions(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'mime-types' ), // AJAX loading via sd_mime_types()
 													),													
 												),
 											),
@@ -7808,13 +7948,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'media_handling',
 										'type'		=> 'accordion',
 										'title'		=> 'Media Handling',
+										'class'		=> 'media-handling',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_media_handling(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'media-handling' ), // AJAX loading via sd_media_handling()
 													),													
 												),
 											),
