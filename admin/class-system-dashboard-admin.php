@@ -381,11 +381,11 @@ class System_Dashboard_Admin {
 
 			if ( isset( $_SERVER['HTTP_X_SERVER_ADDR'] ) ) {
 
-				$output .= $_SERVER['HTTP_X_SERVER_ADDR'];
+				$output .= '<strong>IP</strong>: <br />' . $_SERVER['HTTP_X_SERVER_ADDR'] . '<br />';
 
 			} else {
 
-				$output .= $_SERVER['SERVER_ADDR'];
+				$output .= '<strong>IP</strong>: <br />' . $_SERVER['SERVER_ADDR'] . '<br />';
 				
 			}
 		}
