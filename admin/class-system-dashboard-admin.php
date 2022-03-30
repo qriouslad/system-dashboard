@@ -2253,6 +2253,9 @@ class System_Dashboard_Admin {
 		$default_storage_engine_query = $wpdb->get_row("SHOW VARIABLES LIKE 'default_storage_engine'");
 		$default_storage_engine = $default_storage_engine_query->Value;
 
+		$charset = $wpdb->charset;
+		$collation = $wpdb->collate;
+
 		$innodb_buffer_pool_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'innodb_buffer_pool_size'");
 		$innodb_buffer_pool_size = $this->sd_format_filesize( $innodb_buffer_pool_size_query->Value );
 
@@ -2286,6 +2289,14 @@ class System_Dashboard_Admin {
 			array(
 				'name'					=> 'Engine',
 				'value'					=> $default_storage_engine,
+			),
+			array(
+				'name'					=> 'Character Set',
+				'value'					=> $charset,
+			),
+			array(
+				'name'					=> 'Collation',
+				'value'					=> $collation,
 			),
 			array(
 				'name'					=> 'Host',
@@ -8079,8 +8090,6 @@ class System_Dashboard_Admin {
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														// 'content'	=> $this->sd_db_specs(),
-														// 'content'	=> '<div id="spinner-db-specs"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading...</div><div id="db-specs"></div>', // AJAX loading via sd_db_tables()
 														'content'	=> $this->sd_html( 'ajax-receiver', 'db-specs' ), // AJAX loading via sd_db_specs()
 													),													
 												),
