@@ -2148,10 +2148,19 @@ class System_Dashboard_Admin {
 			$output .= $this->sd_html( 'field-content-second', '<div class="parts parts-heading"><span class="thirds">Data Size</span><span class="thirds">Index Size</span><span class="thirds">Rows</span></div>' );
 			$output .= $this->sd_html( 'field-content-end' );
 
+			$active_plugins = get_option( 'active_plugins' );
+
 			foreach( $tables as $table ) {
 
 				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $table->Name, 'long-value' );
+
+				// If SQL Buddy is active, link to table viewer there
+				if ( in_array( 'sql-buddy/sql-buddy.php', $active_plugins ) ) {
+					$output .= $this->sd_html( 'field-content-first', '<a href="/wp-admin/tools.php?page=sql-buddy-dashboard#/tables?table=' . $table->Name . '" target="_blank">' . $table->Name . '</a>', 'long-value' );
+				} else {
+					$output .= $this->sd_html( 'field-content-first', $table->Name, 'long-value' );
+				}
+
 				$output .= $this->sd_html( 'field-content-second', '<div class="parts"><span class="thirds">' . $this->sd_format_filesize( $table->Data_length ) . '</span><span class="thirds">' . $this->sd_format_filesize( $table->Index_length ) . '</span><span class="thirds">' . number_format( $table->Rows ) . '</span></div>' );
 				$output .= $this->sd_html( 'field-content-end' );
 
@@ -3227,7 +3236,7 @@ class System_Dashboard_Admin {
 							data: {
 								'action':'sd_db_tables',
 								'fast_ajax':true,
-								'load_plugins':["system-dashboard/system-dashboard.php"]
+								'load_plugins':["sql-buddy/sql-buddy.php","system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
