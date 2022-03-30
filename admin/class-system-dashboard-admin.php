@@ -1721,7 +1721,7 @@ class System_Dashboard_Admin {
 
 		if ( ( $free_disk_space != 'Undetectable' ) && ( $total_disk_space != 'Undetectable' ) ) {
 
-			return $this->sd_format_filesize( $used_disk_space ) . ' used (' . round ( ( ( $used_disk_space / $total_disk_space ) * 100 ), 0 ) . '%) of ' . $this->sd_format_filesize( $total_disk_space ) . ' total';
+			return $this->sd_format_filesize( $used_disk_space ) . ' (' . round ( ( ( $used_disk_space / $total_disk_space ) * 100 ), 0 ) . '%) used of ' . $this->sd_format_filesize( $total_disk_space ) . ' total';
 
 		} else {
 
