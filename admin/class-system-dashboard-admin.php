@@ -2152,7 +2152,7 @@ class System_Dashboard_Admin {
 
 				$output .= $this->sd_html( 'field-content-start' );
 				$output .= $this->sd_html( 'field-content-first', $table->Name, 'long-value' );
-				$output .= $this->sd_html( 'field-content-second', '<div class="parts"><span class="thirds">' . $this->sd_format_filesize( $table->Data_length ) . '</span><span class="thirds">' . $this->sd_format_filesize( $table->Index_length ) . '</span><span class="thirds">' . $table->Rows . '</span></div>' );
+				$output .= $this->sd_html( 'field-content-second', '<div class="parts"><span class="thirds">' . $this->sd_format_filesize( $table->Data_length ) . '</span><span class="thirds">' . $this->sd_format_filesize( $table->Index_length ) . '</span><span class="thirds">' . number_format( $table->Rows ) . '</span></div>' );
 				$output .= $this->sd_html( 'field-content-end' );
 
 			}
