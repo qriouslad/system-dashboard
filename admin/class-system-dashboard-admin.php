@@ -2128,28 +2128,38 @@ class System_Dashboard_Admin {
 	 * @link https://plugins.svn.wordpress.org/wptools/tags/3.13/functions/functions.php
 	 * @since 1.0.0
 	 */
-	public function sd_db_tables() {
+	public function sd_db_tables( $return = 'count' ) {
 
 		global $wpdb;
 
-		$prefix = $wpdb->prefix;
+		// $prefix = $wpdb->prefix;
 		$tables = $wpdb->get_results("SHOW TABLE STATUS");
 
-		$output = $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', '<strong>Table Name</strong>' );
-		$output .= $this->sd_html( 'field-content-second', '<strong>Size</strong>' );
-		$output .= $this->sd_html( 'field-content-end' );
+		if ( $return == 'count' ) {
 
-		foreach( $tables as $table ) {
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $table->Name, 'long-value' );
-			$output .= $this->sd_html( 'field-content-second', $this->sd_format_filesize( $table->Data_length ) );
-			$output .= $this->sd_html( 'field-content-end' );
+			return count( $tables );
 
 		}
 
-		echo $output;
+		if ( isset( $_REQUEST ) ) {
+
+			$output = $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', '<strong>Table Name</strong>' );
+			$output .= $this->sd_html( 'field-content-second', '<div class="parts parts-heading"><span class="thirds">Data Size</span><span class="thirds">Index Size</span><span class="thirds">Rows</span></div>' );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			foreach( $tables as $table ) {
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', $table->Name, 'long-value' );
+				$output .= $this->sd_html( 'field-content-second', '<div class="parts"><span class="thirds">' . $this->sd_format_filesize( $table->Data_length ) . '</span><span class="thirds">' . $this->sd_format_filesize( $table->Index_length ) . '</span><span class="thirds">' . $table->Rows . '</span></div>' );
+				$output .= $this->sd_html( 'field-content-end' );
+
+			}
+
+			echo $output;
+
+		}
 
 	}
 
@@ -8044,6 +8054,7 @@ class System_Dashboard_Admin {
 										'id'		=> 'db_tables',
 										'type'		=> 'accordion',
 										'title'		=> 'Tables',
+										'subtitle'	=> $this->sd_db_tables( 'count' ) . ' tables',
 										'class'		=> 'db-tables',
 										'accordions'	=> array(
 											array(
@@ -8051,8 +8062,6 @@ class System_Dashboard_Admin {
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														// 'content'	=> $this->sd_db_tables(),
-														// 'content'	=> '<div id="spinner-db-tables"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading...</div><div id="db-tables"></div>', // AJAX loading via sd_db_tables()
 														'content'	=> $this->sd_html( 'ajax-receiver', 'db-tables' ), // AJAX loading via sd_db_tables()
 													),													
 												),

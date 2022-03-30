@@ -146,6 +146,20 @@
     width: 100%;
 }
 
+.sd-options .field-part .parts {
+    width:  100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.sd-options .field-part .parts-heading {
+    font-weight: 600;
+}
+
+.sd-options .field-part .thirds {
+    width:  32%;
+}
+
 .sd-options .wpcore-hooks .field-part.full-width {
     display: flex;
     flex-direction: row;
