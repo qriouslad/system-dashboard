@@ -2165,22 +2165,22 @@ class System_Dashboard_Admin {
 
 		global $wpdb;
 
-		// $prefix = $wpdb->prefix;
+		$prefix = $wpdb->prefix;
 		$tables = $wpdb->get_results("SHOW TABLE STATUS");
 
 		$wpcore_tables = array(
-			'wp_commentmeta',
-			'wp_comments',
-			'wp_links',
-			'wp_options',
-			'wp_postmeta',
-			'wp_posts',
-			'wp_term_relationships',
-			'wp_term_taxonomy',
-			'wp_termmeta',
-			'wp_terms',
-			'wp_usermeta',
-			'wp_users',
+			$wpdb->prefix . 'commentmeta',
+			$wpdb->prefix . 'comments',
+			$wpdb->prefix . 'links',
+			$wpdb->prefix . 'options',
+			$wpdb->prefix . 'postmeta',
+			$wpdb->prefix . 'posts',
+			$wpdb->prefix . 'term_relationships',
+			$wpdb->prefix . 'term_taxonomy',
+			$wpdb->prefix . 'termmeta',
+			$wpdb->prefix . 'terms',
+			$wpdb->prefix . 'usermeta',
+			$wpdb->prefix . 'users',
 		);
 
 		$noncore_tables = array();
