@@ -2183,6 +2183,18 @@ class System_Dashboard_Admin {
 			$wpdb->prefix . 'users',
 		);
 
+		// On a multisite install, add multisite-specific tables
+		// Modified from https://plugins.svn.wordpress.org/advanced-database-cleaner/tags/3.0.4/includes/functions.php >> aDBc_get_core_tables()
+		if ( function_exists('is_multisite') && is_multisite() ){
+			array_push( $wpcore_tables, $wpdb->prefix . 'blogs' );
+			array_push( $wpcore_tables, $wpdb->prefix . 'blog_versions' );
+			array_push( $wpcore_tables, $wpdb->prefix . 'blogmeta' );
+			array_push( $wpcore_tables, $wpdb->prefix . 'registration_log' );
+			array_push( $wpcore_tables, $wpdb->prefix . 'site' );
+			array_push( $wpcore_tables, $wpdb->prefix . 'sitemeta' );
+			array_push( $wpcore_tables, $wpdb->prefix . 'signups' );
+		}
+
 		$noncore_tables = array();
 
 		foreach ( $tables as $table ) {
