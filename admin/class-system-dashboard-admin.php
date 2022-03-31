@@ -377,7 +377,18 @@ class System_Dashboard_Admin {
 
 		$output .= '<strong>Web Server</strong>: <br />' .$_SERVER['SERVER_SOFTWARE'] . ' | ' . php_sapi_name() . '<br />';
 
-		$output .= '<strong>IP Address</strong>: <br />' . $_SERVER['SERVER_ADDR'] . '<br />';
+		if ( function_exists( 'file_get_contents' ) ) {
+
+			if ( isset( $_SERVER['HTTP_X_SERVER_ADDR'] ) ) {
+
+				$output .= '<strong>IP</strong>: <br />' . $_SERVER['HTTP_X_SERVER_ADDR'] . '<br />';
+
+			} else {
+
+				$output .= '<strong>IP</strong>: <br />' . $_SERVER['SERVER_ADDR'] . '<br />';
+				
+			}
+		}
 
 		$output .= '<strong>Location</strong>: <br />' . $this->sd_server_location() . '<br />';
 
@@ -449,24 +460,28 @@ class System_Dashboard_Admin {
 	 * @link https://plugins.trac.wordpress.org/browser/wp-system-info/trunk/class/common.php
 	 * @since 1.0.0
 	 */
-	public function sd_post_types_info(){
+	public function sd_post_types(){
 
-		global $wpdb;
+		if ( isset( $_REQUEST ) ) {
 
-		$post_types = $wpdb->get_results( "SELECT post_type AS 'type', count(1) AS 'count' FROM {$wpdb->posts} GROUP BY post_type ORDER BY count DESC;" );
+			global $wpdb;
 
-		$output = '';
+			$post_types = $wpdb->get_results( "SELECT post_type AS 'type', count(1) AS 'count' FROM {$wpdb->posts} GROUP BY post_type ORDER BY count DESC;" );
 
-		foreach ( $post_types as $post_type ) {
+			$output = '';
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $post_type->type );
-			$output .= $this->sd_html( 'field-content-second', $post_type->count );
-			$output .= $this->sd_html( 'field-content-end' );
+			foreach ( $post_types as $post_type ) {
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', $post_type->type );
+				$output .= $this->sd_html( 'field-content-second', $post_type->count );
+				$output .= $this->sd_html( 'field-content-end' );
+
+			}
+
+			echo $output;
 
 		}
-
-		return $output;
 
 	}
 
@@ -475,38 +490,42 @@ class System_Dashboard_Admin {
 	 *
 	 * @since 1.0.0
 	 */
-	public function sd_get_taxonomies_info( $type = 'name' ) {
+	public function sd_taxonomies( $type = 'name' ) {
 
-		$taxonomies_info = '';
+		if ( isset( $_REQUEST ) ) {
 
-		$args = array(
-			'public' => true,
-		);
+			$taxonomies_info = '';
 
-		$output = 'names';
+			$args = array(
+				'public' => true,
+			);
 
-		$operator = 'and';
+			$output = 'names';
 
-		$taxonomies = get_taxonomies( $args, $output, $operator );
+			$operator = 'and';
 
-		if ( !empty( $taxonomies ) ) {
+			$taxonomies = get_taxonomies( $args, $output, $operator );
 
-			foreach ( $taxonomies as $taxonomy ) {
+			if ( !empty( $taxonomies ) ) {
 
-				$args = array(
-					'taxonomy'		=> $taxonomy,
-				);
+				foreach ( $taxonomies as $taxonomy ) {
 
-				$taxonomies_info .= $this->sd_html( 'field-content-start' );
-				$taxonomies_info .= $this->sd_html( 'field-content-first', $taxonomy );
-				$taxonomies_info .= $this->sd_html( 'field-content-second', wp_count_terms( $args ) . ' terms');
-				$taxonomies_info .= $this->sd_html( 'field-content-end' );
+					$args = array(
+						'taxonomy'		=> $taxonomy,
+					);
+
+					$taxonomies_info .= $this->sd_html( 'field-content-start' );
+					$taxonomies_info .= $this->sd_html( 'field-content-first', $taxonomy );
+					$taxonomies_info .= $this->sd_html( 'field-content-second', wp_count_terms( $args ) . ' terms');
+					$taxonomies_info .= $this->sd_html( 'field-content-end' );
+
+				}
 
 			}
 
-		}
+			echo $taxonomies_info;
 
-		return $taxonomies_info;
+		}
 
 	}
 
@@ -518,30 +537,34 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_old_slugs() {
 
-		global $wpdb;
+		if ( isset( $_REQUEST ) ) {
 
-		$query = "SELECT * FROM {$wpdb->prefix}postmeta WHERE meta_key = '_wp_old_slug' ORDER BY post_id";
+			global $wpdb;
 
-		$results = $wpdb->get_results( $query );
+			$query = "SELECT * FROM {$wpdb->prefix}postmeta WHERE meta_key = '_wp_old_slug' ORDER BY post_id";
 
-		$results_array = json_decode( json_encode( $results ), true );
+			$results = $wpdb->get_results( $query );
 
-		$output = $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', '<strong>Old Slug >> Current Slug</strong>' );
-		$output .= $this->sd_html( 'field-content-second', '<strong>Post Title (ID - Type)</strong>' );
-		$output .= $this->sd_html( 'field-content-end' );			
+			$results_array = json_decode( json_encode( $results ), true );
 
-
-		foreach ( $results_array as $old_slug ) {
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $old_slug['meta_value'] . ' >> ' . get_post_field( 'post_name', $old_slug['post_id'] ) );
-			$output .= $this->sd_html( 'field-content-second', '<a href="'. get_the_permalink( $old_slug['post_id'] ) .'" target="_blank">' . get_the_title( $old_slug['post_id'] ) . '</a> (' . $old_slug['post_id'] . ' - ' . get_post_field( 'post_type', $old_slug['post_id'] ) . ')' );
+			$output = $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', '<strong>Old Slug &#10132; Current Slug</strong>' );
+			$output .= $this->sd_html( 'field-content-second', '<strong>Post Title (Post Type - Post ID)</strong>' );
 			$output .= $this->sd_html( 'field-content-end' );			
 
-		}
 
-		return $output;
+			foreach ( $results_array as $old_slug ) {
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', $old_slug['meta_value'] . '<br />&#10132; ' . get_post_field( 'post_name', $old_slug['post_id'] ) );
+				$output .= $this->sd_html( 'field-content-second', '<a href="'. get_the_permalink( $old_slug['post_id'] ) .'" target="_blank">' . get_the_title( $old_slug['post_id'] ) . '</a><br />(' . get_post_field( 'post_type', $old_slug['post_id'] ) . ' - ' . $old_slug['post_id'] . ')' );
+				$output .= $this->sd_html( 'field-content-end' );			
+
+			}
+
+			echo $output;
+
+		}
 
 	}
 
@@ -551,32 +574,35 @@ class System_Dashboard_Admin {
 	 * @link https://plugins.trac.wordpress.org/browser/cl-wp-info/trunk/class-cl-wp-info.p	 
 	 * @since 1.0.0
 	 */
-	public function sd_media_count_by_mime(){
+	public function sd_media_count() {
 
-		$attachments_count = wp_count_attachments();
-		$output = '';
+		if ( isset( $_REQUEST ) ) {
 
-		foreach ( $attachments_count as $media_type => $media_num ) {
+			$attachments_count = wp_count_attachments();
+			$output = '';
 
-			if ( $media_num > 1 ) {
-				$unit = 'files';
-			} else {
-				$unit = 'file';
+			foreach ( $attachments_count as $media_type => $media_num ) {
+
+				if ( $media_num > 1 ) {
+					$unit = 'files';
+				} else {
+					$unit = 'file';
+				}
+
+		        if ( ! empty( $media_num ) && $media_type !== 'trash' ) {
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $media_type );
+					$output .= $this->sd_html( 'field-content-second', $media_num . ' ' . $unit);
+					$output .= $this->sd_html( 'field-content-end' );
+
+		        }
+
 			}
 
-	        if ( ! empty( $media_num ) && $media_type !== 'trash' ) {
-
-				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $media_type );
-				$output .= $this->sd_html( 'field-content-second', $media_num . ' ' . $unit);
-				$output .= $this->sd_html( 'field-content-end' );
-
-	        }
+			echo $output;
 
 		}
-
-		return $output;
-
 	}
 
 	/**
@@ -584,31 +610,33 @@ class System_Dashboard_Admin {
 	 *
 	 * @since 1.0.0
 	 */
-	public function sd_get_mime_types_file_extensions() {
+	public function sd_mime_types() {
 
-		$mime_types = get_allowed_mime_types();
+		if ( isset( $_REQUEST ) ) {
 
-		$output = '';
+			$mime_types = get_allowed_mime_types();
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', '<strong>File Extension(s)</strong>' );
-		$output .= $this->sd_html( 'field-content-second', '<strong>MIME Type</strong>' );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		foreach ( $mime_types as $extensions => $mime_type ) {
-
-			$extensions = str_replace( "|", " | ", $extensions );
+			$output = '';
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $extensions );
-			$output .= $this->sd_html( 'field-content-second', $mime_type, 'long-value' );
+			$output .= $this->sd_html( 'field-content-first', '<strong>File Extension(s)</strong>' );
+			$output .= $this->sd_html( 'field-content-second', '<strong>MIME Type</strong>' );
 			$output .= $this->sd_html( 'field-content-end' );
 
+			foreach ( $mime_types as $extensions => $mime_type ) {
+
+				$extensions = str_replace( "|", " | ", $extensions );
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', $extensions );
+				$output .= $this->sd_html( 'field-content-second', $mime_type, 'long-value' );
+				$output .= $this->sd_html( 'field-content-end' );
+
+			}
+
+			echo $output;
+
 		}
-
-		// $output .= '<pre>' . print_r( $mime_types, true ) . '</pre>';
-
-		return $output;
 
 	}
 
@@ -620,109 +648,113 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_media_handling() {
 
-		$output = '';
+		if ( isset( $_REQUEST ) ) {
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'Active editor' );
-		$output .= $this->sd_html( 'field-content-second', _wp_image_editor_choose() );
-		$output .= $this->sd_html( 'field-content-end' );
+			$output = '';
 
-		// Get ImageMagic information, if available.
-		if ( class_exists( 'Imagick' ) ) {
-			// Save the Imagick instance for later use.
-			$imagick             = new Imagick();
-			$imagemagick_version = $imagick->getVersion();
-		} else {
-			$imagemagick_version = __( 'Not available' );
-		}
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'Active editor' );
+			$output .= $this->sd_html( 'field-content-second', _wp_image_editor_choose() );
+			$output .= $this->sd_html( 'field-content-end' );
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'ImageMagick version number' );
-		$output .= $this->sd_html( 'field-content-second', ( is_array( $imagemagick_version ) ? $imagemagick_version['versionNumber'] : $imagemagick_version ) );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'ImageMagick version string' );
-		$output .= $this->sd_html( 'field-content-second', ( is_array( $imagemagick_version ) ? $imagemagick_version['versionString'] : $imagemagick_version ) );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$imagick_version = phpversion( 'imagick' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'Imagick version' );
-		$output .= $this->sd_html( 'field-content-second', ( $imagick_version ) ? $imagick_version : __( 'Not available' ) );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'Max size of post data allowed' );
-		$output .= $this->sd_html( 'field-content-second', ini_get( 'post_max_size' ) );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'Max size of an uploaded file' );
-		$output .= $this->sd_html( 'field-content-second', ini_get( 'upload_max_filesize' ) );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'Max number of files allowed' );
-		$output .= $this->sd_html( 'field-content-second', number_format( ini_get( 'max_file_uploads' ) ) );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		// Get GD information, if available.
-		if ( function_exists( 'gd_info' ) ) {
-			$gd = gd_info();
-		} else {
-			$gd = false;
-		}
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'GD version' );
-		$output .= $this->sd_html( 'field-content-second', ( is_array( $gd ) ? $gd['GD Version'] : 'Not available' ) );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$gd_image_formats     = array();
-		$gd_supported_formats = array(
-			'GIF Create' => 'GIF',
-			'JPEG'       => 'JPEG',
-			'PNG'        => 'PNG',
-			'WebP'       => 'WebP',
-			'BMP'        => 'BMP',
-			'AVIF'       => 'AVIF',
-			'HEIF'       => 'HEIF',
-			'TIFF'       => 'TIFF',
-			'XPM'        => 'XPM',
-		);
-
-		foreach ( $gd_supported_formats as $format_key => $format ) {
-			$index = $format_key . ' Support';
-			if ( isset( $gd[ $index ] ) && $gd[ $index ] ) {
-				array_push( $gd_image_formats, $format );
-			}
-		}
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'GD supported file formats' );
-		$output .= $this->sd_html( 'field-content-second', implode( ', ', $gd_image_formats ) );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		// Get Ghostscript information, if available.
-		if ( function_exists( 'exec' ) ) {
-			$gs = exec( 'gs --version' );
-
-			if ( empty( $gs ) ) {
-				$gs = 'Not available';
+			// Get ImageMagic information, if available.
+			if ( class_exists( 'Imagick' ) ) {
+				// Save the Imagick instance for later use.
+				$imagick             = new Imagick();
+				$imagemagick_version = $imagick->getVersion();
 			} else {
+				$imagemagick_version = __( 'Not available' );
 			}
-		} else {
-			$gs = 'Unable to determine if Ghostscript is installed';
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'ImageMagick version number' );
+			$output .= $this->sd_html( 'field-content-second', ( is_array( $imagemagick_version ) ? $imagemagick_version['versionNumber'] : $imagemagick_version ) );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'ImageMagick version string' );
+			$output .= $this->sd_html( 'field-content-second', ( is_array( $imagemagick_version ) ? $imagemagick_version['versionString'] : $imagemagick_version ) );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$imagick_version = phpversion( 'imagick' );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'Imagick version' );
+			$output .= $this->sd_html( 'field-content-second', ( $imagick_version ) ? $imagick_version : __( 'Not available' ) );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'Max size of post data allowed' );
+			$output .= $this->sd_html( 'field-content-second', ini_get( 'post_max_size' ) );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'Max size of an uploaded file' );
+			$output .= $this->sd_html( 'field-content-second', ini_get( 'upload_max_filesize' ) );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'Max number of files allowed' );
+			$output .= $this->sd_html( 'field-content-second', number_format( ini_get( 'max_file_uploads' ) ) );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			// Get GD information, if available.
+			if ( function_exists( 'gd_info' ) ) {
+				$gd = gd_info();
+			} else {
+				$gd = false;
+			}
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'GD version' );
+			$output .= $this->sd_html( 'field-content-second', ( is_array( $gd ) ? $gd['GD Version'] : 'Not available' ) );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$gd_image_formats     = array();
+			$gd_supported_formats = array(
+				'GIF Create' => 'GIF',
+				'JPEG'       => 'JPEG',
+				'PNG'        => 'PNG',
+				'WebP'       => 'WebP',
+				'BMP'        => 'BMP',
+				'AVIF'       => 'AVIF',
+				'HEIF'       => 'HEIF',
+				'TIFF'       => 'TIFF',
+				'XPM'        => 'XPM',
+			);
+
+			foreach ( $gd_supported_formats as $format_key => $format ) {
+				$index = $format_key . ' Support';
+				if ( isset( $gd[ $index ] ) && $gd[ $index ] ) {
+					array_push( $gd_image_formats, $format );
+				}
+			}
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'GD supported file formats' );
+			$output .= $this->sd_html( 'field-content-second', implode( ', ', $gd_image_formats ) );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			// Get Ghostscript information, if available.
+			if ( function_exists( 'exec' ) ) {
+				$gs = exec( 'gs --version' );
+
+				if ( empty( $gs ) ) {
+					$gs = 'Not available';
+				} else {
+				}
+			} else {
+				$gs = 'Unable to determine if Ghostscript is installed';
+			}
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'Ghostscript version' );
+			$output .= $this->sd_html( 'field-content-second', $gs );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			echo $output;
+
 		}
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'Ghostscript version' );
-		$output .= $this->sd_html( 'field-content-second', $gs );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		return $output;
 
 	}
 
@@ -733,184 +765,184 @@ class System_Dashboard_Admin {
 	 * @param string $return role_names | role_capabilities
 	 * @since 1.0.0
 	 */
-	public function sd_get_user_roles_capabilities( $return = 'all' ) {
+	public function sd_roles_capabilities( $return = 'all' ) {
 
-		$default_wp_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
+		if ( isset( $_REQUEST ) ) {
 
-		$default_capabilities = array(
-			'create_sites',
-			'delete_sites',
-			'manage_network',
-			'manage_sites',
-			'manage_network_users',
-			'manage_network_plugins',
-			'manage_network_themes',
-			'manage_network_options',
-			'upgrade_network',
-			'setup_network',
-			'activate_plugins',
-			'delete_others_pages',
-			'delete_others_posts',
-			'delete_pages',
-			'delete_posts',
-			'delete_private_pages',
-			'delete_private_posts',
-			'delete_published_pages',
-			'delete_published_posts',
-			'edit_dashboard',
-			'edit_others_pages',
-			'edit_others_posts',
-			'edit_pages',
-			'edit_posts',
-			'edit_private_pages',
-			'edit_private_posts',
-			'edit_published_pages',
-			'edit_published_posts',
-			'edit_theme_options',
-			'export',
-			'import',
-			'list_users',
-			'manage_categories',
-			'manage_links',
-			'manage_options',
-			'moderate_comments',
-			'promote_users',
-			'publish_pages',
-			'publish_posts',
-			'read_private_pages',
-			'read_private_posts',
-			'read',
-			'remove_users',
-			'switch_themes',
-			'upload_files',
-			'customize',
-			'delete_site',
-			'update_core',
-			'update_plugins',
-			'update_themes',
-			'install_plugins',
-			'install_themes',
-			'delete_themes',
-			'delete_plugins',
-			'edit_plugins',
-			'edit_themes',
-			'edit_files',
-			'edit_users',
-			'add_users',
-			'create_users',
-			'delete_users',
-			'unfiltered_html',
-			'unfiltered_upload',
-			'level_10',
-			'level_9',
-			'level_8',
-			'level_7',
-			'level_6',
-			'level_5',
-			'level_4',
-			'level_3',
-			'level_2',
-			'level_1',
-			'level_0',
-		);
+			$default_wp_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
 
-		// https://paulund.co.uk/get-database-table-prefix-in-wordpress
-		global $wpdb;
-		$table_prefix = $wpdb->prefix;
+			$default_capabilities = array(
+				'create_sites',
+				'delete_sites',
+				'manage_network',
+				'manage_sites',
+				'manage_network_users',
+				'manage_network_plugins',
+				'manage_network_themes',
+				'manage_network_options',
+				'upgrade_network',
+				'setup_network',
+				'activate_plugins',
+				'delete_others_pages',
+				'delete_others_posts',
+				'delete_pages',
+				'delete_posts',
+				'delete_private_pages',
+				'delete_private_posts',
+				'delete_published_pages',
+				'delete_published_posts',
+				'edit_dashboard',
+				'edit_others_pages',
+				'edit_others_posts',
+				'edit_pages',
+				'edit_posts',
+				'edit_private_pages',
+				'edit_private_posts',
+				'edit_published_pages',
+				'edit_published_posts',
+				'edit_theme_options',
+				'export',
+				'import',
+				'list_users',
+				'manage_categories',
+				'manage_links',
+				'manage_options',
+				'moderate_comments',
+				'promote_users',
+				'publish_pages',
+				'publish_posts',
+				'read_private_pages',
+				'read_private_posts',
+				'read',
+				'remove_users',
+				'switch_themes',
+				'upload_files',
+				'customize',
+				'delete_site',
+				'update_core',
+				'update_plugins',
+				'update_themes',
+				'install_plugins',
+				'install_themes',
+				'delete_themes',
+				'delete_plugins',
+				'edit_plugins',
+				'edit_themes',
+				'edit_files',
+				'edit_users',
+				'add_users',
+				'create_users',
+				'delete_users',
+				'unfiltered_html',
+				'unfiltered_upload',
+				'level_10',
+				'level_9',
+				'level_8',
+				'level_7',
+				'level_6',
+				'level_5',
+				'level_4',
+				'level_3',
+				'level_2',
+				'level_1',
+				'level_0',
+			);
 
-		$user_roles_option_name = $table_prefix . 'user_roles';
+			// https://paulund.co.uk/get-database-table-prefix-in-wordpress
 
-		$roles_capabilities = get_option( $user_roles_option_name );
+			global $wpdb;
 
-		$default_roles = array();
-		$custom_roles = array();
-		
-		$output = $this->sd_html( 'accordions-start' );
+			$table_prefix = $wpdb->prefix;
+			$user_roles_option_name = $table_prefix . 'user_roles';
+			$roles_capabilities = get_option( $user_roles_option_name );
 
-		foreach ( $roles_capabilities as $roleslug => $role_properties ) {
+			$default_roles = array();
+			$custom_roles = array();
+			
+			$output = $this->sd_html( 'accordions-start' );
 
-			$role_default_capabilities = array();
-			$role_custom_capabilities = array();
-			$role_default_caps_string = '';
-			$role_custom_caps_string = '';
+			foreach ( $roles_capabilities as $roleslug => $role_properties ) {
 
-			if ( in_array( $roleslug, $default_wp_roles ) ) {
+				$role_default_capabilities = array();
+				$role_custom_capabilities = array();
+				$role_default_caps_string = '';
+				$role_custom_caps_string = '';
 
-				// $output .= $roleslug . ' is default.<br />';
-				$role_type = 'Defaul role';
-				$default_roles[] = $roleslug;
+				if ( in_array( $roleslug, $default_wp_roles ) ) {
 
-			} else {
-
-				// $output .= $roleslug . ' is custom.<br />';
-				$role_type = 'Custom role';
-				$custom_roles[] = $roleslug;
-
-			}
-
-			// foreach( $properties as $property_name => $property_value ) {
-
-			// }
-
-			$caps_output = '';
-
-			$role_title = $role_properties['name'] . ' (' . $roleslug . ') - ' . $role_type;
-
-			foreach ( $role_properties['capabilities'] as $capability => $enabled ) {
-
-				if ( in_array( $capability, $default_capabilities ) ) {
-
-					$role_default_capabilities[] = $capability;
-
-					$role_default_caps_string .= $capability . '<br />';
-
+					// $output .= $roleslug . ' is default.<br />';
+					$role_type = 'Defaul role';
+					$default_roles[] = $roleslug;
 
 				} else {
 
-					$role_custom_capabilities[] = $capability;
+					// $output .= $roleslug . ' is custom.<br />';
+					$role_type = 'Custom role';
+					$custom_roles[] = $roleslug;
 
-					$role_custom_caps_string .= $capability . '<br />';
+				}
+
+				$caps_output = '';
+
+				$role_title = $role_properties['name'] . ' (' . $roleslug . ') - ' . $role_type;
+
+				foreach ( $role_properties['capabilities'] as $capability => $enabled ) {
+
+					if ( in_array( $capability, $default_capabilities ) ) {
+
+						$role_default_capabilities[] = $capability;
+
+						$role_default_caps_string .= $capability . '<br />';
+
+
+					} else {
+
+						$role_custom_capabilities[] = $capability;
+
+						$role_custom_caps_string .= $capability . '<br />';
+					}
+
+				}
+
+				// if ( $property_name == 'name' ) {
+
+				// }
+
+				// if ( $property_name == 'capabilities' ) {
+
+				// }
+
+				if ( $return = 'all' ) {
+
+					$output .= $this->sd_html( 'accordion-head', $role_title );
+
+					$caps_output .= $this->sd_html( 'field-content-start', 'plain-content' );
+					$caps_output .= $this->sd_html( 'field-content-first', '<div class="field-part-title"><strong>Default capabilities:</strong></div>
+									<div class="field-part-content">' . $role_default_caps_string . '</div>' );
+					$caps_output .= $this->sd_html( 'field-content-second', '<div class="field-part-title"><strong>Custom capabilities:</strong></div>
+									<div class="field-part-content">' . $role_custom_caps_string . '</div>' );
+					$caps_output .= $this->sd_html( 'field-content-end' );
+
+
+					$output .= $this->sd_html( 'accordion-body', $caps_output );
+
+				} elseif ( $return = 'default_roles' ) {
+
+					$output .= '<pre>' . $default_roles . '</pre>';
+
+				} elseif ( $return = 'custom_roles' ) {
+
+					$output .= '<pre>' . $custom_roles . '</pre>';
+
 				}
 
 			}
 
-			// if ( $property_name == 'name' ) {
+			$output .= $this->sd_html( 'accordions-end' );
 
-			// }
-
-			// if ( $property_name == 'capabilities' ) {
-
-			// }
-
-			if ( $return = 'all' ) {
-
-				$output .= $this->sd_html( 'accordion-head', $role_title );
-
-				$caps_output .= $this->sd_html( 'field-content-start', 'plain-content' );
-				$caps_output .= $this->sd_html( 'field-content-first', '<div class="field-part-title"><strong>Default capabilities:</strong></div>
-								<div class="field-part-content">' . $role_default_caps_string . '</div>' );
-				$caps_output .= $this->sd_html( 'field-content-second', '<div class="field-part-title"><strong>Custom capabilities:</strong></div>
-								<div class="field-part-content">' . $role_custom_caps_string . '</div>' );
-				$caps_output .= $this->sd_html( 'field-content-end' );
-
-
-				$output .= $this->sd_html( 'accordion-body', $caps_output );
-
-			} elseif ( $return = 'default_roles' ) {
-
-				$output .= '<pre>' . $default_roles . '</pre>';
-
-			} elseif ( $return = 'custom_roles' ) {
-
-				$output .= '<pre>' . $custom_roles . '</pre>';
-
-			}
+			echo $output;
 
 		}
-
-		$output .= $this->sd_html( 'accordions-end' );
-
-		return $output;
 
 	}
 
@@ -920,18 +952,12 @@ class System_Dashboard_Admin {
 	 * @link https://plugins.trac.wordpress.org/browser/cl-wp-info/trunk/class-cl-wp-info.php 
 	 * @since 1.0.0
 	 */
-	public function sd_get_user_count_by_role( $type ) {
+	public function sd_user_count() {
 
-		$users = count_users();
-		$output = '';
+		if ( isset( $_REQUEST ) ) {
 
-		if ( $type == 'total' ) {
-
-			$output .= '<div class="field-info-line full-width">' . $users['total_users'] .' users</div>';
-
-			return $output;
-
-		} elseif ( $type == 'by_role' ) {
+			$users = count_users();
+			$output = '';
 
 			$output .= $this->sd_html( 'field-content-start' );
 			$output .= $this->sd_html( 'field-content-first', 'All roles' );
@@ -939,6 +965,7 @@ class System_Dashboard_Admin {
 			$output .= $this->sd_html( 'field-content-end' );
 
 			foreach ( $users['avail_roles'] as $role => $count ) {
+
 				if ( !empty( $count ) ) {
 
 					$output .= $this->sd_html( 'field-content-start' );
@@ -947,11 +974,10 @@ class System_Dashboard_Admin {
 					$output .= $this->sd_html( 'field-content-end' );
 
 				}
+
 			}
 
-			// $output .= '<pre>' . print_r( $users['avail_roles'], true ) . '</pre>';
-
-			return $output;
+			echo $output;
 
 		}
 
@@ -963,7 +989,7 @@ class System_Dashboard_Admin {
 	 * @link https://css-tricks.com/snippets/wordpress/dump-all-custom-fields/
 	 * @since 1.0.0
 	 */	
-	public function sd_get_all_custom_fields( $type = 'public' ) {
+	public function sd_custom_fields( $count = 'public-count' ) {
 
 		global $wpdb;
 
@@ -1015,38 +1041,49 @@ class System_Dashboard_Admin {
 
 		}
 
-		if ( $type == 'public' ) {
+		if ( isset( $_REQUEST ) && isset( $_REQUEST['type'] ) ) {
 
-			foreach( $public_custom_fields as $public_custom_field ) {
+			$type = $_REQUEST['type'];
 
-				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $public_custom_field, 'full-width' );
-				$output .= $this->sd_html( 'field-content-end' );
+			if ( $type == 'public' ) {
 
-			}
+				foreach( $public_custom_fields as $public_custom_field ) {
 
-		} elseif ( $type == 'private' ) {
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $public_custom_field, 'full-width' );
+					$output .= $this->sd_html( 'field-content-end' );
 
-			foreach( $private_custom_fields as $private_custom_field ) {
+				}
 
-				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $private_custom_field, 'field-full-width' );
-				$output .= $this->sd_html( 'field-content-end' );
+				echo $output;
 
-			}
+			} elseif ( $type == 'private' ) {
 
-		} elseif ( $type == 'public-count' ) {
+				foreach( $private_custom_fields as $private_custom_field ) {
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $private_custom_field, 'field-full-width' );
+					$output .= $this->sd_html( 'field-content-end' );
+
+				}
+
+				echo $output;
+
+			} else {}
+
+		}
+
+		if ( $count == 'public-count' ) {
 
 			$output = $public_custom_fields_count;
+			return $output;
 
-		} elseif ( $type == 'private-count' ) {
+		} elseif ( $count == 'private-count' ) {
 
 			$output = $private_custom_fields_count;
+			return $output;
 
 		} else {}
-
-		// return '<pre>' . print_r( $private_custom_fields, true ) . '</pre>';
-		return $output;
 
 	}
 
@@ -1686,7 +1723,7 @@ class System_Dashboard_Admin {
 
 		if ( ( $free_disk_space != 'Undetectable' ) && ( $total_disk_space != 'Undetectable' ) ) {
 
-			return $this->sd_format_filesize( $used_disk_space ) . ' used (' . round ( ( ( $used_disk_space / $total_disk_space ) * 100 ), 0 ) . '%) of ' . $this->sd_format_filesize( $total_disk_space ) . ' total';
+			return $this->sd_format_filesize( $used_disk_space ) . ' (' . round ( ( ( $used_disk_space / $total_disk_space ) * 100 ), 0 ) . '%) used of ' . $this->sd_format_filesize( $total_disk_space ) . ' total';
 
 		} else {
 
@@ -1843,46 +1880,50 @@ class System_Dashboard_Admin {
 	 *
 	 * @since 2.0.0
 	 */
-	public function sd_wp_dir_sizes() {
+	public function sd_directory_sizes() {
 
-		$output = '';
+		if ( isset( $_REQUEST ) ) {
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'All directories and files' );
-		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ) );
-		$output .= $this->sd_html( 'field-content-end' );
+			$output = '';
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'wp-admin directory' );
-		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-admin' ) );
-		$output .= $this->sd_html( 'field-content-end' );
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'All directories and files' );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ) );
+			$output .= $this->sd_html( 'field-content-end' );
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'wp-includes directory' );
-		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-includes' ) );
-		$output .= $this->sd_html( 'field-content-end' );
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'wp-admin directory' );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-admin' ) );
+			$output .= $this->sd_html( 'field-content-end' );
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'wp-content directory' );
-		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR ) );
-		$output .= $this->sd_html( 'field-content-end' );
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'wp-includes directory' );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-includes' ) );
+			$output .= $this->sd_html( 'field-content-end' );
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'Uploads directory' );
-		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/uploads' ) );
-		$output .= $this->sd_html( 'field-content-end' );
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'wp-content directory' );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR ) );
+			$output .= $this->sd_html( 'field-content-end' );
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'Plugins directory' );
-		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/plugins' ) );
-		$output .= $this->sd_html( 'field-content-end' );
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'Uploads directory' );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/uploads' ) );
+			$output .= $this->sd_html( 'field-content-end' );
 
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'Themes directory' );
-		$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/themes' ) );
-		$output .= $this->sd_html( 'field-content-end' );
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'Plugins directory' );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/plugins' ) );
+			$output .= $this->sd_html( 'field-content-end' );
 
-		return $output;
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'Themes directory' );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/themes' ) );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			echo $output;
+
+		}
 
 	}
 
@@ -1894,64 +1935,68 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_filesystem_permissions() {
 
-		$output = '';
+		if ( isset( $_REQUEST ) ) {
 
-		if ( wp_is_writable( ABSPATH ) ) {
-			$is_writable_abspath = 'Writeable';
-		} else {
-			$is_writable_abspath = 'Not writeable';			
+			$output = '';
+
+			if ( wp_is_writable( ABSPATH ) ) {
+				$is_writable_abspath = 'Writeable';
+			} else {
+				$is_writable_abspath = 'Not writeable';			
+			}
+
+			if ( wp_is_writable( WP_CONTENT_DIR ) ) {
+				$is_writable_wp_content_dir = 'Writeable';
+			} else {
+				$is_writable_wp_content_dir = 'Not writeable';			
+			}
+
+			if ( wp_is_writable( wp_upload_dir()['basedir'] ) ) {
+				$is_writable_upload_dir = 'Writeable';
+			} else {
+				$is_writable_upload_dir = 'Not writeable';			
+			}
+
+			if ( wp_is_writable( WP_PLUGIN_DIR ) ) {
+				$is_writable_wp_plugin_dir = 'Writeable';
+			} else {
+				$is_writable_wp_plugin_dir = 'Not writeable';			
+			}
+
+			if ( wp_is_writable( get_theme_root( get_template() ) ) ) {
+				$is_writable_template_directory = 'Writeable';
+			} else {
+				$is_writable_template_directory = 'Not writeable';			
+			}
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'The main WordPress directory' );
+			$output .= $this->sd_html( 'field-content-second', $is_writable_abspath );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'The wp-content directory' );
+			$output .= $this->sd_html( 'field-content-second', $is_writable_wp_content_dir );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'The uploads directory' );
+			$output .= $this->sd_html( 'field-content-second', $is_writable_upload_dir );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'The plugins directory' );
+			$output .= $this->sd_html( 'field-content-second', $is_writable_wp_plugin_dir );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', 'The themes directory' );
+			$output .= $this->sd_html( 'field-content-second', $is_writable_template_directory );
+			$output .= $this->sd_html( 'field-content-end' );
+
+			echo $output;
+
 		}
-
-		if ( wp_is_writable( WP_CONTENT_DIR ) ) {
-			$is_writable_wp_content_dir = 'Writeable';
-		} else {
-			$is_writable_wp_content_dir = 'Not writeable';			
-		}
-
-		if ( wp_is_writable( wp_upload_dir()['basedir'] ) ) {
-			$is_writable_upload_dir = 'Writeable';
-		} else {
-			$is_writable_upload_dir = 'Not writeable';			
-		}
-
-		if ( wp_is_writable( WP_PLUGIN_DIR ) ) {
-			$is_writable_wp_plugin_dir = 'Writeable';
-		} else {
-			$is_writable_wp_plugin_dir = 'Not writeable';			
-		}
-
-		if ( wp_is_writable( get_theme_root( get_template() ) ) ) {
-			$is_writable_template_directory = 'Writeable';
-		} else {
-			$is_writable_template_directory = 'Not writeable';			
-		}
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'The main WordPress directory' );
-		$output .= $this->sd_html( 'field-content-second', $is_writable_abspath );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'The wp-content directory' );
-		$output .= $this->sd_html( 'field-content-second', $is_writable_wp_content_dir );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'The uploads directory' );
-		$output .= $this->sd_html( 'field-content-second', $is_writable_upload_dir );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'The plugins directory' );
-		$output .= $this->sd_html( 'field-content-second', $is_writable_wp_plugin_dir );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', 'The themes directory' );
-		$output .= $this->sd_html( 'field-content-second', $is_writable_template_directory );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		return $output;
 
 	}
 
@@ -2336,7 +2381,7 @@ class System_Dashboard_Admin {
 	 * @link https://plugins.svn.wordpress.org/debug-bar-cron/tags/0.1.3/class-debug-bar-cron.php
 	 * @since 1.0.0
 	 */
-	public function sd_cron_events( $type = 'wpcore', $return = 'events' ) {
+	public function sd_cron( $type = 'wpcore', $return = 'events' ) {
 
 		$wpcore_cron_hooks = array(
 			'wp_scheduled_delete',
@@ -2470,17 +2515,11 @@ class System_Dashboard_Admin {
 	 * @param string $type list | total_count
 	 * @since 1.8.0
 	 */
-	public function sd_rewrite_rules( $type = 'list' ) {
+	public function sd_rewrite_rules() {
 
 		$rewrite_rules = get_option( 'rewrite_rules' );
 
 		$output = '';
-		$count = 0;
-
-		// $output .= $this->sd_html( 'field-content-start' );
-		// $output .= $this->sd_html( 'field-content-first', '<strong>URL Structure</strong>' );
-		// $output .= $this->sd_html( 'field-content-second', '<strong>Query Parameters</strong>' );
-		// $output .= $this->sd_html( 'field-content-end' );
 
 		foreach ( $rewrite_rules as $key => $value ) {
 
@@ -2489,19 +2528,24 @@ class System_Dashboard_Admin {
 			$output .= $this->sd_html( 'field-content-second', '&#10132; ' . $value, 'full-width long-value' );
 			$output .= $this->sd_html( 'field-content-end' );
 
-			$count++;
-
 		}
 
-		if ( $type == 'list' ) {
+		echo $output;
 
-			return $output;
+	}
 
-		} elseif ( $type == 'total_count' ) {
+	/**
+	 * Get # of rewrite rules
+	 *
+	 * @since 2.1.0
+	 */
+	public function sd_rewrite_rules_count() {
 
-			return $count;
+		$rewrite_rules = get_option( 'rewrite_rules' );
 
-		}
+		$output = count( $rewrite_rules );
+
+		return $output;
 
 	}
 
@@ -2546,41 +2590,52 @@ class System_Dashboard_Admin {
 	 * @param string $type list | total_count
 	 * @since 1.8.0
 	 */
-	public function sd_shortcodes( $type = 'list' ) {
+	public function sd_shortcodes() {
 
-		global $shortcode_tags;
+		if ( isset( $_REQUEST ) ) {
 
-		$output = '';
+			global $shortcode_tags;
 
-		if ( ( is_array( $shortcode_tags ) ) && ( !empty( $shortcode_tags ) ) ) {
+			if ( ( is_array( $shortcode_tags ) ) && ( !empty( $shortcode_tags ) ) ) {
 
-			ksort( $shortcode_tags );
+				ksort( $shortcode_tags );
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', '<strong>Shortcode</strong>' );
-			$output .= $this->sd_html( 'field-content-second', '<strong>Rendered By</strong>' );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			foreach ( $shortcode_tags as $shortcode => $callback ) {
+				$output = '';
 
 				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', '[' . $shortcode . ']' );
-				$output .= $this->sd_html( 'field-content-second', $this->sd_determine_callback_type( $callback ) );
+				$output .= $this->sd_html( 'field-content-first', '<strong>Shortcode</strong>' );
+				$output .= $this->sd_html( 'field-content-second', '<strong>Rendered By</strong>' );
 				$output .= $this->sd_html( 'field-content-end' );
 
-			}
+				foreach ( $shortcode_tags as $shortcode => $callback ) {
 
-			if ( $type == 'list' ) {
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', '[' . $shortcode . ']' );
+					$output .= $this->sd_html( 'field-content-second', $this->sd_determine_callback_type( $callback ) );
+					$output .= $this->sd_html( 'field-content-end' );
 
-				return $output;
+				}
 
-			} else {
-
-				return count( $shortcode_tags );
+				echo $output;
 
 			}
 
 		}
+
+	}
+
+	/**
+	 * Return # of shortcodes
+	 *
+	 * @since 2.1.0
+	 */
+	public function sd_shortcodes_count() {
+
+		global $shortcode_tags;
+
+		$output = count( $shortcode_tags );
+
+		return $output;
 
 	}
 
@@ -2962,53 +3017,53 @@ class System_Dashboard_Admin {
 
                 // https://www.php.net/manual/en/language.types.string.php#language.types.string.syntax.nowdoc
                 $file_content = <<<'EOD'
-                    <?php
+				<?php
 
-                    define('FAST_AJAX' , true );
+				define('FAST_AJAX' , true );
 
-                    /**
-                     * Enable Fast Ajax
-                     */
-                    add_filter( 'option_active_plugins', 'ajax_disable_plugins' );
-                    function ajax_disable_plugins($plugins){
+				/**
+				 * Enable Fast Ajax
+				 */
+				add_filter( 'option_active_plugins', 'ajax_disable_plugins' );
+				function ajax_disable_plugins($plugins){
 
-                        /* load all plugins if not in ajax mode */
-                        if ( !defined( 'DOING_AJAX' ) )  {
-                            return $plugins;
-                        }
+					/* load all plugins if not in ajax mode */
+					if ( !defined( 'DOING_AJAX' ) )  {
+						return $plugins;
+					}
 
-                        /* load all plugins if fast_ajax is set to false */
-                        if ( !isset($_REQUEST['fast_ajax']) || !$_REQUEST['fast_ajax'] )  {
-                            return $plugins;
-                        }
+					/* load all plugins if fast_ajax is set to false */
+					if ( !isset($_REQUEST['fast_ajax']) || !$_REQUEST['fast_ajax'] )  {
+						return $plugins;
+					}
 
-                        /* load all plugins if load_plugins is set to all */
-                        if ( $_REQUEST['load_plugins'] == 'all' )  {
-                            return $plugins;
-                        }
+					/* load all plugins if load_plugins is set to all */
+					if ( $_REQUEST['load_plugins'] == 'all' )  {
+						return $plugins;
+					}
 
-                        /* disable all plugins if none are told to load by the load_plugins array */
-                        if ( !isset($_REQUEST['load_plugins']) || !$_REQUEST['load_plugins'] )  {
-                            return array();
-                        }
+					/* disable all plugins if none are told to load by the load_plugins array */
+					if ( !isset($_REQUEST['load_plugins']) || !$_REQUEST['load_plugins'] )  {
+						return array();
+					}
 
-                        /* convert json */
-                        if (!is_array($_REQUEST['load_plugins']) && $_REQUEST['load_plugins']) {
-                            $_REQUEST['load_plugins'] = json_decode($_REQUEST['load_plugins'],true);
-                        }
+					/* convert json */
+					if (!is_array($_REQUEST['load_plugins']) && $_REQUEST['load_plugins']) {
+						$_REQUEST['load_plugins'] = json_decode($_REQUEST['load_plugins'],true);
+					}
 
-                        /* unset plugins not included in the load_plugins array */
-                        foreach ($plugins as $key => $plugin_path) {
+					/* unset plugins not included in the load_plugins array */
+					foreach ($plugins as $key => $plugin_path) {
 
-                            if (!in_array($plugin_path, $_REQUEST['load_plugins'] )) {
-                                unset($plugins[$key]);
-                            }
+						if (!in_array($plugin_path, $_REQUEST['load_plugins'] )) {
+							unset($plugins[$key]);
+						}
 
-                        }
+					}
 
-                        return $plugins;
-                    }
-                EOD;
+					return $plugins;
+				}
+				EOD;
 
                 file_put_contents( $fast_ajax_file, $file_content );
 
@@ -3108,10 +3163,30 @@ class System_Dashboard_Admin {
 				jQuery('.db-tables .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.db-specs .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.db-details .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.post-types .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.taxonomies .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.old-slugs .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.media-count .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.mime-types .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.media-handling .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.directory-sizes .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.filesystem-permissions .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.custom-fields .csf-accordion-item:nth-child(1) .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.custom-fields .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.user-count .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.roles-capabilities .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.rewrite-rules .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.shortcodes .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(1) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpcore-hooks .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.theme-hooks .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.plugins-hooks .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.core-classes .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.theme-classes .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.plugins-classes .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.core-functions .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.theme-functions .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.plugins-functions .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.constant-values .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.constant-docs .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.wpconfig .csf-accordion-title').attr('data-loaded','no');
@@ -3200,6 +3275,428 @@ class System_Dashboard_Admin {
 								jQuery('#db-details-content').prepend(data);
 								jQuery('.db-details .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-db-details').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get post count by post type
+
+				jQuery('.post-types .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_post_types',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#post-types-content').prepend(data);
+								jQuery('.post-types .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-post-types').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get taxonomies list and terms count
+
+				jQuery('.taxonomies .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_taxonomies',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#taxonomies-content').prepend(data);
+								jQuery('.taxonomies .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-taxonomies').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get old slugs info
+
+				jQuery('.old-slugs .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_old_slugs',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#old-slugs-content').prepend(data);
+								jQuery('.old-slugs .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-old-slugs').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get media count by mime type
+
+				jQuery('.media-count .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_media_count',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#media-count-content').prepend(data);
+								jQuery('.media-count .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-media-count').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get list of allowed mime types and file extensions
+
+				jQuery('.mime-types .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_mime_types',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#mime-types-content').prepend(data);
+								jQuery('.mime-types .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-mime-types').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get info on media handling
+
+				jQuery('.media-handling .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_media_handling',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#media-handling-content').prepend(data);
+								jQuery('.media-handling .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-media-handling').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get WP directory sizes
+
+				jQuery('.directory-sizes .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_directory_sizes',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#directory-sizes-content').prepend(data);
+								jQuery('.directory-sizes .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-directory-sizes').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get filesystem / directory permissions
+
+				jQuery('.filesystem-permissions .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_filesystem_permissions',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#filesystem-permissions-content').prepend(data);
+								jQuery('.filesystem-permissions .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-filesystem-permissions').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get list of public custom fields
+
+				jQuery('.custom-fields .csf-accordion-item:nth-child(1) .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_custom_fields',
+								'type':'public',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#public-custom-fields-content').prepend(data);
+								jQuery('.custom-fields .csf-accordion-item:nth-child(1) .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-public-custom-fields').fadeOut( 0 );
+
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get list of private custom fields
+
+				jQuery('.custom-fields .csf-accordion-item:nth-child(2) .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_custom_fields',
+								'type':'private',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#private-custom-fields-content').prepend(data);
+								jQuery('.custom-fields .csf-accordion-item:nth-child(2) .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-private-custom-fields').fadeOut( 0 );
+
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get user count by role
+
+				jQuery('.user-count .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_user_count',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#user-count-content').prepend(data);
+								jQuery('.user-count .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-user-count').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get user roles and capabilities
+
+				jQuery('.roles-capabilities .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_roles_capabilities',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#roles-capabilities-content').prepend(data);
+								jQuery('.roles-capabilities .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-roles-capabilities').fadeOut( 0 );
+								initMcCollapsible( ".roles-capabilities" );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get list of rewrite rules
+
+				jQuery('.rewrite-rules .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_rewrite_rules',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#rewrite-rules-content').prepend(data);
+								jQuery('.rewrite-rules .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-rewrite-rules').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+				// Get list of shorcodes and caller function
+
+				jQuery('.shortcodes .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_shortcodes'
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#shortcodes-content').prepend(data);
+								jQuery('.shortcodes .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-shortcodes').fadeOut( 0 );
 							},
 							erro:function(errorThrown) {
 								console.log(errorThrown);
@@ -3451,6 +3948,207 @@ class System_Dashboard_Admin {
 
 				});
 
+				// Get classes and methods from WP core
+
+				jQuery('.core-classes .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_classes',
+								'type':'core',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#core-classes-content').prepend(data);
+								jQuery('.core-classes .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-core-classes').fadeOut( 0 );
+								// initMcCollapsible( ".core-classes" );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get classes and methods from active theme
+
+				jQuery('.theme-classes .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_classes',
+								'type':'theme',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#theme-classes-content').prepend(data);
+								jQuery('.theme-classes .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-theme-classes').fadeOut( 0 );
+								initMcCollapsible( ".theme-classes" );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get classes and methods from active plugins
+
+				jQuery('.plugins-classes .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_classes',
+								'type':'plugins'
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#plugins-classes-content').prepend(data);
+								jQuery('.plugins-classes .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-plugins-classes').fadeOut( 0 );
+								initMcCollapsible( ".plugins-classes" );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get functions from WP core
+
+				jQuery('.core-functions .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_functions',
+								'type':'core',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#core-functions-content').prepend(data);
+								jQuery('.core-functions .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-core-functions').fadeOut( 0 );
+
+								// Search filter script
+						        jQuery('[data-search-functions-wpcore]').on('keyup', function() {
+						            var searchVal = jQuery(this).val();
+						            var filterItems = jQuery('[data-fn-core]');
+
+						            if ( searchVal != '' ) {
+						                filterItems.addClass('hidden');
+						                jQuery('[data-fn-core][data-fn-core-name*="' + searchVal.toLowerCase() + '"]').removeClass('hidden');
+						            } else {
+						                filterItems.removeClass('hidden');
+						            }
+						        });
+
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get functions from active theme
+
+				jQuery('.theme-functions .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_functions',
+								'type':'theme',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#theme-functions-content').prepend(data);
+								jQuery('.theme-functions .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-theme-functions').fadeOut( 0 );
+								initMcCollapsible( ".theme-functions" );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get functions from active plugins
+
+				jQuery('.plugins-functions .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_functions',
+								'type':'plugins'
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#plugins-functions-content').prepend(data);
+								jQuery('.plugins-functions .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-plugins-functions').fadeOut( 0 );
+								initMcCollapsible( ".plugins-functions" );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
 				// Get global variable's value
 
 				jQuery('.global__name').click( function() {
@@ -3464,9 +4162,7 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_global_value',
-								'global_name':name,
-								'fast_ajax':true,
-								'load_plugins':["system-dashboard/system-dashboard.php"]
+								'global_name':name
 							},
 							success:function(data) {
 
@@ -3927,105 +4623,57 @@ class System_Dashboard_Admin {
 	 * @link https://www.php.net/manual/en/reflectionclass.getfilename.php
 	 * @since 1.0.0
 	 */
-	public function sd_get_all_classes( $type = 'core' ) {
+	public function sd_classes() {
 
-		$output = '';
-		$wp_reference_base_url = 'https://developer.wordpress.org/reference';
-		$plugin_file_editor_base_url = '/wp-admin/plugin-editor.php?file=';
-		$theme_file_editor_base_url = '/wp-admin/theme-editor.php?file=';
+		if ( isset( $_REQUEST ) && isset( $_REQUEST['type'] ) ) {
 
-		$classes = get_declared_classes();
+			$type = $_REQUEST['type'];
 
-		sort( $classes );
+			$output = '';
+			$wp_reference_base_url = 'https://developer.wordpress.org/reference';
+			$plugin_file_editor_base_url = '/wp-admin/plugin-editor.php?file=';
+			$theme_file_editor_base_url = '/wp-admin/theme-editor.php?file=';
 
-		$classes_core = array();
-		$classes_plugins = array();
-		$classes_themes = array();
+			$classes = get_declared_classes();
 
-		foreach( $classes as $class ) {
+			sort( $classes );
 
-			// Get the filename where class is defined
-			// https://www.php.net/manual/en/reflectionclass.getfilename.php
-			$rc = new \ReflectionClass( $class );
-			$filename = $rc->getFileName();
+			$classes_core = array();
+			$classes_plugins = array();
+			$classes_themes = array();
 
-			if ( ! empty( $filename ) ) {
-				$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
+			foreach( $classes as $class ) {
 
-				if ( strpos( $filename, 'wp-includes' ) !== false ) {
-					$classes_core[] = $class;
-				}
-
-				if ( strpos( $filename, 'wp-content/plugins' ) !== false ) {
-					$classes_plugins[] = $class;
-				}
-
-				if ( strpos( $filename, 'wp-content/themes' ) !== false ) {
-					$classes_themes[] = $class;
-				}
-
-			}
-
-		}
-
-		if ( $type == 'core' ) {
-
-			$classes_output = '';
-			$class_count = 0;
-
-			foreach( $classes_core as $class ) {
-
-				$class_lc = strtolower( $class );
+				// Get the filename where class is defined
+				// https://www.php.net/manual/en/reflectionclass.getfilename.php
 				$rc = new \ReflectionClass( $class );
 				$filename = $rc->getFileName();
 
 				if ( ! empty( $filename ) ) {
 					$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
+
+					if ( strpos( $filename, 'wp-includes' ) !== false ) {
+						$classes_core[] = $class;
+					}
+
+					if ( strpos( $filename, 'wp-content/plugins' ) !== false ) {
+						$classes_plugins[] = $class;
+					}
+
+					if ( strpos( $filename, 'wp-content/themes' ) !== false ) {
+						$classes_themes[] = $class;
+					}
+
 				}
-
-				$class_methods = get_class_methods( $class );
-				$class_methods_output = '';
-
-				foreach ( $class_methods as $method ) {
-
-					$class_methods_output .= '<div class="field-part-item">' . $method . '</div>';
-
-				}
-
-				$classes_output .= $this->sd_html( 'field-content-start' );
-				$classes_output .= $this->sd_html( 'field-content-first', '<strong>' . $class .'</strong> (' . count( $class_methods ) . ' methods)<br /><a href="' . $wp_reference_base_url . '/classes/' . $class_lc . '/" target="_blank">' . $filename .'</a>' . $class_methods_output, 'full-width' );
-				$classes_output .= $this->sd_html( 'field-content-end' );
-
-				$class_count++;
 
 			}
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', '<strong>There are ' . $class_count . ' classes in total</strong>', 'full-width' );
-			$output .= $this->sd_html( 'field-content-end' );
+			if ( $type == 'core' ) {
 
-			$output .= $classes_output;
-
-		} elseif ( $type == 'plugins' ) {
-
-			$active_plugin_dirfile_names = $this->sd_active_plugins( 'original', 'raw' );
-
-			$output .= $this->sd_html( 'accordions-start' );
-
-			// for each 'plugin-slug/plugin-slug.php'
-			foreach ( $active_plugin_dirfile_names as $dirfile_name ) {
-
-				$plugin_slug_array = explode( "/", $dirfile_name );
-				$plugin_slug = $plugin_slug_array[0];
-
-				$plugins_path = str_replace( $this->plugin_name . '/', "", plugin_dir_path( __DIR__ ) );
-				$plugin_file_path = $plugins_path . $dirfile_name;
-				$plugin_data = get_plugin_data( $plugin_file_path );
-		
 				$classes_output = '';
-				$classes_count = 0;
+				$class_count = 0;
 
-				foreach( $classes_plugins as $class ) {
+				foreach( $classes_core as $class ) {
 
 					$class_lc = strtolower( $class );
 					$rc = new \ReflectionClass( $class );
@@ -4033,83 +4681,138 @@ class System_Dashboard_Admin {
 
 					if ( ! empty( $filename ) ) {
 						$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
-						$filename_for_editor = urlencode( str_replace( "/wp-content/plugins/", "", $filename ) );
 					}
 
-					$filename_array = explode( "/", $filename );
-					$class_plugin_slug = $filename_array[3];
+					$class_methods = get_class_methods( $class );
+					$class_methods_output = '';
 
-					if ( $plugin_slug == $class_plugin_slug ) {
+					foreach ( $class_methods as $method ) {
 
-						$class_methods = get_class_methods( $class );
-						$class_methods_output = '';
+						$class_methods_output .= '<div class="field-part-item">' . $method . '</div>';
 
-						foreach ( $class_methods as $method ) {
+					}
 
-							$class_methods_output .= '<div class="field-part-item">' . $method . '</div>';
+					$classes_output .= $this->sd_html( 'field-content-start' );
+					$classes_output .= $this->sd_html( 'field-content-first', '<strong>' . $class .'</strong> (' . count( $class_methods ) . ' methods)<br /><a href="' . $wp_reference_base_url . '/classes/' . $class_lc . '/" target="_blank">' . $filename .'</a>' . $class_methods_output, 'full-width' );
+					$classes_output .= $this->sd_html( 'field-content-end' );
+
+					$class_count++;
+
+				}
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', '<strong>There are ' . $class_count . ' classes in total</strong>', 'full-width' );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				$output .= $classes_output;
+
+			} elseif ( $type == 'plugins' ) {
+
+				$active_plugin_dirfile_names = $this->sd_active_plugins( 'original', 'raw' );
+
+				$output .= $this->sd_html( 'accordions-start' );
+
+				// for each 'plugin-slug/plugin-slug.php'
+				foreach ( $active_plugin_dirfile_names as $dirfile_name ) {
+
+					$plugin_slug_array = explode( "/", $dirfile_name );
+					$plugin_slug = $plugin_slug_array[0];
+
+					$plugins_path = str_replace( $this->plugin_name . '/', "", plugin_dir_path( __DIR__ ) );
+					$plugin_file_path = $plugins_path . $dirfile_name;
+					$plugin_data = get_plugin_data( $plugin_file_path );
+			
+					$classes_output = '';
+					$classes_count = 0;
+
+					foreach( $classes_plugins as $class ) {
+
+						$class_lc = strtolower( $class );
+						$rc = new \ReflectionClass( $class );
+						$filename = $rc->getFileName();
+
+						if ( ! empty( $filename ) ) {
+							$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
+							$filename_for_editor = urlencode( str_replace( "/wp-content/plugins/", "", $filename ) );
+						}
+
+						$filename_array = explode( "/", $filename );
+						$class_plugin_slug = $filename_array[3];
+
+						if ( $plugin_slug == $class_plugin_slug ) {
+
+							$class_methods = get_class_methods( $class );
+							$class_methods_output = '';
+
+							foreach ( $class_methods as $method ) {
+
+								$class_methods_output .= '<div class="field-part-item">' . $method . '</div>';
+
+							}
+
+							$classes_output .= $this->sd_html( 'field-content-start' );
+							$classes_output .= $this->sd_html( 'field-content-first', '<strong>' . $class . '</strong> (' . count( $class_methods ) . ' methods)<br /><a href="' . $plugin_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>' . $class_methods_output, 'full-width' );
+							$classes_output .= $this->sd_html( 'field-content-end' );
+							$classes_count++;
 
 						}
 
-						$classes_output .= $this->sd_html( 'field-content-start' );
-						$classes_output .= $this->sd_html( 'field-content-first', '<strong>' . $class . '</strong> (' . count( $class_methods ) . ' methods)<br /><a href="' . $plugin_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>' . $class_methods_output, 'full-width' );
-						$classes_output .= $this->sd_html( 'field-content-end' );
-						$classes_count++;
+					}
+
+					$output .= $this->sd_html( 'accordion-head', $plugin_data['Name'] . ' v' . $plugin_data['Version'] . ' (' . $classes_count . ' classes)' );
+
+					$output .= $this->sd_html( 'accordion-body', $classes_output );
+
+				}
+
+				$output .= $this->sd_html( 'accordions-end' );
+
+			}  elseif ( $type == 'theme' ) {
+
+				$classes_output = '';
+				$classes_count = 0;
+
+				foreach( $classes_themes as $class ) {
+
+					$class_lc = strtolower( $class );
+					$rc = new \ReflectionClass( $class );
+					$filename = $rc->getFileName();
+
+					if ( ! empty( $filename ) ) {
+	  					$filename_for_editor = $this->sd_prepare_theme_filename_for_preview( $filename );
+					}
+
+					$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
+
+					$class_methods = get_class_methods( $class );
+					$class_methods_output = '';
+
+					foreach ( $class_methods as $method ) {
+
+						$class_methods_output .= '<div class="field-part-item">' . $method . '</div>';
 
 					}
 
+					$class_vars = get_class_vars( $class );
+
+					$classes_output .= $this->sd_html( 'field-content-start' );
+					$classes_output .= $this->sd_html( 'field-content-first', '<strong>' . $class .'</strong> (' . count( $class_methods ) . ' methods)<br /><a href="' . $theme_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>' . $class_methods_output, 'full-width' );
+					$classes_output .= $this->sd_html( 'field-content-end' );
+					$classes_count++;
+
 				}
 
-				$output .= $this->sd_html( 'accordion-head', $plugin_data['Name'] . ' v' . $plugin_data['Version'] . ' (' . $classes_count . ' classes)' );
-
+				$output = $this->sd_html( 'accordions-start-simple' );
+				$output .= $this->sd_html( 'accordion-head', $this->sd_active_theme( 'name' ) . ' v' . $this->sd_active_theme( 'version' ) . ' (' . $classes_count . ' classes)' );
 				$output .= $this->sd_html( 'accordion-body', $classes_output );
+				$output .= $this->sd_html( 'accordions-end' );
 
-			}
+			} else {}
 
-			$output .= $this->sd_html( 'accordions-end' );
+		}
 
-		}  elseif ( $type == 'themes' ) {
+		echo $output;
 
-			$classes_output = '';
-			$classes_count = 0;
-
-			foreach( $classes_themes as $class ) {
-
-				$class_lc = strtolower( $class );
-				$rc = new \ReflectionClass( $class );
-				$filename = $rc->getFileName();
-
-				if ( ! empty( $filename ) ) {
-  					$filename_for_editor = $this->sd_prepare_theme_filename_for_preview( $filename );
-				}
-
-				$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
-
-				$class_methods = get_class_methods( $class );
-				$class_methods_output = '';
-
-				foreach ( $class_methods as $method ) {
-
-					$class_methods_output .= '<div class="field-part-item">' . $method . '</div>';
-
-				}
-
-				$class_vars = get_class_vars( $class );
-
-				$classes_output .= $this->sd_html( 'field-content-start' );
-				$classes_output .= $this->sd_html( 'field-content-first', '<strong>' . $class .'</strong> (' . count( $class_methods ) . ' methods)<br /><a href="' . $theme_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>' . $class_methods_output, 'full-width' );
-				$classes_output .= $this->sd_html( 'field-content-end' );
-				$classes_count++;
-
-			}
-
-			$output = $this->sd_html( 'accordions-start-simple' );
-			$output .= $this->sd_html( 'accordion-head', $this->sd_active_theme( 'name' ) . ' v' . $this->sd_active_theme( 'version' ) . ' (' . $classes_count . ' classes)' );
-			$output .= $this->sd_html( 'accordion-body', $classes_output );
-			$output .= $this->sd_html( 'accordions-end' );
-
-		} else {}
-
-		return $output;
 	}
 
 	/**
@@ -4120,14 +4823,14 @@ class System_Dashboard_Admin {
 	 * @link https://www.php.net/manual/en/class.reflectionfunction.php
 	 * @since 1.0.0
 	 */
-	public function sd_get_all_user_functions( $type = 'core' ) {
+	public function sd_functions( $count = 'core' ) {
 		$all_functions = get_defined_functions();
 		$user_functions = $all_functions['user'];
 		sort( $user_functions );
 
 		$functions_core = array();
 		$functions_plugins = array();
-		$functions_themes = array();
+		$functions_theme = array();
 
 		$output = '';
 		$wp_reference_base_url = 'https://developer.wordpress.org/reference';
@@ -4154,58 +4857,24 @@ class System_Dashboard_Admin {
 				}
 
 				if ( strpos( $filename, 'wp-content/themes' ) !== false ) {
-					$functions_themes[] = $function;
+					$functions_theme[] = $function;
 				}
 
 			}
 
 		}
 
-		if ( $type == 'core' ) {
+		// For AJAX calls
 
-			$output .= $this->sd_html( 'search-filter', '', '', ['search-functions-wpcore' => ''] );
+		if ( isset( $_REQUEST ) && isset( $_REQUEST['type'] ) ) {
 
-			foreach( $functions_core as $function ) {
+			$type = $_REQUEST['type'];
 
-				$function_lc = strtolower( $function );
-				$rf = new \ReflectionFunction( $function );
-				$filename = $rf->getFileName();
+			if ( $type == 'core' ) {
 
-				if ( ! empty( $filename ) ) {
-					$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
-				}
+				$output .= $this->sd_html( 'search-filter', '', '', ['search-functions-wpcore' => ''] );
 
-				// Search filter data attributes
-				$search_atts = array(
-					'fn-core'	=> '',
-					'fn-core-name'	=> $function_lc,
-				);
-
-				$output .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
-				$output .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/functions/' . $function_lc . '/" target="_blank">' . $function .'</a><br /><a href="' . $wp_file_base_url . $filename . '" class="link-muted" target="_blank">' . $filename .'</a>', 'full-width' );
-				$output .= $this->sd_html( 'field-content-end' );
-
-			}
-
-		} elseif ( $type == 'plugins' ) {
-
-			$active_plugin_dirfile_names = $this->sd_active_plugins( 'original', 'raw' );
-
-			$output .= $this->sd_html( 'accordions-start' );
-
-			foreach ( $active_plugin_dirfile_names as $dirfile_name ) {
-
-				$plugin_slug_array = explode( "/", $dirfile_name );
-				$plugin_slug = $plugin_slug_array[0];
-
-				$plugins_path = str_replace( $this->plugin_name . '/', "", plugin_dir_path( __DIR__ ) );
-				$plugin_file_path = $plugins_path . $dirfile_name;
-				$plugin_data = get_plugin_data( $plugin_file_path );
-		
-				$functions_output = '';
-				$functions_count = 0;
-
-				foreach( $functions_plugins as $function ) {
+				foreach( $functions_core as $function ) {
 
 					$function_lc = strtolower( $function );
 					$rf = new \ReflectionFunction( $function );
@@ -4213,78 +4882,132 @@ class System_Dashboard_Admin {
 
 					if ( ! empty( $filename ) ) {
 						$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
-						$filename_for_editor = urlencode( str_replace( "/wp-content/plugins/", "", $filename ) );
 					}
 
-					$filename_array = explode( "/", $filename );
-					$function_plugin_slug = $filename_array[3];
+					// Search filter data attributes
+					$search_atts = array(
+						'fn-core'	=> '',
+						'fn-core-name'	=> $function_lc,
+					);
 
-					if ( $plugin_slug == $function_plugin_slug ) {
-
-						$functions_output .= $this->sd_html( 'field-content-start' );
-						$functions_output .= $this->sd_html( 'field-content-first', $function .'<br /><a href="' . $plugin_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>', 'full-width' );
-						$functions_output .= $this->sd_html( 'field-content-end' );
-
-						$functions_count++;
-
-					}
+					$output .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
+					$output .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/functions/' . $function_lc . '/" target="_blank">' . $function .'</a><br /><a href="' . $wp_file_base_url . $filename . '" class="link-muted" target="_blank">' . $filename .'</a>', 'full-width' );
+					$output .= $this->sd_html( 'field-content-end' );
 
 				}
 
-				$output .= $this->sd_html( 'accordion-head', $plugin_data['Name'] . ' v' . $plugin_data['Version'] . ' (' . $functions_count . ' functions)' );
+				echo $output;
 
+			} elseif ( $type == 'plugins' ) {
+
+				$active_plugin_dirfile_names = $this->sd_active_plugins( 'original', 'raw' );
+
+				$output .= $this->sd_html( 'accordions-start' );
+
+				foreach ( $active_plugin_dirfile_names as $dirfile_name ) {
+
+					$plugin_slug_array = explode( "/", $dirfile_name );
+					$plugin_slug = $plugin_slug_array[0];
+
+					$plugins_path = str_replace( $this->plugin_name . '/', "", plugin_dir_path( __DIR__ ) );
+					$plugin_file_path = $plugins_path . $dirfile_name;
+					$plugin_data = get_plugin_data( $plugin_file_path );
+			
+					$functions_output = '';
+					$functions_count = 0;
+
+					foreach( $functions_plugins as $function ) {
+
+						$function_lc = strtolower( $function );
+						$rf = new \ReflectionFunction( $function );
+						$filename = $rf->getFileName();
+
+						if ( ! empty( $filename ) ) {
+							$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
+							$filename_for_editor = urlencode( str_replace( "/wp-content/plugins/", "", $filename ) );
+						}
+
+						$filename_array = explode( "/", $filename );
+						$function_plugin_slug = $filename_array[3];
+
+						if ( $plugin_slug == $function_plugin_slug ) {
+
+							$functions_output .= $this->sd_html( 'field-content-start' );
+							$functions_output .= $this->sd_html( 'field-content-first', $function .'<br /><a href="' . $plugin_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>', 'full-width' );
+							$functions_output .= $this->sd_html( 'field-content-end' );
+
+							$functions_count++;
+
+						}
+
+					}
+
+					$output .= $this->sd_html( 'accordion-head', $plugin_data['Name'] . ' v' . $plugin_data['Version'] . ' (' . $functions_count . ' functions)' );
+
+					$output .= $this->sd_html( 'accordion-body', $functions_output );
+
+				}
+
+				$output .= $this->sd_html( 'accordions-end' );
+
+				echo $output;
+
+			}  elseif ( $type == 'theme' ) {
+
+				$functions_output = '';
+				$functions_count = 0;
+
+				foreach( $functions_theme as $function ) {
+
+					$function_lc = strtolower( $function );
+					$rf = new \ReflectionFunction( $function );
+					$filename = $rf->getFileName();
+
+					if ( ! empty( $filename ) ) {
+	  					$filename_for_editor = $this->sd_prepare_theme_filename_for_preview( $filename );
+						$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
+					}
+
+					$functions_output .= $this->sd_html( 'field-content-start' );
+					$functions_output .= $this->sd_html( 'field-content-first', $function .'<br /><a href="' . $theme_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>', 'full-width' );
+					$functions_output .= $this->sd_html( 'field-content-end' );
+
+					$functions_count++;
+
+				}
+
+				$output .= $this->sd_html( 'accordions-start-simple-margin-default' );
+				$output .= $this->sd_html( 'accordion-head', $this->sd_active_theme( 'name' ) . ' v' . $this->sd_active_theme( 'version' ) . ' ( ' . $functions_count . ' functions)' );
 				$output .= $this->sd_html( 'accordion-body', $functions_output );
+				$output .= $this->sd_html( 'accordions-end' );
 
-			}
+				echo $output;
 
-			$output .= $this->sd_html( 'accordions-end' );
+			} else {}
 
-		}  elseif ( $type == 'themes' ) {
+		}
 
-			$functions_output = '';
-			$functions_count = 0;
+		// For direct function calls
 
-			foreach( $functions_themes as $function ) {
-
-				$function_lc = strtolower( $function );
-				$rf = new \ReflectionFunction( $function );
-				$filename = $rf->getFileName();
-
-				if ( ! empty( $filename ) ) {
-  					$filename_for_editor = $this->sd_prepare_theme_filename_for_preview( $filename );
-					$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
-				}
-
-				$functions_output .= $this->sd_html( 'field-content-start' );
-				$functions_output .= $this->sd_html( 'field-content-first', $function .'<br /><a href="' . $theme_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>', 'full-width' );
-				$functions_output .= $this->sd_html( 'field-content-end' );
-
-				$functions_count++;
-
-			}
-
-			$output .= $this->sd_html( 'accordions-start-simple-margin-default' );
-			$output .= $this->sd_html( 'accordion-head', $this->sd_active_theme( 'name' ) . ' v' . $this->sd_active_theme( 'version' ) . ' ( ' . $functions_count . ' functions)' );
-			$output .= $this->sd_html( 'accordion-body', $functions_output );
-			$output .= $this->sd_html( 'accordions-end' );
-
-		} elseif ( $type == 'core-count' ) {
+		if ( $count == 'core-count' ) {
 
 			$output = count( $functions_core );
 
+			return $output;
 
-		} elseif ( $type == 'plugins-count' ) {
+		} elseif ( $count == 'plugins-count' ) {
 
 			$output = count( $functions_plugins );
 
+			return $output;
 
-		} elseif ( $type == 'themes-count' ) {
+		} elseif ( $count == 'theme-count' ) {
 
-			$output = count( $functions_themes );
+			$output = count( $functions_theme );
+
+			return $output;
 
 		} else {}
-
-		return $output;
 
 	}
 
@@ -7388,8 +8111,6 @@ class System_Dashboard_Admin {
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														// 'content'	=> $this->sd_db_details(),
-														// 'content'	=> '<div id="spinner-db-details"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading...</div><div id="db-details"></div>', // AJAX loading via sd_db_details()
 														'content'	=> $this->sd_html( 'ajax-receiver', 'db-details' ), // AJAX loading via sd_db_details()
 													),													
 												),
@@ -7417,13 +8138,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'post_types',
 										'type'		=> 'accordion',
 										'title'		=> 'Post Types Post Count',
+										'class'		=> 'post-types',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_post_types_info(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'post-types' ), // AJAX loading via sd_post_types()
 													),													
 												),
 											),
@@ -7433,13 +8155,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'taxonomies',
 										'type'		=> 'accordion',
 										'title'		=> 'Taxonomies Term Count',
+										'class'		=> 'taxonomies',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_taxonomies_info(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'taxonomies' ), // AJAX loading via sd_taxonomies()
 													),													
 												),
 											),
@@ -7449,13 +8172,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'pttax_old_slugs',
 										'type'		=> 'accordion',
 										'title'		=> 'Old Slugs',
+										'class'		=> 'old-slugs',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_old_slugs(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'old-slugs' ), // AJAX loading via sd_old_slugs()
 													),													
 												),
 											),
@@ -7483,13 +8207,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'media_count_by_mime',
 										'type'		=> 'accordion',
 										'title'		=> 'Media Count by Mime Type',
+										'class'		=> 'media-count',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_media_count_by_mime(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'media-count' ), // AJAX loading via sd_media_count()
 													),													
 												),
 											),
@@ -7499,13 +8224,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'media_allowed_mime_types',
 										'type'		=> 'accordion',
 										'title'		=> 'Allowed Mime Types',
+										'class'		=> 'mime-types',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_mime_types_file_extensions(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'mime-types' ), // AJAX loading via sd_mime_types()
 													),													
 												),
 											),
@@ -7515,13 +8241,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'media_handling',
 										'type'		=> 'accordion',
 										'title'		=> 'Media Handling',
+										'class'		=> 'media-handling',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_media_handling(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'media-handling' ), // AJAX loading via sd_media_handling()
 													),													
 												),
 											),
@@ -7553,13 +8280,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'directory_sizes',
 										'type'		=> 'accordion',
 										'title'		=> 'Directory Sizes',
+										'class'		=> 'directory-sizes',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_wp_dir_sizes(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'directory-sizes' ), // AJAX loading via sd_directory_sizes()
 													),													
 												),
 											),
@@ -7569,13 +8297,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'filesystem_permissions',
 										'type'		=> 'accordion',
 										'title'		=> 'Filesystem Permissions',
+										'class'		=> 'filesystem-permissions',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_filesystem_permissions(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'filesystem-permissions' ), // AJAX loading via sd_filesystem_permissions()
 													),													
 												),
 											),
@@ -7601,25 +8330,25 @@ class System_Dashboard_Admin {
 									array(
 										'id'		=> 'custom_fields',
 										'type'		=> 'accordion',
-										'class'		=> 'custom-fields-tabs',
 										'title'		=> 'By Type',
+										'class'		=> 'custom-fields',
 										'accordions'	=> array(
 
 											array(
-												'title'		=> 'View Public Fields (' . $this->sd_get_all_custom_fields( 'public-count' ) . ')',
+												'title'		=> 'View Public Fields (' . $this->sd_custom_fields( 'public-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_all_custom_fields( 'public' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'public-custom-fields' ), // AJAX loading via sd_custom_fields()
 													),													
 												),
 											),
 											array(
-												'title'		=> 'View Private Fields (' . $this->sd_get_all_custom_fields( 'private-count' ) . ')',
+												'title'		=> 'View Private Fields (' . $this->sd_custom_fields( 'private-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_all_custom_fields( 'private' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'private-custom-fields' ), // AJAX loading via sd_custom_fields()
 													),													
 												),
 											),
@@ -7648,13 +8377,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'user_count_by_role',
 										'type'		=> 'accordion',
 										'title'		=> 'Users Count by Role',
+										'class'		=> 'user-count',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_user_count_by_role( 'by_role' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'user-count' ), // AJAX loading via sd_user_count()
 													),													
 												),
 											),
@@ -7664,13 +8394,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'urc_tools',
 										'type'		=> 'accordion',
 										'title'		=> 'Roles & Capabilities',
+										'class'		=> 'roles-capabilities',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_user_roles_capabilities(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'roles-capabilities' ), // AJAX loading via sd_roles_capabilities()
 													),													
 												),
 											),
@@ -7846,20 +8577,20 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Total',
-										'content'	=> $this->sd_cron_events( 'all', 'count' ) . ' cron events',
+										'content'	=> $this->sd_cron( 'all', 'count' ) . ' cron events',
 									),
 									array(
 										'id'		=> 'cron_events',
 										'type'		=> 'accordion',
 										'title'		=> 'Core',
-										'subtitle'		=> $this->sd_cron_events( 'wpcore', 'count' ) . ' events',
+										'subtitle'		=> $this->sd_cron( 'wpcore', 'count' ) . ' events',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_cron_events( 'wpcore', 'events' ),
+														'content'	=> $this->sd_cron( 'wpcore', 'events' ),
 													),													
 												),
 											),
@@ -7869,14 +8600,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'cron_events',
 										'type'		=> 'accordion',
 										'title'		=> 'Theme & Plugins',
-										'subtitle'		=> $this->sd_cron_events( 'custom', 'count' ) . ' events',
+										'subtitle'		=> $this->sd_cron( 'custom', 'count' ) . ' events',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_cron_events( 'custom', 'events' ),
+														'content'	=> $this->sd_cron( 'custom', 'events' ),
 													),													
 												),
 											),
@@ -7886,14 +8617,14 @@ class System_Dashboard_Admin {
 										'id'		=> 'cron_events',
 										'type'		=> 'accordion',
 										'title'		=> 'Schedules',
-										'subtitle'		=> $this->sd_cron_events( 'schedules', 'count' ) . ' intervals',
+										'subtitle'		=> $this->sd_cron( 'schedules', 'count' ) . ' intervals',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_cron_events( 'schedules', 'list' ),
+														'content'	=> $this->sd_cron( 'schedules', 'list' ),
 													),													
 												),
 											),
@@ -7921,20 +8652,21 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Total',
-										'content'	=> $this->sd_rewrite_rules( 'total_count' ) . ' rules',
+										'content'	=> $this->sd_rewrite_rules_count() . ' rules',
 									),
 									array(
 										'id'		=> 'rewrite_rules',
 										'type'		=> 'accordion',
 										'title'		=> 'List',
 										'subtitle'	=> 'URL Structure <br />&#10132; Query Parameters',
+										'class'		=> 'rewrite-rules',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_rewrite_rules( 'list' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'rewrite-rules' ), // AJAX loading via sd_rewrite_rules()
 													),													
 												),
 											),
@@ -7961,19 +8693,20 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Total',
-										'content'	=> $this->sd_shortcodes( 'total_count' ) . ' shortcodes',
+										'content'	=> $this->sd_shortcodes_count() . ' shortcodes',
 									),
 									array(
 										'id'		=> 'shortcodes',
 										'type'		=> 'accordion',
 										'title'		=> 'List',
+										'class'		=> 'shortcodes',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_shortcodes( 'list' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'shortcodes' ), // AJAX loading via sd_shortcodes()
 													),													
 												),
 											),
@@ -8199,13 +8932,14 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Core',
 										'subtitle'		=> 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each class.',
+										'class'		=> 'core-classes',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View Classes and Methods',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_all_classes( 'core' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'core-classes' ), // AJAX loading via sd_classes()
 													),													
 												),
 											),
@@ -8216,13 +8950,14 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Current Theme',
 										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.',
+										'class'		=> 'theme-classes',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View Classes and Methods',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_all_classes( 'themes' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'theme-classes' ), // AJAX loading via sd_classes()
 													),													
 												),
 											),
@@ -8233,13 +8968,14 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Active Plugins',
 										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.',
+										'class'		=> 'plugins-classes',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View Classes and Methods',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_all_classes( 'plugins' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'plugins-classes' ), // AJAX loading via sd_classes()
 													),													
 												),
 											),
@@ -8267,13 +9003,14 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Core',
 										'subtitle'		=> 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each function.',
+										'class'		=> 'core-functions',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Functions'  . ' (' . $this->sd_get_all_user_functions( 'core-count' ) . ')',
+												'title'		=> 'View Functions'  . ' (' . $this->sd_functions( 'core-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_all_user_functions( 'core' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'core-functions' ), // AJAX loading via sd_functions()
 													),													
 												),
 											),
@@ -8284,13 +9021,14 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Current Theme',
 										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.',
+										'class'		=> 'theme-functions',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Functions'  . ' (' . $this->sd_get_all_user_functions( 'themes-count' ) . ')',
+												'title'		=> 'View Functions'  . ' (' . $this->sd_functions( 'theme-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_all_user_functions( 'themes' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'theme-functions' ), // AJAX loading via sd_functions()
 													),													
 												),
 											),
@@ -8301,13 +9039,14 @@ class System_Dashboard_Admin {
 										'type'		=> 'accordion',
 										'title'		=> 'Active Plugins',
 										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.',
+										'class'		=> 'plugins-functions',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Functions'  . ' (' . $this->sd_get_all_user_functions( 'plugins-count' ) . ')',
+												'title'		=> 'View Functions'  . ' (' . $this->sd_functions( 'plugins-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_get_all_user_functions( 'plugins' ),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'plugins-functions' ), // AJAX loading via sd_functions()
 													),													
 												),
 											),

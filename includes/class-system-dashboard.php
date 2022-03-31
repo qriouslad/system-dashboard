@@ -185,8 +185,12 @@ class System_Dashboard {
 
 		$plugin_admin = new System_Dashboard_Admin( $this->get_plugin_name(), $this->get_version() );
 
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+		if ( is_admin() && $this->is_sd() ) {
+
+			$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
+			$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+
+		} else {}
 
 		// Only process dashboard functions if the current page is the dashboard page. Otherwise, only show the 'System' link under the Dashboard menu.
 
@@ -208,10 +212,25 @@ class System_Dashboard {
 		$this->loader->add_action( 'wp_ajax_sd_db_tables', $plugin_admin, 'sd_db_tables' );
 		$this->loader->add_action( 'wp_ajax_sd_db_specs', $plugin_admin, 'sd_db_specs' );
 		$this->loader->add_action( 'wp_ajax_sd_db_details', $plugin_admin, 'sd_db_details' );
+		$this->loader->add_action( 'wp_ajax_sd_post_types', $plugin_admin, 'sd_post_types' );
+		$this->loader->add_action( 'wp_ajax_sd_taxonomies', $plugin_admin, 'sd_taxonomies' );
+		$this->loader->add_action( 'wp_ajax_sd_old_slugs', $plugin_admin, 'sd_old_slugs' );
+		$this->loader->add_action( 'wp_ajax_sd_media_count', $plugin_admin, 'sd_media_count' );
+		$this->loader->add_action( 'wp_ajax_sd_mime_types', $plugin_admin, 'sd_mime_types' );
+		$this->loader->add_action( 'wp_ajax_sd_media_handling', $plugin_admin, 'sd_media_handling' );
+		$this->loader->add_action( 'wp_ajax_sd_directory_sizes', $plugin_admin, 'sd_directory_sizes' );
+		$this->loader->add_action( 'wp_ajax_sd_filesystem_permissions', $plugin_admin, 'sd_filesystem_permissions' );
+		$this->loader->add_action( 'wp_ajax_sd_custom_fields', $plugin_admin, 'sd_custom_fields' );
+		$this->loader->add_action( 'wp_ajax_sd_user_count', $plugin_admin, 'sd_user_count' );
+		$this->loader->add_action( 'wp_ajax_sd_roles_capabilities', $plugin_admin, 'sd_roles_capabilities' );
+		$this->loader->add_action( 'wp_ajax_sd_rewrite_rules', $plugin_admin, 'sd_rewrite_rules' );
+		$this->loader->add_action( 'wp_ajax_sd_shortcodes', $plugin_admin, 'sd_shortcodes' );
 		$this->loader->add_action( 'wp_ajax_sd_option_value', $plugin_admin, 'sd_option_value' );
 		$this->loader->add_action( 'wp_ajax_sd_global_value', $plugin_admin, 'sd_global_value' );
 		$this->loader->add_action( 'wp_ajax_sd_wpcore_hooks', $plugin_admin, 'sd_wpcore_hooks' );
 		$this->loader->add_action( 'wp_ajax_sd_hooks', $plugin_admin, 'sd_hooks' );
+		$this->loader->add_action( 'wp_ajax_sd_classes', $plugin_admin, 'sd_classes' );
+		$this->loader->add_action( 'wp_ajax_sd_functions', $plugin_admin, 'sd_functions' );
 		$this->loader->add_action( 'wp_ajax_sd_constants', $plugin_admin, 'sd_constants' );
 		$this->loader->add_action( 'wp_ajax_sd_viewer', $plugin_admin, 'sd_viewer' );
 		$this->loader->add_action( 'wp_ajax_sd_wp_rest_api', $plugin_admin, 'sd_wp_rest_api' );
@@ -229,8 +248,8 @@ class System_Dashboard {
 
 		$plugin_public = new System_Dashboard_Public( $this->get_plugin_name(), $this->get_version() );
 
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+		// $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
+		// $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 
 	}
 

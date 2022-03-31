@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.2  
-Stable tag: 2.0.2  
+Stable tag: 2.1.3  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -16,24 +16,28 @@ Centralized dashboard to monitor various WordPress components, stats and data, i
 
 ## Description
 
-This plugin provides a centralized dashboard to monitor various WordPress components, stats and data, including server hardware, software and resource usage. Queries are optimized and most modules employ fast AJAX loading of content and values, so the plugin loads fast despite having a total of 21 modules. It does not weight down wp-admin, and nothing is loaded on the front-end. To preview the module screenshots more easily, visit the [github repo](https://github.com/qriouslad/system-dashboard).
+This plugin provides a centralized dashboard to monitor various WordPress components, stats and data, including server hardware, software and resource usage. Pairs well with [Query Monitor](https://wordpress.org/plugins/query-monitor/) and [WP Console](https://wordpress.org/plugins/wp-console/) to help you do some solid dev work.
+
+Despite having 18 WordPress modules and 4 server modules, the single-page dashboard loads fast as queries are optimized and most modules employ fast AJAX loading of data. It does not weight down wp-admin, and nothing is loaded on the front-end. Install, activate and let it sit there ready to summon the info/data you need.
+
+To preview the module screenshots more easily, please scroll down the [github repo](https://github.com/qriouslad/system-dashboard). Here's a rundown of the available modules...
 
 ### WordPress Modules (18)
 
-#### Overview: 
+#### 1. Overview: 
 
 * Site health status
 * Quick stats of active theme and plugins
 * Timezone and current time
 * Your IP address
 
-#### Directories: 
+#### 2. Directories: 
 
 * Root path
 * Directory size of WP installation, wp-content directory, uploads directory, plugins directory, themes directory
 * Filesystem permissions
 
-#### Database: 
+#### 3. Database: 
 
 * Software info
 * Uptime
@@ -43,30 +47,30 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 * Key database info, e.g. innodb_buffer_pool_size
 * Detailed specifications
 
-#### Post Types & Taxonomies: 
+#### 4. Post Types & Taxonomies: 
 
 * List of post types and posts count for each
 * List of taxonomies and terms count for each
 * Comment count
 * List of old slugs and the corresponding posts
 
-#### Media: 
+#### 5. Media: 
 
 * List of media types and files count for each
 * List of allowed mime types and the corresponding file extensions
 * Media handling info, e.g. max file upload size
 
-#### Custom Fields:
+#### 6. Custom Fields:
 
 * List of public custom fields
 * List of private custom fields, i.e. keys that start with an undersocre _
 
-#### Users:
+#### 7. Users:
 
 * List of user roles and users count for each
 * List of roles and capabilities. Including custom roles and custom capabilities.
 
-#### Options: 
+#### 8. Options: 
 
 * Total number of options
 * Total number and size of autoloaded options
@@ -74,7 +78,7 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 * Filterable list of options from plugins and theme with ID, autoload, size and type info
 * AJAX loading of option value with interactive tree viewer for array and object value types 
 
-#### Transients: 
+#### 9. Transients: 
 
 * Total number of transients
 * Total number and size of autoloaded transients
@@ -83,19 +87,19 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 * List of transients that do not expire
 * AJAX loading of transient value with interactive tree viewer for array and object value types 
 
-#### Cron (Jobs):
+#### 10. Cron:
 
 * List of cron event hooks and recurrences, categorized by core vs non-core
 
-#### Rewrite Rules:
+#### 11. Rewrite Rules:
 
 * List of rewrite rules
 
-#### Shortcodes:
+#### 12. Shortcodes:
 
 * List of shortcodes and renderers (callback functions)
 
-#### Viewer: 
+#### 13. Viewer: 
 
 * wp-config.php viewer
 * .htaccess viewer
@@ -103,38 +107,38 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 * robots.txt viewer
 * Link to sitemap
 
-#### Hooks:
+#### 14. Hooks:
 
 * Filterable list of action and filter hooks from WordPress core with description, originating file path and link to WordPress Code Reference for each hook
 * List of action and filter hooks from the active theme, with description, originating file path and link to file preview in the theme file editor
 * List of action and filter hooks from active plugins, with description, originating file path and link to file preview in the plugin file editor
 
-#### Classes: 
+#### 15. Classes: 
 
 * List of classes from WordPress core with methods, originating file path, and link to WordPress Code Reference for each class
 * List of classes from the active theme with methods, originating file path, and link to preview the file in the theme file editor
 * List of classes from active plugins with methods, originating file path, and link to preview the file in the plugin file editor
 
-#### Functions:
+#### 16. Functions:
 
 * Filterable list of functions from WordPress core with the originating file path and link to WordPress Code Reference for each function
 * List of functions from the active theme with the originating file path and link to preview the file in the theme file editor
 * List of functions from active plugins with the originating file path and link to preview the file in the plugin file editor
 
-#### Globals:
+#### 17. Globals:
 
 * Categorized list of global variables defined by WordPress
 * List of PHP super globals
 * List of global variables defined by themes and plugins
 
-#### Constants:
+#### 18. Constants:
 
 * List of defined constants by WordPress core (categorized), as well as by theme and plugins
 * Documentation of each constant from WordPress core
 
 ### Server Modules (3)
 
-#### Overview: 
+#### 1. Overview: 
 
 * Server operating system
 * Web server software
@@ -142,21 +146,21 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 * Server location
 * Server timezone and current date time
 
-#### Monitor: 
+#### 2. Monitor: 
 
 * Server uptime
 * Server CPU load average: last 15 minutes, last 5 minutes, last 1 minute
-* CPU RAM usage
+* RAM usage
 * Disk usage
 
-#### Hardware: 
+#### 3. Hardware: 
 
 * CPU type
 * CPU count and cores count
 * Total RAM
 * Total disk space
 
-#### PHP:
+#### 4. PHP:
 
 * PHP version
 * PHP user
@@ -171,9 +175,10 @@ This plugin provides a centralized dashboard to monitor various WordPress compon
 
 ### Technical Notes
 
-* Requires shell_exec and exec functions enabled for some modules to work properly. 
-* There's an MU plugin that unloads all other plugins for admin-ajax calls, so these calls stay fast no matter how complex and big your site is.
-* The longest first load is the Hooks > Active Plugins module, which scans action and filter hooks from all active plugins on the site. The more plugins are active, the longer it takes. If your server/hosting has a low execution time limit, you may need to load the module two or three times for the scan to complete. Once complete, subsequent loads of the module should be much much faster.
+* Requires shell_exec and exec functions enabled for some modules to work properly. e.g. the Hooks > Active Plugins tool.
+* There's an MU (must-use) plugin that unloads all other plugins for admin-ajax calls initiated from the dashboard, so these calls stay fast no matter how complex and big your site is.
+* The longest first load is probably the Hooks > Active Plugins tool, which scans action and filter hooks from all active plugins on the site. The more plugins are active, the longer it takes. If your server/hosting has a low execution time limit, you may need to load the module two or three times for the scan to complete. Once complete, subsequent loads of the module should be much much faster.
+* This plugin has been tested to work with servers powered by NGINX, Apache and Litespeed, and also sites using PHP 8+.
 
 ### Give Back
 
@@ -235,11 +240,32 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 
 ## Changelog
 
+### 2.1.3 (March 2022)
+
+* Server > Monitor: Polish wording for disk usage stats
+* Optimization: dequeue public-facing scripts and styles, which are mostly empty placeholders
+* Optimization: in wp-admin, only load scripts and styles on the System Dashboard page
+
+### 2.1.2 (March 2022)
+
+* Fix Server overview layout issue
+
+### 2.1.1 (March 2022)
+
+* Improve indentation in Fast AJAX MU Plugin generation to fix "headers already sent" issue which maybe caused by whitespace before <?php ([reference](https://stackoverflow.com/a/8028987))
+
+### 2.1.0 (March 2022)
+
+* Implement AJAX loading on the following modules: Classes, Functions, Post Types & Taxonomies, Media, Directories, Custom Fields, Users, Rewrite Rules, Shortcodes. This cuts down dashboard page load time to under 2 seconds (most of the time).
+* Post Types & Taxonomies: Improve layout of old slugs list
+* Globals: Disable usage of Fast AJAX as some globals are dependent on the full list of active plugins, e.g. shortcode_tags
+* Server overview: Improve server IP detection on Apache server by using HTTP_X_SERVER_ADDR server globals
+
 ### 2.0.2 (March 2022)
 
 * Fix TypeError in disk usage calculation and typo in site health check function. Props to [@ivanarnaudov](https://profiles.wordpress.org/ivanarnaudov/).
 * Tidy up display of RAM usage and CPUs/cores count when shell_exec is not enabled
-* Improve server IP detection when using Apache by using HTTP_X_SERVER_ADDR
+* Improve server location detection when using Apache by using IP address from HTTP_X_SERVER_ADDR server global
 
 ### 2.0.1 (March 2022)
 

@@ -234,12 +234,12 @@ a.link-muted:hover {
     border-top: none;
 }
 
-.custom-fields-tabs .csf-accordion-items {
+.custom-fields .csf-accordion-items {
     display: flex;
     justify-content: space-between;
 }
 
-.custom-fields-tabs .csf-accordion-item {
+.custom-fields .csf-accordion-item {
     width: calc( ( 100% / 2 ) - 7.5px );
 }
 
@@ -485,10 +485,10 @@ dl.mc-collapsible[data-style=qa] dd {
 
 @media (max-width:768px) {
 
-    .custom-fields-tabs .csf-accordion-items {
+    .custom-fields .csf-accordion-items {
         flex-direction: column;
     }
-    .custom-fields-tabs .csf-accordion-item {
+    .custom-fields .csf-accordion-item {
         width: 100%;
     }
 
