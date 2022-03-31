@@ -156,8 +156,16 @@
     font-weight: 600;
 }
 
+.sd-options .field-part .halves {
+    width:  49%;
+}
+
 .sd-options .field-part .thirds {
     width:  32%;
+}
+
+.sd-options .field-part .quarts {
+    width:  23.5%;
 }
 
 .sd-options .wpcore-hooks .field-part.full-width {

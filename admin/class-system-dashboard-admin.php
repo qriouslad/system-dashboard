@@ -194,6 +194,39 @@ class System_Dashboard_Admin {
 
 	}
 
+	/**
+	 * Output HTML parts mainly for columns with widths equally divided between them
+	 *
+	 * @since 2.2.0
+	 */
+	public function sd_html_parts( $type, $classes = '', $first_part = '', $second_part = '', $third_part = '', $fourth_part = '' ) {
+
+		if ( !empty( $classes ) ) {
+
+			$classes_output = ' ' . $classes;
+		}
+
+		$output = '<div class="parts'. $classes_output .'">';
+
+		if ( ( $type == 'halves' ) || ( $type == 'thirds' ) || ( $type == 'quarts' ) ) {
+			$output .= '<div class="'. $type .'">'. $first_part .'</div>';
+			$output .= '<div class="'. $type .'">'. $second_part .'</div>';
+		}
+
+		if ( ( $type == 'thirds' ) || ( $type == 'quarts' ) ) {
+			$output .= '<div class="'. $type .'">'. $third_part .'</div>';
+		}
+
+		if ( $type == 'quarts' ) {
+			$output .= '<div class="'. $type .'">'. $fourth_part .'</div>';
+		}
+
+		$output .= '</div>';
+
+		return $output;
+
+	}
+
 	/** 
 	 * Preview various output of functions related to WordPress URLs, directories and paths
 	 *
@@ -2179,7 +2212,7 @@ class System_Dashboard_Admin {
 
 			$output = $this->sd_html( 'field-content-start' );
 			$output .= $this->sd_html( 'field-content-first', '<strong>Table Name</strong>' );
-			$output .= $this->sd_html( 'field-content-second', '<div class="parts parts-heading"><span class="thirds">Data Size</span><span class="thirds">Index Size</span><span class="thirds">Rows</span></div>' );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_html_parts( 'thirds', 'parts-heading', 'Data Size', 'Index Size', 'Rows' ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			foreach( $tables as $table ) {
@@ -2197,7 +2230,7 @@ class System_Dashboard_Admin {
 							$output .= $this->sd_html( 'field-content-first', $table->Name, 'long-value' );
 						}
 
-						$output .= $this->sd_html( 'field-content-second', '<div class="parts"><span class="thirds">' . $this->sd_format_filesize( $table->Data_length ) . '</span><span class="thirds">' . $this->sd_format_filesize( $table->Index_length ) . '</span><span class="thirds">' . number_format( $table->Rows ) . '</span></div>' );
+						$output .= $this->sd_html( 'field-content-second', $this->sd_html_parts( 'thirds', '', $this->sd_format_filesize( $table->Data_length ), $this->sd_format_filesize( $table->Index_length ), number_format( $table->Rows ) ) );
 						$output .= $this->sd_html( 'field-content-end' );
 
 					}
