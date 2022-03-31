@@ -2128,41 +2128,98 @@ class System_Dashboard_Admin {
 	 * @link https://plugins.svn.wordpress.org/wptools/tags/3.13/functions/functions.php
 	 * @since 1.0.0
 	 */
-	public function sd_db_tables( $return = 'count' ) {
+	public function sd_db_tables( $return = 'count-core' ) {
 
 		global $wpdb;
 
 		// $prefix = $wpdb->prefix;
 		$tables = $wpdb->get_results("SHOW TABLE STATUS");
 
-		if ( $return == 'count' ) {
+		$wpcore_tables = array(
+			'wp_commentmeta',
+			'wp_comments',
+			'wp_links',
+			'wp_options',
+			'wp_postmeta',
+			'wp_posts',
+			'wp_term_relationships',
+			'wp_term_taxonomy',
+			'wp_termmeta',
+			'wp_terms',
+			'wp_usermeta',
+			'wp_users',
+		);
 
-			return count( $tables );
+		$noncore_tables = array();
+
+		foreach ( $tables as $table ) {
+
+			if ( !in_array( $table->Name, $wpcore_tables ) ) {
+
+				$noncore_tables[] = $table->Name;
+
+			}
 
 		}
 
+		if ( $return == 'count-core' ) {
+
+			return count( $wpcore_tables );
+
+		} elseif ( $return == 'count-noncore' ) {
+
+			return count( $noncore_tables );
+
+		} else {}
+
 		if ( isset( $_REQUEST ) ) {
+
+			$type = $_REQUEST['type'];
+			$active_plugins = get_option( 'active_plugins' );
 
 			$output = $this->sd_html( 'field-content-start' );
 			$output .= $this->sd_html( 'field-content-first', '<strong>Table Name</strong>' );
 			$output .= $this->sd_html( 'field-content-second', '<div class="parts parts-heading"><span class="thirds">Data Size</span><span class="thirds">Index Size</span><span class="thirds">Rows</span></div>' );
 			$output .= $this->sd_html( 'field-content-end' );
 
-			$active_plugins = get_option( 'active_plugins' );
-
 			foreach( $tables as $table ) {
 
-				$output .= $this->sd_html( 'field-content-start' );
+				if ( $type == 'core' ) {
 
-				// If SQL Buddy is active, link to table viewer there
-				if ( in_array( 'sql-buddy/sql-buddy.php', $active_plugins ) ) {
-					$output .= $this->sd_html( 'field-content-first', '<a href="/wp-admin/tools.php?page=sql-buddy-dashboard#/tables?table=' . $table->Name . '" target="_blank">' . $table->Name . '</a>', 'long-value' );
-				} else {
-					$output .= $this->sd_html( 'field-content-first', $table->Name, 'long-value' );
-				}
+					if ( in_array( $table->Name, $wpcore_tables ) ) {
 
-				$output .= $this->sd_html( 'field-content-second', '<div class="parts"><span class="thirds">' . $this->sd_format_filesize( $table->Data_length ) . '</span><span class="thirds">' . $this->sd_format_filesize( $table->Index_length ) . '</span><span class="thirds">' . number_format( $table->Rows ) . '</span></div>' );
-				$output .= $this->sd_html( 'field-content-end' );
+						$output .= $this->sd_html( 'field-content-start' );
+
+						// If SQL Buddy is active, link to table viewer there
+						if ( in_array( 'sql-buddy/sql-buddy.php', $active_plugins ) ) {
+							$output .= $this->sd_html( 'field-content-first', '<a href="/wp-admin/tools.php?page=sql-buddy-dashboard#/tables?table=' . $table->Name . '" target="_blank">' . $table->Name . '</a>', 'long-value' );
+						} else {
+							$output .= $this->sd_html( 'field-content-first', $table->Name, 'long-value' );
+						}
+
+						$output .= $this->sd_html( 'field-content-second', '<div class="parts"><span class="thirds">' . $this->sd_format_filesize( $table->Data_length ) . '</span><span class="thirds">' . $this->sd_format_filesize( $table->Index_length ) . '</span><span class="thirds">' . number_format( $table->Rows ) . '</span></div>' );
+						$output .= $this->sd_html( 'field-content-end' );
+
+					}
+
+				} elseif ( $type == 'noncore' ) {
+
+					if ( in_array( $table->Name, $noncore_tables ) ) {
+
+						$output .= $this->sd_html( 'field-content-start' );
+
+						// If SQL Buddy is active, link to table viewer there
+						if ( in_array( 'sql-buddy/sql-buddy.php', $active_plugins ) ) {
+							$output .= $this->sd_html( 'field-content-first', '<a href="/wp-admin/tools.php?page=sql-buddy-dashboard#/tables?table=' . $table->Name . '" target="_blank">' . $table->Name . '</a>', 'long-value' );
+						} else {
+							$output .= $this->sd_html( 'field-content-first', $table->Name, 'long-value' );
+						}
+
+						$output .= $this->sd_html( 'field-content-second', '<div class="parts"><span class="thirds">' . $this->sd_format_filesize( $table->Data_length ) . '</span><span class="thirds">' . $this->sd_format_filesize( $table->Index_length ) . '</span><span class="thirds">' . number_format( $table->Rows ) . '</span></div>' );
+						$output .= $this->sd_html( 'field-content-end' );
+					}
+
+				} else {}
 
 			}
 
@@ -3188,7 +3245,8 @@ class System_Dashboard_Admin {
 					});
 				}
 
-				jQuery('.db-tables .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.core-db-tables .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.noncore-db-tables .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.db-specs .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.db-details .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.post-types .csf-accordion-title').attr('data-loaded','no');
@@ -3223,9 +3281,9 @@ class System_Dashboard_Admin {
 				jQuery('.robotstxt .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.phpinfo-details .csf-accordion-title').attr('data-loaded','no');
 
-				// Get database tables
+				// Get WP Core database tables
 
-				jQuery('.db-tables .csf-accordion-title').click( function() {
+				jQuery('.core-db-tables .csf-accordion-title').click( function() {
 
 					var loaded = this.dataset.loaded;
 
@@ -3235,14 +3293,46 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_db_tables',
+								'type':'core',
 								'fast_ajax':true,
 								'load_plugins':["sql-buddy/sql-buddy.php","system-dashboard/system-dashboard.php"]
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
-								jQuery('#db-tables-content').prepend(data);
-								jQuery('.db-tables .csf-accordion-title').attr('data-loaded','yes');
-								jQuery('#spinner-db-tables').fadeOut( 0 );
+								jQuery('#core-db-tables-content').prepend(data);
+								jQuery('.core-db-tables .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-core-db-tables').fadeOut( 0 );
+							},
+							erro:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get Non-core database tables
+
+				jQuery('.noncore-db-tables .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_db_tables',
+								'type':'noncore',
+								'fast_ajax':true,
+								'load_plugins':["sql-buddy/sql-buddy.php","system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#noncore-db-tables-content').prepend(data);
+								jQuery('.noncore-db-tables .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-noncore-db-tables').fadeOut( 0 );
 							},
 							erro:function(errorThrown) {
 								console.log(errorThrown);
@@ -8071,24 +8161,41 @@ class System_Dashboard_Admin {
 										'content'	=> $this->sd_db_disk_usage( 'data' ) . ' / ' . $this->sd_db_disk_usage( 'index' ),
 									),
 									array(
-										'id'		=> 'db_tables',
+										'id'		=> 'core_db_tables',
 										'type'		=> 'accordion',
-										'title'		=> 'Tables',
-										'subtitle'	=> $this->sd_db_tables( 'count' ) . ' tables',
-										'class'		=> 'db-tables',
+										'title'		=> 'Core Tables',
+										'subtitle'	=> $this->sd_db_tables( 'count-core' ) . ' tables',
+										'class'		=> 'core-db-tables',
 										'accordions'	=> array(
 											array(
 												'title'		=> 'View',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_html( 'ajax-receiver', 'db-tables' ), // AJAX loading via sd_db_tables()
+														'content'	=> $this->sd_html( 'ajax-receiver', 'core-db-tables' ), // AJAX loading via sd_db_tables()
 													),													
 												),
 											),
 										),
 									),
 									array(
+										'id'		=> 'noncore_db_tables',
+										'type'		=> 'accordion',
+										'title'		=> 'Themes & Plugins Tables',
+										'subtitle'	=> $this->sd_db_tables( 'count-noncore' ) . ' tables',
+										'class'		=> 'noncore-db-tables',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_html( 'ajax-receiver', 'noncore-db-tables' ), // AJAX loading via sd_db_tables()
+													),													
+												),
+											),
+										),
+									),									array(
 										'id'		=> 'db_key_specs',
 										'type'		=> 'accordion',
 										'title'		=> 'Key Info',
@@ -8470,7 +8577,7 @@ class System_Dashboard_Admin {
 									array(
 										'id'		=> 'wp_noncore_options',
 										'type'		=> 'accordion',
-										'title'		=> 'Plugins & Themes',
+										'title'		=> 'Themes & Plugins',
 										'subtitle'	=> $this->sd_options( 'noncore_count' ) . ' options',
 										'accordions'	=> array(
 											array(
@@ -8604,7 +8711,7 @@ class System_Dashboard_Admin {
 									array(
 										'id'		=> 'cron_events',
 										'type'		=> 'accordion',
-										'title'		=> 'Theme & Plugins',
+										'title'		=> 'Themes & Plugins',
 										'subtitle'		=> $this->sd_cron( 'custom', 'count' ) . ' events',
 										'accordions'	=> array(
 											array(
@@ -9110,7 +9217,7 @@ class System_Dashboard_Admin {
 									array(
 										'id'			=> 'themes_plugins_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Themes & Plugins',
+										'title'			=> 'On Themes & Plugins',
 										'accordions'  	=> array(
 											array(
 												'title'   => 'View',
@@ -9318,7 +9425,7 @@ class System_Dashboard_Admin {
 									array(
 										'id'			=> 'non_wpcore_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Theme & Plugins',
+										'title'			=> 'From Themes & Plugins',
 										'accordions'	=> array(
 											array(
 												'title'   => 'View',
