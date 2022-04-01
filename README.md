@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.2  
-Stable tag: 2.1.3  
+Stable tag: 2.2.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -43,7 +43,8 @@ To preview the module screenshots more easily, please scroll down the [github re
 * Uptime
 * Data size
 * Index size
-* List of tables and size of each one
+* List of WP core tables with data/index size and number of rows/records of each table
+* List of tables created/used by themes and plugins with the origin theme/plugin, data/index size and number of rows/records of each table
 * Key database info, e.g. innodb_buffer_pool_size
 * Detailed specifications
 
@@ -239,6 +240,13 @@ To preview the module screenshots more easily, please scroll down the [github re
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.2.0 (April 2022)
+
+* Database: split tables into WP core vs themes & plugins and add counter for each category
+* Database: add character set and collation info in the Key Info section
+* Database: add default WP core tables for multisite if on a multisite
+* Database: add detection of and link to origin theme/plugin for non-core tables
 
 ### 2.1.3 (March 2022)
 
