@@ -2812,7 +2812,7 @@ class System_Dashboard_Admin {
 
 		$rewrite_rules = get_option( 'rewrite_rules' );
 
-		$output = count( $rewrite_rules );
+		$output = count( (array)$rewrite_rules );
 
 		return $output;
 
