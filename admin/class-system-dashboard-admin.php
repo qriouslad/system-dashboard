@@ -404,6 +404,8 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_server_overview() {
 
+		global $wpdb;
+
 		$output = '';
 
 		$output .= '<strong>Operating System</strong>: <br />' . $this->sd_os_info(). '<br />';
@@ -422,6 +424,11 @@ class System_Dashboard_Admin {
 				
 			}
 		}
+
+		$hostname_query = $wpdb->get_row("SHOW VARIABLES LIKE 'hostname'");
+		$hostname = $hostname_query->Value;
+
+		$output .= '<strong>Hostname</strong>: <br />' . $hostname . '<br />';
 
 		$output .= '<strong>Location</strong>: <br />' . $this->sd_server_location() . '<br />';
 
