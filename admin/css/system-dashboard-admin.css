@@ -188,6 +188,13 @@
     color: #3c434a;
 }
 
+.sd-options span.db-table-origin-plugin {
+    line-height: 2;
+    word-break: unset;
+    white-space: nowrap;
+    color: #3c434a;
+}
+
 img.spinner_inline {
     height: 1.5em;
     width: 1.5em;

@@ -2220,12 +2220,54 @@ class System_Dashboard_Admin {
 		if ( isset( $_REQUEST ) ) {
 
 			$type = $_REQUEST['type'];
-			$active_plugins = get_option( 'active_plugins' );
 
-			$output = $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', '<strong>Table Name</strong>' );
-			$output .= $this->sd_html( 'field-content-second', $this->sd_html_parts( 'thirds', 'parts-heading', 'Data Size', 'Index Size', 'Rows' ) );
-			$output .= $this->sd_html( 'field-content-end' );
+			// Get installed plugins folder-name / slug array
+
+			$installed_plugins_info = get_plugins();
+
+			$installed_plugins = array();
+			foreach ( $installed_plugins_info as $plugin_file => $plugin_info ) {
+				$installed_plugins[] = $plugin_file; // array of 'plugin-folder/plugin-file.php'
+			}
+
+			$installed_plugins_slugs = array();
+			foreach ( $installed_plugins as $installed_plugin ) {
+				$installed_plugin = explode("/", $installed_plugin);
+				$installed_plugins_slugs[] = $installed_plugin[0];
+			}
+
+			// Get active plugins folder-name / slug array
+
+			$active_plugins = get_option( 'active_plugins' );
+			$active_plugins_slugs = array();
+
+			foreach ( $active_plugins as $active_plugin ) {
+				$active_plugin = explode("/", $active_plugin);
+				$active_plugins_slugs[] = $active_plugin[0];
+			}
+
+			// Get data array of relationship between table name and plugins creating and using it
+
+			$tables_plugins = wp_remote_get( plugin_dir_url( __DIR__ ). 'admin/references/tables_and_plugins_relationships_by_wpoptimize.json' );
+			$tables_plugins_relatioships = json_decode( wp_remote_retrieve_body( $tables_plugins ), true );
+
+			if ( $type == 'core' ) {
+
+				$output = $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', '<strong>Table Name</strong>' );
+				$output .= $this->sd_html( 'field-content-second', $this->sd_html_parts( 'thirds', 'parts-heading', 'Data Size', 'Index Size', 'Rows' ) );
+				$output .= $this->sd_html( 'field-content-end' );
+
+			} elseif ( $type == 'noncore' ) {
+
+				$output = $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', '<strong>Table Name</strong> &#10132; <strong>Origin Plugin (Status)</strong>' );
+				$output .= $this->sd_html( 'field-content-second', $this->sd_html_parts( 'thirds', 'parts-heading', 'Data Size', 'Index Size', 'Rows' ) );
+				$output .= $this->sd_html( 'field-content-end' );
+
+			}
+
+			$n = 1;
 
 			foreach( $tables as $table ) {
 
@@ -2236,12 +2278,14 @@ class System_Dashboard_Admin {
 						$output .= $this->sd_html( 'field-content-start' );
 
 						// If SQL Buddy is active, link to table viewer there
+
 						if ( in_array( 'sql-buddy/sql-buddy.php', $active_plugins ) ) {
-							$output .= $this->sd_html( 'field-content-first', '<a href="/wp-admin/tools.php?page=sql-buddy-dashboard#/tables?table=' . $table->Name . '" target="_blank">' . $table->Name . '</a>', 'long-value' );
+							$table_name_output = '<a href="/wp-admin/tools.php?page=sql-buddy-dashboard#/tables?table=' . $table->Name . '" target="_blank">' . $table->Name . '</a>';
 						} else {
-							$output .= $this->sd_html( 'field-content-first', $table->Name, 'long-value' );
+							$table_name_output = $table->Name;
 						}
 
+						$output .= $this->sd_html( 'field-content-first', $table_name_output, 'long-value' );
 						$output .= $this->sd_html( 'field-content-second', $this->sd_html_parts( 'thirds', '', $this->sd_format_filesize( $table->Data_length ), $this->sd_format_filesize( $table->Index_length ), number_format( $table->Rows ) ) );
 						$output .= $this->sd_html( 'field-content-end' );
 
@@ -2254,14 +2298,98 @@ class System_Dashboard_Admin {
 						$output .= $this->sd_html( 'field-content-start' );
 
 						// If SQL Buddy is active, link to table viewer there
+
 						if ( in_array( 'sql-buddy/sql-buddy.php', $active_plugins ) ) {
-							$output .= $this->sd_html( 'field-content-first', '<a href="/wp-admin/tools.php?page=sql-buddy-dashboard#/tables?table=' . $table->Name . '" target="_blank">' . $table->Name . '</a>', 'long-value' );
+							$table_name_output = $n . '. <a href="/wp-admin/tools.php?page=sql-buddy-dashboard#/tables?table=' . $table->Name . '" target="_blank">' . $table->Name . '</a>';
 						} else {
-							$output .= $this->sd_html( 'field-content-first', $table->Name, 'long-value' );
+							$table_name_output = $n . '. ' . $table->Name;
 						}
 
+						// Get table's origin plugin info
+
+						$table_name = str_replace( $prefix, "", $table->Name); // remove prefix
+
+						$origin_plugin_output = '';
+						$orphaned_tables = array();
+
+						// Check if table name is listed in the reference table_name<-->plugins relationships array
+
+						if ( array_key_exists( $table_name, $tables_plugins_relatioships ) ) {
+
+							$origin_plugins = $tables_plugins_relatioships[$table_name];
+
+							foreach ( $origin_plugins as $origin_plugin ) {
+
+								// Check if the originating plugin is installed or not, and if active or deactivated
+
+								if ( in_array( $origin_plugin, $installed_plugins_slugs ) ) {
+
+									$has_origin_plugin_installed = true;
+
+									if ( in_array( $origin_plugin, $active_plugins_slugs ) ) {
+
+										foreach ( $installed_plugins_info as $plugin_file => $plugin_info ) {
+
+											if ( strpos( $plugin_file, $origin_plugin ) !== false ) {
+
+												$plugin_status = 'active';
+
+												$origin_plugin_output .= '<span class="db-table-origin-plugin">&#10132; <a href="https://wordpress.org/plugins/'.$origin_plugin.'/" target="_blank">' . $plugin_info['Name'] . '</a> ('. $plugin_status .')</span><br />';
+
+											}
+
+										}
+
+									} else {
+
+										foreach ( $installed_plugins_info as $plugin_file => $plugin_info ) {
+
+											if ( strpos( $plugin_file, $origin_plugin ) !== false ) {
+
+												$plugin_status = 'deactivated';
+
+												$origin_plugin_output .= '<span class="db-table-origin-plugin">&#10132; <a href="https://wordpress.org/plugins/'.$origin_plugin.'/" target="_blank">' . $plugin_info['Name'] . '</a> ('. $plugin_status .')</span><br />';
+
+											}
+
+										}
+
+									}
+
+								} else {
+
+									$has_origin_plugin_installed = false;
+
+									$orphaned_tables[] = $table_name;
+
+									$plugin_status = 'uninstalled';
+
+									$origin_plugin_output .= '';
+
+								}
+
+							}
+
+							// For tables that has no origin plugin installed but has detectable origin plugin
+
+							if ( ( $has_origin_plugin_installed == false ) && ( count( $origin_plugins ) == 1 ) ) {
+
+								$origin_plugin_output .= '<span class="db-table-origin-plugin">&#10132; <a href="https://wordpress.org/plugins/'.$origin_plugin.'/" target="_blank">' . $origin_plugin . '</a> ('. $plugin_status .')</span><br />';
+
+							}
+
+						} else {
+
+							$origin_plugin_output .= '<span class="db-table-origin-plugin">&#10132; Originating plugin is undetectable</span>';
+
+						}
+
+						$output .= $this->sd_html( 'field-content-first', $table_name_output . '<br />' .$origin_plugin_output , 'long-value' );
 						$output .= $this->sd_html( 'field-content-second', '<div class="parts"><span class="thirds">' . $this->sd_format_filesize( $table->Data_length ) . '</span><span class="thirds">' . $this->sd_format_filesize( $table->Index_length ) . '</span><span class="thirds">' . number_format( $table->Rows ) . '</span></div>' );
 						$output .= $this->sd_html( 'field-content-end' );
+
+						$n++;
+
 					}
 
 				} else {}
@@ -3369,9 +3497,7 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_db_tables',
-								'type':'noncore',
-								'fast_ajax':true,
-								'load_plugins':["sql-buddy/sql-buddy.php","system-dashboard/system-dashboard.php"]
+								'type':'noncore'
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -8208,12 +8334,12 @@ class System_Dashboard_Admin {
 									array(
 										'id'		=> 'core_db_tables',
 										'type'		=> 'accordion',
-										'title'		=> 'Core Tables',
+										'title'		=> 'Core',
 										'subtitle'	=> $this->sd_db_tables( 'count-core' ) . ' tables',
 										'class'		=> 'core-db-tables',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> 'View Tables',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -8226,12 +8352,12 @@ class System_Dashboard_Admin {
 									array(
 										'id'		=> 'noncore_db_tables',
 										'type'		=> 'accordion',
-										'title'		=> 'Themes & Plugins Tables',
+										'title'		=> 'Themes & Plugins',
 										'subtitle'	=> $this->sd_db_tables( 'count-noncore' ) . ' tables',
 										'class'		=> 'noncore-db-tables',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> 'View Tables',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
