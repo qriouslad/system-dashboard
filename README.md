@@ -31,13 +31,7 @@ To preview the module screenshots more easily, please scroll down the [github re
 * Timezone and current time
 * Your IP address
 
-#### 2. Directories: 
-
-* Root path
-* Directory size of WP installation, wp-content directory, uploads directory, plugins directory, themes directory
-* Filesystem permissions
-
-#### 3. Database: 
+#### 2. Database: 
 
 * Software info
 * Uptime
@@ -48,18 +42,24 @@ To preview the module screenshots more easily, please scroll down the [github re
 * Key database info, e.g. innodb_buffer_pool_size
 * Detailed specifications
 
-#### 4. Post Types & Taxonomies: 
+#### 3. Post Types & Taxonomies: 
 
 * List of post types and posts count for each
 * List of taxonomies and terms count for each
 * Comment count
 * List of old slugs and the corresponding posts
 
-#### 5. Media: 
+#### 4. Media: 
 
 * List of media types and files count for each
 * List of allowed mime types and the corresponding file extensions
 * Media handling info, e.g. max file upload size
+
+#### 5. Directories: 
+
+* Root path
+* Directory size of WP installation, wp-content directory, uploads directory, plugins directory, themes directory
+* Filesystem permissions
 
 #### 6. Custom Fields:
 
