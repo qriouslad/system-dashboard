@@ -2261,7 +2261,7 @@ class System_Dashboard_Admin {
 			} elseif ( $type == 'noncore' ) {
 
 				$output = $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', '<strong>Table Name</strong> &#10132; <strong>Origin Plugin (Status)</strong>' );
+				$output .= $this->sd_html( 'field-content-first', '<strong>Table Name</strong> &#10132; <strong>Origin (Status)</strong>' );
 				$output .= $this->sd_html( 'field-content-second', $this->sd_html_parts( 'thirds', 'parts-heading', 'Data Size', 'Index Size', 'Rows' ) );
 				$output .= $this->sd_html( 'field-content-end' );
 
