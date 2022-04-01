@@ -144,6 +144,7 @@ To preview the module screenshots more easily, please scroll down the [github re
 * Server operating system
 * Web server software
 * Server IP address
+* Server hostname
 * Server location
 * Server timezone and current date time
 
