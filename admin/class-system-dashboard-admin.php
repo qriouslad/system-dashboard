@@ -1319,7 +1319,23 @@ class System_Dashboard_Admin {
 
 			}
 
-			$location = $location_data['geoplugin_city'].', '.$location_data['geoplugin_countryName'];
+			if ( !empty( $location_data['geoplugin_city'] ) && !empty( $location_data['geoplugin_countryName'] ) ) {
+
+				$location = $location_data['geoplugin_city'] . ', ' . $location_data['geoplugin_countryName'];
+
+			} elseif ( empty( $location_data['geoplugin_city'] ) && !empty( $location_data['geoplugin_countryName'] ) ) {
+
+				$location = $location_data['geoplugin_countryName'];
+
+			} elseif ( !empty( $location_data['geoplugin_city'] ) && empty( $location_data['geoplugin_countryName'] ) ) {
+
+				$location = $location_data['geoplugin_city'];
+
+			} elseif ( empty( $location_data['geoplugin_city'] ) && empty( $location_data['geoplugin_countryName'] ) ) {
+
+				$location = 'Undetectable';
+
+			} else {}
 
 		} else {
 
