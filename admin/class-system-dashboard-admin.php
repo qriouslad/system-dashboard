@@ -289,7 +289,7 @@ class System_Dashboard_Admin {
 	
 	public function sd_wp_overview() {
 
-		$output = '';
+		$output = '<div class="wordpress-overview">';
 
 		$output .= '<strong>Site Health</strong>: <br />' . $this->sd_site_health() . '<br />';
 
@@ -316,6 +316,8 @@ class System_Dashboard_Admin {
 		$output .= '<strong>Your IP</strong>: <br />' . $this->sd_get_user_ip() . '<br />';
 
 		$output .= '<div style="display: none;">' . $this->sd_active_plugins( 'original', 'print_r') . '</div>';
+
+		$output .= '</div>';
 
 		return $output;
 
@@ -406,7 +408,7 @@ class System_Dashboard_Admin {
 
 		global $wpdb;
 
-		$output = '';
+		$output = '<div class="server-overview">';
 
 		$output .= '<strong>Operating System</strong>: <br />' . $this->sd_os_info(). '<br />';
 
@@ -435,6 +437,8 @@ class System_Dashboard_Admin {
 		$output .= '<strong>Timezone</strong>: <br />' . date_default_timezone_get() . '<br />';
 
 		$output .= '<strong>Server Date Time</strong>: <br />' . date( 'F j, Y - H:i', time() );
+
+		$output .= '</div>';
 
 		return $output;
 
@@ -1501,7 +1505,7 @@ class System_Dashboard_Admin {
 
 			}
 
-			$cpu_load_average = 'Last 15 minutes: '. $last_15minutes_pct .'<br /> Last 5 minutes: '. $last_5minutes_pct .'<br /> Last 1 minute: '. $last_1minutes_pct;
+			$cpu_load_average = 'Last 15 minutes: '. $last_15minutes_pct .' ('. $last_15minutes .')<br /> Last 5 minutes: '. $last_5minutes_pct .' ('. $last_5minutes .')<br /> Last 1 minute: '. $last_1minutes_pct .' ('. $last_1minute .')';
 
 		} else {
 
@@ -9711,7 +9715,7 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'CPU Load Average',
-										'subtitle'	=> 'Across all cores, by '. date( 'H:i:s', time() ),
+										'subtitle'	=> '% of system total (raw)<br />by '. date( 'H:i:s', time() ),
 										'content'	=> $this->sd_cpu_load_average(),
 									),
 									array(
@@ -9843,7 +9847,7 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Error Reporting',
-										'subtitle'	=> error_reporting(),
+										'subtitle'	=> 'Code: ' . error_reporting(),
 										'content'	=> $this->sd_error_reporting(),
 									),
 									array(
