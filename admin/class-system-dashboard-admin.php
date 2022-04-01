@@ -289,7 +289,7 @@ class System_Dashboard_Admin {
 	
 	public function sd_wp_overview() {
 
-		$output = '';
+		$output = '<div class="wordpress-overview">';
 
 		$output .= '<strong>Site Health</strong>: <br />' . $this->sd_site_health() . '<br />';
 
@@ -316,6 +316,8 @@ class System_Dashboard_Admin {
 		$output .= '<strong>Your IP</strong>: <br />' . $this->sd_get_user_ip() . '<br />';
 
 		$output .= '<div style="display: none;">' . $this->sd_active_plugins( 'original', 'print_r') . '</div>';
+
+		$output .= '</div>';
 
 		return $output;
 
@@ -404,7 +406,9 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_server_overview() {
 
-		$output = '';
+		global $wpdb;
+
+		$output = '<div class="server-overview">';
 
 		$output .= '<strong>Operating System</strong>: <br />' . $this->sd_os_info(). '<br />';
 
@@ -423,11 +427,18 @@ class System_Dashboard_Admin {
 			}
 		}
 
+		$hostname_query = $wpdb->get_row("SHOW VARIABLES LIKE 'hostname'");
+		$hostname = $hostname_query->Value;
+
+		$output .= '<strong>Hostname</strong>: <br />' . $hostname . '<br />';
+
 		$output .= '<strong>Location</strong>: <br />' . $this->sd_server_location() . '<br />';
 
 		$output .= '<strong>Timezone</strong>: <br />' . date_default_timezone_get() . '<br />';
 
 		$output .= '<strong>Server Date Time</strong>: <br />' . date( 'F j, Y - H:i', time() );
+
+		$output .= '</div>';
 
 		return $output;
 
@@ -1494,7 +1505,7 @@ class System_Dashboard_Admin {
 
 			}
 
-			$cpu_load_average = 'Last 15 minutes: '. $last_15minutes_pct .'<br /> Last 5 minutes: '. $last_5minutes_pct .'<br /> Last 1 minute: '. $last_1minutes_pct;
+			$cpu_load_average = 'Last 15 minutes: '. $last_15minutes_pct .' ('. $last_15minutes .')<br /> Last 5 minutes: '. $last_5minutes_pct .' ('. $last_5minutes .')<br /> Last 1 minute: '. $last_1minutes_pct .' ('. $last_1minute .')';
 
 		} else {
 
@@ -2261,7 +2272,7 @@ class System_Dashboard_Admin {
 			} elseif ( $type == 'noncore' ) {
 
 				$output = $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', '<strong>Table Name</strong> &#10132; <strong>Origin Plugin (Status)</strong>' );
+				$output .= $this->sd_html( 'field-content-first', '<strong>Table Name</strong> &#10132; <strong>Origin (Status)</strong>' );
 				$output .= $this->sd_html( 'field-content-second', $this->sd_html_parts( 'thirds', 'parts-heading', 'Data Size', 'Index Size', 'Rows' ) );
 				$output .= $this->sd_html( 'field-content-end' );
 
@@ -2779,12 +2790,20 @@ class System_Dashboard_Admin {
 
 		$output = '';
 
-		foreach ( $rewrite_rules as $key => $value ) {
+		if ( !empty( $rewrite_rules ) ) {
 
-			$output .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
-			$output .= $this->sd_html( 'field-content-first', $key, 'full-width long-value' );
-			$output .= $this->sd_html( 'field-content-second', '&#10132; ' . $value, 'full-width long-value' );
-			$output .= $this->sd_html( 'field-content-end' );
+			foreach ( $rewrite_rules as $key => $value ) {
+
+				$output .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
+				$output .= $this->sd_html( 'field-content-first', $key, 'full-width long-value' );
+				$output .= $this->sd_html( 'field-content-second', '&#10132; ' . $value, 'full-width long-value' );
+				$output .= $this->sd_html( 'field-content-end' );
+
+			}
+
+		} else {
+
+			$output = 'Currently, there are no defined rewrite rules.';
 
 		}
 
@@ -2801,7 +2820,15 @@ class System_Dashboard_Admin {
 
 		$rewrite_rules = get_option( 'rewrite_rules' );
 
-		$output = count( $rewrite_rules );
+		if ( !empty( $rewrite_rules ) ) {
+
+			$output = count( $rewrite_rules );
+
+		} else {
+
+			$output = 0;
+
+		}
 
 		return $output;
 
@@ -9704,7 +9731,7 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'CPU Load Average',
-										'subtitle'	=> 'Across all cores, by '. date( 'H:i:s', time() ),
+										'subtitle'	=> '% of system total (raw)<br />by '. date( 'H:i:s', time() ),
 										'content'	=> $this->sd_cpu_load_average(),
 									),
 									array(
@@ -9836,7 +9863,7 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Error Reporting',
-										'subtitle'	=> error_reporting(),
+										'subtitle'	=> 'Code: ' . error_reporting(),
 										'content'	=> $this->sd_error_reporting(),
 									),
 									array(
