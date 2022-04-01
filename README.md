@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.2  
-Stable tag: 2.2.0  
+Stable tag: 2.2.1  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -240,6 +240,13 @@ To preview the module screenshots more easily, please scroll down the [github re
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.2.1 (April 2022)
+
+* Polish: update wording for View (Themes & Plugins) Tables
+* Server Overview: add hostname info
+* Server Monitor: add raw value of CPU load average
+* Rewrite Rules: fix TypeError in PHP 8 when rewrite_rules option is empty, e.g. fresh WP install
 
 ### 2.2.0 (April 2022)
 
