@@ -2790,12 +2790,20 @@ class System_Dashboard_Admin {
 
 		$output = '';
 
-		foreach ( $rewrite_rules as $key => $value ) {
+		if ( !empty( $rewrite_rules ) ) {
 
-			$output .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
-			$output .= $this->sd_html( 'field-content-first', $key, 'full-width long-value' );
-			$output .= $this->sd_html( 'field-content-second', '&#10132; ' . $value, 'full-width long-value' );
-			$output .= $this->sd_html( 'field-content-end' );
+			foreach ( $rewrite_rules as $key => $value ) {
+
+				$output .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
+				$output .= $this->sd_html( 'field-content-first', $key, 'full-width long-value' );
+				$output .= $this->sd_html( 'field-content-second', '&#10132; ' . $value, 'full-width long-value' );
+				$output .= $this->sd_html( 'field-content-end' );
+
+			}
+
+		} else {
+
+			$output = 'Currently, there are no defined rewrite rules.';
 
 		}
 
@@ -2812,7 +2820,15 @@ class System_Dashboard_Admin {
 
 		$rewrite_rules = get_option( 'rewrite_rules' );
 
-		$output = count( (array)$rewrite_rules );
+		if ( !empty( $rewrite_rules ) ) {
+
+			$output = count( $rewrite_rules );
+
+		} else {
+
+			$output = 0;
+
+		}
 
 		return $output;
 
