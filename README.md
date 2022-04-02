@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.2  
-Stable tag: 2.2.1  
+Stable tag: 2.3.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -18,7 +18,7 @@ Centralized dashboard to monitor various WordPress components, stats and data, i
 
 This plugin provides a centralized dashboard to monitor various WordPress components, stats and data, including server hardware, software and resource usage. Pairs well with [Query Monitor](https://wordpress.org/plugins/query-monitor/) and [WP Console](https://wordpress.org/plugins/wp-console/) to help you do some solid dev work.
 
-Despite having 18 WordPress modules and 4 server modules, the single-page dashboard loads fast as queries are optimized and most modules employ fast AJAX loading of data. It does not weight down wp-admin, and nothing is loaded on the front-end. Install, activate and let it sit there ready to summon the info/data you need.
+Despite having 19 WordPress modules and 4 server modules, the single-page dashboard loads fast as queries are optimized and most modules employ fast AJAX loading of data. It does not weight down wp-admin, and nothing is loaded on the front-end. Install, activate and let it sit there ready to summon the info/data you need.
 
 To preview the module screenshots more easily, please scroll down the [github repo](https://github.com/qriouslad/system-dashboard). Here's a rundown of the available modules...
 
@@ -88,19 +88,27 @@ To preview the module screenshots more easily, please scroll down the [github re
 * List of transients that do not expire
 * AJAX loading of transient value with interactive tree viewer for array and object value types 
 
-#### 10. Cron:
+#### 10. Object Cache:
+
+* Status of persistent object cache backend
+* Stats of cache hit ratio
+* List of global groups
+* List of non-persistent groups
+* Diagnostics info (if available)
+
+#### 11. Cron:
 
 * List of cron event hooks and recurrences, categorized by core vs non-core
 
-#### 11. Rewrite Rules:
+#### 12. Rewrite Rules:
 
 * List of rewrite rules
 
-#### 12. Shortcodes:
+#### 13. Shortcodes:
 
 * List of shortcodes and renderers (callback functions)
 
-#### 13. Viewer: 
+#### 14. Viewer: 
 
 * wp-config.php viewer
 * .htaccess viewer
@@ -108,31 +116,31 @@ To preview the module screenshots more easily, please scroll down the [github re
 * robots.txt viewer
 * Link to sitemap
 
-#### 14. Hooks:
+#### 15. Hooks:
 
 * Filterable list of action and filter hooks from WordPress core with description, originating file path and link to WordPress Code Reference for each hook
 * List of action and filter hooks from the active theme, with description, originating file path and link to file preview in the theme file editor
 * List of action and filter hooks from active plugins, with description, originating file path and link to file preview in the plugin file editor
 
-#### 15. Classes: 
+#### 16. Classes: 
 
 * List of classes from WordPress core with methods, originating file path, and link to WordPress Code Reference for each class
 * List of classes from the active theme with methods, originating file path, and link to preview the file in the theme file editor
 * List of classes from active plugins with methods, originating file path, and link to preview the file in the plugin file editor
 
-#### 16. Functions:
+#### 17. Functions:
 
 * Filterable list of functions from WordPress core with the originating file path and link to WordPress Code Reference for each function
 * List of functions from the active theme with the originating file path and link to preview the file in the theme file editor
 * List of functions from active plugins with the originating file path and link to preview the file in the plugin file editor
 
-#### 17. Globals:
+#### 18. Globals:
 
 * Categorized list of global variables defined by WordPress
 * List of PHP super globals
 * List of global variables defined by themes and plugins
 
-#### 18. Constants:
+#### 19. Constants:
 
 * List of defined constants by WordPress core (categorized), as well as by theme and plugins
 * Documentation of each constant from WordPress core
@@ -241,6 +249,11 @@ To preview the module screenshots more easily, please scroll down the [github re
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.3.0 (April 2022)
+
+* NEW: Object Cache module with status of persistent object cache backend, stats of cache hit ratio, list of global groups, list of non-persistent groups and diagnostics info (if available)
+* Server Overview: improve location output
 
 ### 2.2.1 (April 2022)
 
