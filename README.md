@@ -22,7 +22,7 @@ Despite having 19 WordPress modules and 4 server modules, the single-page dashbo
 
 To preview the module screenshots more easily, please scroll down the [github repo](https://github.com/qriouslad/system-dashboard). Here's a rundown of the available modules...
 
-### WordPress Modules (18)
+### WordPress Modules (19)
 
 #### 1. Overview: 
 
