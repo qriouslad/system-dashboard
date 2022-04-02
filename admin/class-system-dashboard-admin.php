@@ -1319,7 +1319,23 @@ class System_Dashboard_Admin {
 
 			}
 
-			$location = $location_data['geoplugin_city'].', '.$location_data['geoplugin_countryName'];
+			if ( !empty( $location_data['geoplugin_city'] ) && !empty( $location_data['geoplugin_countryName'] ) ) {
+
+				$location = $location_data['geoplugin_city'] . ', ' . $location_data['geoplugin_countryName'];
+
+			} elseif ( empty( $location_data['geoplugin_city'] ) && !empty( $location_data['geoplugin_countryName'] ) ) {
+
+				$location = $location_data['geoplugin_countryName'];
+
+			} elseif ( !empty( $location_data['geoplugin_city'] ) && empty( $location_data['geoplugin_countryName'] ) ) {
+
+				$location = $location_data['geoplugin_city'];
+
+			} elseif ( empty( $location_data['geoplugin_city'] ) && empty( $location_data['geoplugin_countryName'] ) ) {
+
+				$location = 'Undetectable';
+
+			} else {}
 
 		} else {
 
@@ -3273,6 +3289,256 @@ class System_Dashboard_Admin {
 			 return size_format( $autoloaded_size );
 
 		} else {}
+
+	}
+
+	/**
+	 * Get object cache data
+	 *
+	 * @since 2.3.0
+	 */
+	public function sd_object_cache( $return = '' ) {
+
+		global $wp_object_cache;
+
+		if ( is_object( $wp_object_cache ) ) {
+
+			$object_vars = get_object_vars( $wp_object_cache ); // array
+
+		}
+
+		$output = '';
+		$enable_persistent_cache_msg = 'Please enable a <a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">persistence object cache plugin</a> first to see the relevant info here';
+
+		// Set a test cache key value
+
+		// $result = wp_cache_get( 'sd_test_cache' );
+
+		// if ( false === $result ) {
+
+		// 	$result = SYSTEM_DASHBOARD_VERSION;
+
+		// 	wp_cache_set( 'sd_test_cache_2', $result, 'redis-cache', 30 );
+
+		// }
+
+		// Get redis cache keys
+
+		// $redis = new Redis();
+		// $redis->connect('127.0.0.1', 6379);
+		// $allKeys = $redis->keys('*');
+
+		// $this_site_keys = array();
+
+		// foreach ( $allKeys as $key => $value ) {
+
+		// 	if ( strpos( $value, WP_REDIS_PREFIX ) !== false ) {
+
+		// 		$this_site_keys[] = $value;
+
+		// 	}
+
+		// }
+
+		// ob_start();
+		// print_r( $this_site_keys );
+		// $this_site_keys_formatted = ob_get_clean();
+
+		if ( $return == 'status' ) {
+
+			if ( (bool) wp_using_ext_object_cache() ) {
+
+				$output .= '<a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">Persistent object cache plugin</a> is <a href="'. network_admin_url( 'plugins.php?plugin_status=dropins' ) .'" target="_blank">in use</a>';
+
+			} else {
+
+				$output .= '<a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">Persistent object cache plugin</a> is not in use';
+
+			}
+
+			return $output;
+
+		} elseif ( $return == 'stats' ) {
+
+			if ( array_key_exists( 'cache_hits', $object_vars ) ) {
+
+				$cache_hits = $object_vars['cache_hits'];
+				$cache_misses = $object_vars['cache_misses'];
+				$total = $cache_hits + $cache_misses;
+				$percentage = round( ( ( $cache_hits / $total ) * 100 ), 1 );
+
+				$output = $percentage . '% hit rate ('. number_format( $cache_hits ) .' hits, '. number_format( $cache_misses ) .' misses)';
+
+				return $output;
+
+			} else {
+
+				return $enable_persistent_cache_msg;
+
+			}
+
+		} elseif ( $return == 'global_groups' ) {
+
+			if ( array_key_exists( 'global_groups', $object_vars ) ) {
+
+				$global_groups = $object_vars['global_groups'];
+				$global_groups_keys = array_keys( $global_groups );
+
+				$last_element_key = array_pop( $global_groups );
+
+				if ( is_bool( $last_element_key ) ) {
+
+					foreach ( $global_groups_keys as $global_group ) {
+						$output .= $global_group . '<br />';
+					}
+
+				} else {
+
+					foreach ( $global_groups as $global_group ) {
+						$output .= $global_group . '<br />';
+					}
+
+				}
+
+				return $output;
+
+			} else {
+
+				return $enable_persistent_cache_msg;
+
+			}
+
+		} elseif ( $return == 'non_persistent_groups' ) {
+
+			if ( array_key_exists( 'ignored_groups', $object_vars ) ) {
+
+				// Redis
+				$non_persistent_groups = $object_vars['ignored_groups'];
+
+				foreach ( $non_persistent_groups as $non_persistent_group ) {
+
+					$output .= $non_persistent_group . '<br />';
+
+				}
+
+			} elseif ( array_key_exists( 'no_mc_groups', $object_vars ) ) {
+
+				// Memcached
+				$non_persistent_groups = $object_vars['no_mc_groups'];
+
+				foreach ( $non_persistent_groups as $non_persistent_group ) {
+
+					$output .= $non_persistent_group . '<br />';
+
+				}
+
+			} elseif ( array_key_exists( 'non_persistent_groups', $object_vars ) ) {
+
+				// Memcached using Powered Cache plugin
+				$non_persistent_groups = $object_vars['non_persistent_groups'];
+
+				foreach ( $non_persistent_groups as $non_persistent_group => $value ) {
+
+					$output .= $non_persistent_group . '<br />';
+
+				}
+
+			} else {}
+
+			if ( isset( $non_persistent_groups ) ) {
+
+				return $output;
+
+			} else {
+
+				return $enable_persistent_cache_msg;
+
+			}
+
+		} elseif ( $return == 'diagnostics' ) {
+
+			if ( array_key_exists( 'diagnostics', $object_vars ) ) {
+
+				$diagnostics = $object_vars['diagnostics'];
+
+				foreach ( $diagnostics as $key => $value ) {
+
+					if ( $key != '0' ) {
+
+						if ( $value === true ) {
+							$value = 'true';
+						} elseif ( $value === false ) {
+							$value = 'false';
+						} else {}
+
+						if ( $key == 'client' ) {
+							$key = 'Client';
+						} elseif ( $key == 'host' ) {
+							$key = 'Host';
+						} elseif ( $key == 'port' ) {
+							$key = 'Port';
+						} elseif ( $key == 'timeout' ) {
+							$key = 'Connection Timeout';
+							$value = $value . 's';
+						} elseif ( $key == 'retry_interval' ) {
+							$key = 'Retry Interval';
+							$value = $value . 'ms';
+						} elseif ( $key == 'read_timeout' ) {
+							$key = 'Read Timeout';
+							$value = $value . 's';
+						} elseif ( $key == 'database' ) {
+							$key = 'Database';
+						} elseif ( $key == 'ping' ) {
+							$key = 'Ping';
+						} 
+
+						$output .= $this->sd_html( 'field-content-start' );
+						$output .= $this->sd_html( 'field-content-first', $key );
+						$output .= $this->sd_html( 'field-content-second', $value );
+						$output .= $this->sd_html( 'field-content-end' );
+
+					}
+
+				}
+
+				if ( method_exists( $wp_object_cache, 'redis_version' ) ) {
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', 'Redis Version' );
+					$output .= $this->sd_html( 'field-content-second', $wp_object_cache->redis_version() );
+					$output .= $this->sd_html( 'field-content-end' );
+
+				}
+
+				if ( defined( 'WP_REDIS_PREFIX' ) ) {
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', 'WP_REDIS_PREFIX' );
+					$output .= $this->sd_html( 'field-content-second', WP_REDIS_PREFIX );
+					$output .= $this->sd_html( 'field-content-end' );				
+
+				}
+
+				$dropins = array();
+
+				foreach ( get_dropins() as $file => $details ) {
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $file );
+					$output .= $this->sd_html( 'field-content-second', $details['Name'] . ' v' . $details['Version'] . ' by ' . $details['Author'] );
+					$output .= $this->sd_html( 'field-content-end' );
+
+				}
+
+				return $output;
+
+			} else {
+
+				return 'No diagnostics data is currently available';
+
+			}
+
+		}
 
 	}
 
@@ -7607,6 +7873,38 @@ class System_Dashboard_Admin {
 					'usenow'	=> '/wp-admin/tools.php?page=transients-manager',
 				),
 			),
+			'object_cache' 	=> array(
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Redis Object Cache',
+					'pointer'	=> 'redis-cache',
+					'usenow'	=> '/wp-admin/options-general.php?page=redis-cache',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Powered Cache',
+					'pointer'	=> 'powered-cache',
+					'usenow'	=> '/wp-admin/admin.php?page=powered-cache',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Use Memcached',
+					'pointer'	=> 'use-memcached',
+					'usenow'	=> '/wp-admin/tools.php?page=use_memcached',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Object Cache 4 everyone',
+					'pointer'	=> 'object-cache-4-everyone',
+					'usenow'	=> 'url',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Docket Cache - Object Cache Accelerator',
+					'pointer'	=> 'docket-cache',
+					'usenow'	=> '',
+				),
+			),
 			'cron' 	=> array(
 				array(
 					'type'		=> 'plugin',
@@ -8084,6 +8382,28 @@ class System_Dashboard_Admin {
 					'type'		=> 'link',
 					'name'		=> 'Understand Caching with WordPress Transients API',
 					'pointer'	=> 'https://wpshout.com/know-wordpress-transients-api/',
+				),
+			),
+			'object_cache' 	=> array(
+				array(
+					'type'		=> 'link',
+					'name'		=> 'Code Reference: WP_Object_Cache',
+					'pointer'	=> 'https://developer.wordpress.org/reference/classes/wp_object_cache/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'WordPress Object Caching: Redis, Memcached and native APIs',
+					'pointer'	=> 'https://pressidium.com/blog/wordpress-object-caching-redis-memcached-and-native-apis/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'Everything You Need To Know About WordPress Object Caching',
+					'pointer'	=> 'https://wpastra.com/wordpress-object-caching/',
+				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'Using the WordPress Object Cache to Cache Query Results',
+					'pointer'	=> 'https://pressable.com/knowledgebase/using-wordpress-object-cache-for-query-results/',
 				),
 			),
 			'cron' 	=> array(
@@ -8881,6 +9201,80 @@ class System_Dashboard_Admin {
 								),
 							),
 
+							array(
+								'title'		=> 'Object Cache',
+								'fields'	=> array(
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Status',
+										'content'	=> $this->sd_object_cache( 'status' ),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Stats',
+										'content'	=> $this->sd_object_cache( 'stats' ),
+									),
+									array(
+										'id'		=> 'object_cache_global_groups',
+										'type'		=> 'accordion',
+										'title'		=> 'Global Groups',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_object_cache( 'global_groups' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'object_cache_ignored_groups',
+										'type'		=> 'accordion',
+										'title'		=> 'Non-persistent Groups',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_object_cache( 'non_persistent_groups' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'object_cache_diagnostics',
+										'type'		=> 'accordion',
+										'title'		=> 'Diagnostics',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_object_cache( 'diagnostics' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Tools',
+										'content'	=> $this->sd_tools( 'object_cache' ),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'References',
+										'content'	=> $this->sd_references( 'object_cache' ),
+									),
+
+								),
+							),
 							array(
 								'title'		=> 'Cron',
 								'fields'	=> array(
