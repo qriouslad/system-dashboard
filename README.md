@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.2  
-Stable tag: 2.3.0  
+Stable tag: 2.4.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -22,7 +22,7 @@ Despite having 19 WordPress modules and 4 server modules, the single-page dashbo
 
 To preview the module screenshots more easily, please scroll down the [github repo](https://github.com/qriouslad/system-dashboard). Here's a rundown of the available modules...
 
-### WordPress Modules (18)
+### WordPress Modules (19)
 
 #### 1. Overview: 
 
@@ -94,6 +94,8 @@ To preview the module screenshots more easily, please scroll down the [github re
 * Stats of cache hit ratio
 * List of global groups
 * List of non-persistent groups
+* List and viewer (AJAX) of cached items in the global $wp_object_cache variable
+* List and viewer (AJAX) of cached items in memory. Currently supporting Redis and Memcached backends.
 * Diagnostics info (if available)
 
 #### 11. Cron:
@@ -249,6 +251,11 @@ To preview the module screenshots more easily, please scroll down the [github re
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.4.0 (April 2022)
+
+* Object Cache: Add list and viewer of cache items in the global $wp_object_cache variable and also in memory store (currently supporting Redis and Memcached backends)
+* Reposition Viewer module after the Constants module
 
 ### 2.3.0 (April 2022)
 
