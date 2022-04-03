@@ -79,7 +79,7 @@
     border-bottom: 1px solid #ccd0d4;
 }
 
-.main-section .csf-subtitle-text {
+.wordpress-overview, .server-overview {
     color:  #3c434a;
     line-height: 1.7;
 }
@@ -146,6 +146,28 @@
     width: 100%;
 }
 
+.sd-options .field-part .parts {
+    width:  100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.sd-options .field-part .parts-heading {
+    font-weight: 600;
+}
+
+.sd-options .field-part .halves {
+    width:  49%;
+}
+
+.sd-options .field-part .thirds {
+    width:  32%;
+}
+
+.sd-options .field-part .quarts {
+    width:  23.5%;
+}
+
 .sd-options .wpcore-hooks .field-part.full-width {
     display: flex;
     flex-direction: row;
@@ -163,6 +185,13 @@
 }
 
 .sd-options .first-part span.option__value {
+    color: #3c434a;
+}
+
+.sd-options span.db-table-origin-plugin {
+    line-height: 2;
+    word-break: unset;
+    white-space: nowrap;
     color: #3c434a;
 }
 
