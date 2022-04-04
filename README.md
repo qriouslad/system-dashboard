@@ -110,42 +110,42 @@ To preview the module screenshots more easily, please scroll down the [github re
 
 * List of shortcodes and renderers (callback functions)
 
-#### 14. Viewer: 
+#### 14. Hooks:
+
+* Filterable list of action and filter hooks from WordPress core with description, originating file path and link to WordPress Code Reference for each hook
+* List of action and filter hooks from the active theme, with description, originating file path and link to file preview in the theme file editor
+* List of action and filter hooks from active plugins, with description, originating file path and link to file preview in the plugin file editor
+
+#### 15. Classes: 
+
+* List of classes from WordPress core with methods, originating file path, and link to WordPress Code Reference for each class
+* List of classes from the active theme with methods, originating file path, and link to preview the file in the theme file editor
+* List of classes from active plugins with methods, originating file path, and link to preview the file in the plugin file editor
+
+#### 16. Functions:
+
+* Filterable list of functions from WordPress core with the originating file path and link to WordPress Code Reference for each function
+* List of functions from the active theme with the originating file path and link to preview the file in the theme file editor
+* List of functions from active plugins with the originating file path and link to preview the file in the plugin file editor
+
+#### 17. Globals:
+
+* Categorized list of global variables defined by WordPress
+* List of PHP super globals
+* List of global variables defined by themes and plugins
+
+#### 18. Constants:
+
+* List of defined constants by WordPress core (categorized), as well as by theme and plugins
+* Documentation of each constant from WordPress core
+
+#### 19. Viewer: 
 
 * wp-config.php viewer
 * .htaccess viewer
 * REST API viewer
 * robots.txt viewer
 * Link to sitemap
-
-#### 15. Hooks:
-
-* Filterable list of action and filter hooks from WordPress core with description, originating file path and link to WordPress Code Reference for each hook
-* List of action and filter hooks from the active theme, with description, originating file path and link to file preview in the theme file editor
-* List of action and filter hooks from active plugins, with description, originating file path and link to file preview in the plugin file editor
-
-#### 16. Classes: 
-
-* List of classes from WordPress core with methods, originating file path, and link to WordPress Code Reference for each class
-* List of classes from the active theme with methods, originating file path, and link to preview the file in the theme file editor
-* List of classes from active plugins with methods, originating file path, and link to preview the file in the plugin file editor
-
-#### 17. Functions:
-
-* Filterable list of functions from WordPress core with the originating file path and link to WordPress Code Reference for each function
-* List of functions from the active theme with the originating file path and link to preview the file in the theme file editor
-* List of functions from active plugins with the originating file path and link to preview the file in the plugin file editor
-
-#### 18. Globals:
-
-* Categorized list of global variables defined by WordPress
-* List of PHP super globals
-* List of global variables defined by themes and plugins
-
-#### 19. Constants:
-
-* List of defined constants by WordPress core (categorized), as well as by theme and plugins
-* Documentation of each constant from WordPress core
 
 ### Server Modules (3)
 
@@ -225,18 +225,18 @@ To preview the module screenshots more easily, please scroll down the [github re
    ![Rewrite Rules module](.wordpress-org/screenshot-11.png)
 12. Shortcodes module
    ![Shortcodes module](.wordpress-org/screenshot-12.png)
-13. Viewer module
-   ![Viewer module](.wordpress-org/screenshot-13.png)
-14. Hooks module
+13. Hooks module
    ![Hooks module](.wordpress-org/screenshot-14.png)
-15. Classes module
+14. Classes module
    ![Classes module](.wordpress-org/screenshot-15.png)
-16. Functions module
+15. Functions module
    ![Functions module](.wordpress-org/screenshot-16.png)
-17. Globals module
+16. Globals module
    ![Globals module](.wordpress-org/screenshot-17.png)
-18. Constants module
+17. Constants module
    ![Constants module](.wordpress-org/screenshot-18.png)
+18. Viewer module
+   ![Viewer module](.wordpress-org/screenshot-13.png)
 19. Server overview and Monitor module
    ![Server overview and Monitor module](.wordpress-org/screenshot-19.png)
 20. Hardware module
@@ -251,6 +251,10 @@ To preview the module screenshots more easily, please scroll down the [github re
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.4.1 (April 2022)
+
+* Reduce duplicate $wpdb queries with object caching
 
 ### 2.4.0 (April 2022)
 
