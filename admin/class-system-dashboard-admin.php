@@ -447,7 +447,15 @@ class System_Dashboard_Admin {
 			}
 		}
 
-		$hostname_query = $wpdb->get_row("SHOW VARIABLES LIKE 'hostname'");
+		// Get hostname info from cache or DB
+
+		$hostname_query = wp_cache_get( 'sd_db_hostname', 'wpdb-queries' );
+
+		if ( false === $hostname_query ) {
+			$hostname_query = $wpdb->get_row("SHOW VARIABLES LIKE 'hostname'");
+			wp_cache_set( 'sd_db_hostname', $hostname_query, 'wpdb-queries', YEAR_IN_SECONDS );
+		}
+
 		$hostname = $hostname_query->Value;
 
 		$output .= '<strong>Hostname</strong>: <br />' . $hostname . '<br />';
@@ -1062,7 +1070,14 @@ class System_Dashboard_Admin {
 	        FROM $wpdb->postmeta;
 	    ";
 
-	    $results = $wpdb->get_results($query);
+	    // Get meta keys info from cache or DB
+
+		$results = wp_cache_get( 'sd_db_postmeta_meta_keys', 'wpdb-queries' );
+
+		if ( false === $results ) {
+			$results = $wpdb->get_results( $query );
+			wp_cache_set( 'sd_db_postmeta_meta_keys', $results, 'wpdb-queries', MINUTE_IN_SECONDS );
+		}
 
 	    $meta_keys = array();
 
@@ -2180,7 +2195,17 @@ class System_Dashboard_Admin {
 			global $wpdb;
 			$db_data_disk_usage = 0;
 			$db_index_disk_usage = 0;
-			$tablesstatus = $wpdb->get_results("SHOW TABLE STATUS");
+
+			// Get tables data from cache or DB
+
+			$tablesstatus = wp_cache_get( 'sd_db_show_table_status', 'wpdb-queries' );
+
+			if ( false === $tablesstatus ) {
+				$tablesstatus = $wpdb->get_results("SHOW TABLE STATUS");
+				wp_cache_set( 'sd_db_show_table_status', $tablesstatus, 'wpdb-queries', MINUTE_IN_SECONDS );
+			}
+
+			// $tablesstatus = $wpdb->get_results("SHOW TABLE STATUS");
 
 			foreach ($tablesstatus as $tablestatus) {
 				$db_data_disk_usage += $tablestatus->Data_length;
@@ -2213,7 +2238,15 @@ class System_Dashboard_Admin {
 		global $wpdb;
 
 		$prefix = $wpdb->prefix;
-		$tables = $wpdb->get_results("SHOW TABLE STATUS");
+
+		// Get tables data from cache or DB
+
+		$tables = wp_cache_get( 'sd_db_show_table_status', 'wpdb-queries' );
+
+		if ( false === $tables ) {
+			$tables = $wpdb->get_results("SHOW TABLE STATUS");
+			wp_cache_set( 'sd_db_show_table_status', $tables, 'wpdb-queries', MINUTE_IN_SECONDS );
+		}
 
 		$wpcore_tables = array(
 			$wpdb->prefix . 'commentmeta',
@@ -2458,7 +2491,14 @@ class System_Dashboard_Admin {
 
 		global $wpdb;
 
-		$db_uptime_query = $wpdb->get_results("SHOW GLOBAL STATUS LIKE 'Uptime'");
+		// Get uptime data from cache or DB
+
+		$db_uptime_query = wp_cache_get( 'sd_db_uptime_query', 'wpdb-queries' );
+
+		if ( false === $db_uptime_query ) {
+			$db_uptime_query = $wpdb->get_results("SHOW GLOBAL STATUS LIKE 'Uptime'");
+			wp_cache_set( 'sd_db_uptime_query', $db_uptime_query, 'wpdb-queries', MINUTE_IN_SECONDS );
+		}
 
 		if ( isset( $db_uptime_query[0]->Value ) ) {
 			$db_uptime = $db_uptime_query[0]->Value;
@@ -2994,9 +3034,16 @@ class System_Dashboard_Admin {
 
 		global $wpdb;
 
-		// $options = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}options ORDER BY option_name" );
-		// $options = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}options ORDER BY option_name" ) );
-		$options = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}options" );
+	    // Get options info from cache or DB
+
+		$options = wp_cache_get( 'sd_db_options', 'wpdb-queries' );
+
+		if ( false === $options ) {
+			// $options = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}options ORDER BY option_name" );
+			// $options = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}options ORDER BY option_name" ) );
+			$options = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}options" );
+			wp_cache_set( 'sd_db_options', $options, 'wpdb-queries', MINUTE_IN_SECONDS );
+		}
 
 		if ( !empty( $options ) ) {
 
@@ -3183,7 +3230,14 @@ class System_Dashboard_Admin {
 		$number = absint($args['number']);
 		$sql .= " ORDER BY option_id DESC LIMIT $offset,$number;";
 
-		$transients = $wpdb->get_results($sql);
+		// Get transients from cache or DB
+
+		$transients = wp_cache_get( 'sd_db_transients', 'wpdb-queries' );
+
+		if ( false === $transients ) {
+			$transients = $wpdb->get_results($sql);
+			wp_cache_set( 'sd_db_transients', $transients, 'wpdb-queries', MINUTE_IN_SECONDS );
+		}
 
 		$output = '';
 		$n = 0; // Start transients counter by expiry type
