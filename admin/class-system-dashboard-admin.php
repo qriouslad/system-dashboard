@@ -3206,6 +3206,92 @@ class System_Dashboard_Admin {
 	}
 
 	/**
+	 * Get largest autoloaded options
+	 *
+	 * @since 2.5.0
+	 */
+	public function sd_options_largest_autoloads() {
+
+		global $wpdb;
+
+		$table_prefix = $wpdb->prefix;
+		$options_table = $table_prefix . 'options';
+
+		// $sql_query = "SELECT option_name, length(option_value) AS option_value_length FROM {$options_table} WHERE autoload='yes' ORDER BY option_value_length DESC LIMIT 10;";
+
+		$sql_query = "SELECT * FROM {$options_table} WHERE autoload='yes' ORDER BY length(option_value) DESC LIMIT 10;";
+
+		$options = $wpdb->get_results( $sql_query );
+
+		$output = '';
+
+		foreach ( $options as $option ) {
+
+			$id = $option->option_id;
+			$id_alt = $id . '-alt';
+			$name = $option->option_name;
+
+			$value = maybe_unserialize( $option->option_value );
+			$value_type_raw = gettype( $value );
+
+			$autoload = $option->autoload;
+
+			$size_raw = strlen( $option->option_value );
+			$size_formatted = size_format( $size_raw );
+
+			if ( !empty( $value ) ) {
+				$size = 'size: ' . $size_formatted;
+				$size_formatted_array = explode( " ", $size_formatted );
+				$size_order = strtolower( $size_formatted_array[1] );
+				$value_type = ' - type: ' . $value_type_raw;
+			} elseif( ( empty( $value ) ) && is_numeric( $value ) ) {
+				$size = 'size: ' . $size_formatted;
+				$size_formatted_array = explode( " ", $size_formatted );
+				$size_order = strtolower( $size_formatted_array[1] );
+				$value_type = ' - type: ' . $value_type;
+			} else {
+				$size = 'empty ';
+				$size_order = 'empty';
+				$value_type = '';
+			}
+
+			if ( $autoload == 'yes' ) {
+				$autoloaded = 'autoloaded - ';
+				$autoloaded_string = '_autoloaded';
+			} else {
+				$autoloaded = '';					
+				$autoloaded_string = '';
+			}
+
+			// Ignore options with name starting with underscore as they are transients
+			if ( $name[0] !== '_' ) {
+
+				$content = '';
+
+				$content .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
+				$content .= $this->sd_html( 'field-content-first', '<div id="spinner-' . $id_alt . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading...</div><div id="option_id_' . $id_alt . '" class="option__value ajax-value"></div>', 'full-width long-value' );
+				$content .= $this->sd_html( 'field-content-end' );
+
+				$data_atts = array(
+					'id'		=> $id_alt,
+					'loaded'	=> 'no',
+					'name'		=> $name,
+				);
+
+				$output .= $this->sd_html( 'accordions-start-simple-margin-default' );
+				$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' | ' . $autoloaded . $size . $value_type, 'option__name', $data_atts, 'option-name-'.$id_alt );
+				$output .= $this->sd_html( 'accordion-body', $content );
+				$output .= $this->sd_html( 'accordions-end' );
+
+			}
+
+		}
+
+		return $output;
+
+	}
+
+	/**
 	 * Get transients data
 	 * 
 	 * @link https://plugins.svn.wordpress.org/wptools/tags/3.13/functions/functions_transiente_manager.php
@@ -8937,6 +9023,11 @@ class System_Dashboard_Admin {
 					'name'		=> 'Keeping your WordPress options table in check',
 					'pointer'	=> 'https://10up.com/blog/2017/wp-options-table/',
 				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'Add MySQL Index to WordPress wp_options Table',
+					'pointer'	=> 'https://guides.wp-bullet.com/add-mysql-index-wordpress-wp_options-table/',
+				),
 			),
 			'transients' 	=> array(
 				array(
@@ -9686,14 +9777,31 @@ class System_Dashboard_Admin {
 										),
 									),
 									array(
+										'id'		=> 'wp_noncore_options',
+										'type'		=> 'accordion',
+										'title'		=> 'Largest Autoloaded',
+										'subtitle'	=> '10 options',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View Options',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_options_largest_autoloads(),
+													),													
+												),
+											),
+										),
+									),
+									array(
 										'type'		=> 'content',
 										'title'		=> 'Tools',
-										'content'	=> $this->sd_tools( 'transients' ),
+										'content'	=> $this->sd_tools( 'options' ),
 									),
 									array(
 										'type'		=> 'content',
 										'title'		=> 'References',
-										'content'	=> $this->sd_references( 'transients' ),
+										'content'	=> $this->sd_references( 'options' ),
 									),
 
 								),
