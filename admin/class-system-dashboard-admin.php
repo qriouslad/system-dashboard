@@ -8306,6 +8306,12 @@ class System_Dashboard_Admin {
 					'pointer'	=> 'remove-old-slugspermalinks',
 					'usenow'	=> '/wp-admin/tools.php?page=alg-slugs-manager',
 				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'WP Bulk Delete',
+					'pointer'	=> 'wp-bulk-delete',
+					'usenow'	=> '/wp-admin/admin.php?page=delete_all_posts',
+				),
 			),
 			'media' 	=> array(
 				array(
