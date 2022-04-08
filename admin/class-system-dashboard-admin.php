@@ -5437,9 +5437,7 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_constants',
-								'type':'defined',
-								'fast_ajax':true,
-								'load_plugins':["system-dashboard/system-dashboard.php"]
+								'type':'defined'
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
