@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.2  
-Stable tag: 2.4.0  
+Stable tag: 2.4.2  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -77,6 +77,7 @@ To preview the module screenshots more easily, please scroll down the [github re
 * Total number and size of autoloaded options
 * Filterable list of options from WordPress core with ID, autoload, size and type info
 * Filterable list of options from plugins and theme with ID, autoload, size and type info
+* List of 10 autoloaded options with the largest size
 * AJAX loading of option value with interactive tree viewer for array and object value types 
 
 #### 9. Transients: 
@@ -251,6 +252,12 @@ To preview the module screenshots more easily, please scroll down the [github re
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.4.2 (2022.04.20)
+
+* Constants: Disable fast AJAX so constants from all plugins are properly listed
+* Options: Add list of 10 autoloaded options with the largest size
+
 
 ### 2.4.1 (April 2022)
 
