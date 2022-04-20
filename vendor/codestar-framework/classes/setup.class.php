@@ -7,12 +7,12 @@
  * @version 1.0.0
  *
  */
-if ( ! class_exists( 'CSF' ) ) {
-  class CSF {
+if ( ! class_exists( 'CSF_Setup' ) ) {
+  class CSF_Setup {
 
     // Default constants
-    public static $premium  = true;
-    public static $version  = '2.2.6';
+    public static $premium  = false;
+    public static $version  = '2.2.8';
     public static $dir      = '';
     public static $url      = '';
     public static $css      = '';
@@ -39,10 +39,13 @@ if ( ! class_exists( 'CSF' ) ) {
 
     private static $instance = null;
 
-    public static function init( $file = __FILE__ ) {
+    public static function init( $file = __FILE__, $premium = false ) {
 
       // Set file constant
       self::$file = $file;
+
+      // Set file constant
+      self::$premium = $premium;
 
       // Set constants
       self::constants();
@@ -80,7 +83,7 @@ if ( ! class_exists( 'CSF' ) ) {
     // Setup frameworks
     public static function setup() {
 
-      // Welcome page
+      // Welcome
       self::include_plugin_file( 'views/welcome.php' );
 
       // Setup admin option framework
@@ -377,18 +380,18 @@ if ( ! class_exists( 'CSF' ) ) {
     // Include files
     public static function includes() {
 
-      // Helpers
+      // Include common functions
       self::include_plugin_file( 'functions/actions.php'  );
       self::include_plugin_file( 'functions/helpers.php'  );
       self::include_plugin_file( 'functions/sanitize.php' );
       self::include_plugin_file( 'functions/validate.php' );
 
-      // Includes free version classes
+      // Include free version classes
       self::include_plugin_file( 'classes/abstract.class.php'      );
       self::include_plugin_file( 'classes/fields.class.php'        );
       self::include_plugin_file( 'classes/admin-options.class.php' );
 
-      // Includes premium version classes
+      // Include premium version classes
       if ( self::$premium ) {
         self::include_plugin_file( 'classes/customize-options.class.php' );
         self::include_plugin_file( 'classes/metabox-options.class.php'   );
@@ -562,9 +565,6 @@ if ( ! class_exists( 'CSF' ) ) {
         return;
       }
 
-      // Check for developer mode
-      $min = ( self::$premium && SCRIPT_DEBUG ) ? '' : '.min';
-
       // Admin utilities
       wp_enqueue_media();
 
@@ -574,11 +574,14 @@ if ( ! class_exists( 'CSF' ) ) {
 
       // Font awesome 4 and 5 loader
       if ( apply_filters( 'csf_fa4', false ) ) {
-        wp_enqueue_style( 'csf-fa', 'https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome'. $min .'.css', array(), '4.7.0', 'all' );
+        wp_enqueue_style( 'csf-fa', 'https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css', array(), '4.7.0', 'all' );
       } else {
-        wp_enqueue_style( 'csf-fa5', 'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all'. $min .'.css', array(), '5.15.5', 'all' );
-        wp_enqueue_style( 'csf-fa5-v4-shims', 'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/v4-shims'. $min .'.css', array(), '5.15.5', 'all' );
+        wp_enqueue_style( 'csf-fa5', 'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css', array(), '5.15.5', 'all' );
+        wp_enqueue_style( 'csf-fa5-v4-shims', 'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/v4-shims.min.css', array(), '5.15.5', 'all' );
       }
+
+      // Check for developer mode
+      $min = ( self::$premium && SCRIPT_DEBUG ) ? '' : '.min';
 
       // Main style
       wp_enqueue_style( 'csf', self::include_plugin_url( 'assets/css/style'. $min .'.css' ), array(), self::$version, 'all' );
@@ -750,10 +753,6 @@ if ( ! class_exists( 'CSF' ) ) {
 
       if ( ! empty( $field_type ) ) {
 
-        if ( ! empty( $field['fancy_title'] ) ) {
-          echo '<div class="csf-fancy-title">' . $field['fancy_title'] .'</div>';
-        }
-
         if ( ! empty( $field['title'] ) ) {
           echo '<div class="csf-title">';
           echo '<h4>'. $field['title'] .'</h4>';
@@ -761,7 +760,7 @@ if ( ! class_exists( 'CSF' ) ) {
           echo '</div>';
         }
 
-        echo ( ! empty( $field['title'] ) || ! empty( $field['fancy_title'] ) ) ? '<div class="csf-fieldset">' : '';
+        echo ( ! empty( $field['title'] ) ) ? '<div class="csf-fieldset">' : '';
 
         $value = ( ! isset( $value ) && isset( $field['default'] ) ) ? $field['default'] : $value;
         $value = ( isset( $field['value'] ) ) ? $field['value'] : $value;
@@ -779,7 +778,7 @@ if ( ! class_exists( 'CSF' ) ) {
         echo '<p>'. esc_html__( 'Field not found!', 'csf' ) .'</p>';
       }
 
-      echo ( ! empty( $field['title'] ) || ! empty( $field['fancy_title'] ) ) ? '</div>' : '';
+      echo ( ! empty( $field['title'] ) ) ? '</div>' : '';
       echo '<div class="clear"></div>';
       echo '</div>';
 
@@ -789,4 +788,16 @@ if ( ! class_exists( 'CSF' ) ) {
 
 }
 
-CSF::init( __FILE__ );
+CSF_Setup::init( __FILE__, false );
+
+/**
+ *
+ * Extended Setup Class for Shortland
+ *
+ * @since 1.0.0
+ * @version 1.0.0
+ *
+ */
+if ( ! class_exists( 'CSF' ) ) {
+  class CSF extends CSF_Setup{}
+}
