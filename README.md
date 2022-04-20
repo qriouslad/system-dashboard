@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.2  
-Stable tag: 2.4.2  
+Stable tag: 2.4.3  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -252,6 +252,11 @@ To preview the module screenshots more easily, please scroll down the [github re
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.4.3 (2022.04.20)
+
+* Options: Cache query results for 10 largest autoloaded options to remove duplicate query
+* CodeStar Framework: downgrade to [free version](https://github.com/Codestar/codestar-framework) v2.2.8
 
 ### 2.4.2 (2022.04.20)
 

@@ -3217,11 +3217,19 @@ class System_Dashboard_Admin {
 		$table_prefix = $wpdb->prefix;
 		$options_table = $table_prefix . 'options';
 
-		// $sql_query = "SELECT option_name, length(option_value) AS option_value_length FROM {$options_table} WHERE autoload='yes' ORDER BY option_value_length DESC LIMIT 10;";
+		$options = wp_cache_get( 'sd_options_largest_autoloads', 'wpdb-queries' );
 
-		$sql_query = "SELECT * FROM {$options_table} WHERE autoload='yes' ORDER BY length(option_value) DESC LIMIT 10;";
+		if ( false === $options ) {
 
-		$options = $wpdb->get_results( $sql_query );
+			// $sql_query = "SELECT option_name, length(option_value) AS option_value_length FROM {$options_table} WHERE autoload='yes' ORDER BY option_value_length DESC LIMIT 10;";
+
+			$sql_query = "SELECT * FROM {$options_table} WHERE autoload='yes' ORDER BY length(option_value) DESC LIMIT 10;";
+
+			$options = $wpdb->get_results( $sql_query );
+
+			wp_cache_set( 'sd_options_largest_autoloads', $options, 'wpdb-queries', MINUTE_IN_SECONDS );
+
+		}
 
 		$output = '';
 

@@ -1271,6 +1271,74 @@ CSF::createSection( $prefix, array(
       )
     ),
 
+    array(
+      'id'       => 'opt-group-9',
+      'type'     => 'group',
+      'title'    => 'Group with custom titles',
+      'subtitle' => 'accordion_title_by => array( \'opt-name\', \'opt-surname\' )',
+      'accordion_title_by' => array( 'opt-name', 'opt-surname' ),
+      'fields' => array(
+        array(
+          'id'    => 'opt-name',
+          'type'  => 'text',
+          'title' => 'Name',
+        ),
+        array(
+          'id'    => 'opt-surname',
+          'type'  => 'text',
+          'title' => 'Surname',
+        ),
+        array(
+          'id'    => 'opt-textarea',
+          'type'  => 'textarea',
+          'title' => 'Textarea',
+        ),
+      ),
+      'default' => array(
+        array(
+          'opt-name'     => 'John',
+          'opt-surname'  => 'Doe',
+          'opt-textarea' => 'Textarea 1',
+        ),
+        array(
+          'opt-name'     => 'Jane',
+          'opt-surname'  => 'Doe',
+          'opt-textarea' => 'Textarea 1',
+        ),
+      )
+    ),
+
+    array(
+      'id'       => 'opt-group-10',
+      'type'     => 'group',
+      'title'    => 'Group with custom titles and prefix',
+      'subtitle' => 'accordion_title_by => array( \'opt-text\', \'opt-textarea\' )<br />accordion_title_by_prefix => \' | \'',
+      'accordion_title_by'        => array( 'opt-text', 'opt-textarea' ),
+      'accordion_title_by_prefix' => ' | ',
+      'fields' => array(
+        array(
+          'id'    => 'opt-text',
+          'type'  => 'text',
+          'title' => 'Title',
+        ),
+        array(
+          'id'    => 'opt-textarea',
+          'type'  => 'textarea',
+          'title' => 'Textarea',
+        ),
+      ),
+      'default' => array(
+        array(
+          'opt-text'     => 'Text 1',
+          'opt-textarea' => 'Textarea 1',
+        ),
+        array(
+          'opt-text'     => 'Text 2',
+          'opt-textarea' => 'Textarea 1',
+        ),
+      )
+    ),
+
   )
 ) );
 
@@ -2947,6 +3015,7 @@ CSF::createSection( $prefix, array(
       'subtitle' => 'Date and Time Both',
       'settings' => array(
         'enableTime' => true,
+        'dateFormat' => 'Y-m-d H:i',
       ),
     ),
 
