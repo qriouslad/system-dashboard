@@ -185,6 +185,8 @@ class System_Dashboard {
 
 		$plugin_admin = new System_Dashboard_Admin( $this->get_plugin_name(), $this->get_version() );
 
+		$this->loader->add_action( 'admin_menu', $plugin_admin, 'sd_remove_codestar_submenu' );
+
 		if ( is_admin() && $this->is_sd() ) {
 
 			$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );

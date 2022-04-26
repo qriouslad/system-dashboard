@@ -11107,4 +11107,15 @@ class System_Dashboard_Admin {
 
 	}
 
+	/**
+	 * Remove CodeStar framework welcome / ads page
+	 *
+	 * @since 1.0.0
+	 */
+	public function sd_remove_codestar_submenu() {
+
+		remove_submenu_page( 'tools.php', 'csf-welcome' );
+
+	}
+
 }
