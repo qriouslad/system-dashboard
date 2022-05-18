@@ -331,6 +331,8 @@ class System_Dashboard_Admin {
 
 		$output .= '<strong>Permalink Structure</strong>: <br />' . get_option( 'permalink_structure' ) . '<br />';
 
+		$output .= '<strong>Search Engine Visibility</strong>: <br />' . ( ( 0 == get_option( 'blog_public' ) ) ? 'Discouraged' : 'Encouraged' ) . '<br />';
+
 		$output .= '<strong>Timezone</strong>: <br />' . get_option( 'timezone_string' ) . '<br />';
 
 		$output .= '<strong>Current Date Time</strong>: <br />' . current_time( 'F j, Y - H:i' ) . '<br />';
