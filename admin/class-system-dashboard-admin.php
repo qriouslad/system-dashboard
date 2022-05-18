@@ -1449,11 +1449,11 @@ class System_Dashboard_Admin {
 
 			}
 
-      $location = $location_data['geoplugin_city'] . ', ' . $location_data['geoplugin_countryName'];
+			$location = $location_data['geoplugin_city'] . ', ' . $location_data['geoplugin_countryName'];
 
-      $location = trim(trim($location),',');
+			$location = trim(trim($location),',');
 
-   		return empty( $location ) ? 'Undetectable' : $location;
+			return empty( $location ) ? 'Undetectable' : $location;
 
 		} else {
 
@@ -8366,11 +8366,6 @@ class System_Dashboard_Admin {
 						);
 
 						$constant_value_type = gettype( $constant_value );
-
-						// Prevent PHP array-to-string conversion warning 
-						/*if ( $constant_value_type == 'array' ) {
-							$constant_value = serialize( $constant_value );
-						}*/
 
 						switch(gettype( $constant_value ) ) {
 							case 'array':
