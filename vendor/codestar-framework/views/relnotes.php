@@ -1,5 +1,19 @@
 <?php if ( ! defined( 'ABSPATH' ) ) { die; } // Cannot access directly. ?>
 
+<h3>v2.2.8</h3>
+<ul>
+  <li>Fixed: Free vs Pro version load priority conflict.</li>
+</ul>
+
+<h3>v2.2.7</h3>
+<ul>
+  <li>Added: Number field "min", "max", "step" options.</li>
+  <li>Updated: Google Web Fonts array added new fonts.</li>
+  <li>Updated: JS libraries (codemirror, leaflet, etc).</li>
+  <li>Improved: Group field "custom title and prefix" option (samples added).</li>
+  <li>Improved: Some JS and CSS coding.</li>
+</ul>
+
 <h3>v2.2.6</h3>
 <ul>
   <li>Added: WordPress 5.9 compatible.</li>

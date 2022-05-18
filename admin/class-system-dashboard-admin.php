@@ -236,34 +236,54 @@ class System_Dashboard_Admin {
 
 		$output = '';
 
-		$output = 'get_site_url() - ' . get_site_url() . '<br />';
-		$output .= 'admin_url() - ' . admin_url() . '<br />';
-		$output .= 'content_url() - ' . content_url() . '<br />';
+		// Directories and paths
 
-		$output .= 'wp_upload_dir()[\'baseurl\'] - ' . wp_upload_dir()['baseurl'] . '<br />';
-		$output .= 'wp_upload_dir()[\'url\'] - ' . wp_upload_dir()['url'] . '<br />';
-		$output .= 'wp_upload_dir()[\'basedir\'] - ' . wp_upload_dir()['basedir'] . '<br />';
-		$output .= 'wp_upload_dir()[\'path\'] - ' . wp_upload_dir()['path'] . '<br />';
+		// $output = 'get_site_url() - ' . get_site_url() . '<br />';
+		// $output .= 'admin_url() - ' . admin_url() . '<br />';
+		// $output .= 'content_url() - ' . content_url() . '<br />';
 
-		$output .= 'plugins_url() - ' . plugins_url() . '<br />';
-		$output .= 'plugin_dir_url(  __DIR__ ) - ' . plugin_dir_url(  __DIR__ ) . '<br />';
-		$output .= 'plugin_dir_url(  __FILE__ ) - ' . plugin_dir_url(  __FILE__ ) . '<br />';
+		// $output .= 'wp_upload_dir()[\'baseurl\'] - ' . wp_upload_dir()['baseurl'] . '<br />';
+		// $output .= 'wp_upload_dir()[\'url\'] - ' . wp_upload_dir()['url'] . '<br />';
+		// $output .= 'wp_upload_dir()[\'basedir\'] - ' . wp_upload_dir()['basedir'] . '<br />';
+		// $output .= 'wp_upload_dir()[\'path\'] - ' . wp_upload_dir()['path'] . '<br />';
 
-		$output .= 'plugin_dir_path( __FILE__ ) - ' . plugin_dir_path( __FILE__ ) . '<br />';
-		$output .= 'plugin_dir_path( __DIR__ ) - ' . plugin_dir_path( __DIR__ ) . '<br />';
+		// $output .= 'plugins_url() - ' . plugins_url() . '<br />';
+		// $output .= 'plugin_dir_url(  __DIR__ ) - ' . plugin_dir_url(  __DIR__ ) . '<br />';
+		// $output .= 'plugin_dir_url(  __FILE__ ) - ' . plugin_dir_url(  __FILE__ ) . '<br />';
 
-		$output .= 'get_template_directory_uri() - ' . get_template_directory_uri() . '<br />';
-		$output .= 'get_stylesheet_directory_uri() - ' . get_stylesheet_directory_uri() . '<br />';
-		$output .= 'get_stylesheet_uri() - ' . get_stylesheet_uri() . '<br />';
-		$output .= 'get_theme_root_uri() - ' . get_theme_root_uri() . '<br />';
+		// $output .= 'plugin_dir_path( __FILE__ ) - ' . plugin_dir_path( __FILE__ ) . '<br />';
+		// $output .= 'plugin_dir_path( __DIR__ ) - ' . plugin_dir_path( __DIR__ ) . '<br />';
 
-		$output .= 'get_theme_root() - ' . get_theme_root() . '<br />';
-		$output .= 'get_theme_roots() - ' . get_theme_roots() . '<br />';
-		$output .= 'get_template_directory() - ' . get_stylesheet_directory() . '<br />';
-		$output .= 'get_stylesheet_directory() - ' . get_stylesheet_directory() . '<br />';
-		$output .= 'get_stylesheet_directory_uri() - ' . get_stylesheet_directory() . '<br />';
+		// $output .= 'get_template_directory_uri() - ' . get_template_directory_uri() . '<br />';
+		// $output .= 'get_stylesheet_directory_uri() - ' . get_stylesheet_directory_uri() . '<br />';
+		// $output .= 'get_stylesheet_uri() - ' . get_stylesheet_uri() . '<br />';
+		// $output .= 'get_theme_root_uri() - ' . get_theme_root_uri() . '<br />';
 
-		$output .= 'FAST_AJAX: ' . FAST_AJAX;
+		// $output .= 'get_theme_root() - ' . get_theme_root() . '<br />';
+		// $output .= 'get_theme_roots() - ' . get_theme_roots() . '<br />';
+		// $output .= 'get_template_directory() - ' . get_stylesheet_directory() . '<br />';
+		// $output .= 'get_stylesheet_directory() - ' . get_stylesheet_directory() . '<br />';
+		// $output .= 'get_stylesheet_directory_uri() - ' . get_stylesheet_directory() . '<br />';
+
+		// Constants
+
+		// $output .= 'FAST_AJAX: ' . FAST_AJAX;
+
+		// Object Cache
+
+		// $output .= 'is_blog_installed: ' . wp_cache_get( 'is_blog_installed' ) . '<br />';
+		// $output .= 'is_blog_installed: ' . wp_cache_get( 'is_blog_installed', 'default' ) . '<br /><br />';
+
+		// $output .= 'mailcatcher_settings: ' . wp_cache_get( 'mailcatcher_settings' ) . '<br />';
+		// $output .= 'mailcatcher_settings - options: ' . wp_cache_get( 'mailcatcher_settings', 'options' ) . '<br /><br />';
+
+		// $output .= 'notoptions - options:<br />';
+		// ob_start();
+		// echo '<pre>' . print_r( wp_cache_get( 'notoptions', 'options' ), true ) . '</pre><br />';
+		// $output .= ob_get_clean();
+
+		// $output .= 'sd_cpu_core_count - transient: ' . wp_cache_get( 'sd_cpu_core_count', 'transient' ) . '<br /><br />';
+		// $output .= 'sd_server_location - transient: <pre>' . print_r( wp_cache_get( 'sd_server_location', 'transient' ), true ) . '</pre><br /><br />';
 
 		return $output;
 
@@ -308,6 +328,10 @@ class System_Dashboard_Admin {
 		}
 
 		$output .= '<strong>Plugins</strong>: <br /><a href="/wp-admin/plugins.php" target="_blank">' . count( get_plugins() ) . ' installed</a><br /><a href="/wp-admin/plugins.php?plugin_status=active" target="_blank">' . count( get_option( 'active_plugins' ) ) . ' active</a><br />';
+
+		$output .= '<strong>Permalink Structure</strong>: <br />' . get_option( 'permalink_structure' ) . '<br />';
+
+		$output .= '<strong>Search Engine Visibility</strong>: <br />' . ( ( 0 == get_option( 'blog_public' ) ) ? 'Discouraged' : 'Encouraged' ) . '<br />';
 
 		$output .= '<strong>Timezone</strong>: <br />' . get_option( 'timezone_string' ) . '<br />';
 
@@ -427,7 +451,15 @@ class System_Dashboard_Admin {
 			}
 		}
 
-		$hostname_query = $wpdb->get_row("SHOW VARIABLES LIKE 'hostname'");
+		// Get hostname info from cache or DB
+
+		$hostname_query = wp_cache_get( 'sd_db_hostname', 'wpdb-queries' );
+
+		if ( false === $hostname_query ) {
+			$hostname_query = $wpdb->get_row("SHOW VARIABLES LIKE 'hostname'");
+			wp_cache_set( 'sd_db_hostname', $hostname_query, 'wpdb-queries', YEAR_IN_SECONDS );
+		}
+
 		$hostname = $hostname_query->Value;
 
 		$output .= '<strong>Hostname</strong>: <br />' . $hostname . '<br />';
@@ -516,8 +548,17 @@ class System_Dashboard_Admin {
 
 			foreach ( $post_types as $post_type ) {
 
+				$label_name = '';
+
+				$post_type_object = get_post_type_object( $post_type->type );
+
+				if ( isset( $post_type_object->labels ) ) {
+					$labels = $post_type_object->labels;
+					$label_name = isset( $labels->name ) ? ' (' . $labels->name . ')' : '';
+				}
+
 				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $post_type->type );
+				$output .= $this->sd_html( 'field-content-first', $post_type->type . $label_name );
 				$output .= $this->sd_html( 'field-content-second', $post_type->count );
 				$output .= $this->sd_html( 'field-content-end' );
 
@@ -647,6 +688,88 @@ class System_Dashboard_Admin {
 			echo $output;
 
 		}
+	}
+
+	/**
+	 * Get registered image sizes
+	 *
+	 * @link http://plugins.svn.wordpress.org/wp-system/tags/1.0.7/report.php
+	 * @since 2.4.4
+	 */
+	public function sd_image_sizes() {
+
+		global $_wp_additional_image_sizes;
+
+		do_action( 'inspect', [ '_wp_additional_image_sizes', $_wp_additional_image_sizes ] );
+
+		$builtin_sizes = array( 'thumbnail', 'medium', 'large', 'full', 'post-thumbnail' );
+		$sizes = array();
+
+		$intermediate_image_sizes = get_intermediate_image_sizes();
+		$additional_image_sizes = wp_get_additional_image_sizes();
+
+		do_action( 'inspect', [ 'additional_image_sizes', $additional_image_sizes ] );
+
+		foreach ( $intermediate_image_sizes as $size ) {
+
+			if ( in_array( $size, $builtin_sizes ) ) {
+
+				$sizes[$size] = array(
+					'type'		=> 'Default',
+					'width' 	=> get_option( $size . '_size_w' ),
+					'height' 	=> get_option( $size . '_size_h' ),
+					'crop'		=> (bool) get_option( $size . '_crop' ),
+				);
+
+			} elseif ( isset( $additional_image_sizes[$size] ) ) {
+
+				$sizes[$size] = array(
+					'type'		=> 'Custom',
+					'width'		=> $additional_image_sizes[$size]['width'],
+					'height'	=> $additional_image_sizes[$size]['height'],
+					'crop'		=> $additional_image_sizes[$size]['crop'],
+				);
+
+			}
+
+		}
+
+		do_action( 'inspect', [ 'sizes', $sizes ] );
+
+		$output = '';
+
+		foreach ( $sizes as $key => $value ) {
+
+			if ( isset( $value['crop'] ) ) {
+
+				if ( $value['crop'] === true ) {
+
+					$crop_value = ' | Crop: true';
+					$size_type = 'Exactly';
+
+				} elseif ( $value['crop'] === false ) {
+
+					$crop_value = '';
+					$size_type = 'Maximum';
+
+				} else {
+
+					$crop_value = ' | Crop: ' . $value['crop'][0] . '-' . $value['crop'][1];
+					$size_type = 'Exactly';
+
+				}
+
+			}
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', $key . ' ('. $value['type'] . $crop_value . ')' );
+			$output .= $this->sd_html( 'field-content-second', $size_type . ' ' . $value['width'] . ' (width) x ' . $value['height'] . ' (height) pixels ' );
+			$output .= $this->sd_html( 'field-content-end' );
+
+		}
+
+		echo $output;
+
 	}
 
 	/**
@@ -1042,7 +1165,14 @@ class System_Dashboard_Admin {
 	        FROM $wpdb->postmeta;
 	    ";
 
-	    $results = $wpdb->get_results($query);
+	    // Get meta keys info from cache or DB
+
+		$results = wp_cache_get( 'sd_db_postmeta_meta_keys', 'wpdb-queries' );
+
+		if ( false === $results ) {
+			$results = $wpdb->get_results( $query );
+			wp_cache_set( 'sd_db_postmeta_meta_keys', $results, 'wpdb-queries', MINUTE_IN_SECONDS );
+		}
 
 	    $meta_keys = array();
 
@@ -1319,33 +1449,17 @@ class System_Dashboard_Admin {
 
 			}
 
-			if ( !empty( $location_data['geoplugin_city'] ) && !empty( $location_data['geoplugin_countryName'] ) ) {
+      $location = $location_data['geoplugin_city'] . ', ' . $location_data['geoplugin_countryName'];
 
-				$location = $location_data['geoplugin_city'] . ', ' . $location_data['geoplugin_countryName'];
+      $location = trim(trim($location),',');
 
-			} elseif ( empty( $location_data['geoplugin_city'] ) && !empty( $location_data['geoplugin_countryName'] ) ) {
-
-				$location = $location_data['geoplugin_countryName'];
-
-			} elseif ( !empty( $location_data['geoplugin_city'] ) && empty( $location_data['geoplugin_countryName'] ) ) {
-
-				$location = $location_data['geoplugin_city'];
-
-			} elseif ( empty( $location_data['geoplugin_city'] ) && empty( $location_data['geoplugin_countryName'] ) ) {
-
-				$location = 'Undetectable';
-
-			} else {}
+   		return empty( $location ) ? 'Undetectable' : $location;
 
 		} else {
 
-			$location = 'Undetectable';
+			return 'Undetectable';
 
 		}
-
-		$location = trim(trim($location),',');
-
-		return empty($location) ? 'Undetectable' : $location;
 
 	}
 
@@ -2105,15 +2219,17 @@ class System_Dashboard_Admin {
 	}
 
 	/**
-	 * Get WP REST API main response
+	 * Get content of a URL
 	 *
-	 * @since 2.0.0
+	 * @since 2.5.0
 	 */
-	public function sd_wp_rest_api() {
+	public function sd_viewer_url() {
 
 		if ( isset( $_REQUEST ) ) {
 
-			$response = wp_remote_get( get_site_url() . '/wp-json/wp/v2' );
+			$path = $_REQUEST['path'];
+
+			$response = wp_remote_get( get_site_url() . $path );
 
 			echo trim( wp_remote_retrieve_body( $response ) );
 
@@ -2162,7 +2278,17 @@ class System_Dashboard_Admin {
 			global $wpdb;
 			$db_data_disk_usage = 0;
 			$db_index_disk_usage = 0;
-			$tablesstatus = $wpdb->get_results("SHOW TABLE STATUS");
+
+			// Get tables data from cache or DB
+
+			$tablesstatus = wp_cache_get( 'sd_db_show_table_status', 'wpdb-queries' );
+
+			if ( false === $tablesstatus ) {
+				$tablesstatus = $wpdb->get_results("SHOW TABLE STATUS");
+				wp_cache_set( 'sd_db_show_table_status', $tablesstatus, 'wpdb-queries', MINUTE_IN_SECONDS );
+			}
+
+			// $tablesstatus = $wpdb->get_results("SHOW TABLE STATUS");
 
 			foreach ($tablesstatus as $tablestatus) {
 				$db_data_disk_usage += $tablestatus->Data_length;
@@ -2195,7 +2321,15 @@ class System_Dashboard_Admin {
 		global $wpdb;
 
 		$prefix = $wpdb->prefix;
-		$tables = $wpdb->get_results("SHOW TABLE STATUS");
+
+		// Get tables data from cache or DB
+
+		$tables = wp_cache_get( 'sd_db_show_table_status', 'wpdb-queries' );
+
+		if ( false === $tables ) {
+			$tables = $wpdb->get_results("SHOW TABLE STATUS");
+			wp_cache_set( 'sd_db_show_table_status', $tables, 'wpdb-queries', MINUTE_IN_SECONDS );
+		}
 
 		$wpcore_tables = array(
 			$wpdb->prefix . 'commentmeta',
@@ -2440,7 +2574,14 @@ class System_Dashboard_Admin {
 
 		global $wpdb;
 
-		$db_uptime_query = $wpdb->get_results("SHOW GLOBAL STATUS LIKE 'Uptime'");
+		// Get uptime data from cache or DB
+
+		$db_uptime_query = wp_cache_get( 'sd_db_uptime_query', 'wpdb-queries' );
+
+		if ( false === $db_uptime_query ) {
+			$db_uptime_query = $wpdb->get_results("SHOW GLOBAL STATUS LIKE 'Uptime'");
+			wp_cache_set( 'sd_db_uptime_query', $db_uptime_query, 'wpdb-queries', MINUTE_IN_SECONDS );
+		}
 
 		if ( isset( $db_uptime_query[0]->Value ) ) {
 			$db_uptime = $db_uptime_query[0]->Value;
@@ -2976,9 +3117,16 @@ class System_Dashboard_Admin {
 
 		global $wpdb;
 
-		// $options = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}options ORDER BY option_name" );
-		// $options = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}options ORDER BY option_name" ) );
-		$options = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}options" );
+	    // Get options info from cache or DB
+
+		$options = wp_cache_get( 'sd_db_options', 'wpdb-queries' );
+
+		if ( false === $options ) {
+			// $options = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}options ORDER BY option_name" );
+			// $options = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}options ORDER BY option_name" ) );
+			$options = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}options" );
+			wp_cache_set( 'sd_db_options', $options, 'wpdb-queries', MINUTE_IN_SECONDS );
+		}
 
 		if ( !empty( $options ) ) {
 
@@ -3141,6 +3289,100 @@ class System_Dashboard_Admin {
 	}
 
 	/**
+	 * Get largest autoloaded options
+	 *
+	 * @since 2.5.0
+	 */
+	public function sd_options_largest_autoloads() {
+
+		global $wpdb;
+
+		$table_prefix = $wpdb->prefix;
+		$options_table = $table_prefix . 'options';
+
+		$options = wp_cache_get( 'sd_options_largest_autoloads', 'wpdb-queries' );
+
+		if ( false === $options ) {
+
+			// $sql_query = "SELECT option_name, length(option_value) AS option_value_length FROM {$options_table} WHERE autoload='yes' ORDER BY option_value_length DESC LIMIT 10;";
+
+			$sql_query = "SELECT * FROM {$options_table} WHERE autoload='yes' ORDER BY length(option_value) DESC LIMIT 10;";
+
+			$options = $wpdb->get_results( $sql_query );
+
+			wp_cache_set( 'sd_options_largest_autoloads', $options, 'wpdb-queries', MINUTE_IN_SECONDS );
+
+		}
+
+		$output = '';
+
+		foreach ( $options as $option ) {
+
+			$id = $option->option_id;
+			$id_alt = $id . '-alt';
+			$name = $option->option_name;
+
+			$value = maybe_unserialize( $option->option_value );
+			$value_type_raw = gettype( $value );
+
+			$autoload = $option->autoload;
+
+			$size_raw = strlen( $option->option_value );
+			$size_formatted = size_format( $size_raw );
+
+			if ( !empty( $value ) ) {
+				$size = 'size: ' . $size_formatted;
+				$size_formatted_array = explode( " ", $size_formatted );
+				$size_order = strtolower( $size_formatted_array[1] );
+				$value_type = ' - type: ' . $value_type_raw;
+			} elseif( ( empty( $value ) ) && is_numeric( $value ) ) {
+				$size = 'size: ' . $size_formatted;
+				$size_formatted_array = explode( " ", $size_formatted );
+				$size_order = strtolower( $size_formatted_array[1] );
+				$value_type = ' - type: ' . $value_type;
+			} else {
+				$size = 'empty ';
+				$size_order = 'empty';
+				$value_type = '';
+			}
+
+			if ( $autoload == 'yes' ) {
+				$autoloaded = 'autoloaded - ';
+				$autoloaded_string = '_autoloaded';
+			} else {
+				$autoloaded = '';					
+				$autoloaded_string = '';
+			}
+
+			// Ignore options with name starting with underscore as they are transients
+			if ( $name[0] !== '_' ) {
+
+				$content = '';
+
+				$content .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
+				$content .= $this->sd_html( 'field-content-first', '<div id="spinner-' . $id_alt . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading...</div><div id="option_id_' . $id_alt . '" class="option__value ajax-value"></div>', 'full-width long-value' );
+				$content .= $this->sd_html( 'field-content-end' );
+
+				$data_atts = array(
+					'id'		=> $id_alt,
+					'loaded'	=> 'no',
+					'name'		=> $name,
+				);
+
+				$output .= $this->sd_html( 'accordions-start-simple-margin-default' );
+				$output .= $this->sd_html( 'accordion-head', 'ID: ' . $id . ' - ' . $name . ' | ' . $autoloaded . $size . $value_type, 'option__name', $data_atts, 'option-name-'.$id_alt );
+				$output .= $this->sd_html( 'accordion-body', $content );
+				$output .= $this->sd_html( 'accordions-end' );
+
+			}
+
+		}
+
+		return $output;
+
+	}
+
+	/**
 	 * Get transients data
 	 * 
 	 * @link https://plugins.svn.wordpress.org/wptools/tags/3.13/functions/functions_transiente_manager.php
@@ -3165,7 +3407,14 @@ class System_Dashboard_Admin {
 		$number = absint($args['number']);
 		$sql .= " ORDER BY option_id DESC LIMIT $offset,$number;";
 
-		$transients = $wpdb->get_results($sql);
+		// Get transients from cache or DB
+
+		$transients = wp_cache_get( 'sd_db_transients', 'wpdb-queries' );
+
+		if ( false === $transients ) {
+			$transients = $wpdb->get_results($sql);
+			wp_cache_set( 'sd_db_transients', $transients, 'wpdb-queries', MINUTE_IN_SECONDS );
+		}
 
 		$output = '';
 		$n = 0; // Start transients counter by expiry type
@@ -3309,48 +3558,36 @@ class System_Dashboard_Admin {
 
 		}
 
+		global $wpdb;
+		$table_prefix = $wpdb->prefix;
+
 		$output = '';
-		$enable_persistent_cache_msg = 'Please enable a <a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">persistence object cache plugin</a> first to see the relevant info here';
+		$enable_persistent_cache_msg = 'Please enable a <a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">persistence object cache plugin</a> first to see the relevant info here.';
+		$enable_persistent_cache_msg_full = 'Please enable a <a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">persistence object cache plugin</a> first to see the relevant info here. Plugins that have been tested to work with this module is listed under \'Tools\' below. For Redis implementation by managed WordPress hosting, only Runcloud Hub plugin is currently tested to work. Please <a href="https://wordpress.org/support/plugin/system-dashboard/" target="_blank">provide feedback</a> if it does not work with your hosting environment. Specifically, please post a sample cached key-value pairs from the Globals >> Common >> $wp_object_cache global, and also the relevant constants from Constants >> Defined Constants >> From Themes and Plugin, e.g. SOMEHOST_REDIS_ENABLED.';
 
-		// Set a test cache key value
-
-		// $result = wp_cache_get( 'sd_test_cache' );
-
-		// if ( false === $result ) {
-
-		// 	$result = SYSTEM_DASHBOARD_VERSION;
-
-		// 	wp_cache_set( 'sd_test_cache_2', $result, 'redis-cache', 30 );
-
-		// }
-
-		// Get redis cache keys
-
-		// $redis = new Redis();
-		// $redis->connect('127.0.0.1', 6379);
-		// $allKeys = $redis->keys('*');
-
-		// $this_site_keys = array();
-
-		// foreach ( $allKeys as $key => $value ) {
-
-		// 	if ( strpos( $value, WP_REDIS_PREFIX ) !== false ) {
-
-		// 		$this_site_keys[] = $value;
-
-		// 	}
-
-		// }
-
-		// ob_start();
-		// print_r( $this_site_keys );
-		// $this_site_keys_formatted = ob_get_clean();
+		// Get Object Cache backend status
 
 		if ( $return == 'status' ) {
 
+			// Get object cache backend type
+
+			// Redis Object Cache plugin - RunCloud Hub plugin - Powered Cache plugin
+			if ( defined( 'WP_REDIS_PREFIX' ) || defined( 'RCWP_REDIS_DROPIN' ) || ( defined( 'POWERED_OBJECT_CACHE' ) && defined( 'WP_REDIS_OBJECT_CACHE' ) ) ) {
+
+				$backend_type = ' with Redis backend';
+
+			// Powered Cache plugin - Use Memcached plugin - Object Cache 4 everyone plugin
+			} elseif ( ( defined( 'POWERED_OBJECT_CACHE' ) && !defined( 'WP_REDIS_OBJECT_CACHE' ) ) || defined( 'USE_MEMCACHED_OBJECT_CACHE_SCRIPT_VERSION' ) || defined( 'OC4EVERYONE_PREDEFINED_SERVER' ) ) {
+
+				$backend_type = ' with Memcached backend';
+
+			} else {}
+
+			// Get the status
+
 			if ( (bool) wp_using_ext_object_cache() ) {
 
-				$output .= '<a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">Persistent object cache plugin</a> is <a href="'. network_admin_url( 'plugins.php?plugin_status=dropins' ) .'" target="_blank">in use</a>';
+				$output .= '<a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">Persistent object cache plugin</a>' . $backend_type . ' is <a href="'. network_admin_url( 'plugins.php?plugin_status=dropins' ) .'" target="_blank">in use</a>';
 
 			} else {
 
@@ -3360,7 +3597,11 @@ class System_Dashboard_Admin {
 
 			return $output;
 
-		} elseif ( $return == 'stats' ) {
+		} 
+
+		// Get cache hit stats
+
+		if ( $return == 'stats' ) {
 
 			if ( array_key_exists( 'cache_hits', $object_vars ) ) {
 
@@ -3379,7 +3620,11 @@ class System_Dashboard_Admin {
 
 			}
 
-		} elseif ( $return == 'global_groups' ) {
+		} 
+
+		// Get global groups
+
+		if ( $return == 'global_groups' ) {
 
 			if ( array_key_exists( 'global_groups', $object_vars ) ) {
 
@@ -3410,7 +3655,11 @@ class System_Dashboard_Admin {
 
 			}
 
-		} elseif ( $return == 'non_persistent_groups' ) {
+		}
+
+		// Get non-persistent groups
+
+		if ( $return == 'non_persistent_groups' ) {
 
 			if ( array_key_exists( 'ignored_groups', $object_vars ) ) {
 
@@ -3457,9 +3706,13 @@ class System_Dashboard_Admin {
 
 			}
 
-		} elseif ( $return == 'diagnostics' ) {
+		}
 
-			if ( array_key_exists( 'diagnostics', $object_vars ) ) {
+		// Get diagnostics data if available
+
+		if ( $return == 'diagnostics' ) {
+
+			if ( array_key_exists( 'diagnostics', $object_vars ) ) { // Redis object cache
 
 				$diagnostics = $object_vars['diagnostics'];
 
@@ -3534,6 +3787,30 @@ class System_Dashboard_Admin {
 
 				return $output;
 
+			} elseif ( defined( 'USE_MEMCACHED_OBJECT_CACHE_SCRIPT_VERSION' ) && !empty( $wp_object_cache->stats() ) ) { // Memcached object cache via Use Memcached plugin
+
+				$stats = $wp_object_cache->stats( true ); // array
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', 'IP & Port Number' );
+				$output .= $this->sd_html( 'field-content-second', key( $stats[0] ) );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				foreach ( $stats[0] as $key => $array ) {
+
+					foreach ( $array as $key => $value ) {
+
+						$output .= $this->sd_html( 'field-content-start' );
+						$output .= $this->sd_html( 'field-content-first', $key );
+						$output .= $this->sd_html( 'field-content-second', $value );
+						$output .= $this->sd_html( 'field-content-end' );
+
+					}
+
+				}
+
+				return $output;
+
 			} else {
 
 				return 'No diagnostics data is currently available';
@@ -3541,6 +3818,391 @@ class System_Dashboard_Admin {
 			}
 
 		}
+
+		// Get cache content from global $wp_object_cache
+
+		if ( $return == 'wp_object_cache_content' )  {
+
+			if ( array_key_exists( 'cache', $object_vars ) ) {
+
+				$cache_groups = $object_vars['cache'];
+
+				$output .= $this->sd_html( 'field-content-start', '', 'single-top-part' );
+				$output .= $this->sd_html( 'field-content-first', '<strong>Total</strong>: ' . count( $cache_groups ) . ' keys', 'full-width' );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				foreach( $cache_groups as $key => $value ) {
+
+					if ( defined( 'WP_REDIS_PREFIX' ) ) {
+
+						$key_prefix = WP_REDIS_PREFIX;
+						$key = str_replace( $key_prefix, '', $key );
+						$key = str_replace( 'wp:', '', $key );
+
+					} elseif ( defined( 'RCWP_REDIS_DROPIN' ) ) { // Runcloud.io RunCloud Hub - Redis Object Cache
+
+						$key_prefix = RCWP_REDIS_DOMAIN . ':' . RCWP_REDIS_PREFIX . ':' . $table_prefix . ':';
+						$key = str_replace( $key_prefix, '', $key );
+
+					} elseif ( defined( 'POWERED_OBJECT_CACHE' ) && defined( 'WP_REDIS_OBJECT_CACHE' ) ) { // Powered Cache - Redis Object Cache
+
+						$key_prefix = preg_replace( '/\s+/', '', WP_CACHE_KEY_SALT );
+						$key = str_replace( $key_prefix, '', $key );
+
+					} elseif ( ( defined( 'POWERED_OBJECT_CACHE' ) && !defined( 'WP_REDIS_OBJECT_CACHE' ) ) || defined( 'USE_MEMCACHED_OBJECT_CACHE_SCRIPT_VERSION' ) || defined( 'OC4EVERYONE_PREDEFINED_SERVER' ) ) { // Powered Cache - Memcached Object Cache || Use Memcached || Object Cache 4 everyone
+
+						$key_prefix = preg_replace( '/\s+/', '', WP_CACHE_KEY_SALT . $table_prefix );
+						$key = str_replace( $key_prefix, '', $key );
+						// remove first string if it's a colon
+						if ( $key[0] == ':' ) {
+							$key = substr( $key, 1 );
+						}
+
+					} else {}
+
+					$key_array = explode(':', $key);
+					$cache_group = $key_array[0];
+					$cache_key = $key_array[1];
+
+					$content = $this->sd_html( 'field-content-start' );
+					$content .= $this->sd_html( 'field-content-first', '<div id="spinner-' . $cache_key . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading...</div><div id="cache_' . $cache_key . '" class="cache__value ajax-value"></div>', 'full-width long-value' );
+					$content .= $this->sd_html( 'field-content-end' );
+
+
+					$data_atts = array(
+						'group'		=> $cache_group,
+						'key'		=> $cache_key,
+						'loaded'	=> 'no',
+					);
+
+					$output .= $this->sd_html( 'accordions-start-simple');
+					$output .= $this->sd_html( 'accordion-head', 'Group: <span class="normal-weight">' . $cache_group . '</span> <span class="normal-weight">&#10132;</span> Key: <span class="normal-weight">' . $cache_key . '</span>', 'cache__name', $data_atts, 'cache-' . $cache_key );
+					$output .= $this->sd_html( 'accordion-body', $content );
+					$output .= $this->sd_html( 'accordions-end' );
+
+				}
+
+				return $output;
+
+			} else {
+
+				return $enable_persistent_cache_msg;
+
+			}
+
+		}
+
+		// Get cache content directly from memory
+
+		if ( $return == 'cache_content_from_memory' )  {	
+
+			// Redis Object Cache plugin - RunCloud Hub plugin - Powered Cache plugin
+			if ( defined( 'WP_REDIS_PREFIX' ) || defined( 'RCWP_REDIS_DROPIN' ) || ( defined( 'POWERED_OBJECT_CACHE' ) && defined( 'WP_REDIS_OBJECT_CACHE' ) ) ) {
+
+				// Set a test cache key value
+
+				$result = wp_cache_get( 'sd_test_cache' );
+
+				if ( false === $result ) {
+					$result = 'Seems to be working...';
+					wp_cache_set( 'sd_test_cache', $result, 'redis-cache', 30 );
+				}
+
+				// Get redis cache keys
+
+				$redis = new Redis();
+				$redis->connect('127.0.0.1', 6379);
+				$allKeys = $redis->keys('*');
+
+				$this_site_keys = array();
+
+				// Get raw cache keys only for the current site. Use key_prefix to filter such keys.
+
+				foreach ( $allKeys as $key => $value ) {
+
+					if ( defined( 'WP_REDIS_PREFIX' ) ) { // Redis Object Cache plugin
+
+						$key_prefix = WP_REDIS_PREFIX;
+
+					} elseif ( defined( 'RCWP_REDIS_DROPIN' ) ) { // Runcloud.io Runcloud Hub Plugin
+
+						$key_prefix = RCWP_REDIS_DOMAIN . ':' . RCWP_REDIS_PREFIX . ':' . $table_prefix . ':';
+
+					} elseif ( defined( 'POWERED_OBJECT_CACHE' ) && defined( 'WP_REDIS_OBJECT_CACHE' ) ) { // Powered Cache
+
+						$key_prefix = preg_replace( '/\s+/', '', WP_CACHE_KEY_SALT );
+
+					} else {}
+
+					if ( strpos( $value, $key_prefix ) !== false ) {
+
+						$this_site_keys[] = $value;
+
+					}
+
+				}
+
+				// Get cleaned up cache keys for the current site
+
+				$site_keys = array();
+
+				foreach ( $this_site_keys as $key ) {
+
+					if ( defined( 'WP_REDIS_PREFIX' ) ) { // Redis Object Cache plugin
+
+						$key = str_replace( $key_prefix, '', $key );
+						$key = str_replace( 'wp:', '', $key );
+
+					}  elseif ( defined( 'RCWP_REDIS_DROPIN' ) ) { // Runcloud.io Runcloud Hub Plugin
+
+						$key = str_replace( $key_prefix, '', $key );
+
+					} elseif ( defined( 'POWERED_OBJECT_CACHE' ) && defined( 'WP_REDIS_OBJECT_CACHE' ) ) { // Powered Cache - Redis Object Cache
+
+						$key = str_replace( $key_prefix, '', $key );
+
+					} else {}
+
+					$site_keys[] = $key;
+
+				}
+
+				// ob_start();
+				// print_r( $site_keys );
+				// $this_site_keys_formatted = ob_get_clean();
+
+				// return $this_site_keys_formatted;
+
+				$output .= $this->sd_html( 'field-content-start', '', 'single-top-part' );
+				$output .= $this->sd_html( 'field-content-first', '<strong>Total</strong>: ' . count( $site_keys ) . ' keys', 'full-width' );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				foreach ( $site_keys as $site_key ) {
+
+					$key_array = explode(':', $site_key);
+					$cache_group = $key_array[0];
+					$cache_key = $key_array[1];
+
+					$content = $this->sd_html( 'field-content-start' );
+					$content .= $this->sd_html( 'field-content-first', '<div id="spinner-m' . $cache_key . '"><img class="spinner_inline" src="' .plugin_dir_url( __FILE__ ) . 'img/spinner.gif" /> loading...</div><div id="mcache_' . $cache_key . '" class="mcache__value ajax-value"></div>', 'full-width long-value' );
+					$content .= $this->sd_html( 'field-content-end' );
+
+
+					$data_atts = array(
+						'group'		=> $cache_group,
+						'key'		=> $cache_key,
+						'loaded'	=> 'no',
+					);
+
+					$output .= $this->sd_html( 'accordions-start-simple');
+					$output .= $this->sd_html( 'accordion-head', 'Group: <span class="normal-weight">' . $cache_group . '</span> <span class="normal-weight">&#10132;</span> Key: <span class="normal-weight">' . $cache_key . '</span>', 'mcache__name', $data_atts, 'mcache-' . $cache_key );
+					$output .= $this->sd_html( 'accordion-body', $content );
+					$output .= $this->sd_html( 'accordions-end' );
+
+				}
+
+				return $output;
+
+			// Get memcached cache keys
+			// Powered Cache - Memcached Object Cache || Use Memcached || Object Cache 4 everyone
+			} elseif ( ( defined( 'POWERED_OBJECT_CACHE' ) && !defined( 'WP_REDIS_OBJECT_CACHE' ) ) || defined( 'USE_MEMCACHED_OBJECT_CACHE_SCRIPT_VERSION' ) || defined( 'OC4EVERYONE_PREDEFINED_SERVER' ) ) {
+
+				$key_prefix = preg_replace( '/\s+/', '', WP_CACHE_KEY_SALT . $table_prefix );
+
+				// Set a test cache key value
+
+				$result = wp_cache_get( 'sd_test_cache' );
+
+				if ( false === $result ) {
+					$result = 'Seems to be working...';
+					wp_cache_set( 'sd_test_cache', $result, '', 30 );
+				}
+
+				$all_keys = $this->get_memcached_keys();
+
+				$this_site_keys = array();
+
+				foreach ( $all_keys as $key ) {
+
+					if ( strpos( $key, $key_prefix ) !== false ) {
+
+						$this_site_keys[] = $key;
+
+					}
+
+				}
+
+				$output .= $this->sd_html( 'field-content-start', '', 'single-top-part' );
+				$output .= $this->sd_html( 'field-content-first', '<strong>Total</strong>: ' . count( $this_site_keys ) . ' keys', 'full-width' );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				foreach ( $this_site_keys as $site_key ) {
+
+					$key_prefix = preg_replace( '/\s+/', '', WP_CACHE_KEY_SALT . $table_prefix );
+					$site_key = str_replace( $key_prefix, '', $site_key );
+					// remove first string if it's a colon
+					if ( $site_key[0] == ':' ) {
+						$site_key = substr( $site_key, 1 );
+					}
+
+					$key_array = explode(':', $site_key);
+					$cache_group = $key_array[0];
+					$cache_key = $key_array[1];
+
+					$output .= $this->sd_html( 'accordions-start-simple');
+					// $output .= $this->sd_html( 'accordion-head', $site_key );
+					$output .= $this->sd_html( 'accordion-head', 'Group: <span class="normal-weight">' . $cache_group . '</span> <span class="normal-weight">&#10132;</span> Key: <span class="normal-weight">' . $cache_key . '</span>' );
+					$output .= $this->sd_html( 'accordion-body', 'Content here...' );
+					$output .= $this->sd_html( 'accordions-end' );
+
+				}
+
+				return $output;
+
+			} else {
+
+				return $enable_persistent_cache_msg_full;
+
+			}
+
+		}
+
+	}
+
+	/**
+	* Get all memcached keys. Special function because getAllKeys() is broken since memcached 1.4.23. 
+	* Should only be needed on php 5.6 cleaned up version of code found on Stackoverflow.com by Maduka Jayalath
+	* Seems to return inconsistent number of keys on each reload.
+	*
+	* @link https://www.php.net/manual/en/memcached.getallkeys.php#123793
+	* @return array|int - all retrieved keys (or negative number on error)
+	* @since 2.4.0
+	*/
+	public function get_memcached_keys( $host = '127.0.0.1', $port = 11211 ) {
+	    $mem = @fsockopen($host, $port);
+	    if ($mem === false)
+	    {
+	        return -1;
+	    }
+
+	    // retrieve distinct slab
+	    $r = @fwrite($mem, 'stats items' . chr(10));
+	    if ($r === false)
+	    {
+	        return -2;
+	    }
+
+	    $slab = [];
+	    while (($l = @fgets($mem, 1024)) !== false)
+	    {
+	        // finished?
+	        $l = trim($l);
+	        if ($l == 'END')
+	        {
+	            break;
+	        }
+
+	        $m = [];
+	        // <STAT items:22:evicted_nonzero 0>
+	        $r = preg_match('/^STAT\sitems\:(\d+)\:/', $l, $m);
+	        if ($r != 1)
+	        {
+	            return -3;
+	        }
+	        $a_slab = $m[1];
+
+	        if (!array_key_exists($a_slab, $slab))
+	        {
+	            $slab[$a_slab] = [];
+	        }
+	    }
+
+	    reset($slab);
+	    foreach ($slab as $a_slab_key => &$a_slab)
+	    {
+	        $r = @fwrite($mem, 'stats cachedump ' . $a_slab_key . ' 100' . chr(10));
+	        if ($r === false)
+	        {
+	            return -4;
+	        }
+
+	        while (($l = @fgets($mem, 1024)) !== false)
+	        {
+	            // finished?
+	            $l = trim($l);
+	            if ($l == 'END')
+	            {
+	                break;
+	            }
+
+	            $m = [];
+	            // ITEM 42 [118 b; 1354717302 s]
+	            $r = preg_match('/^ITEM\s([^\s]+)\s/', $l, $m);
+	            if ($r != 1)
+	            {
+	                return -5;
+	            }
+	            $a_key = $m[1];
+
+	            $a_slab[] = $a_key;
+	        }
+	    }
+
+	    // close the connection
+	    @fclose($mem);
+	    unset($mem);
+
+	    $keys = [];
+	    reset($slab);
+	    foreach ($slab AS &$a_slab)
+	    {
+	        reset($a_slab);
+	        foreach ($a_slab AS &$a_key)
+	        {
+	            $keys[] = $a_key;
+	        }
+	    }
+	    unset($slab);
+
+	    return $keys;
+	}
+
+	/**
+	 * Get formatted value of a cache object (key-value pair). Triggered by an AJAX call.
+	 *
+	 * @since 2.4.0
+	 */
+	public function sd_cache_value() {
+
+		if ( isset( $_REQUEST ) ) {
+
+			$cache_key = $_REQUEST['cache_key'];
+			$cache_group = $_REQUEST['cache_group'];
+
+			$cache_value = maybe_unserialize( wp_cache_get( $cache_key, $cache_group ) );
+
+			$cache_value_type = gettype( $cache_value );
+
+			if  ( ( $cache_value_type == 'array' ) || ( $cache_value_type == 'object' ) ) {
+
+				// JSON_UNESCAPED_SLASHES will remove backslashes used for escaping, e.g. \' will become just '. stripslashes will further remove backslashes using to escape backslashes, e.g. double \\ will become a single \. JSON_PRETTY_PRINT and <pre> beautifies the output on the HTML side.
+
+				// echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>'; // Raw JSON beautified
+				echo json_encode( $cache_value ); // for JSON Tree viewer
+
+			} elseif ( ( $cache_value_type == 'boolean' ) || ( $cache_value_type == 'integer' ) || ( $cache_value_type == 'string' ) ) {
+
+				echo '<pre>' . htmlspecialchars( $cache_value ) . '</pre>'; // Raw JSON beautified
+
+			} else {}
+
+		} else {
+
+			echo 'None. Please define cache key and cache group first.';
+
+		}
+
+		wp_die();
 
 	}
 
@@ -3713,6 +4375,11 @@ class System_Dashboard_Admin {
 					});
 				}
 
+				// A function that mimics PHP's htmlentities()
+				function htmlEntities(str) {
+					return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+				}
+
 				jQuery('.core-db-tables .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.noncore-db-tables .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.db-specs .csf-accordion-title').attr('data-loaded','no');
@@ -3721,6 +4388,7 @@ class System_Dashboard_Admin {
 				jQuery('.taxonomies .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.old-slugs .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.media-count .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.image-sizes .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.mime-types .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.media-handling .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.directory-sizes .csf-accordion-title').attr('data-loaded','no');
@@ -3771,7 +4439,7 @@ class System_Dashboard_Admin {
 								jQuery('.core-db-tables .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-core-db-tables').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -3800,7 +4468,7 @@ class System_Dashboard_Admin {
 								jQuery('.noncore-db-tables .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-noncore-db-tables').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -3830,7 +4498,7 @@ class System_Dashboard_Admin {
 								jQuery('.db-specs .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-db-specs').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -3860,7 +4528,7 @@ class System_Dashboard_Admin {
 								jQuery('.db-details .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-db-details').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -3880,9 +4548,7 @@ class System_Dashboard_Admin {
 						jQuery.ajax({
 							url: ajaxurl,
 							data: {
-								'action':'sd_post_types',
-								'fast_ajax':true,
-								'load_plugins':["system-dashboard/system-dashboard.php"]
+								'action':'sd_post_types'
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -3890,7 +4556,7 @@ class System_Dashboard_Admin {
 								jQuery('.post-types .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-post-types').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -3920,7 +4586,7 @@ class System_Dashboard_Admin {
 								jQuery('.taxonomies .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-taxonomies').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -3950,7 +4616,7 @@ class System_Dashboard_Admin {
 								jQuery('.old-slugs .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-old-slugs').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -3980,7 +4646,7 @@ class System_Dashboard_Admin {
 								jQuery('.media-count .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-media-count').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -3989,6 +4655,33 @@ class System_Dashboard_Admin {
 
 				});
 
+				// Get registered image sizes
+
+				jQuery('.image-sizes .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_image_sizes',
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#image-sizes-content').prepend(data);
+								jQuery('.image-sizes .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-image-sizes').fadeOut( 0 );
+							},
+							error:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
 				// Get list of allowed mime types and file extensions
 
 				jQuery('.mime-types .csf-accordion-title').click( function() {
@@ -4010,7 +4703,7 @@ class System_Dashboard_Admin {
 								jQuery('.mime-types .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-mime-types').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4040,7 +4733,7 @@ class System_Dashboard_Admin {
 								jQuery('.media-handling .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-media-handling').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4070,7 +4763,7 @@ class System_Dashboard_Admin {
 								jQuery('.directory-sizes .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-directory-sizes').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4100,7 +4793,7 @@ class System_Dashboard_Admin {
 								jQuery('.filesystem-permissions .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-filesystem-permissions').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4132,7 +4825,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-public-custom-fields').fadeOut( 0 );
 
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4164,7 +4857,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-private-custom-fields').fadeOut( 0 );
 
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4194,7 +4887,7 @@ class System_Dashboard_Admin {
 								jQuery('.user-count .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-user-count').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4225,7 +4918,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-roles-capabilities').fadeOut( 0 );
 								initMcCollapsible( ".roles-capabilities" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4255,7 +4948,7 @@ class System_Dashboard_Admin {
 								jQuery('.rewrite-rules .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-rewrite-rules').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4282,7 +4975,7 @@ class System_Dashboard_Admin {
 								jQuery('.shortcodes .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-shortcodes').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4331,7 +5024,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-' + optionId).fadeOut( 0 );
 
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4372,7 +5065,90 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-' + transientId).fadeOut( 0 );
 
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+
+				// Get cache value from $wp_object_cache
+
+				jQuery('.cache__name').click( function() {
+
+					var cacheKey = this.dataset.key;
+					var cacheGroup = this.dataset.group;
+					var optionLoaded = this.dataset.loaded;
+
+					if ( optionLoaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_cache_value',
+								'cache_key':cacheKey,
+								'cache_group':cacheGroup,
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+
+								if ( isJsonString(data) ) {
+									var dataObj = JSON.parse(data);
+									jQuery('#cache_' + cacheKey).jsonViewer(dataObj,{collapsed: true, rootCollapsable: false, withQuotes: false, withLinks: false});
+								} else {
+									jQuery('#cache_' + cacheKey).prepend(data);
+								}
+
+								jQuery('#cache-' + cacheKey).attr('data-loaded','yes');
+								jQuery('#spinner-' + cacheKey).fadeOut( 0 );
+
+							},
+							error:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
+				// Get cache value from memory
+
+				jQuery('.mcache__name').click( function() {
+
+					var cacheKey = this.dataset.key;
+					var cacheGroup = this.dataset.group;
+					var optionLoaded = this.dataset.loaded;
+
+					if ( optionLoaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_cache_value',
+								'cache_key':cacheKey,
+								'cache_group':cacheGroup,
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+
+								if ( isJsonString(data) ) {
+									var dataObj = JSON.parse(data);
+									jQuery('#mcache_' + cacheKey).jsonViewer(dataObj,{collapsed: true, rootCollapsable: false, withQuotes: false, withLinks: false});
+								} else {
+									jQuery('#mcache_' + cacheKey).prepend(data);
+								}
+
+								jQuery('#mcache-' + cacheKey).attr('data-loaded','yes');
+								jQuery('#spinner-m' + cacheKey).fadeOut( 0 );
+
+							},
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4417,7 +5193,7 @@ class System_Dashboard_Admin {
 						        });
 
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4461,7 +5237,7 @@ class System_Dashboard_Admin {
 						            }
 						        });
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4493,7 +5269,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-theme-hooks').fadeOut( 0 );
 								initMcCollapsible( ".theme-hooks" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4523,7 +5299,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-plugins-hooks').fadeOut( 0 );
 								initMcCollapsible( ".plugins-hooks" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4555,7 +5331,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-core-classes').fadeOut( 0 );
 								// initMcCollapsible( ".core-classes" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4587,7 +5363,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-theme-classes').fadeOut( 0 );
 								initMcCollapsible( ".theme-classes" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4617,7 +5393,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-plugins-classes').fadeOut( 0 );
 								initMcCollapsible( ".plugins-classes" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4662,7 +5438,7 @@ class System_Dashboard_Admin {
 						        });
 
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4694,7 +5470,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-theme-functions').fadeOut( 0 );
 								initMcCollapsible( ".theme-functions" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4724,7 +5500,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-plugins-functions').fadeOut( 0 );
 								initMcCollapsible( ".plugins-functions" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4761,7 +5537,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-' + name).fadeOut( 0 );
 
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4783,9 +5559,7 @@ class System_Dashboard_Admin {
 							url: ajaxurl,
 							data: {
 								'action':'sd_constants',
-								'type':'defined',
-								'fast_ajax':true,
-								'load_plugins':["system-dashboard/system-dashboard.php"]
+								'type':'defined'
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -4794,7 +5568,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-constant-values').fadeOut( 0 );
 								initMcCollapsible( ".constant-values" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4827,7 +5601,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-constant-docs').fadeOut( 0 );
 								initMcCollapsible( ".constant-docs" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4858,7 +5632,7 @@ class System_Dashboard_Admin {
 								jQuery('.wpconfig .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-wpconfig').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4889,7 +5663,7 @@ class System_Dashboard_Admin {
 								jQuery('.htaccess .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-htaccess').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4920,7 +5694,7 @@ class System_Dashboard_Admin {
 								jQuery('.robotstxt .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-robotstxt').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4940,7 +5714,8 @@ class System_Dashboard_Admin {
 						jQuery.ajax({
 							url: ajaxurl,
 							data: {
-								'action':'sd_wp_rest_api',
+								'action':'sd_viewer_url',
+								'path':'/wp-json/wp/v2',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -4957,7 +5732,7 @@ class System_Dashboard_Admin {
 								jQuery('.restapi_viewer .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-restapi').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4987,7 +5762,7 @@ class System_Dashboard_Admin {
 								jQuery('.phpinfo-details .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-phpinfo').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -7543,7 +8318,7 @@ class System_Dashboard_Admin {
 							$constant_name = $constant['name'];
 							$constant_value = constant( $constant['name'] );
 
-							switch(gettype( $constant_value ) ) {
+							switch( gettype( $constant_value ) ) {
 								case 'array':
 								case 'object':
 									$constant_value = '<pre>'.var_export($constant_value, true).'</pre>';
@@ -7757,6 +8532,12 @@ class System_Dashboard_Admin {
 					'name'		=> 'Slugs Manager',
 					'pointer'	=> 'remove-old-slugspermalinks',
 					'usenow'	=> '/wp-admin/tools.php?page=alg-slugs-manager',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'WP Bulk Delete',
+					'pointer'	=> 'wp-bulk-delete',
+					'usenow'	=> '/wp-admin/admin.php?page=delete_all_posts',
 				),
 			),
 			'media' 	=> array(
@@ -8383,6 +9164,11 @@ class System_Dashboard_Admin {
 					'name'		=> 'Keeping your WordPress options table in check',
 					'pointer'	=> 'https://10up.com/blog/2017/wp-options-table/',
 				),
+				array(
+					'type'		=> 'link',
+					'name'		=> 'Add MySQL Index to WordPress wp_options Table',
+					'pointer'	=> 'https://guides.wp-bullet.com/add-mysql-index-wordpress-wp_options-table/',
+				),
 			),
 			'transients' 	=> array(
 				array(
@@ -8890,6 +9676,24 @@ class System_Dashboard_Admin {
 										),
 									),
 									array(
+										'id'		=> 'image_sizes',
+										'type'		=> 'accordion',
+										'title'		=> 'Registered Image Sizes',
+										'class'		=> 'image-sizes',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														// 'content'	=> $this->sd_image_sizes(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'image-sizes' ), // AJAX loading via sd_image_sizes()
+													),													
+												),
+											),
+										),
+									),
+									array(
 										'id'		=> 'media_handling',
 										'type'		=> 'accordion',
 										'title'		=> 'Media Handling',
@@ -9132,14 +9936,31 @@ class System_Dashboard_Admin {
 										),
 									),
 									array(
+										'id'		=> 'wp_noncore_options',
+										'type'		=> 'accordion',
+										'title'		=> 'Largest Autoloaded',
+										'subtitle'	=> '10 options',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View Options',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_options_largest_autoloads(),
+													),													
+												),
+											),
+										),
+									),
+									array(
 										'type'		=> 'content',
 										'title'		=> 'Tools',
-										'content'	=> $this->sd_tools( 'transients' ),
+										'content'	=> $this->sd_tools( 'options' ),
 									),
 									array(
 										'type'		=> 'content',
 										'title'		=> 'References',
-										'content'	=> $this->sd_references( 'transients' ),
+										'content'	=> $this->sd_references( 'options' ),
 									),
 
 								),
@@ -9263,6 +10084,38 @@ class System_Dashboard_Admin {
 													array(
 														'type'		=> 'content',
 														'content'	=> $this->sd_object_cache( 'non_persistent_groups' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'object_cache_content',
+										'type'		=> 'accordion',
+										'title'		=> 'From $wp_object_cache',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View Cache Content',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_object_cache( 'wp_object_cache_content' ),
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'object_cache_content',
+										'type'		=> 'accordion',
+										'title'		=> 'From Memory',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View Cache Content',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_object_cache( 'cache_content_from_memory' ),
 													),													
 												),
 											),
@@ -9447,102 +10300,6 @@ class System_Dashboard_Admin {
 										'type'		=> 'content',
 										'title'		=> 'References',
 										'content'	=> $this->sd_references( 'shortcodes' ),
-									),
-
-								),
-							),
-
-							array(
-								'title' => 'Viewer',
-								'fields' => array(
-
-									array(
-										'id'		=> 'viewer_wpconfig',
-										'type'		=> 'accordion',
-										'title'		=> 'wp-config.php',
-										'subtitle'	=> 'WordPress main configuration file',
-										'class'		=> 'sd-viewer wpconfig',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_html( 'ajax-receiver', 'wpconfig' ), // AJAX loading via sd_viewer()
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'id'		=> 'viewer_htaccess',
-										'type'		=> 'accordion',
-										'title'		=> '.htaccess',
-										'subtitle'	=> 'Apache server configuration only for the directory the file is in',
-										'class'		=> 'htaccess',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_html( 'ajax-receiver', 'htaccess' ), // AJAX loading via sd_viewer()
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'id'		=> 'viewer_restapi',
-										'type'		=> 'accordion',
-										'title'		=> 'WordPress <a href="/wp-json/wp/v2" target="_blank">REST API</a>',
-										'subtitle'	=> 'An interface for applications to interact with WordPress',
-										'class'		=> 'restapi_viewer',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_html( 'ajax-receiver', 'restapi' ), // AJAX loading via sd_wp_rest_api()
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'id'		=> 'viewer_robots',
-										'type'		=> 'accordion',
-										'title'		=> 'robots.txt',
-										'subtitle'	=> 'Tell search engine crawlers which URLs they can access on your site',
-										'class'		=> 'robotstxt',
-										'accordions'	=> array(
-											array(
-												'title'		=> 'View',
-												'fields'	=> array(
-													array(
-														'type'		=> 'content',
-														'content'	=> $this->sd_html( 'ajax-receiver', 'robotstxt' ), // AJAX loading via sd_viewer()
-													),													
-												),
-											),
-										),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Sitemap',
-										'subtitle'	=> 'Contains information for search engines to crawl your site more efficiently',
-										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'Tools',
-										'content'	=> $this->sd_tools( 'viewer' ),
-									),
-									array(
-										'type'		=> 'content',
-										'title'		=> 'References',
-										'content'	=> $this->sd_references( 'viewer' ),
 									),
 
 								),
@@ -10125,6 +10882,116 @@ class System_Dashboard_Admin {
 								),
 							),
 
+							array(
+								'title' => 'Viewer',
+								'fields' => array(
+
+									array(
+										'id'		=> 'viewer_wpconfig',
+										'type'		=> 'accordion',
+										'title'		=> 'wp-config.php',
+										'subtitle'	=> 'WordPress main configuration file',
+										'class'		=> 'sd-viewer wpconfig',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_html( 'ajax-receiver', 'wpconfig' ), // AJAX loading via sd_viewer()
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'viewer_htaccess',
+										'type'		=> 'accordion',
+										'title'		=> '.htaccess',
+										'subtitle'	=> 'Apache server configuration only for the directory the file is in',
+										'class'		=> 'htaccess',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_html( 'ajax-receiver', 'htaccess' ), // AJAX loading via sd_viewer()
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'viewer_restapi',
+										'type'		=> 'accordion',
+										'title'		=> 'WordPress <a href="/wp-json/wp/v2" target="_blank">REST API</a>',
+										'subtitle'	=> 'An interface for applications to interact with WordPress',
+										'class'		=> 'restapi_viewer',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_html( 'ajax-receiver', 'restapi' ), // AJAX loading via sd_wp_rest_api()
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'id'		=> 'viewer_robots',
+										'type'		=> 'accordion',
+										'title'		=> 'robots.txt',
+										'subtitle'	=> 'Tell search engine crawlers which URLs they can access on your site',
+										'class'		=> 'robotstxt',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_html( 'ajax-receiver', 'robotstxt' ), // AJAX loading via sd_viewer()
+													),													
+												),
+											),
+										),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Sitemap',
+										'subtitle'	=> 'Contains information for search engines to crawl your site more efficiently',
+										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Recent Posts Feed',
+										'subtitle'	=> 'RSS 2.0',
+										'class'		=> 'posts-feed',
+										'content'	=> '<a href="/feed/" target="_blank">Access now &raquo;</a>',
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Recent Comments Feed',
+										'subtitle'	=> 'RSS 2.0',
+										'class'		=> 'comments-feed',
+										'content'	=> '<a href="/comments/feed/" target="_blank">Access now &raquo;</a>',
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Tools',
+										'content'	=> $this->sd_tools( 'viewer' ),
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'References',
+										'content'	=> $this->sd_references( 'viewer' ),
+									),
+
+								),
+							),
+
 						),
 					),
 
@@ -10147,13 +11014,13 @@ class System_Dashboard_Admin {
 									array(
 										'type'		=> 'content',
 										'title'		=> 'CPU Load Average',
-										'subtitle'	=> '% of system total (raw)<br />by '. date( 'H:i:s', time() ),
+										'subtitle'	=> '% of system total (raw)<br />at '. date( 'H:i:s', time() ),
 										'content'	=> $this->sd_cpu_load_average(),
 									),
 									array(
 										'type'		=> 'content',
 										'title'		=> 'RAM Usage',
-										'subtitle'	=> 'At '. date( 'H:i:s', time() ),
+										'subtitle'	=> 'at '. date( 'H:i:s', time() ),
 										'content'	=> $this->sd_ram_usage(),
 									),
 									array(
@@ -10406,4 +11273,16 @@ class System_Dashboard_Admin {
 		return $plugin_meta;
 
 	}
+
+	/**
+	 * Remove CodeStar framework welcome / ads page
+	 *
+	 * @since 1.0.0
+	 */
+	public function sd_remove_codestar_submenu() {
+
+		remove_submenu_page( 'tools.php', 'csf-welcome' );
+
+	}
+
 }

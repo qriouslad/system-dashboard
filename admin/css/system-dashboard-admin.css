@@ -146,6 +146,10 @@
     width: 100%;
 }
 
+.sd-options .field-parts.single-top-part {
+    margin-bottom: 24px;
+}
+
 .sd-options .field-part .parts {
     width:  100%;
     display: flex;
@@ -270,6 +274,10 @@ a.link-muted:hover {
 
 .custom-fields .csf-accordion-item {
     width: calc( ( 100% / 2 ) - 7.5px );
+}
+
+span.normal-weight {
+    font-weight: normal;
 }
 
 .site-health-dot {
