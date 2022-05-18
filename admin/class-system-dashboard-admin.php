@@ -329,6 +329,8 @@ class System_Dashboard_Admin {
 
 		$output .= '<strong>Plugins</strong>: <br /><a href="/wp-admin/plugins.php" target="_blank">' . count( get_plugins() ) . ' installed</a><br /><a href="/wp-admin/plugins.php?plugin_status=active" target="_blank">' . count( get_option( 'active_plugins' ) ) . ' active</a><br />';
 
+		$output .= '<strong>Permalink Structure</strong>: <br />' . get_option( 'permalink_structure' ) . '<br />';
+
 		$output .= '<strong>Timezone</strong>: <br />' . get_option( 'timezone_string' ) . '<br />';
 
 		$output .= '<strong>Current Date Time</strong>: <br />' . current_time( 'F j, Y - H:i' ) . '<br />';
