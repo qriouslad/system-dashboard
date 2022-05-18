@@ -2220,15 +2220,17 @@ class System_Dashboard_Admin {
 	}
 
 	/**
-	 * Get WP REST API main response
+	 * Get content of a URL
 	 *
-	 * @since 2.0.0
+	 * @since 2.5.0
 	 */
-	public function sd_wp_rest_api() {
+	public function sd_viewer_url() {
 
 		if ( isset( $_REQUEST ) ) {
 
-			$response = wp_remote_get( get_site_url() . '/wp-json/wp/v2' );
+			$path = $_REQUEST['path'];
+
+			$response = wp_remote_get( get_site_url() . $path );
 
 			echo trim( wp_remote_retrieve_body( $response ) );
 
@@ -4374,6 +4376,11 @@ class System_Dashboard_Admin {
 					});
 				}
 
+				// A function that mimics PHP's htmlentities()
+				function htmlEntities(str) {
+					return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+				}
+
 				jQuery('.core-db-tables .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.noncore-db-tables .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.db-specs .csf-accordion-title').attr('data-loaded','no');
@@ -5710,7 +5717,8 @@ class System_Dashboard_Admin {
 						jQuery.ajax({
 							url: ajaxurl,
 							data: {
-								'action':'sd_wp_rest_api',
+								'action':'sd_viewer_url',
+								'path':'/wp-json/wp/v2',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -10938,6 +10946,20 @@ class System_Dashboard_Admin {
 										'title'		=> 'Sitemap',
 										'subtitle'	=> 'Contains information for search engines to crawl your site more efficiently',
 										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Recent Posts Feed',
+										'subtitle'	=> 'RSS 2.0',
+										'class'		=> 'posts-feed',
+										'content'	=> '<a href="/feed/" target="_blank">Access now &raquo;</a>',
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Recent Comments Feed',
+										'subtitle'	=> 'RSS 2.0',
+										'class'		=> 'comments-feed',
+										'content'	=> '<a href="/comments/feed/" target="_blank">Access now &raquo;</a>',
 									),
 									array(
 										'type'		=> 'content',
