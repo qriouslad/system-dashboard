@@ -218,6 +218,7 @@ class System_Dashboard {
 		$this->loader->add_action( 'wp_ajax_sd_taxonomies', $plugin_admin, 'sd_taxonomies' );
 		$this->loader->add_action( 'wp_ajax_sd_old_slugs', $plugin_admin, 'sd_old_slugs' );
 		$this->loader->add_action( 'wp_ajax_sd_media_count', $plugin_admin, 'sd_media_count' );
+		$this->loader->add_action( 'wp_ajax_sd_image_sizes', $plugin_admin, 'sd_image_sizes' );
 		$this->loader->add_action( 'wp_ajax_sd_mime_types', $plugin_admin, 'sd_mime_types' );
 		$this->loader->add_action( 'wp_ajax_sd_media_handling', $plugin_admin, 'sd_media_handling' );
 		$this->loader->add_action( 'wp_ajax_sd_directory_sizes', $plugin_admin, 'sd_directory_sizes' );
