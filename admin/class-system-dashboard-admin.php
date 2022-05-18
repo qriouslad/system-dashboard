@@ -548,8 +548,17 @@ class System_Dashboard_Admin {
 
 			foreach ( $post_types as $post_type ) {
 
+				$label_name = '';
+
+				$post_type_object = get_post_type_object( $post_type->type );
+
+				if ( isset( $post_type_object->labels ) ) {
+					$labels = $post_type_object->labels;
+					$label_name = isset( $labels->name ) ? ' (' . $labels->name . ')' : '';
+				}
+
 				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $post_type->type );
+				$output .= $this->sd_html( 'field-content-first', $post_type->type . $label_name );
 				$output .= $this->sd_html( 'field-content-second', $post_type->count );
 				$output .= $this->sd_html( 'field-content-end' );
 
@@ -4553,9 +4562,7 @@ class System_Dashboard_Admin {
 						jQuery.ajax({
 							url: ajaxurl,
 							data: {
-								'action':'sd_post_types',
-								'fast_ajax':true,
-								'load_plugins':["system-dashboard/system-dashboard.php"]
+								'action':'sd_post_types'
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
