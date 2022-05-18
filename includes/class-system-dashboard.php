@@ -237,7 +237,7 @@ class System_Dashboard {
 		$this->loader->add_action( 'wp_ajax_sd_functions', $plugin_admin, 'sd_functions' );
 		$this->loader->add_action( 'wp_ajax_sd_constants', $plugin_admin, 'sd_constants' );
 		$this->loader->add_action( 'wp_ajax_sd_viewer', $plugin_admin, 'sd_viewer' );
-		$this->loader->add_action( 'wp_ajax_sd_wp_rest_api', $plugin_admin, 'sd_wp_rest_api' );
+		$this->loader->add_action( 'wp_ajax_sd_viewer_url', $plugin_admin, 'sd_viewer_url' );
 		$this->loader->add_action( 'wp_ajax_sd_php_info', $plugin_admin, 'sd_php_info' );
 	}
 
