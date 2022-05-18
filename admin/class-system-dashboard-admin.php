@@ -329,6 +329,10 @@ class System_Dashboard_Admin {
 
 		$output .= '<strong>Plugins</strong>: <br /><a href="/wp-admin/plugins.php" target="_blank">' . count( get_plugins() ) . ' installed</a><br /><a href="/wp-admin/plugins.php?plugin_status=active" target="_blank">' . count( get_option( 'active_plugins' ) ) . ' active</a><br />';
 
+		$output .= '<strong>Permalink Structure</strong>: <br />' . get_option( 'permalink_structure' ) . '<br />';
+
+		$output .= '<strong>Search Engine Visibility</strong>: <br />' . ( ( 0 == get_option( 'blog_public' ) ) ? 'Discouraged' : 'Encouraged' ) . '<br />';
+
 		$output .= '<strong>Timezone</strong>: <br />' . get_option( 'timezone_string' ) . '<br />';
 
 		$output .= '<strong>Current Date Time</strong>: <br />' . current_time( 'F j, Y - H:i' ) . '<br />';
@@ -544,8 +548,17 @@ class System_Dashboard_Admin {
 
 			foreach ( $post_types as $post_type ) {
 
+				$label_name = '';
+
+				$post_type_object = get_post_type_object( $post_type->type );
+
+				if ( isset( $post_type_object->labels ) ) {
+					$labels = $post_type_object->labels;
+					$label_name = isset( $labels->name ) ? ' (' . $labels->name . ')' : '';
+				}
+
 				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $post_type->type );
+				$output .= $this->sd_html( 'field-content-first', $post_type->type . $label_name );
 				$output .= $this->sd_html( 'field-content-second', $post_type->count );
 				$output .= $this->sd_html( 'field-content-end' );
 
@@ -675,6 +688,88 @@ class System_Dashboard_Admin {
 			echo $output;
 
 		}
+	}
+
+	/**
+	 * Get registered image sizes
+	 *
+	 * @link http://plugins.svn.wordpress.org/wp-system/tags/1.0.7/report.php
+	 * @since 2.4.4
+	 */
+	public function sd_image_sizes() {
+
+		global $_wp_additional_image_sizes;
+
+		do_action( 'inspect', [ '_wp_additional_image_sizes', $_wp_additional_image_sizes ] );
+
+		$builtin_sizes = array( 'thumbnail', 'medium', 'large', 'full', 'post-thumbnail' );
+		$sizes = array();
+
+		$intermediate_image_sizes = get_intermediate_image_sizes();
+		$additional_image_sizes = wp_get_additional_image_sizes();
+
+		do_action( 'inspect', [ 'additional_image_sizes', $additional_image_sizes ] );
+
+		foreach ( $intermediate_image_sizes as $size ) {
+
+			if ( in_array( $size, $builtin_sizes ) ) {
+
+				$sizes[$size] = array(
+					'type'		=> 'Default',
+					'width' 	=> get_option( $size . '_size_w' ),
+					'height' 	=> get_option( $size . '_size_h' ),
+					'crop'		=> (bool) get_option( $size . '_crop' ),
+				);
+
+			} elseif ( isset( $additional_image_sizes[$size] ) ) {
+
+				$sizes[$size] = array(
+					'type'		=> 'Custom',
+					'width'		=> $additional_image_sizes[$size]['width'],
+					'height'	=> $additional_image_sizes[$size]['height'],
+					'crop'		=> $additional_image_sizes[$size]['crop'],
+				);
+
+			}
+
+		}
+
+		do_action( 'inspect', [ 'sizes', $sizes ] );
+
+		$output = '';
+
+		foreach ( $sizes as $key => $value ) {
+
+			if ( isset( $value['crop'] ) ) {
+
+				if ( $value['crop'] === true ) {
+
+					$crop_value = ' | Crop: true';
+					$size_type = 'Exactly';
+
+				} elseif ( $value['crop'] === false ) {
+
+					$crop_value = '';
+					$size_type = 'Maximum';
+
+				} else {
+
+					$crop_value = ' | Crop: ' . $value['crop'][0] . '-' . $value['crop'][1];
+					$size_type = 'Exactly';
+
+				}
+
+			}
+
+			$output .= $this->sd_html( 'field-content-start' );
+			$output .= $this->sd_html( 'field-content-first', $key . ' ('. $value['type'] . $crop_value . ')' );
+			$output .= $this->sd_html( 'field-content-second', $size_type . ' ' . $value['width'] . ' (width) x ' . $value['height'] . ' (height) pixels ' );
+			$output .= $this->sd_html( 'field-content-end' );
+
+		}
+
+		echo $output;
+
 	}
 
 	/**
@@ -2138,15 +2233,17 @@ class System_Dashboard_Admin {
 	}
 
 	/**
-	 * Get WP REST API main response
+	 * Get content of a URL
 	 *
-	 * @since 2.0.0
+	 * @since 2.5.0
 	 */
-	public function sd_wp_rest_api() {
+	public function sd_viewer_url() {
 
 		if ( isset( $_REQUEST ) ) {
 
-			$response = wp_remote_get( get_site_url() . '/wp-json/wp/v2' );
+			$path = $_REQUEST['path'];
+
+			$response = wp_remote_get( get_site_url() . $path );
 
 			echo trim( wp_remote_retrieve_body( $response ) );
 
@@ -4292,6 +4389,11 @@ class System_Dashboard_Admin {
 					});
 				}
 
+				// A function that mimics PHP's htmlentities()
+				function htmlEntities(str) {
+					return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+				}
+
 				jQuery('.core-db-tables .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.noncore-db-tables .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.db-specs .csf-accordion-title').attr('data-loaded','no');
@@ -4300,6 +4402,7 @@ class System_Dashboard_Admin {
 				jQuery('.taxonomies .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.old-slugs .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.media-count .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.image-sizes .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.mime-types .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.media-handling .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.directory-sizes .csf-accordion-title').attr('data-loaded','no');
@@ -4350,7 +4453,7 @@ class System_Dashboard_Admin {
 								jQuery('.core-db-tables .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-core-db-tables').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4379,7 +4482,7 @@ class System_Dashboard_Admin {
 								jQuery('.noncore-db-tables .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-noncore-db-tables').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4409,7 +4512,7 @@ class System_Dashboard_Admin {
 								jQuery('.db-specs .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-db-specs').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4439,7 +4542,7 @@ class System_Dashboard_Admin {
 								jQuery('.db-details .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-db-details').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4459,9 +4562,7 @@ class System_Dashboard_Admin {
 						jQuery.ajax({
 							url: ajaxurl,
 							data: {
-								'action':'sd_post_types',
-								'fast_ajax':true,
-								'load_plugins':["system-dashboard/system-dashboard.php"]
+								'action':'sd_post_types'
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -4469,7 +4570,7 @@ class System_Dashboard_Admin {
 								jQuery('.post-types .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-post-types').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4499,7 +4600,7 @@ class System_Dashboard_Admin {
 								jQuery('.taxonomies .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-taxonomies').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4529,7 +4630,7 @@ class System_Dashboard_Admin {
 								jQuery('.old-slugs .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-old-slugs').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4559,7 +4660,7 @@ class System_Dashboard_Admin {
 								jQuery('.media-count .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-media-count').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4568,6 +4669,33 @@ class System_Dashboard_Admin {
 
 				});
 
+				// Get registered image sizes
+
+				jQuery('.image-sizes .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_image_sizes',
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#image-sizes-content').prepend(data);
+								jQuery('.image-sizes .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-image-sizes').fadeOut( 0 );
+							},
+							error:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
 				// Get list of allowed mime types and file extensions
 
 				jQuery('.mime-types .csf-accordion-title').click( function() {
@@ -4589,7 +4717,7 @@ class System_Dashboard_Admin {
 								jQuery('.mime-types .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-mime-types').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4619,7 +4747,7 @@ class System_Dashboard_Admin {
 								jQuery('.media-handling .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-media-handling').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4649,7 +4777,7 @@ class System_Dashboard_Admin {
 								jQuery('.directory-sizes .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-directory-sizes').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4679,7 +4807,7 @@ class System_Dashboard_Admin {
 								jQuery('.filesystem-permissions .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-filesystem-permissions').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4711,7 +4839,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-public-custom-fields').fadeOut( 0 );
 
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4743,7 +4871,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-private-custom-fields').fadeOut( 0 );
 
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4773,7 +4901,7 @@ class System_Dashboard_Admin {
 								jQuery('.user-count .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-user-count').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4804,7 +4932,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-roles-capabilities').fadeOut( 0 );
 								initMcCollapsible( ".roles-capabilities" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4834,7 +4962,7 @@ class System_Dashboard_Admin {
 								jQuery('.rewrite-rules .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-rewrite-rules').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4861,7 +4989,7 @@ class System_Dashboard_Admin {
 								jQuery('.shortcodes .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-shortcodes').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4910,7 +5038,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-' + optionId).fadeOut( 0 );
 
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4951,7 +5079,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-' + transientId).fadeOut( 0 );
 
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -4993,7 +5121,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-' + cacheKey).fadeOut( 0 );
 
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5034,7 +5162,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-m' + cacheKey).fadeOut( 0 );
 
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5079,7 +5207,7 @@ class System_Dashboard_Admin {
 						        });
 
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5123,7 +5251,7 @@ class System_Dashboard_Admin {
 						            }
 						        });
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5155,7 +5283,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-theme-hooks').fadeOut( 0 );
 								initMcCollapsible( ".theme-hooks" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5185,7 +5313,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-plugins-hooks').fadeOut( 0 );
 								initMcCollapsible( ".plugins-hooks" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5217,7 +5345,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-core-classes').fadeOut( 0 );
 								// initMcCollapsible( ".core-classes" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5249,7 +5377,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-theme-classes').fadeOut( 0 );
 								initMcCollapsible( ".theme-classes" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5279,7 +5407,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-plugins-classes').fadeOut( 0 );
 								initMcCollapsible( ".plugins-classes" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5324,7 +5452,7 @@ class System_Dashboard_Admin {
 						        });
 
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5356,7 +5484,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-theme-functions').fadeOut( 0 );
 								initMcCollapsible( ".theme-functions" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5386,7 +5514,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-plugins-functions').fadeOut( 0 );
 								initMcCollapsible( ".plugins-functions" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5423,7 +5551,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-' + name).fadeOut( 0 );
 
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5454,7 +5582,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-constant-values').fadeOut( 0 );
 								initMcCollapsible( ".constant-values" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5487,7 +5615,7 @@ class System_Dashboard_Admin {
 								jQuery('#spinner-constant-docs').fadeOut( 0 );
 								initMcCollapsible( ".constant-docs" );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5518,7 +5646,7 @@ class System_Dashboard_Admin {
 								jQuery('.wpconfig .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-wpconfig').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5549,7 +5677,7 @@ class System_Dashboard_Admin {
 								jQuery('.htaccess .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-htaccess').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5580,7 +5708,7 @@ class System_Dashboard_Admin {
 								jQuery('.robotstxt .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-robotstxt').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5600,7 +5728,8 @@ class System_Dashboard_Admin {
 						jQuery.ajax({
 							url: ajaxurl,
 							data: {
-								'action':'sd_wp_rest_api',
+								'action':'sd_viewer_url',
+								'path':'/wp-json/wp/v2',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -5617,7 +5746,7 @@ class System_Dashboard_Admin {
 								jQuery('.restapi_viewer .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-restapi').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -5647,7 +5776,7 @@ class System_Dashboard_Admin {
 								jQuery('.phpinfo-details .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-phpinfo').fadeOut( 0 );
 							},
-							erro:function(errorThrown) {
+							error:function(errorThrown) {
 								console.log(errorThrown);
 							}
 						});
@@ -9541,6 +9670,24 @@ class System_Dashboard_Admin {
 										),
 									),
 									array(
+										'id'		=> 'image_sizes',
+										'type'		=> 'accordion',
+										'title'		=> 'Registered Image Sizes',
+										'class'		=> 'image-sizes',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														// 'content'	=> $this->sd_image_sizes(),
+														'content'	=> $this->sd_html( 'ajax-receiver', 'image-sizes' ), // AJAX loading via sd_image_sizes()
+													),													
+												),
+											),
+										),
+									),
+									array(
 										'id'		=> 'media_handling',
 										'type'		=> 'accordion',
 										'title'		=> 'Media Handling',
@@ -10810,6 +10957,20 @@ class System_Dashboard_Admin {
 										'title'		=> 'Sitemap',
 										'subtitle'	=> 'Contains information for search engines to crawl your site more efficiently',
 										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Recent Posts Feed',
+										'subtitle'	=> 'RSS 2.0',
+										'class'		=> 'posts-feed',
+										'content'	=> '<a href="/feed/" target="_blank">Access now &raquo;</a>',
+									),
+									array(
+										'type'		=> 'content',
+										'title'		=> 'Recent Comments Feed',
+										'subtitle'	=> 'RSS 2.0',
+										'class'		=> 'comments-feed',
+										'content'	=> '<a href="/comments/feed/" target="_blank">Access now &raquo;</a>',
 									),
 									array(
 										'type'		=> 'content',

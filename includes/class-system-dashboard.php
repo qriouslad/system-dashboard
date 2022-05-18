@@ -218,6 +218,7 @@ class System_Dashboard {
 		$this->loader->add_action( 'wp_ajax_sd_taxonomies', $plugin_admin, 'sd_taxonomies' );
 		$this->loader->add_action( 'wp_ajax_sd_old_slugs', $plugin_admin, 'sd_old_slugs' );
 		$this->loader->add_action( 'wp_ajax_sd_media_count', $plugin_admin, 'sd_media_count' );
+		$this->loader->add_action( 'wp_ajax_sd_image_sizes', $plugin_admin, 'sd_image_sizes' );
 		$this->loader->add_action( 'wp_ajax_sd_mime_types', $plugin_admin, 'sd_mime_types' );
 		$this->loader->add_action( 'wp_ajax_sd_media_handling', $plugin_admin, 'sd_media_handling' );
 		$this->loader->add_action( 'wp_ajax_sd_directory_sizes', $plugin_admin, 'sd_directory_sizes' );
@@ -236,7 +237,7 @@ class System_Dashboard {
 		$this->loader->add_action( 'wp_ajax_sd_functions', $plugin_admin, 'sd_functions' );
 		$this->loader->add_action( 'wp_ajax_sd_constants', $plugin_admin, 'sd_constants' );
 		$this->loader->add_action( 'wp_ajax_sd_viewer', $plugin_admin, 'sd_viewer' );
-		$this->loader->add_action( 'wp_ajax_sd_wp_rest_api', $plugin_admin, 'sd_wp_rest_api' );
+		$this->loader->add_action( 'wp_ajax_sd_viewer_url', $plugin_admin, 'sd_viewer_url' );
 		$this->loader->add_action( 'wp_ajax_sd_php_info', $plugin_admin, 'sd_php_info' );
 	}
 
