@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.3  
-Stable tag: 2.4.4  
+Stable tag: 2.5.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -28,6 +28,8 @@ To preview the module screenshots more easily, please scroll down the [github re
 
 * Site health status
 * Quick stats of active theme and plugins
+* Permalink structure
+* Search engine visibility
 * Timezone and current time
 * Your IP address
 
@@ -53,6 +55,7 @@ To preview the module screenshots more easily, please scroll down the [github re
 
 * List of media types and files count for each
 * List of allowed mime types and the corresponding file extensions
+* List of registered image sizes
 * Media handling info, e.g. max file upload size
 
 #### 5. Directories: 
@@ -147,6 +150,8 @@ To preview the module screenshots more easily, please scroll down the [github re
 * REST API viewer
 * robots.txt viewer
 * Link to sitemap
+* Link to recent posts RSS feed
+* Link to recent comments RSS feed
 
 ### Server Modules (3)
 
@@ -252,6 +257,15 @@ To preview the module screenshots more easily, please scroll down the [github re
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.5.0 (2022.05.18)
+
+* Media: add list of registered image sizes
+* Viewer: add links to recent posts and recent comments RSS feeds
+* WP Overview: add permalink structure and search engine visibility info
+* Post Types & Taxonomies: add post types labels if they're defined
+* Server overview: fix location info, now properly returns 'Undetectable'. Props to [@nawawijamili](https://profiles.wordpress.org/nawawijamili/).
+* Constants: normalize "Defined Constants" for Array, Object and Boolean values. Props to [@nawawijamili](https://profiles.wordpress.org/nawawijamili/).
 
 ### 2.4.4 (2022.04.26)
 
