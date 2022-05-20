@@ -236,55 +236,6 @@ class System_Dashboard_Admin {
 
 		$output = '';
 
-		// Directories and paths
-
-		// $output = 'get_site_url() - ' . get_site_url() . '<br />';
-		// $output .= 'admin_url() - ' . admin_url() . '<br />';
-		// $output .= 'content_url() - ' . content_url() . '<br />';
-
-		// $output .= 'wp_upload_dir()[\'baseurl\'] - ' . wp_upload_dir()['baseurl'] . '<br />';
-		// $output .= 'wp_upload_dir()[\'url\'] - ' . wp_upload_dir()['url'] . '<br />';
-		// $output .= 'wp_upload_dir()[\'basedir\'] - ' . wp_upload_dir()['basedir'] . '<br />';
-		// $output .= 'wp_upload_dir()[\'path\'] - ' . wp_upload_dir()['path'] . '<br />';
-
-		// $output .= 'plugins_url() - ' . plugins_url() . '<br />';
-		// $output .= 'plugin_dir_url(  __DIR__ ) - ' . plugin_dir_url(  __DIR__ ) . '<br />';
-		// $output .= 'plugin_dir_url(  __FILE__ ) - ' . plugin_dir_url(  __FILE__ ) . '<br />';
-
-		// $output .= 'plugin_dir_path( __FILE__ ) - ' . plugin_dir_path( __FILE__ ) . '<br />';
-		// $output .= 'plugin_dir_path( __DIR__ ) - ' . plugin_dir_path( __DIR__ ) . '<br />';
-
-		// $output .= 'get_template_directory_uri() - ' . get_template_directory_uri() . '<br />';
-		// $output .= 'get_stylesheet_directory_uri() - ' . get_stylesheet_directory_uri() . '<br />';
-		// $output .= 'get_stylesheet_uri() - ' . get_stylesheet_uri() . '<br />';
-		// $output .= 'get_theme_root_uri() - ' . get_theme_root_uri() . '<br />';
-
-		// $output .= 'get_theme_root() - ' . get_theme_root() . '<br />';
-		// $output .= 'get_theme_roots() - ' . get_theme_roots() . '<br />';
-		// $output .= 'get_template_directory() - ' . get_stylesheet_directory() . '<br />';
-		// $output .= 'get_stylesheet_directory() - ' . get_stylesheet_directory() . '<br />';
-		// $output .= 'get_stylesheet_directory_uri() - ' . get_stylesheet_directory() . '<br />';
-
-		// Constants
-
-		// $output .= 'FAST_AJAX: ' . FAST_AJAX;
-
-		// Object Cache
-
-		// $output .= 'is_blog_installed: ' . wp_cache_get( 'is_blog_installed' ) . '<br />';
-		// $output .= 'is_blog_installed: ' . wp_cache_get( 'is_blog_installed', 'default' ) . '<br /><br />';
-
-		// $output .= 'mailcatcher_settings: ' . wp_cache_get( 'mailcatcher_settings' ) . '<br />';
-		// $output .= 'mailcatcher_settings - options: ' . wp_cache_get( 'mailcatcher_settings', 'options' ) . '<br /><br />';
-
-		// $output .= 'notoptions - options:<br />';
-		// ob_start();
-		// echo '<pre>' . print_r( wp_cache_get( 'notoptions', 'options' ), true ) . '</pre><br />';
-		// $output .= ob_get_clean();
-
-		// $output .= 'sd_cpu_core_count - transient: ' . wp_cache_get( 'sd_cpu_core_count', 'transient' ) . '<br /><br />';
-		// $output .= 'sd_server_location - transient: <pre>' . print_r( wp_cache_get( 'sd_server_location', 'transient' ), true ) . '</pre><br /><br />';
-
 		return $output;
 
 	}
@@ -2234,6 +2185,241 @@ class System_Dashboard_Admin {
 			echo trim( wp_remote_retrieve_body( $response ) );
 
 		}
+
+	}
+
+	/**
+	 * Get output of WP core functions and constants for URLs and paths
+	 *
+	 * @since 2.5.1
+	 */
+	public function sd_urls_paths() {
+
+		$code_reference_base_url = 'https://developer.wordpress.org/reference/functions/';
+
+		$output = '';
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '$_SERVER[\'HOME\']' );
+		$output .= $this->sd_html( 'field-content-second', $_SERVER['HOME'] );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '$_SERVER[\'HTTP_HOST\']' );
+		$output .= $this->sd_html( 'field-content-second', $_SERVER['HTTP_HOST'] );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '$_SERVER[\'SERVER_NAME\']' );
+		$output .= $this->sd_html( 'field-content-second', $_SERVER['SERVER_NAME'] );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '$_SERVER[\'DOCUMENT_ROOT\']' );
+		$output .= $this->sd_html( 'field-content-second', $_SERVER['DOCUMENT_ROOT'] );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'ABSPATH' );
+		$output .= $this->sd_html( 'field-content-second', constant( 'ABSPATH' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'get_site_url/" target="_blank">get_site_url()</a>' );
+		$output .= $this->sd_html( 'field-content-second', get_site_url() );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'get_home_url/" target="_blank">get_home_url()</a>' );
+		$output .= $this->sd_html( 'field-content-second', get_home_url() );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'admin_url/" target="_blank">admin_url()</a>' );
+		$output .= $this->sd_html( 'field-content-second', admin_url() );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'WPINC' );
+		$output .= $this->sd_html( 'field-content-second', constant( 'WPINC' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'content_url/" target="_blank">content_url()</a>' );
+		$output .= $this->sd_html( 'field-content-second', content_url() );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'WP_CONTENT_URL' );
+		$output .= $this->sd_html( 'field-content-second', constant( 'WP_CONTENT_URL' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'WP_CONTENT_DIR' );
+		$output .= $this->sd_html( 'field-content-second', constant( 'WP_CONTENT_DIR' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', "<a href=\"'.$code_reference_base_url.'wp_upload_dir/\" target=\"_blank\">wp_upload_dir()</a>['baseurl']" );
+		$output .= $this->sd_html( 'field-content-second', wp_upload_dir()['baseurl'] );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', "<a href=\"'.$code_reference_base_url.'wp_upload_dir/\" target=\"_blank\">wp_upload_dir()</a>['url']" );
+		$output .= $this->sd_html( 'field-content-second', wp_upload_dir()['url'] );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', "<a href=\"'.$code_reference_base_url.'wp_upload_dir/\" target=\"_blank\">wp_upload_dir()</a>['basedir']" );
+		$output .= $this->sd_html( 'field-content-second', wp_upload_dir()['basedir'] );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', "<a href=\"'.$code_reference_base_url.'wp_upload_dir/\" target=\"_blank\">wp_upload_dir()</a>['path']" );
+		$output .= $this->sd_html( 'field-content-second', wp_upload_dir()['path'] );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'plugins_url/" target="_blank">plugins_url()</a>' );
+		$output .= $this->sd_html( 'field-content-second', plugins_url() );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'WP_PLUGIN_URL' );
+		$output .= $this->sd_html( 'field-content-second', constant( 'WP_PLUGIN_URL' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'plugin_dir_url/" target="_blank">plugin_dir_url</a>( __DIR__ )' );
+		$output .= $this->sd_html( 'field-content-second', plugin_dir_url( __DIR__ ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'plugin_dir_url/" target="_blank">plugin_dir_url</a>( __FILE__ )' );
+		$output .= $this->sd_html( 'field-content-second', plugin_dir_url( __FILE__ ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'plugin_dir_path/" target="_blank">plugin_dir_path</a>( __DIR__ )' );
+		$output .= $this->sd_html( 'field-content-second', plugin_dir_path( __DIR__ ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'plugin_dir_path/" target="_blank">plugin_dir_path</a>( __FILE__ )' );
+		$output .= $this->sd_html( 'field-content-second', plugin_dir_path( __FILE__ ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'WP_PLUGIN_DIR' );
+		$output .= $this->sd_html( 'field-content-second', constant( 'WP_PLUGIN_DIR' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'PLUGINDIR' );
+		$output .= $this->sd_html( 'field-content-second', constant( 'PLUGINDIR' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'get_theme_root_uri/" target="_blank">get_theme_root_uri()</a>' );
+		$output .= $this->sd_html( 'field-content-second', get_theme_root_uri() );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'get_theme_root/" target="_blank">get_theme_root()</a>' );
+		$output .= $this->sd_html( 'field-content-second', get_theme_root() );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'get_theme_roots/" target="_blank">get_theme_roots()</a>' );
+		$output .= $this->sd_html( 'field-content-second', get_theme_roots() );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'get_template_directory_uri/" target="_blank">get_template_directory_uri()</a>' );
+		$output .= $this->sd_html( 'field-content-second', get_template_directory_uri() );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'get_stylesheet_directory_uri/" target="_blank">get_stylesheet_directory_uri()</a>' );
+		$output .= $this->sd_html( 'field-content-second', get_stylesheet_directory_uri() );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'get_stylesheet_uri/" target="_blank">get_stylesheet_uri()</a>' );
+		$output .= $this->sd_html( 'field-content-second', get_stylesheet_uri() );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'get_template_directory/" target="_blank">get_template_directory()</a>' );
+		$output .= $this->sd_html( 'field-content-second', get_template_directory() );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'get_stylesheet_directory/" target="_blank">get_stylesheet_directory()</a>' );
+		$output .= $this->sd_html( 'field-content-second', get_stylesheet_directory() );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'get_stylesheet_directory_uri/" target="_blank">get_stylesheet_directory_uri()</a>' );
+		$output .= $this->sd_html( 'field-content-second', get_stylesheet_directory_uri() );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'WPMU_PLUGIN_DIR' );
+		$output .= $this->sd_html( 'field-content-second', constant( 'WPMU_PLUGIN_DIR' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'WPMU_PLUGIN_URL' );
+		$output .= $this->sd_html( 'field-content-second', constant( 'WPMU_PLUGIN_URL' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'MUPLUGINDIR' );
+		$output .= $this->sd_html( 'field-content-second', constant( 'MUPLUGINDIR' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'WP_LANG_DIR' );
+		$output .= $this->sd_html( 'field-content-second', constant( 'WP_LANG_DIR' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '$_SERVER[\'HTTP_REFERER\']' );
+		$output .= $this->sd_html( 'field-content-second', $_SERVER['HTTP_REFERER'] );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '$_SERVER[\'REQUEST_SCHEME\']' );
+		$output .= $this->sd_html( 'field-content-second', $_SERVER['REQUEST_SCHEME'] );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '$_SERVER[\'REQUEST_URI\']' );
+		$output .= $this->sd_html( 'field-content-second', $_SERVER['REQUEST_URI'], 'long-value' );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '$_SERVER[\'DOCUMENT_URI\']' );
+		$output .= $this->sd_html( 'field-content-second', $_SERVER['DOCUMENT_URI'] );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '$_SERVER[\'QUERY_STRING\']' );
+		$output .= $this->sd_html( 'field-content-second', $_SERVER['QUERY_STRING'], 'long-value' );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '$_SERVER[\'SCRIPT_FILENAME\']' );
+		$output .= $this->sd_html( 'field-content-second', $_SERVER['SCRIPT_FILENAME'] );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '$_SERVER[\'PHP_SELF\']' );
+		$output .= $this->sd_html( 'field-content-second', $_SERVER['PHP_SELF'] );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		return $output;
 
 	}
 
@@ -4230,55 +4416,57 @@ class System_Dashboard_Admin {
 
             if ( is_writeable( WPMU_PLUGIN_DIR ) ) {
 
-                // https://www.php.net/manual/en/language.types.string.php#language.types.string.syntax.nowdoc
-                $file_content = <<<'EOD'
-				<?php
+            // Indentation with tabs are removed for the nowdoc declaration below to prevent errors on plugin activation in PHP versions up to 7.2. Heredoc / nowdoc is finicky as described in https://stackoverflow.com/q/16745654.
 
-				define('FAST_AJAX' , true );
+// https://www.php.net/manual/en/language.types.string.php#language.types.string.syntax.nowdoc
+$file_content = <<<'EOD'
+<?php
 
-				/**
-				 * Enable Fast Ajax
-				 */
-				add_filter( 'option_active_plugins', 'ajax_disable_plugins' );
-				function ajax_disable_plugins($plugins){
+define('FAST_AJAX' , true );
 
-					/* load all plugins if not in ajax mode */
-					if ( !defined( 'DOING_AJAX' ) )  {
-						return $plugins;
-					}
+/**
+ * Enable Fast Ajax
+ */
+add_filter( 'option_active_plugins', 'ajax_disable_plugins' );
+function ajax_disable_plugins($plugins){
 
-					/* load all plugins if fast_ajax is set to false */
-					if ( !isset($_REQUEST['fast_ajax']) || !$_REQUEST['fast_ajax'] )  {
-						return $plugins;
-					}
+	/* load all plugins if not in ajax mode */
+	if ( !defined( 'DOING_AJAX' ) )  {
+		return $plugins;
+	}
 
-					/* load all plugins if load_plugins is set to all */
-					if ( $_REQUEST['load_plugins'] == 'all' )  {
-						return $plugins;
-					}
+	/* load all plugins if fast_ajax is set to false */
+	if ( !isset($_REQUEST['fast_ajax']) || !$_REQUEST['fast_ajax'] )  {
+		return $plugins;
+	}
 
-					/* disable all plugins if none are told to load by the load_plugins array */
-					if ( !isset($_REQUEST['load_plugins']) || !$_REQUEST['load_plugins'] )  {
-						return array();
-					}
+	/* load all plugins if load_plugins is set to all */
+	if ( $_REQUEST['load_plugins'] == 'all' )  {
+		return $plugins;
+	}
 
-					/* convert json */
-					if (!is_array($_REQUEST['load_plugins']) && $_REQUEST['load_plugins']) {
-						$_REQUEST['load_plugins'] = json_decode($_REQUEST['load_plugins'],true);
-					}
+	/* disable all plugins if none are told to load by the load_plugins array */
+	if ( !isset($_REQUEST['load_plugins']) || !$_REQUEST['load_plugins'] )  {
+		return array();
+	}
 
-					/* unset plugins not included in the load_plugins array */
-					foreach ($plugins as $key => $plugin_path) {
+	/* convert json */
+	if (!is_array($_REQUEST['load_plugins']) && $_REQUEST['load_plugins']) {
+		$_REQUEST['load_plugins'] = json_decode($_REQUEST['load_plugins'],true);
+	}
 
-						if (!in_array($plugin_path, $_REQUEST['load_plugins'] )) {
-							unset($plugins[$key]);
-						}
+	/* unset plugins not included in the load_plugins array */
+	foreach ($plugins as $key => $plugin_path) {
 
-					}
+		if (!in_array($plugin_path, $_REQUEST['load_plugins'] )) {
+			unset($plugins[$key]);
+		}
 
-					return $plugins;
-				}
-				EOD;
+	}
+
+	return $plugins;
+}
+EOD;
 
                 file_put_contents( $fast_ajax_file, $file_content );
 
@@ -5672,7 +5860,7 @@ class System_Dashboard_Admin {
 
 				});
 
-				// Get content of .htaccess
+				// Get content of robots.txt
 
 				jQuery('.robotstxt .csf-accordion-title').click( function() {
 
@@ -10958,6 +11146,24 @@ class System_Dashboard_Admin {
 										'title'		=> 'Sitemap',
 										'subtitle'	=> 'Contains information for search engines to crawl your site more efficiently',
 										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
+									),
+									array(
+										'id'		=> 'viewer_urls_paths',
+										'type'		=> 'accordion',
+										'title'		=> 'URLs and Paths',
+										'subtitle'	=> 'From WP core functions and constants, as well as PHP $_SERVER superglobal',
+										'class'		=> 'urls-paths',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														'content'	=> $this->sd_urls_paths(),
+													),													
+												),
+											),
+										),
 									),
 									array(
 										'type'		=> 'content',
