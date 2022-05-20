@@ -4416,55 +4416,57 @@ class System_Dashboard_Admin {
 
             if ( is_writeable( WPMU_PLUGIN_DIR ) ) {
 
-                // https://www.php.net/manual/en/language.types.string.php#language.types.string.syntax.nowdoc
-                $file_content = <<<'EOD'
-				<?php
+            // Indentation with tabs are removed for the nowdoc declaration below to prevent errors on plugin activation in PHP versions up to 7.2. Heredoc / nowdoc is finicky as described in https://stackoverflow.com/q/16745654.
 
-				define('FAST_AJAX' , true );
+// https://www.php.net/manual/en/language.types.string.php#language.types.string.syntax.nowdoc
+$file_content = <<<'EOD'
+<?php
 
-				/**
-				 * Enable Fast Ajax
-				 */
-				add_filter( 'option_active_plugins', 'ajax_disable_plugins' );
-				function ajax_disable_plugins($plugins){
+define('FAST_AJAX' , true );
 
-					/* load all plugins if not in ajax mode */
-					if ( !defined( 'DOING_AJAX' ) )  {
-						return $plugins;
-					}
+/**
+ * Enable Fast Ajax
+ */
+add_filter( 'option_active_plugins', 'ajax_disable_plugins' );
+function ajax_disable_plugins($plugins){
 
-					/* load all plugins if fast_ajax is set to false */
-					if ( !isset($_REQUEST['fast_ajax']) || !$_REQUEST['fast_ajax'] )  {
-						return $plugins;
-					}
+	/* load all plugins if not in ajax mode */
+	if ( !defined( 'DOING_AJAX' ) )  {
+		return $plugins;
+	}
 
-					/* load all plugins if load_plugins is set to all */
-					if ( $_REQUEST['load_plugins'] == 'all' )  {
-						return $plugins;
-					}
+	/* load all plugins if fast_ajax is set to false */
+	if ( !isset($_REQUEST['fast_ajax']) || !$_REQUEST['fast_ajax'] )  {
+		return $plugins;
+	}
 
-					/* disable all plugins if none are told to load by the load_plugins array */
-					if ( !isset($_REQUEST['load_plugins']) || !$_REQUEST['load_plugins'] )  {
-						return array();
-					}
+	/* load all plugins if load_plugins is set to all */
+	if ( $_REQUEST['load_plugins'] == 'all' )  {
+		return $plugins;
+	}
 
-					/* convert json */
-					if (!is_array($_REQUEST['load_plugins']) && $_REQUEST['load_plugins']) {
-						$_REQUEST['load_plugins'] = json_decode($_REQUEST['load_plugins'],true);
-					}
+	/* disable all plugins if none are told to load by the load_plugins array */
+	if ( !isset($_REQUEST['load_plugins']) || !$_REQUEST['load_plugins'] )  {
+		return array();
+	}
 
-					/* unset plugins not included in the load_plugins array */
-					foreach ($plugins as $key => $plugin_path) {
+	/* convert json */
+	if (!is_array($_REQUEST['load_plugins']) && $_REQUEST['load_plugins']) {
+		$_REQUEST['load_plugins'] = json_decode($_REQUEST['load_plugins'],true);
+	}
 
-						if (!in_array($plugin_path, $_REQUEST['load_plugins'] )) {
-							unset($plugins[$key]);
-						}
+	/* unset plugins not included in the load_plugins array */
+	foreach ($plugins as $key => $plugin_path) {
 
-					}
+		if (!in_array($plugin_path, $_REQUEST['load_plugins'] )) {
+			unset($plugins[$key]);
+		}
 
-					return $plugins;
-				}
-				EOD;
+	}
+
+	return $plugins;
+}
+EOD;
 
                 file_put_contents( $fast_ajax_file, $file_content );
 
