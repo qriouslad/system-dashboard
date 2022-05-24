@@ -31,9 +31,25 @@ class System_Dashboard_Deactivator {
 	 */
 	public static function deactivate() {
 
+        // Delete fast-ajax.php MU plugin
+
         $fast_ajax_file = WPMU_PLUGIN_DIR . '/fast-ajax.php';
 
         unlink( $fast_ajax_file );
+
+        // Drop (delete) Access Log table
+        
+        global $wpdb;
+
+        $page_access_log_table = $wpdb->prefix . 'sd_page_access_log';
+
+        $sql = "DROP TABLE IF EXISTS {$page_access_log_table}";
+
+        $wpdb->query( $sql );
+
+        // Delete option in wp_options table for the various logging tools
+
+        delete_option( 'system_dashboard_page_access_log' );
 
 	}
 
