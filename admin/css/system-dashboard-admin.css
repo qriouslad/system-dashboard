@@ -520,6 +520,80 @@ dl.mc-collapsible[data-style=qa] dd {
 
 /* END OF Pure JS Accordion */
 
+.csf-field.has-switcher .csf-title h4 {
+    display: flex;
+    align-items: center;
+}
+
+/* CSS On / Off switcher -- https://codepen.io/MoorLex/pen/GZaavy */
+
+input[type="checkbox"] {
+    display: none;
+}
+
+input[type="checkbox"] + label {
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+    position: relative;
+    transition: 0.3s;
+    margin: 0 8px 0 0;
+    box-sizing: border-box;
+}
+
+input[type="checkbox"] + label:after,
+input[type="checkbox"] + label:before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 20px;
+    height: 20px;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+#inset-3:checked + label.red {
+  background: #ECA9A7;
+}
+
+#inset-3:checked + label.red:after {
+  background: #D9534F;
+}
+
+#inset-3:checked + label.green {
+  background: #AEDCAE;
+}
+
+#inset-3:checked + label.green:after {
+  background: #5CB85C;
+}
+
+#inset-3:checked + label:after {
+  left: calc(100% - 18px);
+}
+
+#inset-3 + label {
+  background: #ddd;
+  border-radius: 20px;
+}
+
+#inset-3 + label:after {
+  background: #fff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  top: 2px;
+  left: 2px;
+}
+
+/* Logs module */
+
+#page-access-log-status {
+    margin-bottom: 12px;
+}
+
 @media (max-width:768px) {
 
     .custom-fields .csf-accordion-items {

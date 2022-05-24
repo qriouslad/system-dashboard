@@ -35,6 +35,8 @@ class System_Dashboard_Activator {
 
         $fast_ajax_file = WPMU_PLUGIN_DIR . '/fast-ajax.php';
 
+        // Creates mu-plugin directory if it does not exist
+
         if ( !is_dir( WPMU_PLUGIN_DIR ) ) {
 
             if ( is_writable( WP_CONTENT_DIR ) ) {
@@ -44,6 +46,8 @@ class System_Dashboard_Activator {
             } else {}
 
         }
+
+        // Creates fast-ajax.php as a must-use plugin
 
         if ( is_dir( WPMU_PLUGIN_DIR ) ) {
 
@@ -106,6 +110,39 @@ EOD;
             }
 
         }
+
+        // Include upgrade.php so we can use dbDelta() function to manipulate the database
+
+        require_once( ABSPATH . '/wp-admin/includes/upgrade.php' );
+
+        // Create database table for the access log tool in the Logs module
+
+        global $wpdb;
+
+        $page_access_log_table = $wpdb->prefix . 'sd_page_access_log';
+
+        $sql = 
+        "CREATE TABLE {$page_access_log_table} (
+            ID int(11) unsigned NOT NULL AUTO_INCREMENT,
+            access_on datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            from_ip varchar(255) NOT NULL DEFAULT '',
+            page_url varchar(255) NOT NULL DEFAULT '',
+            PRIMARY KEY (ID)
+        ) 
+        DEFAULT CHARACTER SET {$wpdb->charset} COLLATE {$wpdb->collate};";
+
+        dbDelta( $sql );
+
+        // Create options for various logging tools and set default values
+
+        // Page Access Log
+
+        $option_value = array(
+            'status'    => 'disabled',
+            'on'        => date( 'Y-m-d H:i:s' ),
+        );
+
+        update_option( 'system_dashboard_page_access_log', $option_value, false );
 
 	}
 

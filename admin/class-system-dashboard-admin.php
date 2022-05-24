@@ -4495,6 +4495,11 @@ EOD;
 
 		}
 
+		// Option value from wp_options table for the various logging tools
+
+		$page_access_log = get_option( 'system_dashboard_page_access_log' );
+		$page_access_log_status = $page_access_log['status'];
+
 		?>
 
 		<script id="sd-ajax-calls">
@@ -4603,7 +4608,82 @@ EOD;
 				jQuery('.htaccess .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.restapi_viewer .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.robotstxt .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.page-access-log .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.phpinfo-details .csf-accordion-title').attr('data-loaded','no');
+
+				// Set data-status attribute of toggles / switches that turn certain tools on or off
+
+				var page_access_log_status = '<?php echo esc_js( $page_access_log_status ); ?>';
+				jQuery('.page-access-log-switcher').attr('data-status',page_access_log_status);
+
+				// Set toggle/switcher position
+
+				if ( page_access_log_status == 'enabled' ) {
+					jQuery('.page-access-log-checkbox').prop('checked', true);
+				} else {
+					jQuery('.page-access-log-checkbox').prop('checked', false);					
+				}
+
+				// Toggle Page Access Log tool on or off
+
+				jQuery('.page-access-log-switcher').click( function() {
+
+					var status = this.dataset.status;
+
+					jQuery.ajax({
+						url: ajaxurl,
+						data: {
+							'action':'sd_toggle_logs',
+							'log_type':'page_access_log',
+							'fast_ajax':true,
+							'load_plugins':["system-dashboard/system-dashboard.php"]
+						},
+						success:function(data) {
+							var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+							jQuery('#page-access-log-status').empty();
+							jQuery('#page-access-log-status').prepend(data);
+							if ( status == 'disabled' ) {
+								jQuery('.page-access-log-switcher').attr('data-status','enabled');
+							} else if ( status == 'enabled' ) {
+								jQuery('.page-access-log-switcher').attr('data-status','disabled');
+							}
+						},
+						error:function(errorThrown) {
+							console.log(errorThrown);
+						}
+					});
+
+				});
+
+				// Get Page Access log entries
+
+				jQuery('.page-access-log .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_page_access_log',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#page-access-log-content').prepend(data);
+								jQuery('.page-access-log .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-page-access-log').fadeOut( 0 );
+							},
+							error:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
 
 				// Get WP Core database tables
 
@@ -8630,6 +8710,171 @@ EOD;
 	}
 
 	/**
+	 * Toggle logging tools on or off
+	 *
+	 * @since 2.6.0
+	 */
+	public function sd_toggle_logs() {
+
+		$output = '';
+
+		if ( isset( $_REQUEST ) && isset( $_REQUEST['log_type'] ) ) {
+
+			$log_type = $_REQUEST['log_type'];
+
+			if ( $log_type == 'page_access_log' ) {
+
+				$value = get_option( 'system_dashboard_page_access_log' );
+
+				$date_time = date( 'Y-m-d H:i:s' );
+
+				if ( $value['status'] == 'disabled' ) {
+
+					$option_value = array(
+						'status'	=> 'enabled',
+						'on'		=> $date_time,
+					);
+
+					update_option( 'system_dashboard_page_access_log', $option_value, false );
+
+					$output = 'Page Access logger was enabled on ' . $date_time;
+
+				} elseif ( $value['status'] == 'enabled' ) {
+
+					$option_value = array(
+						'status'	=> 'disabled',
+						'on'		=> $date_time,
+					);
+
+					update_option( 'system_dashboard_page_access_log', $option_value, false );
+
+					$output = 'Page Access logger was disabled on ' . $date_time;
+
+				} else {}
+
+			}
+
+		}
+
+		echo $output;
+
+	}
+
+	/** 
+	 * Page Access Log status
+	 */
+	public function sd_page_access_log_status() {
+
+		$value = get_option( 'system_dashboard_page_access_log' );
+
+		$status = $value['status'];
+		$date_time = $value['on'];
+
+		return '<div id="page-access-log-status">Page Access Logger was '. $status .' on '. $date_time .'</div>';
+
+	}
+
+	/**
+	 * Page Access Log content
+	 *
+	 * @since 2.6.0
+	 */
+	public function sd_page_access_log() {
+
+		$output = '<table class="wp-list-table widefat striped">
+					<thead>
+						<tr>
+							<th>Date Time</th>
+							<th>Visitor IP</th>
+							<th>Page URI Accessed</th>							
+						</tr>
+					</thead>
+					<tbody>';
+
+		global $wpdb;
+
+		$access_log_table = $wpdb->prefix . 'sd_page_access_log';
+
+		$limit = 100;
+
+		$sql = $wpdb->prepare( "SELECT * FROM {$access_log_table} ORDER BY ID DESC LIMIT %d", array( $limit ) );
+
+		$results = $wpdb->get_results( $sql, ARRAY_A );
+
+		foreach( $results as $log ) {
+
+			$output .= '<tr>
+							<td>'. $log['access_on'] .'</td>
+							<td>'. $log['from_ip'] .'</td>
+							<td>'. $log['page_url'] .'</td>
+						</tr>';
+
+		}
+
+		$output .= '</tbody></table>';
+
+		echo $output;
+
+	}
+
+	/** 
+	 * Access logger
+	 *
+	 * @since 2.6.0
+	 */
+	public function sd_page_access_logger() {
+
+		// Check status of logger
+
+		$value = get_option( 'system_dashboard_page_access_log' );
+
+		if ( $value['status'] == 'enabled' ) {
+
+			// Get access/request data
+
+			$request_uri = $_SERVER["REQUEST_URI"];
+
+			$ip_address = addslashes( $_SERVER["REMOTE_ADDR"] );
+
+			$date_time = date( 'Y-m-d H:i:s', $_SERVER["REQUEST_TIME"] );
+
+			// Do not log anything for the following scenarios
+
+			if ( 
+				is_admin() 
+				|| ( strpos( $request_uri, '/wp-includes/' ) !== false ) 
+				|| ( strpos( $request_uri, '/wp-json/' ) !== false ) 
+				|| ( strpos( $request_uri, 'author=' ) !== false ) 
+				|| ( strpos( $request_uri, '.' ) !== false ) // e.g. wp-cron.php, xmlrpc.php, robots.txt
+			) {
+				return false;
+			}
+
+			// Log access details
+
+	        global $wpdb;
+
+	        $access_log_table = $wpdb->prefix . 'sd_page_access_log';
+
+	        $data = array(
+					'access_on'	=> $date_time,
+					'from_ip'	=> $ip_address,
+					'page_url'	=> $request_uri,
+				);
+
+	        $format = array(
+					'%s',
+					'%s',
+					'%s',
+				);
+
+			$result = $wpdb->insert( $access_log_table, $data, $format );
+
+		}
+
+	}
+
+	/**
 	 * List relevant tools and plugins
 	 *
 	 * @since 1.0.0
@@ -11191,7 +11436,33 @@ EOD;
 									),
 
 								),
-							),
+							), // End of Viewer module
+
+							array(
+								'title' => 'Logs',
+								'fields' => array(
+
+									array(
+										'id'		=> 'viewer_robots',
+										'type'		=> 'accordion',
+										'title'		=> '<input type="checkbox" id="inset-3" class="page-access-log-checkbox"><label for="inset-3" class="green page-access-log-switcher"></label>Page Access',
+										'subtitle'	=> '',
+										'class'		=> 'has-switcher page-access-log',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View Log Entries',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														// 'content'	=> $this->sd_page_access_log_status() . $this->sd_page_access_log(),
+														'content'	=> $this->sd_page_access_log_status() . $this->sd_html( 'ajax-receiver', 'page-access-log' ), // AJAX loading via sd_page_access_log()
+													),													
+												),
+											),
+										),
+									),
+								),
+							), // End of Logs module
 
 						),
 					),
