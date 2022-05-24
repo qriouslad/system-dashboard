@@ -239,6 +239,17 @@ class System_Dashboard {
 		$this->loader->add_action( 'wp_ajax_sd_viewer', $plugin_admin, 'sd_viewer' );
 		$this->loader->add_action( 'wp_ajax_sd_viewer_url', $plugin_admin, 'sd_viewer_url' );
 		$this->loader->add_action( 'wp_ajax_sd_php_info', $plugin_admin, 'sd_php_info' );
+
+		$this->loader->add_action( 'wp_ajax_sd_toggle_logs', $plugin_admin, 'sd_toggle_logs' );
+		$this->loader->add_action( 'wp_ajax_sd_page_access_log', $plugin_admin, 'sd_page_access_log' );
+
+		// Register loggers when they're enabled
+
+		$page_access_log = get_option( 'system_dashboard_page_access_log' );
+		if ( $page_access_log['status'] == 'enabled' ) {
+			$this->loader->add_action( 'init', $plugin_admin, 'sd_page_access_logger' );
+		}
+
 	}
 
 	/**
