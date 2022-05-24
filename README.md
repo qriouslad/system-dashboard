@@ -5,20 +5,20 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.3  
-Stable tag: 2.5.1  
+Stable tag: 2.6.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 ![](.wordpress-org/banner-772x250.png)
 
-Centralized dashboard to monitor various WordPress components, stats and data, including the server.
+Central dashboard to monitor various WordPress components, processes and data, including the server.
 
 ## Description
 
-This plugin provides a centralized dashboard to monitor various WordPress components, stats and data, including server hardware, software and resource usage. Pairs well with [Query Monitor](https://wordpress.org/plugins/query-monitor/) and [WP Console](https://wordpress.org/plugins/wp-console/) to help you do some solid dev work.
+This plugin provides a central dashboard to monitor various WordPress components, processes and data, including server hardware, software and resource usage. Pairs well with [Query Monitor](https://wordpress.org/plugins/query-monitor/) and [WP Console](https://wordpress.org/plugins/wp-console/) to help you do some solid dev work.
 
-Despite having 19 WordPress modules and 4 server modules, the single-page dashboard loads fast as queries are optimized and most modules employ fast AJAX loading of data. It does not weight down wp-admin, and nothing is loaded on the front-end. Install, activate and let it sit there ready to summon the info/data you need.
+Despite having 20 WordPress modules and 4 server modules, the single-page dashboard loads fast as queries are optimized and most modules employ fast AJAX loading of data. It does not weight down wp-admin, and nothing is loaded on the front-end. Install, activate and let it sit there ready to summon the info/data you need.
 
 To preview the module screenshots more easily, please scroll down the [github repo](https://github.com/qriouslad/system-dashboard). Here's a rundown of the available modules...
 
@@ -154,6 +154,10 @@ To preview the module screenshots more easily, please scroll down the [github re
 * Link to recent posts RSS feed
 * Link to recent comments RSS feed
 
+#### 20. Logs: 
+
+* Page Access log. A simple logger of which pages are being accessed by site visitors. Turned off by default.
+
 ### Server Modules (3)
 
 #### 1. Overview: 
@@ -197,14 +201,23 @@ To preview the module screenshots more easily, please scroll down the [github re
 * Requires shell_exec and exec functions enabled for some modules to work properly. e.g. the Hooks > Active Plugins tool.
 * There's an MU (must-use) plugin that unloads all other plugins for admin-ajax calls initiated from the dashboard, so these calls stay fast no matter how complex and big your site is.
 * The longest first load is probably the Hooks > Active Plugins tool, which scans action and filter hooks from all active plugins on the site. The more plugins are active, the longer it takes. If your server/hosting has a low execution time limit, you may need to load the module two or three times for the scan to complete. Once complete, subsequent loads of the module should be much much faster.
-* This plugin has been tested to work with servers powered by NGINX, Apache and Litespeed, and also sites using PHP 8+.
+* This plugin has been tested to work with servers powered by NGINX, Apache and Litespeed, and also sites using PHP 7+ and 8+.
 
 ### Give Back
+
+About 260 dev hours have been spent towards v2.6.0 so far.
 
 * [A nice review](https://wordpress.org/plugins/system-dashboard/#reviews) would be great!
 * [Give feedback](https://wordpress.org/support/plugin/system-dashboard/) and help improve future versions.
 * [Github repo](https://github.com/qriouslad/system-dashboard) to contribute code.
-* [Donate](https://paypal.me/qriouslad) and support my work. Close to 200 dev hours have been spent towards v2.0.0 so far.
+* [Donate](https://paypal.me/qriouslad) and support my work.
+* Tell your colleagues about System Dashboard.
+
+### Check These Out Too
+
+* [Code Explorer](https://wordpress.org/plugins/code-explorer/): Fast directory explorer and file/code viewer with syntax highlighting.
+* [Variable Inpsector](https://wordpress.org/plugins/variable-inspector/): Inspect PHP variables on a central dashboard in wp-admin for convenient debugging.
+* [Database Admin](https://github.com/qriouslad/database-admin): Securely manage your WordPress website's database with a clean and user-friendly interface based on a custom-themed Adminer app. Only available on Github.
 
 ## Screenshots
 
@@ -258,6 +271,10 @@ To preview the module screenshots more easily, please scroll down the [github re
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.6.0 (2022.05.24)
+
+* Logs: New module. Added Page Access logger to begin with. A simple logger of which pages are being accessed by site visitors. Turned off by default.
 
 ### 2.5.1 (2022.05.20)
 
