@@ -2013,37 +2013,37 @@ class System_Dashboard_Admin {
 
 			$output .= $this->sd_html( 'field-content-start' );
 			$output .= $this->sd_html( 'field-content-first', 'All directories and files' );
-			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ) );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ) . $this->sd_files_count( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
 			$output .= $this->sd_html( 'field-content-first', 'wp-admin directory' );
-			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-admin' ) );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-admin' ) . $this->sd_files_count( ABSPATH . '/wp-admin' ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
 			$output .= $this->sd_html( 'field-content-first', 'wp-includes directory' );
-			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-includes' ) );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-includes' ) . $this->sd_files_count( ABSPATH . '/wp-includes' ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
 			$output .= $this->sd_html( 'field-content-first', 'wp-content directory' );
-			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR ) );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR ) . $this->sd_files_count( WP_CONTENT_DIR ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'Uploads directory' );
-			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/uploads' ) );
+			$output .= $this->sd_html( 'field-content-first', 'wp-content/uploads directory' );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/uploads' ) . $this->sd_files_count( WP_CONTENT_DIR.'/uploads' ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'Plugins directory' );
-			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/plugins' ) );
+			$output .= $this->sd_html( 'field-content-first', 'wp-content/plugins directory' );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/plugins' ) . $this->sd_files_count( WP_CONTENT_DIR.'/plugins' ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'Themes directory' );
-			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/themes' ) );
+			$output .= $this->sd_html( 'field-content-first', 'wp-content/themes directory' );
+			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/themes' ) . $this->sd_files_count( WP_CONTENT_DIR.'/themes' ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			echo $output;
@@ -2064,34 +2064,37 @@ class System_Dashboard_Admin {
 
 			$output = '';
 
+			$checkmark = '<span class="sd__symbol sd__symbol--green">&check;</span>';
+			$xmark = '<span class="sd__symbol sd__symbol--red">&cross;</span>';
+
 			if ( wp_is_writable( ABSPATH ) ) {
-				$is_writable_abspath = 'Writeable';
+				$is_writable_abspath = $checkmark . ' Writeable';
 			} else {
-				$is_writable_abspath = 'Not writeable';			
+				$is_writable_abspath = $xmark . ' Not writeable';			
 			}
 
 			if ( wp_is_writable( WP_CONTENT_DIR ) ) {
-				$is_writable_wp_content_dir = 'Writeable';
+				$is_writable_wp_content_dir = $checkmark . ' Writeable';
 			} else {
-				$is_writable_wp_content_dir = 'Not writeable';			
+				$is_writable_wp_content_dir = $xmark . ' Not writeable';			
 			}
 
 			if ( wp_is_writable( wp_upload_dir()['basedir'] ) ) {
-				$is_writable_upload_dir = 'Writeable';
+				$is_writable_upload_dir = $checkmark . ' Writeable';
 			} else {
-				$is_writable_upload_dir = 'Not writeable';			
+				$is_writable_upload_dir = $xmark . ' Not writeable';			
 			}
 
 			if ( wp_is_writable( WP_PLUGIN_DIR ) ) {
-				$is_writable_wp_plugin_dir = 'Writeable';
+				$is_writable_wp_plugin_dir = $checkmark . ' Writeable';
 			} else {
-				$is_writable_wp_plugin_dir = 'Not writeable';			
+				$is_writable_wp_plugin_dir = $xmark . ' Not writeable';			
 			}
 
 			if ( wp_is_writable( get_theme_root( get_template() ) ) ) {
-				$is_writable_template_directory = 'Writeable';
+				$is_writable_template_directory = $checkmark . ' Writeable';
 			} else {
-				$is_writable_template_directory = 'Not writeable';			
+				$is_writable_template_directory = $xmark . ' Not writeable';			
 			}
 
 			$output .= $this->sd_html( 'field-content-start' );
@@ -2105,17 +2108,17 @@ class System_Dashboard_Admin {
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'The uploads directory' );
+			$output .= $this->sd_html( 'field-content-first', 'The wp-content/uploads directory' );
 			$output .= $this->sd_html( 'field-content-second', $is_writable_upload_dir );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'The plugins directory' );
+			$output .= $this->sd_html( 'field-content-first', 'The wp-content/plugins directory' );
 			$output .= $this->sd_html( 'field-content-second', $is_writable_wp_plugin_dir );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'The themes directory' );
+			$output .= $this->sd_html( 'field-content-first', 'The wp-content/themes directory' );
 			$output .= $this->sd_html( 'field-content-second', $is_writable_template_directory );
 			$output .= $this->sd_html( 'field-content-end' );
 
@@ -2125,6 +2128,24 @@ class System_Dashboard_Admin {
 
 	}
 
+	/**
+	 * Get total number of files in a path
+	 *
+	 * @link https://stackoverflow.com/a/41848361
+	 * @since 2.6.1
+	 */
+	public function sd_files_count( $path ) {
+
+		$objects = new RecursiveIteratorIterator(
+		    new RecursiveDirectoryIterator( $path ),
+		    RecursiveIteratorIterator::SELF_FIRST // Include the directories in the count
+		);
+
+		$count = iterator_count( $objects );
+
+		return ' - ' . number_format($count) . ' files and directories';
+
+	}
 	/**
 	 * File and URL viewer
 	 *
