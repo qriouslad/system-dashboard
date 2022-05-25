@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 5.9.3  
-Stable tag: 2.6.0  
+Stable tag: 2.6.1  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -22,7 +22,7 @@ Despite having 20 WordPress modules and 4 server modules, the single-page dashbo
 
 To preview the module screenshots more easily, please scroll down the [github repo](https://github.com/qriouslad/system-dashboard). Here's a rundown of the available modules...
 
-### WordPress Modules (19)
+### WordPress Modules (20)
 
 #### 1. Overview: 
 
@@ -61,7 +61,7 @@ To preview the module screenshots more easily, please scroll down the [github re
 #### 5. Directories: 
 
 * Root path
-* Directory size of WP installation, wp-content directory, uploads directory, plugins directory, themes directory
+* Directory size and total number of files in WP installation, wp-admin, wp-includes, wp-content directory, uploads directory, plugins directory, themes directories
 * Filesystem permissions
 
 #### 6. Custom Fields:
@@ -205,7 +205,7 @@ To preview the module screenshots more easily, please scroll down the [github re
 
 ### Give Back
 
-About 260 dev hours have been spent towards v2.6.0 so far.
+About 260 dev hours have been spent towards v2.6.1 so far.
 
 * [A nice review](https://wordpress.org/plugins/system-dashboard/#reviews) would be great!
 * [Give feedback](https://wordpress.org/support/plugin/system-dashboard/) and help improve future versions.
@@ -271,6 +271,11 @@ About 260 dev hours have been spent towards v2.6.0 so far.
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.6.1 (2022.05.25)
+
+* Directories: add total number of files in each directory for Directory Sizes tool
+* Directories: add check mark for 'Writeable' and cross mark for 'Not writeable' in the Filesystem Permission tool to better indicate which is the desirable status
 
 ### 2.6.0 (2022.05.24)
 
