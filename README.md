@@ -4,8 +4,8 @@ Contributors: qriouslad
 Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
-Tested up to: 5.9.3  
-Stable tag: 2.6.1  
+Tested up to: 6.0  
+Stable tag: 2.6.2  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -205,7 +205,7 @@ To preview the module screenshots more easily, please scroll down the [github re
 
 ### Give Back
 
-About 260 dev hours have been spent towards v2.6.1 so far.
+About 260 dev hours have been spent towards v2.6.2 so far.
 
 * [A nice review](https://wordpress.org/plugins/system-dashboard/#reviews) would be great!
 * [Give feedback](https://wordpress.org/support/plugin/system-dashboard/) and help improve future versions.
@@ -216,7 +216,7 @@ About 260 dev hours have been spent towards v2.6.1 so far.
 ### Check These Out Too
 
 * [Code Explorer](https://wordpress.org/plugins/code-explorer/): Fast directory explorer and file/code viewer with syntax highlighting.
-* [Variable Inpsector](https://wordpress.org/plugins/variable-inspector/): Inspect PHP variables on a central dashboard in wp-admin for convenient debugging.
+* [Variable Inspector](https://wordpress.org/plugins/variable-inspector/): Inspect PHP variables on a central dashboard in wp-admin for convenient debugging.
 * [Database Admin](https://github.com/qriouslad/database-admin): Securely manage your WordPress website's database with a clean and user-friendly interface based on a custom-themed Adminer app. Only available on Github.
 
 ## Screenshots
@@ -271,6 +271,10 @@ About 260 dev hours have been spent towards v2.6.1 so far.
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.6.2 (2022.05.26)
+
+* Tested for compatibility with WordPress 6.0
 
 ### 2.6.1 (2022.05.25)
 
