@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 6.0  
-Stable tag: 2.6.3  
+Stable tag: 2.6.4  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -272,9 +272,14 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 
 ## Changelog
 
-### 2.6.3 (2022.05.26)
+### 2.6.4 (2022.05.28)
 
-* Convert Page Access log entries table into a data table using the DataTables jQuery plugin
+* Logs > Page Access: fix [PHP warning issue](https://wordpress.org/support/topic/triggering-a-warning/). Props to [@shawfactor](https://profiles.wordpress.org/shawfactor/).
+
+### 2.6.3 (2022.05.27)
+
+* Logs: Convert Page Access log entries table into a data table using the DataTables jQuery plugin
+* WP Overview: minor tidy up
 
 ### 2.6.2 (2022.05.26)
 
