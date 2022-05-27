@@ -272,9 +272,10 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 
 ## Changelog
 
-### 2.6.3 (2022.05.26)
+### 2.6.3 (2022.05.27)
 
-* Convert Page Access log entries table into a data table using the DataTables jQuery plugin
+* Logs: Convert Page Access log entries table into a data table using the DataTables jQuery plugin
+* WP Overview: minor tidy up
 
 ### 2.6.2 (2022.05.26)
 
