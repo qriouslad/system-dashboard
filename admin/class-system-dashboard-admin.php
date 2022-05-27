@@ -9178,6 +9178,18 @@ EOD;
 			'rewrite_rules' 	=> array(
 				array(
 					'type'		=> 'plugin',
+					'name'		=> 'Rewrite Rules Inspector',
+					'pointer'	=> 'rewrite-rules-inspector',
+					'usenow'	=> 'url',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Combo WP Rewrite Slugs',
+					'pointer'	=> 'combo-wp-rewrite-slugs',
+					'usenow'	=> 'url',
+				),
+				array(
+					'type'		=> 'plugin',
 					'name'		=> 'Permalink Manager Lite',
 					'pointer'	=> 'permalink-manager',
 					'usenow'	=> 'url',
@@ -9186,12 +9198,6 @@ EOD;
 					'type'		=> 'plugin',
 					'name'		=> 'Custom Post Type Permalinks',
 					'pointer'	=> 'custom-post-type-permalinks',
-					'usenow'	=> 'url',
-				),
-				array(
-					'type'		=> 'plugin',
-					'name'		=> 'Combo WP Rewrite Slugs',
-					'pointer'	=> 'combo-wp-rewrite-slugs',
 					'usenow'	=> 'url',
 				),
 			),
