@@ -447,7 +447,7 @@ dl.mc-collapsible:not([data-style]).ac-left dt::before, dl.mc-collapsible:not([d
 }
 dl.mc-collapsible:not([data-style]).ac-left dt::before {
     font-size: 22px;
-    top: 18px;
+    top: 20px;
 }
 dl.mc-collapsible:not([data-style]).ac-left dt.active::before {
   transform: translateX(50%) translateY(-50%) rotate(0.25turn);
@@ -592,6 +592,26 @@ input[type="checkbox"] + label:before {
 
 #page-access-log-status {
     margin-bottom: 12px;
+}
+
+/* DataTables */
+
+.sd-options .dataTables_wrapper .dataTables_length,
+.sd-options .dataTables_wrapper .dataTables_filter {
+    margin-bottom: 8px;
+}
+
+.sd-options table.dataTable {
+    margin: 0 auto 8px;
+}
+
+.sd-options .dataTables_wrapper .dataTables_length select {
+    min-width: 52px;
+}
+
+.sd-options table.dataTable thead th, 
+.sd-options table.dataTable tfoot th {
+    font-weight: 500;
 }
 
 @media (max-width:768px) {
