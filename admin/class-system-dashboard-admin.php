@@ -64,6 +64,7 @@ class System_Dashboard_Admin {
 
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/system-dashboard-admin.css', array(), $this->version, 'all' );
 		wp_enqueue_style( $this->plugin_name . '-json-viewer', plugin_dir_url( __FILE__ ) . 'css/jquery.json-viewer.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name . '-datatables', plugin_dir_url( __FILE__ ) . 'css/datatables.min.css', array(), $this->version, 'all' );
 
 	}
 
@@ -76,6 +77,7 @@ class System_Dashboard_Admin {
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/system-dashboard-admin.js', array( 'jquery' ), $this->version, false );
 		wp_enqueue_script( $this->plugin_name . '-json-viewer', plugin_dir_url( __FILE__ ) . 'js/jquery.json-viewer.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name . '-datatables', plugin_dir_url( __FILE__ ) . 'js/datatables.min.js', array( 'jquery' ), $this->version, false );
 
 	}
 
@@ -4696,6 +4698,8 @@ EOD;
 								jQuery('#page-access-log-content').prepend(data);
 								jQuery('.page-access-log .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-page-access-log').fadeOut( 0 );
+						        jQuery('#page-access-log').DataTable();
+
 							},
 							error:function(errorThrown) {
 								console.log(errorThrown);
@@ -8758,7 +8762,7 @@ EOD;
 
 					update_option( 'system_dashboard_page_access_log', $option_value, false );
 
-					$output = 'Page Access logger was enabled on ' . $date_time;
+					$output = 'Logger was enabled on ' . $date_time;
 
 				} elseif ( $value['status'] == 'enabled' ) {
 
@@ -8769,7 +8773,7 @@ EOD;
 
 					update_option( 'system_dashboard_page_access_log', $option_value, false );
 
-					$output = 'Page Access logger was disabled on ' . $date_time;
+					$output = 'Logger was disabled on ' . $date_time;
 
 				} else {}
 
@@ -8791,7 +8795,7 @@ EOD;
 		$status = $value['status'];
 		$date_time = $value['on'];
 
-		return '<div id="page-access-log-status">Page Access Logger was '. $status .' on '. $date_time .'</div>';
+		return '<div id="page-access-log-status">Logger was '. $status .' on '. $date_time .'</div>';
 
 	}
 
@@ -8802,7 +8806,7 @@ EOD;
 	 */
 	public function sd_page_access_log() {
 
-		$output = '<table class="wp-list-table widefat striped">
+		$output = '<table id="page-access-log" class="wp-list-table widefat striped">
 					<thead>
 						<tr>
 							<th>Date Time</th>
