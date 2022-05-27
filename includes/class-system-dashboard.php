@@ -246,7 +246,7 @@ class System_Dashboard {
 		// Register loggers when they're enabled
 
 		$page_access_log = get_option( 'system_dashboard_page_access_log' );
-		if ( $page_access_log['status'] == 'enabled' ) {
+		if ( ! empty( $page_access_log['status'] ) && ( $page_access_log['status'] == 'enabled' ) ) {
 			$this->loader->add_action( 'init', $plugin_admin, 'sd_page_access_logger' );
 		}
 
