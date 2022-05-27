@@ -264,13 +264,13 @@ class System_Dashboard_Admin {
 
 		$output .= '<strong>Site Health</strong>: <br />' . $this->sd_site_health() . '<br />';
 
-		$output .= '<strong>Theme</strong>: <br /><a href="'. wp_get_theme()->get( 'ThemeURI' ) .'" target="_blank">'.wp_get_theme()->get( 'Name' ) .'</a> '.wp_get_theme()->get( 'Version' ).'<br />';
+		$output .= '<strong>Theme</strong>: <br /><a href="'. wp_get_theme()->get( 'ThemeURI' ) .'" target="_blank">'.wp_get_theme()->get( 'Name' ) .'</a> v'.wp_get_theme()->get( 'Version' ).'<br />';
 
-		if ( !empty( wp_get_theme()->get( 'Author' ) ) ) {
+		// if ( !empty( wp_get_theme()->get( 'Author' ) ) ) {
 
-			$output .= 'by <a href="'.wp_get_theme()->get( 'AuthorURI' ).'" target="_blank">'. wp_get_theme()->get( 'Author' ) .'</a><br />';
+		// 	$output .= 'by <a href="'.wp_get_theme()->get( 'AuthorURI' ).'" target="_blank">'. wp_get_theme()->get( 'Author' ) .'</a><br />';
 
-		}
+		// }
 
 		if ( ! function_exists( 'get_plugins' ) ) {
 
@@ -278,7 +278,7 @@ class System_Dashboard_Admin {
 
 		}
 
-		$output .= '<strong>Plugins</strong>: <br /><a href="/wp-admin/plugins.php" target="_blank">' . count( get_plugins() ) . ' installed</a><br /><a href="/wp-admin/plugins.php?plugin_status=active" target="_blank">' . count( get_option( 'active_plugins' ) ) . ' active</a><br />';
+		$output .= '<strong>Plugins</strong>: <br /><a href="/wp-admin/plugins.php" target="_blank">' . count( get_plugins() ) . ' installed</a> | <a href="/wp-admin/plugins.php?plugin_status=active" target="_blank">' . count( get_option( 'active_plugins' ) ) . ' active</a><br />';
 
 		$output .= '<strong>Permalink Structure</strong>: <br />' . get_option( 'permalink_structure' ) . '<br />';
 
