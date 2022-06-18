@@ -1846,9 +1846,10 @@ class System_Dashboard_Admin {
 
 		$free_disk_space = $this->sd_free_disk_space();
 		$total_disk_space = $this->sd_total_disk_space();
-		$used_disk_space = $total_disk_space - $free_disk_space;
 
 		if ( ( $free_disk_space != 'Undetectable' ) && ( $total_disk_space != 'Undetectable' ) ) {
+
+			$used_disk_space = $total_disk_space - $free_disk_space;
 
 			return $this->sd_format_filesize( $used_disk_space ) . ' (' . round ( ( ( $used_disk_space / $total_disk_space ) * 100 ), 0 ) . '%) used of ' . $this->sd_format_filesize( $total_disk_space ) . ' total';
 
@@ -2405,16 +2406,6 @@ class System_Dashboard_Admin {
 		$output .= $this->sd_html( 'field-content-start' );
 		$output .= $this->sd_html( 'field-content-first', 'WP_LANG_DIR' );
 		$output .= $this->sd_html( 'field-content-second', constant( 'WP_LANG_DIR' ) );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', '$_SERVER[\'HTTP_REFERER\']' );
-		$output .= $this->sd_html( 'field-content-second', $_SERVER['HTTP_REFERER'] );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', '$_SERVER[\'REQUEST_SCHEME\']' );
-		$output .= $this->sd_html( 'field-content-second', $_SERVER['REQUEST_SCHEME'] );
 		$output .= $this->sd_html( 'field-content-end' );
 
 		$output .= $this->sd_html( 'field-content-start' );
@@ -9178,6 +9169,18 @@ EOD;
 			'rewrite_rules' 	=> array(
 				array(
 					'type'		=> 'plugin',
+					'name'		=> 'Rewrite Rules Inspector',
+					'pointer'	=> 'rewrite-rules-inspector',
+					'usenow'	=> 'url',
+				),
+				array(
+					'type'		=> 'plugin',
+					'name'		=> 'Combo WP Rewrite Slugs',
+					'pointer'	=> 'combo-wp-rewrite-slugs',
+					'usenow'	=> 'url',
+				),
+				array(
+					'type'		=> 'plugin',
 					'name'		=> 'Permalink Manager Lite',
 					'pointer'	=> 'permalink-manager',
 					'usenow'	=> 'url',
@@ -9186,12 +9189,6 @@ EOD;
 					'type'		=> 'plugin',
 					'name'		=> 'Custom Post Type Permalinks',
 					'pointer'	=> 'custom-post-type-permalinks',
-					'usenow'	=> 'url',
-				),
-				array(
-					'type'		=> 'plugin',
-					'name'		=> 'Combo WP Rewrite Slugs',
-					'pointer'	=> 'combo-wp-rewrite-slugs',
 					'usenow'	=> 'url',
 				),
 			),
@@ -11581,7 +11578,7 @@ EOD;
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Total Disk Space',
-										'content'	=> $this->sd_format_filesize( disk_total_space( dirname(__FILE__) ) ),
+										'content'	=> $this->sd_total_disk_space(),
 									),
 
 								),
@@ -11598,7 +11595,7 @@ EOD;
 									array(
 										'type'		=> 'content',
 										'title'		=> 'User',
-										'content'	=> get_current_user(),
+										'content'	=> ( function_exists('get_current_user') ? get_current_user() : 'Undetectable' ),
 									),
 									array(
 										'type'		=> 'content',
