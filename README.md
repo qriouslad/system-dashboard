@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 6.0  
-Stable tag: 2.6.4  
+Stable tag: 2.6.5  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -271,6 +271,13 @@ About 260 dev hours have been spent towards v2.6.2 so far.
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.6.5 (2022.06.19)
+
+* Server > Monitor: Fixed "Unsupported operand types" error on disk usage reporting. Props to [@wpturnedup](https://profiles.wordpress.org/wpturnedup/) for [reporting the error](https://wordpress.org/support/topic/fails-to-run-and-throws-a-critical-error/). This happened for certain managed WP hosting like Kinsta.
+* Server > Hardware: Fixed "Call to undefined function" error on total disk space calculation. This happened for certain managed WP hosting like Kinsta.
+* Server > PHP: Fixed "Call to undefined function" error on getting PHP current user. This happened for certain managed WP hosting like Kinsta.
+* WordPress > Viewer > URLs and Paths: Fixed undefined array key error. This happened for certain managed WP hosting like Kinsta.
 
 ### 2.6.4 (2022.05.28)
 

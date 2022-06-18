@@ -2409,16 +2409,6 @@ class System_Dashboard_Admin {
 		$output .= $this->sd_html( 'field-content-end' );
 
 		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', '$_SERVER[\'HTTP_REFERER\']' );
-		$output .= $this->sd_html( 'field-content-second', $_SERVER['HTTP_REFERER'] );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
-		$output .= $this->sd_html( 'field-content-first', '$_SERVER[\'REQUEST_SCHEME\']' );
-		$output .= $this->sd_html( 'field-content-second', $_SERVER['REQUEST_SCHEME'] );
-		$output .= $this->sd_html( 'field-content-end' );
-
-		$output .= $this->sd_html( 'field-content-start' );
 		$output .= $this->sd_html( 'field-content-first', '$_SERVER[\'REQUEST_URI\']' );
 		$output .= $this->sd_html( 'field-content-second', $_SERVER['REQUEST_URI'], 'long-value' );
 		$output .= $this->sd_html( 'field-content-end' );
@@ -11588,7 +11578,7 @@ EOD;
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Total Disk Space',
-										'content'	=> $this->sd_format_filesize( disk_total_space( dirname(__FILE__) ) ),
+										'content'	=> $this->sd_total_disk_space(),
 									),
 
 								),
@@ -11605,7 +11595,7 @@ EOD;
 									array(
 										'type'		=> 'content',
 										'title'		=> 'User',
-										'content'	=> get_current_user(),
+										'content'	=> ( function_exists('get_current_user') ? get_current_user() : 'Undetectable' ),
 									),
 									array(
 										'type'		=> 'content',
