@@ -1846,9 +1846,10 @@ class System_Dashboard_Admin {
 
 		$free_disk_space = $this->sd_free_disk_space();
 		$total_disk_space = $this->sd_total_disk_space();
-		$used_disk_space = $total_disk_space - $free_disk_space;
 
 		if ( ( $free_disk_space != 'Undetectable' ) && ( $total_disk_space != 'Undetectable' ) ) {
+
+			$used_disk_space = $total_disk_space - $free_disk_space;
 
 			return $this->sd_format_filesize( $used_disk_space ) . ' (' . round ( ( ( $used_disk_space / $total_disk_space ) * 100 ), 0 ) . '%) used of ' . $this->sd_format_filesize( $total_disk_space ) . ' total';
 
