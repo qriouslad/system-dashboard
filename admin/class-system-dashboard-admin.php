@@ -991,7 +991,7 @@ class System_Dashboard_Admin {
 				if ( in_array( $roleslug, $default_wp_roles ) ) {
 
 					// $output .= $roleslug . ' is default.<br />';
-					$role_type = 'Defaul role';
+					$role_type = 'Default role';
 					$default_roles[] = $roleslug;
 
 				} else {
