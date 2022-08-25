@@ -242,6 +242,7 @@ class System_Dashboard {
 
 		$this->loader->add_action( 'wp_ajax_sd_toggle_logs', $plugin_admin, 'sd_toggle_logs' );
 		$this->loader->add_action( 'wp_ajax_sd_page_access_log', $plugin_admin, 'sd_page_access_log' );
+		$this->loader->add_action( 'wp_ajax_sd_errors_log', $plugin_admin, 'sd_errors_log' );
 
 		// Register loggers when they're enabled
 

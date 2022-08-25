@@ -50,6 +50,7 @@ class System_Dashboard_Deactivator {
         // Delete option in wp_options table for the various logging tools
 
         delete_option( 'system_dashboard_page_access_log' );
+        delete_option( 'system_dashboard_errors_log' );
 
 	}
 

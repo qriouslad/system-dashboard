@@ -4,8 +4,8 @@ Contributors: qriouslad
 Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
-Tested up to: 6.0  
-Stable tag: 2.6.5  
+Tested up to: 6.0.1  
+Stable tag: 2.7.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -156,7 +156,8 @@ To preview the module screenshots more easily, please scroll down the [github re
 
 #### 20. Logs: 
 
-* Page Access log. A simple logger of which pages are being accessed by site visitors. Turned off by default.
+* Page Access log. A simple logger of which pages are being accessed by site visitors. Disabled by default.
+* PHP Errors log using native WP_DEBUG constants and a custom name and location for the debug log file for better security. Disabled by default.
 
 ### Server Modules (3)
 
@@ -271,6 +272,11 @@ About 260 dev hours have been spent towards v2.6.2 so far.
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.7.0 (2022.08.25)
+
+* Implemented PHP Errors log under the Logs module employing WP_DEBUG with custom debug log file name and location for better security. Turned off by default. Will automatically add the necessary WP_DEBUG constants in wp-config.php when enabled and remove them when disabled.
+* Fix for [PHP warning issue](https://wordpress.org/support/topic/php-warning-362/) related to Page Access log option in wp_option table not always set, e.g. for users upgrading from older version of the plugin, as reported by [@shawfactor](https://wordpress.org/support/users/shawfactor/).
 
 ### 2.6.5 (2022.06.19)
 
