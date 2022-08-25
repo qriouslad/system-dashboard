@@ -42,6 +42,25 @@ class System_Dashboard_Admin {
 	private $version;
 
 	/**
+	 * The wp-config.php source file
+	 *
+	 * @since    2.7.0
+	 * @access   private
+	 * @var      string    $version    The current version of this plugin.
+	 */
+	private $wp_config_src;
+
+	/**
+	 * The configs defined in wp-config.php
+	 *
+	 * @since    2.7.0
+	 * @access   private
+	 * @var      string    $version    The current version of this plugin.
+	 */
+	private $wp_configs;
+
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
@@ -52,6 +71,8 @@ class System_Dashboard_Admin {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
+		$this->wp_config_src = '';
+		$this->wp_configs = array();
 
 	}
 
@@ -2246,6 +2267,11 @@ class System_Dashboard_Admin {
 		$output .= $this->sd_html( 'field-content-start' );
 		$output .= $this->sd_html( 'field-content-first', 'ABSPATH' );
 		$output .= $this->sd_html( 'field-content-second', constant( 'ABSPATH' ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', 'dirname(ABSPATH)' );
+		$output .= $this->sd_html( 'field-content-second', dirname(ABSPATH) );
 		$output .= $this->sd_html( 'field-content-end' );
 
 		$output .= $this->sd_html( 'field-content-start' );
@@ -4514,6 +4540,9 @@ EOD;
 		$page_access_log = get_option( 'system_dashboard_page_access_log' );
 		$page_access_log_status = $page_access_log['status'];
 
+		$errors_log = get_option( 'system_dashboard_errors_log' );
+		$errors_log_status = $errors_log['status'];
+
 		?>
 
 		<script id="sd-ajax-calls">
@@ -4623,9 +4652,12 @@ EOD;
 				jQuery('.restapi_viewer .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.robotstxt .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.page-access-log .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.errors-log .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.phpinfo-details .csf-accordion-title').attr('data-loaded','no');
 
 				// Set data-status attribute of toggles / switches that turn certain tools on or off
+				
+				// Page Access Log
 
 				var page_access_log_status = '<?php echo esc_js( $page_access_log_status ); ?>';
 				jQuery('.page-access-log-switcher').attr('data-status',page_access_log_status);
@@ -4701,6 +4733,83 @@ EOD;
 
 				});
 
+				// Errors Log
+
+				var errors_log_status = '<?php echo esc_js( $errors_log_status ); ?>';
+				jQuery('.errors-log-switcher').attr('data-status',errors_log_status);
+
+				// Set toggle/switcher position
+
+				if ( errors_log_status == 'enabled' ) {
+					jQuery('.errors-log-checkbox').prop('checked', true);
+				} else {
+					jQuery('.errors-log-checkbox').prop('checked', false);					
+				}
+
+				// Toggle Errors Log tool on or off
+
+				jQuery('.errors-log-switcher').click( function() {
+
+					var status = this.dataset.status;
+
+					jQuery.ajax({
+						url: ajaxurl,
+						data: {
+							'action':'sd_toggle_logs',
+							'log_type':'errors_log',
+							'fast_ajax':true,
+							'load_plugins':["system-dashboard/system-dashboard.php"]
+						},
+						success:function(data) {
+							var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+							jQuery('#errors-log-status').empty();
+							jQuery('#errors-log-status').prepend(data);
+							if ( status == 'disabled' ) {
+								jQuery('.errors-log-switcher').attr('data-status','enabled');
+							} else if ( status == 'enabled' ) {
+								jQuery('.errors-log-switcher').attr('data-status','disabled');
+							}
+						},
+						error:function(errorThrown) {
+							console.log(errorThrown);
+						}
+					});
+
+				});
+
+				// Get Page Access log entries
+
+				jQuery('.errors-log .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_errors_log',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#errors-log-content').prepend(data);
+								jQuery('.errors-log .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-errors-log').fadeOut( 0 );
+						        jQuery('#errors-log').DataTable({
+						        		pageLength: 5
+						        	});
+
+							},
+							error:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
 				// Get WP Core database tables
 
 				jQuery('.core-db-tables .csf-accordion-title').click( function() {
@@ -8738,7 +8847,22 @@ EOD;
 
 			$log_type = $_REQUEST['log_type'];
 
+			// Page Access Log
+
 			if ( $log_type == 'page_access_log' ) {
+
+
+				// Set default value if option is not already set, e.g. users upgrading from older version of the plugin
+				if ( get_option( 'system_dashboard_page_access_log' ) === false ) {
+
+			        $option_value = array(
+			            'status'    => 'disabled',
+			            'on'        => date( 'Y-m-d H:i:s' ),
+			        );
+
+			        update_option( 'system_dashboard_page_access_log', $option_value, false );
+
+				}
 
 				$value = get_option( 'system_dashboard_page_access_log' );
 
@@ -8770,6 +8894,69 @@ EOD;
 
 			}
 
+			// Errors Log
+			
+			if ( $log_type == 'errors_log' ) {
+
+				// Set default value if option is not already set, e.g. users upgrading from older version of the plugin
+				if ( get_option( 'system_dashboard_errors_log' ) === false ) {
+
+			        $option_value = array(
+			            'status'    => 'disabled',
+			            'on'        => date( 'Y-m-d H:i:s' ),
+			        );
+
+			        update_option( 'system_dashboard_errors_log', $option_value, false );
+
+				}
+
+				$value = get_option( 'system_dashboard_errors_log' );
+
+				$date_time = date( 'Y-m-d H:i:s' );
+
+				if ( $value['status'] == 'disabled' ) {
+
+					$option_value = array(
+						'status'	=> 'enabled',
+						'on'		=> $date_time,
+					);
+
+					update_option( 'system_dashboard_errors_log', $option_value, false );
+
+					// Assemble the errors log file path
+
+			        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] );
+			        $errors_log_file_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG . '/logs/errors/' . $plain_domain . '_debug.log';
+
+					// Define Debug constants in wp-config.php
+
+					$this->sd_wpconfig_update( 'constant', 'WP_DEBUG', 'true' );
+					$this->sd_wpconfig_update( 'constant', 'WP_DEBUG_LOG', $errors_log_file_path );
+					$this->sd_wpconfig_update( 'constant', 'WP_DEBUG_DISPLAY', 'false' );
+
+					$output = 'Logger was enabled on ' . $date_time;
+
+				} elseif ( $value['status'] == 'enabled' ) {
+
+					$option_value = array(
+						'status'	=> 'disabled',
+						'on'		=> $date_time,
+					);
+
+					update_option( 'system_dashboard_errors_log', $option_value, false );
+
+					// Remove Debug constants in wp-config.php
+
+					$this->sd_wpconfig_remove( 'constant', 'WP_DEBUG' );
+					$this->sd_wpconfig_remove( 'constant', 'WP_DEBUG_LOG' );
+					$this->sd_wpconfig_remove( 'constant', 'WP_DEBUG_DISPLAY' );
+
+					$output = 'Logger was disabled on ' . $date_time;
+
+				} else {}
+
+			}
+
 		}
 
 		echo $output;
@@ -8786,7 +8973,7 @@ EOD;
 		$status = $value['status'];
 		$date_time = $value['on'];
 
-		return '<div id="page-access-log-status">Logger was '. $status .' on '. $date_time .'</div>';
+		return '<div id="page-access-log-status" class="log-entries-header">Logger was '. $status .' on '. $date_time .'</div>';
 
 	}
 
@@ -8887,6 +9074,428 @@ EOD;
 			$result = $wpdb->insert( $access_log_table, $data, $format );
 
 		}
+
+	}
+
+	/** 
+	 * Errors Log status
+	 *
+	 * @since 2.7.0
+	 */
+	public function sd_errors_log_status() {
+
+		$value = get_option( 'system_dashboard_errors_log' );
+
+		$status = $value['status'];
+		$date_time = $value['on'];
+
+		return '<div id="errors-log-status" class="log-entries-header">Logger was '. $status .' on '. $date_time .'</div>';
+
+	}
+
+	/**
+	 * Get wp-config.php file path
+	 *
+	 * @since 2.7.0
+	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
+	 */
+	public function sd_wpconfig_file_path() {
+
+		$file = ABSPATH . 'wp-config.php';
+		if ( !file_exists( $file ) ) {
+			if ( @file_exists( dirname( ABSPATH ) . '/wp-config.php') ) {
+				$file = dirname( ABSPATH ) . '/wp-config.php'; // wp-config.php file is in the folder above the WP root folder
+			}
+		}
+
+        return $file;
+
+	}
+
+	/**
+	 * Get wp-config.php file info
+	 *
+	 * @since 2.7.0
+	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
+	 */
+	public function sd_wpconfig_file_info() {
+
+		$file = ABSPATH . 'wp-config.php';
+		if ( !file_exists( $file ) ) {
+			if ( @file_exists( dirname( ABSPATH ) . '/wp-config.php') ) {
+				$file = dirname( ABSPATH ) . '/wp-config.php'; // wp-config.php file is in one folder above the WP root folder
+			}
+		}
+
+		if ( !is_writable( $file ) ) {
+			$status = 'Not writeable';
+        } else {
+        	$status = 'Writeable';
+        }
+
+        return $file . ' ('. $status . ')';
+
+	}
+
+	/**
+	 * Get debug.log file path
+	 *
+	 * @since 2.7.0
+	 */
+	public function sd_debuglog_file_info() {
+
+		// Assemble the errors log file path
+
+        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] );
+        $errors_log_file_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG . '/logs/errors/' . $plain_domain . '_debug.log';
+        $errors_log_short_file_path = str_replace( ABSPATH, "", $errors_log_file_path );
+
+        if ( file_exists( $errors_log_file_path ) ) {
+	        $size = $this->sd_format_filesize( wp_filesize( $errors_log_file_path ) );
+	        return '<div class="log-entries-footer">Log file: /' . $errors_log_short_file_path . ' (' . $size . ')</div>';
+        } else {
+        	return '<div class="log-entries-footer">There\'s no debug log file at ' . $errors_log_short_file_path . '</div>';
+        }
+
+	}
+
+	/**
+	 * Get configs in wp-config.php
+	 * 
+	 * @since 2.7.0
+	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
+	 */
+	public function sd_wpconfig_configs( $return_type = 'raw' ) {
+
+		$src = file_get_contents( $this->sd_wpconfig_file_path() );
+
+		$configs             = array();
+		$configs['constant'] = array();
+		$configs['variable'] = array();		
+
+		// Strip comments.
+		foreach ( token_get_all( $src ) as $token ) {
+			if ( in_array( $token[0], array( T_COMMENT, T_DOC_COMMENT ), true ) ) {
+				$src = str_replace( $token[1], '', $src );
+			}
+		}
+
+		preg_match_all( '/(?<=^|;|<\?php\s|<\?\s)(\h*define\s*\(\s*[\'"](\w*?)[\'"]\s*)(,\s*(\'\'|""|\'.*?[^\\\\]\'|".*?[^\\\\]"|.*?)\s*)((?:,\s*(?:true|false)\s*)?\)\s*;)/ims', $src, $constants );
+		preg_match_all( '/(?<=^|;|<\?php\s|<\?\s)(\h*\$(\w+)\s*=)(\s*(\'\'|""|\'.*?[^\\\\]\'|".*?[^\\\\]"|.*?)\s*;)/ims', $src, $variables );
+
+		if ( ! empty( $constants[0] ) && ! empty( $constants[1] ) && ! empty( $constants[2] ) && ! empty( $constants[3] ) && ! empty( $constants[4] ) && ! empty( $constants[5] ) ) {
+			foreach ( $constants[2] as $index => $name ) {
+				$configs['constant'][ $name ] = array(
+					'src'   => $constants[0][ $index ],
+					'value' => $constants[4][ $index ],
+					'parts' => array(
+						$constants[1][ $index ],
+						$constants[3][ $index ],
+						$constants[5][ $index ],
+					),
+				);
+			}
+		}
+
+		if ( ! empty( $variables[0] ) && ! empty( $variables[1] ) && ! empty( $variables[2] ) && ! empty( $variables[3] ) && ! empty( $variables[4] ) ) {
+			// Remove duplicate(s), last definition wins.
+			$variables[2] = array_reverse( array_unique( array_reverse( $variables[2], true ) ), true );
+			foreach ( $variables[2] as $index => $name ) {
+				$configs['variable'][ $name ] = array(
+					'src'   => $variables[0][ $index ],
+					'value' => $variables[4][ $index ],
+					'parts' => array(
+						$variables[1][ $index ],
+						$variables[3][ $index ],
+					),
+				);
+			}
+		}
+
+		$this->wp_configs = $configs;
+
+		if ( $return_type == 'raw' ) {
+			return $configs;
+		} elseif ( $return_type == 'print_r' ) {
+			return '<pre>' . print_r( $configs, true ) . '</pre>';
+		}
+	}
+
+	/**
+	 * Checks if a config exists in the wp-config.php file.
+	 *
+	 * @throws Exception If the wp-config.php file is empty.
+	 * @throws Exception If the requested config type is invalid.
+	 *
+	 * @param string $type Config type (constant or variable).
+	 * @param string $name Config name.
+	 *
+	 * @return bool
+	 * @since 2.7.0
+	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
+	 */
+	public function sd_wpconfig_exists( $type, $name ) {
+		$wp_config_src = file_get_contents( $this->sd_wpconfig_file_path() );
+
+		if ( ! trim( $wp_config_src ) ) {
+			throw new Exception( 'Config file is empty.' );
+		}
+		// Normalize the newline to prevent an issue coming from OSX.
+		$this->wp_config_src = str_replace( array( "\n\r", "\r" ), "\n", $wp_config_src );
+
+		$this->wp_configs = $this->sd_wpconfig_configs( 'raw' );
+
+		if ( ! isset( $this->wp_configs[ $type ] ) ) {
+			throw new Exception( "Config type '{$type}' does not exist." );
+		}
+
+		return isset( $this->wp_configs[ $type ][ $name ] );
+	}
+
+	/**
+	 * Adds a config to the wp-config.php file.
+	 *
+	 * @throws Exception If the config value provided is not a string.
+	 * @throws Exception If the config placement anchor could not be located.
+	 *
+	 * @param string $type    Config type (constant or variable).
+	 * @param string $name    Config name.
+	 * @param string $value   Config value.
+	 * @param array  $options (optional) Array of special behavior options.
+	 *
+	 * @return bool
+	 * @since 2.7.0
+	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
+	 */
+	public function sd_wpconfig_add( $type, $name, $value ) {
+		if ( ! is_string( $value ) ) {
+			throw new Exception( 'Config value must be a string.' );
+		}
+
+		if ( $this->sd_wpconfig_exists( $type, $name ) ) {
+			return false;
+		}
+
+		$defaults = array(
+			'raw'       => false, // Display value in raw format without quotes.
+			'anchor'    => "/* That's all, stop editing! Happy publishing. */", // Config placement anchor string.
+			'separator' => PHP_EOL, // Separator between config definition and anchor string.
+			'placement' => 'before', // Config placement direction (insert before or after).
+		);
+
+		list( $raw, $anchor, $separator, $placement ) = array_values( $defaults );
+
+		$raw       = (bool) $raw;
+		$anchor    = (string) $anchor;
+		$separator = (string) $separator;
+		$placement = (string) $placement;
+
+		if ( 'EOF' === $anchor ) {
+			$contents = $this->wp_config_src . $this->sd_wpconfig_normalize( $type, $name, $this->sd_wpconfig_format_value( $value, $raw ) );
+		} else {
+			if ( false === strpos( $this->wp_config_src, $anchor ) ) {
+				throw new Exception( 'Unable to locate placement anchor.' );
+			}
+
+			$new_src  = $this->sd_wpconfig_normalize( $type, $name, $this->sd_wpconfig_format_value( $value, $raw ) );
+			$new_src  = ( 'after' === $placement ) ? $anchor . $separator . $new_src : $new_src . $separator . $anchor;
+			$contents = str_replace( $anchor, $new_src, $this->wp_config_src );
+		}
+
+		return $this->sd_wpconfig_save( $contents );
+	}
+
+	/**
+	 * Updates an existing config in the wp-config.php file.
+	 *
+	 * @throws Exception If the config value provided is not a string.
+	 *
+	 * @param string $type    Config type (constant or variable).
+	 * @param string $name    Config name.
+	 * @param string $value   Config value.
+	 * @param array  $options (optional) Array of special behavior options.
+	 *
+	 * @return bool
+	 * @since 2.7.0
+	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
+	 */
+	public function sd_wpconfig_update( $type, $name, $value ) {
+		if ( ! is_string( $value ) ) {
+			throw new Exception( 'Config value must be a string.' );
+		}
+
+		$defaults = array(
+			'add'       => true, // Add the config if missing.
+			'raw'       => false, // Display value in raw format without quotes.
+			'normalize' => false, // Normalize config output using WP Coding Standards.
+		);
+
+		list( $add, $raw, $normalize ) = array_values( $defaults );
+
+		$add       = (bool) $add;
+		$raw       = (bool) $raw;
+		$normalize = (bool) $normalize;
+
+		if ( ! $this->sd_wpconfig_exists( $type, $name ) ) {
+			return ( $add ) ? $this->sd_wpconfig_add( $type, $name, $value ) : false;
+		}
+
+		$old_src   = $this->wp_configs[ $type ][ $name ]['src'];
+		$old_value = $this->wp_configs[ $type ][ $name ]['value'];
+		$new_value = $this->sd_wpconfig_format_value( $value, $raw );
+
+		if ( $normalize ) {
+			$new_src = $this->sd_wpconfig_normalize( $type, $name, $new_value );
+		} else {
+			$new_parts    = $this->wp_configs[ $type ][ $name ]['parts'];
+			$new_parts[1] = str_replace( $old_value, $new_value, $new_parts[1] ); // Only edit the value part.
+			$new_src      = implode( '', $new_parts );
+		}
+
+		$contents = preg_replace(
+			sprintf( '/(?<=^|;|<\?php\s|<\?\s)(\s*?)%s/m', preg_quote( trim( $old_src ), '/' ) ),
+			'$1' . str_replace( '$', '\$', trim( $new_src ) ),
+			$this->wp_config_src
+		);
+
+		return $this->sd_wpconfig_save( $contents );
+	}
+
+	/**
+	 * Removes a config from the wp-config.php file.
+	 *
+	 * @param string $type Config type (constant or variable).
+	 * @param string $name Config name.
+	 *
+	 * @return bool
+	 * @since 2.7.0
+	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
+	 */
+	public function sd_wpconfig_remove( $type, $name ) {
+		if ( ! $this->sd_wpconfig_exists( $type, $name ) ) {
+			return false;
+		}
+
+		$wp_config_src = file_get_contents( $this->sd_wpconfig_file_path() );
+		$this->wp_config_src = str_replace( array( "\n\r", "\r" ), "\n", $wp_config_src );
+		$this->wp_configs = $this->sd_wpconfig_configs( 'raw' );
+
+		$pattern  = sprintf( '/(?<=^|;|<\?php\s|<\?\s)%s\s*(\S|$)/m', preg_quote( $this->wp_configs[$type][$name]['src'], '/' ) );
+		$contents = preg_replace( $pattern, '$1', $this->wp_config_src );
+
+		return $this->sd_wpconfig_save( $contents );
+	}
+
+	/**
+	 * Applies formatting to a config value.
+	 *
+	 * @throws Exception When a raw value is requested for an empty string.
+	 *
+	 * @param string $value Config value.
+	 * @param bool   $raw   Display value in raw format without quotes.
+	 *
+	 * @return mixed
+	 * @since 2.7.0
+	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
+	 */
+	public function sd_wpconfig_format_value( $value, $raw ) {
+		if ( $raw && '' === trim( $value ) ) {
+			throw new Exception( 'Raw value for empty string not supported.' );
+		}
+
+		return ( $raw ) ? $value : var_export( $value, true );
+	}
+
+	/**
+	 * Normalizes the source output for a name/value pair.
+	 *
+	 * @throws Exception If the requested config type does not support normalization.
+	 *
+	 * @param string $type  Config type (constant or variable).
+	 * @param string $name  Config name.
+	 * @param mixed  $value Config value.
+	 *
+	 * @return string
+	 * @since 2.7.0
+	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
+	 */
+	public function sd_wpconfig_normalize( $type, $name, $value ) {
+		if ( 'constant' === $type ) {
+			$placeholder = "define( '%s', %s );";
+		} elseif ( 'variable' === $type ) {
+			$placeholder = '$%s = %s;';
+		} else {
+			throw new Exception( "Unable to normalize config type '{$type}'." );
+		}
+
+		return sprintf( $placeholder, $name, $value );
+	}
+
+	/**
+	 * Saves new contents to the wp-config.php file.
+	 *
+	 * @throws Exception If the config file content provided is empty.
+	 * @throws Exception If there is a failure when saving the wp-config.php file.
+	 *
+	 * @param string $contents New config contents.
+	 *
+	 * @return bool
+	 * @since 2.7.0
+	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
+	 */
+	public function sd_wpconfig_save( $contents ) {
+		if ( ! trim( $contents ) ) {
+			throw new Exception( 'Cannot save the config file with empty contents.' );
+		}
+
+		if ( $contents === $this->wp_config_src ) {
+			return false;
+		}
+
+		$result = file_put_contents( $this->sd_wpconfig_file_path(), $contents, LOCK_EX );
+
+		if ( false === $result ) {
+			throw new Exception( 'Failed to update the config file.' );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Errors Log content
+	 *
+	 * @since 2.7.0
+	 */
+	public function sd_errors_log() {
+
+		$output = '<table id="errors-log" class="wp-list-table widefat striped">
+					<thead>
+						<tr>
+							<th>Entries</th>
+						</tr>
+					</thead>
+					<tbody>';
+
+		// Assemble the errors log file path
+        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] );
+        $errors_log_file_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG . '/logs/errors/' . $plain_domain . '_debug.log';
+
+        // Read the erros log file, reverse the order of the entries, prune to the latest 5000 entries
+        $lines = file( $errors_log_file_path );
+        $lines_newest_first = array_reverse( $lines );
+        $latest_thousand_lines = array_slice( $lines_newest_first, 0, 5000 );
+
+		foreach( $latest_thousand_lines as $line ) {
+
+			$output .= '<tr>
+							<td>'. $line .'</td>
+						</tr>';
+
+		}
+
+		$output .= '</tbody></table>';
+
+		echo $output;
 
 	}
 
@@ -11465,9 +12074,9 @@ EOD;
 								'fields' => array(
 
 									array(
-										'id'		=> 'viewer_robots',
+										'id'		=> 'logs_page_access',
 										'type'		=> 'accordion',
-										'title'		=> '<input type="checkbox" id="inset-3" class="page-access-log-checkbox"><label for="inset-3" class="green page-access-log-switcher"></label>Page Access',
+										'title'		=> '<input type="checkbox" id="page-access-log-checkbox" class="inset-3 page-access-log-checkbox"><label for="page-access-log-checkbox" class="green page-access-log-switcher"></label>Page Access',
 										'subtitle'	=> '',
 										'class'		=> 'has-switcher page-access-log',
 										'accordions'	=> array(
@@ -11478,6 +12087,26 @@ EOD;
 														'type'		=> 'content',
 														// 'content'	=> $this->sd_page_access_log_status() . $this->sd_page_access_log(),
 														'content'	=> $this->sd_page_access_log_status() . $this->sd_html( 'ajax-receiver', 'page-access-log' ), // AJAX loading via sd_page_access_log()
+													),													
+												),
+											),
+										),
+									),
+
+									array(
+										'id'		=> 'logs_errors',
+										'type'		=> 'accordion',
+										'title'		=> '<input type="checkbox" id="errors-log-checkbox" class="inset-3 errors-log-checkbox"><label for="errors-log-checkbox" class="green errors-log-switcher"></label>PHP Errors',
+										'subtitle'	=> '',
+										'class'		=> 'has-switcher errors-log',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View Log Entries',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														// 'content'	=> $this->sd_errors_log_status() . '<br />' . $this->sd_wpconfig_file_info() . '<br />' . $this->sd_debuglog_file_info() . '<br />' . $this->sd_errors_log(),
+														'content'	=> $this->sd_errors_log_status() . $this->sd_html( 'ajax-receiver', 'errors-log' ) . $this->sd_debuglog_file_info(), // AJAX loading via sd_errors_log()
 													),													
 												),
 											),

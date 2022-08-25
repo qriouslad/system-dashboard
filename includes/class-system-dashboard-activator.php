@@ -144,6 +144,42 @@ EOD;
 
         update_option( 'system_dashboard_page_access_log', $option_value, false );
 
+        // Errors Log
+
+        $option_value = array(
+            'status'    => 'disabled',
+            'on'        => date( 'Y-m-d H:i:s' ),
+        );
+
+        update_option( 'system_dashboard_errors_log', $option_value, false );
+
+        // Create /logs directory inside /uploads/system-dashboard directory
+
+        $base_dir_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG;
+        $logs_base_dir_path = $base_dir_path . '/logs';
+        $errors_log_dir_path = $logs_base_dir_path . '/errors';
+        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] );
+        $errors_log_file_path = $errors_log_dir_path . '/' . $plain_domain . '_debug.log';
+
+        // Create base directories in Uploads folder if they don't exist
+
+        if ( !is_dir( $base_dir_path ) ) {
+            mkdir( $base_dir_path );
+        }
+
+        if ( !is_dir( $logs_base_dir_path ) ) {
+            mkdir( $logs_base_dir_path );
+        } else {}
+
+        if ( !is_dir( $errors_log_dir_path ) ) {
+            mkdir( $errors_log_dir_path );
+        } else {}
+
+        // Create empty log file
+        if ( !is_file( $errors_log_file_path ) ) {
+            file_put_contents( $errors_log_file_path, '' );
+        } else {}
+
 	}
 
 }

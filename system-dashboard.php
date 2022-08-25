@@ -36,6 +36,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Rename this for your plugin and update it as you release new versions.
  */
 define( 'SYSTEM_DASHBOARD_VERSION', '2.6.5' );
+define( 'SYSTEM_DASHBOARD_PLUGIN_SLUG', 'system-dashboard' );
 
 /**
  * The code that runs during plugin activation.

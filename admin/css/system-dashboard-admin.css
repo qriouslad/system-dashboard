@@ -554,32 +554,32 @@ input[type="checkbox"] + label:before {
     cursor: pointer;
 }
 
-#inset-3:checked + label.red {
+input[type="checkbox"].inset-3:checked + label.red {
   background: #ECA9A7;
 }
 
-#inset-3:checked + label.red:after {
+input[type="checkbox"].inset-3:checked + label.red:after {
   background: #D9534F;
 }
 
-#inset-3:checked + label.green {
+input[type="checkbox"].inset-3:checked + label.green {
   background: #AEDCAE;
 }
 
-#inset-3:checked + label.green:after {
+input[type="checkbox"].inset-3:checked + label.green:after {
   background: #5CB85C;
 }
 
-#inset-3:checked + label:after {
+input[type="checkbox"].inset-3:checked + label:after {
   left: calc(100% - 18px);
 }
 
-#inset-3 + label {
+input[type="checkbox"].inset-3 + label {
   background: #ddd;
   border-radius: 20px;
 }
 
-#inset-3 + label:after {
+input[type="checkbox"].inset-3 + label:after {
   background: #fff;
   border-radius: 50%;
   width: 16px;
@@ -590,9 +590,17 @@ input[type="checkbox"] + label:before {
 
 /* Logs module */
 
-#page-access-log-status {
+.log-entries-header {
     margin-bottom: 12px;
+    font-style: italic;
 }
+
+.log-entries-footer {
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid #ddd;
+}
+
 
 /* DataTables */
 
