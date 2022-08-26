@@ -601,6 +601,24 @@ input[type="checkbox"].inset-3 + label:after {
     border-top: 1px solid #ddd;
 }
 
+#email-delivery-log div {
+    max-width: 100% !important;
+}
+
+#email-delivery-log img {
+    max-width: 100%;
+}
+
+#email-delivery-log .ui.accordion .title:not(.ui) {
+    font-family: inherit;
+    font-weight: 600;
+    color: inherit;
+    transition: 0.25s;
+}
+
+#email-delivery-log .ui.accordion .title.active {
+    border-bottom: 1px solid #ddd;
+}
 
 /* DataTables */
 

@@ -115,7 +115,7 @@ EOD;
 
         require_once( ABSPATH . '/wp-admin/includes/upgrade.php' );
 
-        // Create database table for the access log tool in the Logs module
+        // Create database table for the Page Access logger in the Logs module
 
         global $wpdb;
 
@@ -129,6 +129,27 @@ EOD;
             page_url varchar(255) NOT NULL DEFAULT '',
             PRIMARY KEY (ID)
         ) 
+        DEFAULT CHARACTER SET {$wpdb->charset} COLLATE {$wpdb->collate};";
+
+        dbDelta( $sql );
+
+        // Create database table for the PHP Errors logger in the Logs module
+
+        global $wpdb;
+
+        $email_delivery_log_table = $wpdb->prefix . 'sd_email_delivery_log';
+
+        $sql = 
+        "CREATE TABLE {$email_delivery_log_table} (
+            ID int(11) PRIMARY KEY AUTO_INCREMENT NOT NULL,
+            to_email varchar(100) NOT NULL,
+            subject varchar(255) NOT NULL,
+            message text NOT NULL,
+            headers text NOT NULL,
+            attachments TEXT NOT NULL DEFAULT '',
+            sent_on varchar(50) NOT NULL,
+            sent_on_gmt varchar(50) NOT NULL
+        )
         DEFAULT CHARACTER SET {$wpdb->charset} COLLATE {$wpdb->collate};";
 
         dbDelta( $sql );
@@ -152,6 +173,15 @@ EOD;
         );
 
         update_option( 'system_dashboard_errors_log', $option_value, false );
+
+        // Email Delivery Log
+
+        $option_value = array(
+            'status'    => 'disabled',
+            'on'        => date( 'Y-m-d H:i:s' ),
+        );
+
+        update_option( 'system_dashboard_email_delivery_log', $option_value, false );
 
         // Create /logs directory inside /uploads/system-dashboard directory
 
