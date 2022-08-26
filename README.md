@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 6.0.1  
-Stable tag: 2.7.0  
+Stable tag: 2.8.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -158,6 +158,7 @@ To preview the module screenshots more easily, please scroll down the [github re
 
 * Page Access log. A simple logger of which pages are being accessed by site visitors. Disabled by default.
 * PHP Errors log using native WP_DEBUG constants and a custom name and location for the debug log file for better security. Disabled by default.
+* Email Delivery log: will log emails that the WordPress app has sent / tried sending and provide a way to quickly view and search through them. Disabled by default.
 
 ### Server Modules (3)
 
@@ -272,6 +273,14 @@ About 260 dev hours have been spent towards v2.6.2 so far.
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.8.0 (2022.08.26)
+
+* Logs > Email Delivery: New module to log emails that the WordPress app has sent / tried sending and a way to see and filter through them quickly.
+* Logs > Page Access: Now shows latest entries by default.
+* Logs > Errors Log: Improve how debug log is parsed to ensure each log entry is cleanly split even when there is stack trace info included for fatal errors.
+* Logs > Errors Log: Increase limit of entries being loaded to 50,000.
+* Upon plugin deactivation, database tables for the Logs module are no longer dropped/deleted.
 
 ### 2.7.0 (2022.08.25)
 
