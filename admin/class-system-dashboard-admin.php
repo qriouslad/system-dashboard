@@ -86,6 +86,7 @@ class System_Dashboard_Admin {
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/system-dashboard-admin.css', array(), $this->version, 'all' );
 		wp_enqueue_style( $this->plugin_name . '-json-viewer', plugin_dir_url( __FILE__ ) . 'css/jquery.json-viewer.css', array(), $this->version, 'all' );
 		wp_enqueue_style( $this->plugin_name . '-datatables', plugin_dir_url( __FILE__ ) . 'css/datatables.min.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name . '-fomantic-ui-accordion', plugin_dir_url( __FILE__ ) . 'css/fomantic-ui/accordion.css', array(), $this->version, 'all' );
 
 	}
 
@@ -99,6 +100,7 @@ class System_Dashboard_Admin {
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/system-dashboard-admin.js', array( 'jquery' ), $this->version, false );
 		wp_enqueue_script( $this->plugin_name . '-json-viewer', plugin_dir_url( __FILE__ ) . 'js/jquery.json-viewer.js', array( 'jquery' ), $this->version, false );
 		wp_enqueue_script( $this->plugin_name . '-datatables', plugin_dir_url( __FILE__ ) . 'js/datatables.min.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name . '-fomantic-ui-accordion', plugin_dir_url( __FILE__ ) . 'js/fomantic-ui/accordion.js', array(), $this->version, false );
 
 	}
 
@@ -2335,6 +2337,11 @@ class System_Dashboard_Admin {
 		$output .= $this->sd_html( 'field-content-end' );
 
 		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'plugins_url/" target="_blank">plugins_url</a>( \'/\', __FILE__ )' );
+		$output .= $this->sd_html( 'field-content-second', plugins_url( '/', __FILE__ ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
 		$output .= $this->sd_html( 'field-content-first', 'WP_PLUGIN_URL' );
 		$output .= $this->sd_html( 'field-content-second', constant( 'WP_PLUGIN_URL' ) );
 		$output .= $this->sd_html( 'field-content-end' );
@@ -2357,6 +2364,21 @@ class System_Dashboard_Admin {
 		$output .= $this->sd_html( 'field-content-start' );
 		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'plugin_dir_path/" target="_blank">plugin_dir_path</a>( __FILE__ )' );
 		$output .= $this->sd_html( 'field-content-second', plugin_dir_path( __FILE__ ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '<a href="'.$code_reference_base_url.'plugin_basename/" target="_blank">plugin_basename</a>( __FILE__ )' );
+		$output .= $this->sd_html( 'field-content-second', plugin_basename( __FILE__ ) );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '__DIR__' );
+		$output .= $this->sd_html( 'field-content-second', __DIR__ );
+		$output .= $this->sd_html( 'field-content-end' );
+
+		$output .= $this->sd_html( 'field-content-start' );
+		$output .= $this->sd_html( 'field-content-first', '__FILE__' );
+		$output .= $this->sd_html( 'field-content-second', __FILE__ );
 		$output .= $this->sd_html( 'field-content-end' );
 
 		$output .= $this->sd_html( 'field-content-start' );
@@ -4543,6 +4565,9 @@ EOD;
 		$errors_log = get_option( 'system_dashboard_errors_log' );
 		$errors_log_status = $errors_log['status'];
 
+		$email_delivery_log = get_option( 'system_dashboard_email_delivery_log' );
+		$email_delivery_log_status = $email_delivery_log['status'];
+
 		?>
 
 		<script id="sd-ajax-calls">
@@ -4653,6 +4678,7 @@ EOD;
 				jQuery('.robotstxt .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.page-access-log .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.errors-log .csf-accordion-title').attr('data-loaded','no');
+				jQuery('.email-delivery-log .csf-accordion-title').attr('data-loaded','no');
 				jQuery('.phpinfo-details .csf-accordion-title').attr('data-loaded','no');
 
 				// Set data-status attribute of toggles / switches that turn certain tools on or off
@@ -4721,7 +4747,9 @@ EOD;
 								jQuery('#page-access-log-content').prepend(data);
 								jQuery('.page-access-log .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-page-access-log').fadeOut( 0 );
-						        jQuery('#page-access-log').DataTable();
+						        jQuery('#page-access-log').DataTable({
+						        		order: [ 0, 'desc' ]
+						        	});
 
 							},
 							error:function(errorThrown) {
@@ -4777,7 +4805,7 @@ EOD;
 
 				});
 
-				// Get Page Access log entries
+				// Get Errors log entries
 
 				jQuery('.errors-log .csf-accordion-title').click( function() {
 
@@ -4798,7 +4826,8 @@ EOD;
 								jQuery('.errors-log .csf-accordion-title').attr('data-loaded','yes');
 								jQuery('#spinner-errors-log').fadeOut( 0 );
 						        jQuery('#errors-log').DataTable({
-						        		pageLength: 5
+						        		pageLength: 5,
+						        		order: [ 0, 'desc' ]
 						        	});
 
 							},
@@ -4810,6 +4839,86 @@ EOD;
 					} else {}
 
 				});
+
+				// Email Delivery Log
+
+				var email_delivery_log_status = '<?php echo esc_js( $email_delivery_log_status ); ?>';
+				jQuery('.email-delivery-log-switcher').attr('data-status',email_delivery_log_status);
+
+				// Set toggle/switcher position
+
+				if ( email_delivery_log_status == 'enabled' ) {
+					jQuery('.email-delivery-log-checkbox').prop('checked', true);
+				} else {
+					jQuery('.email-delivery-log-checkbox').prop('checked', false);					
+				}
+
+				// Toggle Email Delivery Log tool on or off
+
+				jQuery('.email-delivery-log-switcher').click( function() {
+
+					var status = this.dataset.status;
+
+					jQuery.ajax({
+						url: ajaxurl,
+						data: {
+							'action':'sd_toggle_logs',
+							'log_type':'email_delivery_log',
+							'fast_ajax':true,
+							'load_plugins':["system-dashboard/system-dashboard.php"]
+						},
+						success:function(data) {
+							var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+							jQuery('#email-delivery-log-status').empty();
+							jQuery('#email-delivery-log-status').prepend(data);
+							if ( status == 'disabled' ) {
+								jQuery('.email-delivery-log-switcher').attr('data-status','enabled');
+							} else if ( status == 'enabled' ) {
+								jQuery('.email-delivery-log-switcher').attr('data-status','disabled');
+							}
+						},
+						error:function(errorThrown) {
+							console.log(errorThrown);
+						}
+					});
+
+				});
+
+				// Get Email Delivery log entries
+
+				jQuery('.email-delivery-log .csf-accordion-title').click( function() {
+
+					var loaded = this.dataset.loaded;
+
+					if ( loaded == 'no' ) {
+
+						jQuery.ajax({
+							url: ajaxurl,
+							data: {
+								'action':'sd_email_delivery_log',
+								'fast_ajax':true,
+								'load_plugins':["system-dashboard/system-dashboard.php"]
+							},
+							success:function(data) {
+								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+								jQuery('#email-delivery-log-content').prepend(data);
+								jQuery('.email-delivery-log .csf-accordion-title').attr('data-loaded','yes');
+								jQuery('#spinner-email-delivery-log').fadeOut( 0 );
+						        jQuery('#email-delivery-log').DataTable({
+						        		pageLength: 5,
+						        		order: [ 0, 'desc' ]
+						        	});
+				                jQuery(".ui.accordion").accordion(); // initialize Fomantic UI accordion to view email message content
+							},
+							error:function(errorThrown) {
+								console.log(errorThrown);
+							}
+						});
+
+					} else {}
+
+				});
+
 				// Get WP Core database tables
 
 				jQuery('.core-db-tables .csf-accordion-title').click( function() {
@@ -8957,6 +9066,53 @@ EOD;
 
 			}
 
+			// Email Delivery Log
+
+			if ( $log_type == 'email_delivery_log' ) {
+
+
+				// Set default value if option is not already set, e.g. users upgrading from older version of the plugin
+				if ( get_option( 'system_dashboard_email_delivery_log' ) === false ) {
+
+			        $option_value = array(
+			            'status'    => 'disabled',
+			            'on'        => date( 'Y-m-d H:i:s' ),
+			        );
+
+			        update_option( 'system_dashboard_email_delivery_log', $option_value, false );
+
+				}
+
+				$value = get_option( 'system_dashboard_email_delivery_log' );
+
+				$date_time = date( 'Y-m-d H:i:s' );
+
+				if ( $value['status'] == 'disabled' ) {
+
+					$option_value = array(
+						'status'	=> 'enabled',
+						'on'		=> $date_time,
+					);
+
+					update_option( 'system_dashboard_email_delivery_log', $option_value, false );
+
+					$output = 'Logger was enabled on ' . $date_time;
+
+				} elseif ( $value['status'] == 'enabled' ) {
+
+					$option_value = array(
+						'status'	=> 'disabled',
+						'on'		=> $date_time,
+					);
+
+					update_option( 'system_dashboard_email_delivery_log', $option_value, false );
+
+					$output = 'Logger was disabled on ' . $date_time;
+
+				} else {}
+
+			}
+
 		}
 
 		echo $output;
@@ -9481,14 +9637,139 @@ EOD;
         $errors_log_file_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG . '/logs/errors/' . $plain_domain . '_debug.log';
 
         // Read the erros log file, reverse the order of the entries, prune to the latest 5000 entries
-        $lines = file( $errors_log_file_path );
-        $lines_newest_first = array_reverse( $lines );
-        $latest_thousand_lines = array_slice( $lines_newest_first, 0, 5000 );
+        $log = file_get_contents( $errors_log_file_path );
+        $lines = explode("[", $log);
+
+        // Put back the missing '[' after explode operation
+        $prepended_lines = array();
+        foreach ( $lines as $line ) {
+        	if ( !empty($line) ) {
+        		$line = str_replace( "]", "]</strong><br />", $line ); // add line break after time stamp
+        		$line = str_replace( "Stack trace:", "<hr />Stack trace:", $line ); // add line break for stack trace section
+        		$line = str_replace( "#", "<hr />#", $line ); // add line break on stack trace lines
+        		$line = str_replace( "Argument <hr />#", "Argument #", $line ); // add line break on stack trace lines
+	        	$prepended_line = '<strong>[' . $line;
+	        	$prepended_lines[] = $prepended_line;
+        	}
+        }
+
+        $lines_newest_first = array_reverse( $prepended_lines );
+        $latest_thousand_lines = array_slice( $lines_newest_first, 0, 50000 );
 
 		foreach( $latest_thousand_lines as $line ) {
 
 			$output .= '<tr>
 							<td>'. $line .'</td>
+						</tr>';
+
+		}
+
+		$output .= '</tbody></table>';
+
+		echo $output;
+
+	}
+
+	/** 
+	 * Page Access Log status
+	 * 
+	 * @since 2.8.0
+	 */
+	public function sd_email_delivery_log_status() {
+
+		$value = get_option( 'system_dashboard_email_delivery_log' );
+
+		$status = $value['status'];
+		$date_time = $value['on'];
+
+		return '<div id="email-delivery-log-status" class="log-entries-header">Logger was '. $status .' on '. $date_time .'</div>';
+
+	}
+
+	/**
+	 * Email Delivery logger
+	 *
+	 * @since 2.8.0
+	 */
+	public function sd_email_delivery_logger( $email ) {
+
+		global $wpdb;
+
+        $email_delivery_log_table = $wpdb->prefix . 'sd_email_delivery_log';
+
+        if ( is_array( $email['attachments'] && count( $email['attachments'] ) > 0 ) ) {
+	        $attachments_exist = true;
+        } else {
+	        $attachments_exist = false;        	
+        }
+
+        if ( is_array( $email['to'] ) ) {
+        	$email_to = implode( ", ", $email['to'] );
+        } else {
+        	$email_to = $email['to'];
+        	$email_to_array = explode( ",", $email_to );
+        	$email_to = implode( ", ", $email_to_array );
+        }
+
+        $data = array(
+        	'to_email'		=> $email_to,
+        	'subject'		=> $email['subject'],
+        	'message'		=> $email['message'],
+        	'headers'		=> $email['headers'],
+        	'attachments'	=> $attachments_exist,
+        	'sent_on'		=> current_time( 'mysql', $gmt = 0 ),
+        	'sent_on_gmt'	=> current_time( 'mysql', $gmt = 1 ),
+        );
+
+        $format = array(
+				'%s', // string
+				'%s',
+				'%s',
+				'%s',
+				'%d', // integer https://wordpress.stackexchange.com/a/145108
+				'%s',
+				'%s',
+        );
+
+        $result = $wpdb->insert( $email_delivery_log_table, $data, $format );
+
+	}
+
+	/**
+	 * Email Delivery log entries
+	 *
+	 * @since 2.8.0
+	 */
+	public function sd_email_delivery_log() {
+
+		$output = '<table id="email-delivery-log" class="wp-list-table widefat striped">
+					<thead>
+						<tr>
+							<th>Entries</th>
+						</tr>
+					</thead>
+					<tbody>';
+
+		global $wpdb;
+
+		$email_delivery_log_table = $wpdb->prefix . 'sd_email_delivery_log';
+
+		$limit = 1000;
+
+		$sql = $wpdb->prepare( "SELECT * FROM {$email_delivery_log_table} ORDER BY ID DESC LIMIT %d", array( $limit ) );
+
+		$results = $wpdb->get_results( $sql, ARRAY_A );
+
+		foreach( $results as $log ) {
+
+			$output .= '<tr>
+							<td><strong>Sent on:</strong> '. $log['sent_on'] . '<br />
+							<strong>To:</strong> ' . $log['to_email'] . '<br />
+							<strong>Subject:</strong> ' . $log['subject'] . 
+							'<div class="ui accordion">
+								<div class="title"><i class="dropdown icon"></i>View message</div>
+								<div class="content">' . $log['message'] .'</div>
+							</div></td>
 						</tr>';
 
 		}
@@ -12112,6 +12393,27 @@ EOD;
 											),
 										),
 									),
+
+									array(
+										'id'		=> 'email_delivery',
+										'type'		=> 'accordion',
+										'title'		=> '<input type="checkbox" id="email-delivery-log-checkbox" class="inset-3 email-delivery-log-checkbox"><label for="email-delivery-log-checkbox" class="green email-delivery-log-switcher"></label>Email Delivery',
+										'subtitle'	=> '',
+										'class'		=> 'has-switcher email-delivery-log',
+										'accordions'	=> array(
+											array(
+												'title'		=> 'View Log Entries',
+												'fields'	=> array(
+													array(
+														'type'		=> 'content',
+														// 'content'	=> $this->sd_email_delivery_log_status() . $this->sd_email_delivery_log(),
+														'content'	=> $this->sd_email_delivery_log_status() . $this->sd_html( 'ajax-receiver', 'email-delivery-log' ), // AJAX loading via sd_email_delivery_log()
+													),													
+												),
+											),
+										),
+									),
+
 								),
 							), // End of Logs module
 

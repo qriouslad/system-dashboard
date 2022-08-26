@@ -114,6 +114,10 @@
         //     }
         // });
 
+        // Fomantic UI accordion init
+        
+        $(".ui.accordion").accordion();
+
      });
 
 })( jQuery );

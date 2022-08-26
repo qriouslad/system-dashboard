@@ -37,20 +37,29 @@ class System_Dashboard_Deactivator {
 
         unlink( $fast_ajax_file );
 
-        // Drop (delete) Access Log table
-        
         global $wpdb;
 
-        $page_access_log_table = $wpdb->prefix . 'sd_page_access_log';
+        // Drop (delete) Page Access Log table
+        
+        // $page_access_log_table = $wpdb->prefix . 'sd_page_access_log';
 
-        $sql = "DROP TABLE IF EXISTS {$page_access_log_table}";
+        // $sql = "DROP TABLE IF EXISTS {$page_access_log_table}";
 
-        $wpdb->query( $sql );
+        // $wpdb->query( $sql );
+
+        // Drop (delete) Emai Delivery log table
+        
+        // $email_delivery_log_table = $wpdb->prefix . 'sd_email_delivery_log';
+
+        // $sql = "DROP TABLE IF EXISTS {$email_delivery_log_table}";
+
+        // $wpdb->query( $sql );
 
         // Delete option in wp_options table for the various logging tools
 
         delete_option( 'system_dashboard_page_access_log' );
         delete_option( 'system_dashboard_errors_log' );
+        delete_option( 'system_dashboard_email_delivery_log' );
 
 	}
 
