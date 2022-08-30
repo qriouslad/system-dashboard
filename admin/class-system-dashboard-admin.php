@@ -8986,7 +8986,7 @@ EOD;
 
 					update_option( 'system_dashboard_page_access_log', $option_value, false );
 
-					$output = 'Logger was enabled on ' . $date_time;
+					$output = 'Logging was enabled on ' . $date_time;
 
 				} elseif ( $value['status'] == 'enabled' ) {
 
@@ -8997,7 +8997,7 @@ EOD;
 
 					update_option( 'system_dashboard_page_access_log', $option_value, false );
 
-					$output = 'Logger was disabled on ' . $date_time;
+					$output = 'Logging was disabled on ' . $date_time;
 
 				} else {}
 
@@ -9043,7 +9043,7 @@ EOD;
 					$this->sd_wpconfig_update( 'constant', 'WP_DEBUG_LOG', $errors_log_file_path );
 					$this->sd_wpconfig_update( 'constant', 'WP_DEBUG_DISPLAY', 'false' );
 
-					$output = 'Logger was enabled on ' . $date_time;
+					$output = 'Logging was enabled on ' . $date_time;
 
 				} elseif ( $value['status'] == 'enabled' ) {
 
@@ -9060,7 +9060,7 @@ EOD;
 					$this->sd_wpconfig_remove( 'constant', 'WP_DEBUG_LOG' );
 					$this->sd_wpconfig_remove( 'constant', 'WP_DEBUG_DISPLAY' );
 
-					$output = 'Logger was disabled on ' . $date_time;
+					$output = 'Logging was disabled on ' . $date_time;
 
 				} else {}
 
@@ -9096,7 +9096,7 @@ EOD;
 
 					update_option( 'system_dashboard_email_delivery_log', $option_value, false );
 
-					$output = 'Logger was enabled on ' . $date_time;
+					$output = 'Logging was enabled on ' . $date_time;
 
 				} elseif ( $value['status'] == 'enabled' ) {
 
@@ -9107,7 +9107,7 @@ EOD;
 
 					update_option( 'system_dashboard_email_delivery_log', $option_value, false );
 
-					$output = 'Logger was disabled on ' . $date_time;
+					$output = 'Logging was disabled on ' . $date_time;
 
 				} else {}
 
@@ -9129,7 +9129,7 @@ EOD;
 		$status = $value['status'];
 		$date_time = $value['on'];
 
-		return '<div id="page-access-log-status" class="log-entries-header">Logger was '. $status .' on '. $date_time .'</div>';
+		return '<div id="page-access-log-status" class="log-entries-header">Logging was '. $status .' on '. $date_time .'</div>';
 
 	}
 
@@ -9245,7 +9245,7 @@ EOD;
 		$status = $value['status'];
 		$date_time = $value['on'];
 
-		return '<div id="errors-log-status" class="log-entries-header">Logger was '. $status .' on '. $date_time .'</div>';
+		return '<div id="errors-log-status" class="log-entries-header">Logging was '. $status .' on '. $date_time .'</div>';
 
 	}
 
@@ -9644,22 +9644,75 @@ EOD;
         $prepended_lines = array();
         foreach ( $lines as $line ) {
         	if ( !empty($line) ) {
-        		$line = str_replace( "]", "]</strong><br />", $line ); // add line break after time stamp
+        		$line = str_replace( "]", "]@@@", $line ); // add line break after time stamp
         		$line = str_replace( "Stack trace:", "<hr />Stack trace:", $line ); // add line break for stack trace section
         		$line = str_replace( "#", "<hr />#", $line ); // add line break on stack trace lines
         		$line = str_replace( "Argument <hr />#", "Argument #", $line ); // add line break on stack trace lines
-	        	$prepended_line = '<strong>[' . $line;
+	        	$prepended_line = '[' . $line;
 	        	$prepended_lines[] = $prepended_line;
         	}
         }
 
         $lines_newest_first = array_reverse( $prepended_lines );
-        $latest_thousand_lines = array_slice( $lines_newest_first, 0, 50000 );
+        $latest_lines = array_slice( $lines_newest_first, 0, 50000 );
 
-		foreach( $latest_thousand_lines as $line ) {
+        // Will hold error details types
+        $errors_master_list = array();
+
+		foreach( $latest_lines as $line ) {
+
+			$line = explode("@@@ ", $line);
+
+			$timestamp = str_replace( [ "[", "]" ], "", $line[0] );
+			$error = $line[1];
+
+			if ( strpos( $error, 'PHP Fatal' ) !==false ) {
+				$error_type = 'PHP Fatal';
+				$error_details = str_replace( "PHP Fatal: ", "", $error );
+			} elseif ( strpos( $error, 'PHP Warning' ) !==false ) {
+				$error_type = 'PHP Warning';
+				$error_details = str_replace( "PHP Warning: ", "", $error );
+			} elseif ( strpos( $error, 'PHP Notice' ) !==false ) {
+				$error_type = 'PHP Notice';
+				$error_details = str_replace( "PHP Notice: ", "", $error );
+			} elseif ( strpos( $error, 'PHP Deprecated' ) !==false ) {
+				$error_type = 'PHP Deprecated';
+				$error_details = str_replace( "PHP Deprecated: ", "", $error );
+			} elseif ( strpos( $error, 'WordPress database error' ) !==false ) {
+				$error_type = 'WP DB error';
+				$error_details = str_replace( "WordPress database error ", "", $error );
+			} else {
+				$error_type = 'Other';
+				$error_details = $error;
+			}
+
+			// https://www.php.net/manual/en/function.array-search.php#120784
+			if ( array_search( trim( $error_details ), array_column( $errors_master_list, 'details' ) ) === false ) {
+
+				$errors_master_list[] = array(
+					'occurrences'	=> array( $timestamp ),
+					'type'			=> $error_type,
+					'details'		=> trim( $error_details ),
+				);
+
+			} else {
+
+				$error_position = array_search( trim( $error_details ), array_column( $errors_master_list, 'details' ) ); // integer
+
+				array_push( $errors_master_list[$error_position]['occurrences'], $timestamp );
+
+			}
+
+		}
+
+		foreach ( $errors_master_list as $error ) {
+
+			$localized_timestamp = wp_date( 'j-M-Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+			$occurrence_count = count( $error['occurrences'] );
 
 			$output .= '<tr>
-							<td>'. $line .'</td>
+							<td>' . esc_html( $localized_timestamp ) .' <span class="sd-faint">(' . esc_html( $occurrence_count ) . ' occurrences logged)</span><br /><strong>
+							'. esc_html( $error['type'] ) .'</strong>: '. $error['details'] .'</td>
 						</tr>';
 
 		}
@@ -9671,7 +9724,7 @@ EOD;
 	}
 
 	/** 
-	 * Page Access Log status
+	 * Email Delivery Log status
 	 * 
 	 * @since 2.8.0
 	 */
@@ -9682,7 +9735,7 @@ EOD;
 		$status = $value['status'];
 		$date_time = $value['on'];
 
-		return '<div id="email-delivery-log-status" class="log-entries-header">Logger was '. $status .' on '. $date_time .'</div>';
+		return '<div id="email-delivery-log-status" class="log-entries-header">Logging was '. $status .' on '. $date_time .'</div>';
 
 	}
 
