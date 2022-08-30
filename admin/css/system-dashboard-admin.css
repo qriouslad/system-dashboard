@@ -304,6 +304,10 @@ span.normal-weight {
     display: none !important;
 }
 
+.sd-italic {
+    font-style: italic;
+}
+
 .sd-faint {
     opacity: 0.5;
 }
