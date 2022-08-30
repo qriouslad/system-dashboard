@@ -9711,8 +9711,8 @@ EOD;
 			$occurrence_count = count( $error['occurrences'] );
 
 			$output .= '<tr>
-							<td>' . esc_html( $localized_timestamp ) .' <span class="sd-faint">(' . esc_html( $occurrence_count ) . ' occurrences logged)</span><br /><strong>
-							'. esc_html( $error['type'] ) .'</strong>: '. $error['details'] .'</td>
+							<td><span class="hidden">' . esc_html( $localized_timestamp ) . '</span><strong>Last seen on</strong>: ' . esc_html( $localized_timestamp ) .' <span class="sd-faint">(' . esc_html( $occurrence_count ) . ' occurrences logged)</span><br />
+							<strong>'. esc_html( $error['type'] ) .'</strong>: '. $error['details'] .'</td>
 						</tr>';
 
 		}
