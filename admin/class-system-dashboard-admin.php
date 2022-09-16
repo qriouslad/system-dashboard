@@ -8206,6 +8206,11 @@ EOD;
 							'description'	=> 'Allows for the mu-plugins directory to be moved from the default location.',
 							'value'			=> 'wp-content/mu-plugins',
 						),
+						array(
+							'name'		=> 'DIRECTORY_SEPARATOR',
+							'description'	=> 'A predefined constant that contains either a forward slash or backslash depending on the OS your web server is on',
+							'value'			=> '/ or \\',
+						),
 					)
 				),
 
