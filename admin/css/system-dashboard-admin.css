@@ -312,6 +312,14 @@ span.normal-weight {
     opacity: 0.5;
 }
 
+.sd-viewer-intro {
+    padding: 8px;
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 16px;
+}
+
 /* Pure JS Accordion */
 
 dl.mc-collapsible {

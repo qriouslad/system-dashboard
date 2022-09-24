@@ -2184,7 +2184,11 @@ class System_Dashboard_Admin {
 
 			$filename = $_REQUEST['filename'];
 
-			$file_path = ABSPATH . $filename;
+			if ( $filename == 'wpconfig.php' ) {
+				$file_path = $this->sd_wpconfig_file_path();
+			} else {
+				$file_path = ABSPATH . $filename;
+			}
 				
 			if ( !file_exists( $file_path ) ) {
 
@@ -8206,6 +8210,11 @@ EOD;
 							'description'	=> 'Allows for the mu-plugins directory to be moved from the default location.',
 							'value'			=> 'wp-content/mu-plugins',
 						),
+						array(
+							'name'		=> 'DIRECTORY_SEPARATOR',
+							'description'	=> 'A predefined constant that contains either a forward slash or backslash depending on the OS your web server is on',
+							'value'			=> '/ or \\',
+						),
 					)
 				),
 
@@ -9255,16 +9264,36 @@ EOD;
 	 * @since 2.7.0
 	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
 	 */
-	public function sd_wpconfig_file_path() {
+	public function sd_wpconfig_file_path( $type = 'path' ) {
 
-		$file = ABSPATH . 'wp-config.php';
-		if ( !file_exists( $file ) ) {
-			if ( @file_exists( dirname( ABSPATH ) . '/wp-config.php') ) {
-				$file = dirname( ABSPATH ) . '/wp-config.php'; // wp-config.php file is in the folder above the WP root folder
-			}
+		// From wp-load.php
+
+		if ( file_exists( ABSPATH . 'wp-config.php' ) ) {
+
+			/** The config file resides in ABSPATH */
+			$file = ABSPATH . 'wp-config.php';
+			$location = 'WordPress root directory';
+
+
+		} elseif ( @file_exists( dirname( ABSPATH ) . '/wp-config.php' ) && ! @file_exists( dirname( ABSPATH ) . '/wp-settings.php' ) ) {
+
+			/** The config file resides one level above ABSPATH but is not part of another installation */
+			$file = dirname( ABSPATH ) . '/wp-config.php';
+			$location = 'parent directory of WordPress root';
+
+		} else {
+
+			$file = 'Undetectable.';
+			$location = 'not in WordPress root or it\'s parent directory';
+
 		}
 
-        return $file;
+		if ( $type == 'path' ) {
+	        return $file;
+		} elseif ( $type == 'location' ) {
+			return $location;
+		}
+
 
 	}
 
@@ -9276,20 +9305,16 @@ EOD;
 	 */
 	public function sd_wpconfig_file_info() {
 
-		$file = ABSPATH . 'wp-config.php';
-		if ( !file_exists( $file ) ) {
-			if ( @file_exists( dirname( ABSPATH ) . '/wp-config.php') ) {
-				$file = dirname( ABSPATH ) . '/wp-config.php'; // wp-config.php file is in one folder above the WP root folder
-			}
-		}
+		$file = $this->sd_wpconfig_file_path( 'path' );
+		$location = $this->sd_wpconfig_file_path( 'location' );
 
 		if ( !is_writable( $file ) ) {
-			$status = 'Not writeable';
+			$status = 'not writeable';
         } else {
-        	$status = 'Writeable';
+        	$status = 'writeable';
         }
 
-        return $file . ' ('. $status . ')';
+        return '<div class="sd-viewer-intro sd-wpconfig-info">The file is located in ' . $location . ' ('. $file . ') and is ' . $status .'. File content is shown below.</div>';
 
 	}
 
@@ -12291,7 +12316,7 @@ EOD;
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
-														'content'	=> $this->sd_html( 'ajax-receiver', 'wpconfig' ), // AJAX loading via sd_viewer()
+														'content'	=> $this->sd_wpconfig_file_info() . $this->sd_html( 'ajax-receiver', 'wpconfig' ), // AJAX loading via sd_viewer()
 													),													
 												),
 											),

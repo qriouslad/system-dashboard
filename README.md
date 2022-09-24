@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 6.0.1  
-Stable tag: 2.8.1  
+Stable tag: 2.8.2  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -145,7 +145,7 @@ To preview the module screenshots more easily, please scroll down the [github re
 
 #### 19. Viewer: 
 
-* wp-config.php viewer
+* wp-config.php viewer, including path and writeability info.
 * .htaccess viewer
 * REST API viewer
 * robots.txt viewer
@@ -273,6 +273,10 @@ About 260 dev hours have been spent towards v2.6.2 so far.
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.8.2 (2022.09.24)
+
+* Viewer >> wp-config.php: improve detection of it's location. Add path and writeability info.
 
 ### 2.8.1 (2022.08.31)
 
