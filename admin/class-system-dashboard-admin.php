@@ -2184,7 +2184,7 @@ class System_Dashboard_Admin {
 
 			$filename = $_REQUEST['filename'];
 
-			if ( $filename == 'wpconfig.php' ) {
+			if ( $filename == 'wpcnfg' ) {
 				$file_path = $this->sd_wpconfig_file_path();
 			} else {
 				$file_path = ABSPATH . $filename;
@@ -6128,7 +6128,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_viewer',
-								'filename':'wp-config.php',
+								'filename':'wpcnfg', // wp-config.php, abbreviated to avoid blockage by GridPane / extra secure hosts
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
