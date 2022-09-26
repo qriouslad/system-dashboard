@@ -1836,7 +1836,7 @@ class System_Dashboard_Admin {
 	 * @link https://plugins.svn.wordpress.org/wp-disk-free/tags/0.2.3/wp-disk-free.php
 	 * @since 1.0.0
 	 */
-	public function sd_total_disk_space() {
+	public function sd_total_disk_space( $type = 'raw' ) {
 
 		if ( function_exists( 'disk_total_space' ) ) {
 
@@ -1847,6 +1847,16 @@ class System_Dashboard_Admin {
 					$total_disk_space = disk_total_space( dirname(__FILE__) );
 
 					set_transient('sd_total_disk_space', $total_disk_space, WEEK_IN_SECONDS);
+
+			}
+
+			if ( $type == 'raw' ) {
+
+				// do nothing
+
+			} elseif ( $type == 'formatted' ) {
+
+				$total_disk_space = $this->sd_format_filesize( $total_disk_space );
 
 			}
 
@@ -12587,7 +12597,7 @@ EOD;
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Total Disk Space',
-										'content'	=> $this->sd_total_disk_space(),
+										'content'	=> $this->sd_total_disk_space( 'formatted' ),
 									),
 
 								),
