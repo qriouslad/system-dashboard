@@ -6370,7 +6370,16 @@ EOD;
 				$hook_name = $hook['name'];
 				$hook_slug = str_replace( array("{","}","$",">"), array("","","","-"), $hook_name ); // for href
 				$hook_file = $hook['file'];
-				$hook_description = $hook['description'];
+				$hook_short_description = $hook['doc']['description'];
+				$hook_long_description = $hook['doc']['long_description'];
+
+				$hook_tags = $hook['doc']['tags'];
+
+				foreach ( $hook_tags as $hook_tag ) {
+					if ( $hook_tag['name'] == 'since' ) {
+						$hook_since_version = $hook_tag['content'];
+					}
+				}
 
 				if ( $type == 'action' ) {
 
@@ -6391,8 +6400,8 @@ EOD;
 				}
 
 				$hooks_list .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
-				$hooks_list .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/' . $hook_slug . '/" target="_blank">'. $hook_name . '</a> <br /><span>' . $hook_file . '</span>' );
-				$hooks_list .= $this->sd_html( 'field-content-second', $hook_description );
+				$hooks_list .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/' . $hook_slug . '/" target="_blank">'. $hook_name . '</a> <br /><span>' . $hook_file . '</span><br /><span>Since ' . $hook_since_version . '</span>' );
+				$hooks_list .= $this->sd_html( 'field-content-second', $hook_short_description . ' ' . $hook_long_description );
 				$hooks_list .= $this->sd_html( 'field-content-end' );
 
 				$hooks_count++;
