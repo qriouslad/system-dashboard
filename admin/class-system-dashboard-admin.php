@@ -6351,25 +6351,28 @@ EOD;
 
 			$wp_reference_base_url = 'https://developer.wordpress.org/reference/hooks';		
 
-			$response = wp_remote_get( plugin_dir_url( __DIR__ ). 'admin/references/wpcore_hooks_actions_filters.json' );
-			$hooks_json = wp_remote_retrieve_body( $response );
+			if ( $type == 'action' ) {
+				$response = wp_remote_get( plugin_dir_url( __DIR__ ). 'admin/references/actions.json' );
+			} elseif ( $type == 'filter' ) {
+				$response = wp_remote_get( plugin_dir_url( __DIR__ ). 'admin/references/filters.json' );
+			}
 
+			$hooks_json = wp_remote_retrieve_body( $response ); // as JSON
 			$hooks = json_decode( $hooks_json, TRUE ); // convert into array
+			$hooks = $hooks['hooks']; // only use the hooks array
 
 			$output = '';
-			$action_hooks = '';
-			$filter_hooks = '';
-			$action_hooks_count = 0;
-			$filter_hooks_count = 0;
+			$hooks_list = '';
+			$hooks_count = 0;
 
 			foreach ( $hooks as $hook ) {
 
-				$hook_name_clean = str_replace("{", "", $hook['name']);
-				$hook_name_clean = str_replace("}", "", $hook_name_clean);
-				$hook_name_clean = str_replace("$", "", $hook_name_clean);
-				$hook_name_clean = str_replace(">", "-", $hook_name_clean);
+				$hook_name = $hook['name'];
+				$hook_slug = str_replace( array("{","}","$",">"), array("","","","-"), $hook_name ); // for href
+				$hook_file = $hook['file'];
+				$hook_description = $hook['description'];
 
-				if ( strpos( $hook['type'], 'action' ) !== false ) {
+				if ( $type == 'action' ) {
 
 					// Search filter data attributes
 					$search_atts = array(
@@ -6377,14 +6380,7 @@ EOD;
 						'core-act-hook-name'	=> $hook['name'],
 					);
 
-					$action_hooks .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
-					$action_hooks .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/' . $hook_name_clean . '/" target="_blank">'. $hook['name'] . '</a> <br /><span>' . $hook['file'] . '</span>' );
-					$action_hooks .= $this->sd_html( 'field-content-second', $hook['description'] );
-					$action_hooks .= $this->sd_html( 'field-content-end' );
-
-					$action_hooks_count++;
-
-				} elseif ( strpos( $hook['type'], 'filter' ) !== false ) {
+				} elseif ( $type == 'filter' ) {
 
 					// Search filter data attributes
 					$search_atts = array(
@@ -6392,32 +6388,21 @@ EOD;
 						'core-fil-hook-name'	=> $hook['name'],
 					);
 
-					$filter_hooks .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
-					$filter_hooks .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/' . $hook_name_clean . '/" target="_blank">'. $hook['name'] . '</a> <br /><span>' . $hook['file'] . '</span>' );
-					$filter_hooks .= $this->sd_html( 'field-content-second', $hook['description'] );
-					$filter_hooks .= $this->sd_html( 'field-content-end' );
+				}
 
-					$filter_hooks_count++;
+				$hooks_list .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
+				$hooks_list .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/' . $hook_slug . '/" target="_blank">'. $hook_name . '</a> <br /><span>' . $hook_file . '</span>' );
+				$hooks_list .= $this->sd_html( 'field-content-second', $hook_description );
+				$hooks_list .= $this->sd_html( 'field-content-end' );
 
-				} else {}
+				$hooks_count++;
 
 			}
 
-			if ( $type == 'action' ) {
+			// Add search filter box and total hooks count
+			$output .= $this->sd_html( 'search-filter', 'Total: ' . $hooks_count . ' hooks', '', ['search-wpcore-action-hooks' => ''] );
 
-				// Add search filter box and total hooks count
-				$output .= $this->sd_html( 'search-filter', 'Total: ' . $action_hooks_count . ' hooks', '', ['search-wpcore-action-hooks' => ''] );
-
-				$output .= $action_hooks;
-
-			} elseif ( $type == 'filter' ) {
-
-				// Add search filter box and total hooks count
-				$output .= $this->sd_html( 'search-filter', 'Total: ' . $filter_hooks_count . ' hooks', '', ['search-wpcore-filter-hooks' => ''] );
-
-				$output .= $filter_hooks;
-
-			} else {}
+			$output .= $hooks_list;
 
 			echo $output;
 
@@ -11749,7 +11734,7 @@ EOD;
 									array(
 										'id'		=> 'hooks_wpcore',
 										'type'		=> 'accordion',
-										'title'		=> 'Core (v5.9)',
+										'title'		=> 'Core (v6.0)',
 										'subtitle'	=> 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each hook.',
 										'class'		=> 'wpcore-hooks',
 										'accordions'	=> array(
