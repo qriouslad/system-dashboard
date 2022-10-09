@@ -3,6 +3,14 @@
  * included in this file.
  */
 
+#screen-meta-links {
+    display: none;
+}
+
+#screen-meta-links+.csf-options {
+    margin-top: 24px;
+}
+
 .sd-options .csf-header-inner {
     background-color: #fafafa;
     border-bottom: 1px solid #f5f5f5;

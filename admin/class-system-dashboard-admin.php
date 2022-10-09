@@ -1836,7 +1836,7 @@ class System_Dashboard_Admin {
 	 * @link https://plugins.svn.wordpress.org/wp-disk-free/tags/0.2.3/wp-disk-free.php
 	 * @since 1.0.0
 	 */
-	public function sd_total_disk_space() {
+	public function sd_total_disk_space( $type = 'raw' ) {
 
 		if ( function_exists( 'disk_total_space' ) ) {
 
@@ -1847,6 +1847,16 @@ class System_Dashboard_Admin {
 					$total_disk_space = disk_total_space( dirname(__FILE__) );
 
 					set_transient('sd_total_disk_space', $total_disk_space, WEEK_IN_SECONDS);
+
+			}
+
+			if ( $type == 'raw' ) {
+
+				// do nothing
+
+			} elseif ( $type == 'formatted' ) {
+
+				$total_disk_space = $this->sd_format_filesize( $total_disk_space );
 
 			}
 
@@ -2184,7 +2194,7 @@ class System_Dashboard_Admin {
 
 			$filename = $_REQUEST['filename'];
 
-			if ( $filename == 'wpconfig.php' ) {
+			if ( $filename == 'wpcnfg' ) {
 				$file_path = $this->sd_wpconfig_file_path();
 			} else {
 				$file_path = ABSPATH . $filename;
@@ -6128,7 +6138,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_viewer',
-								'filename':'wp-config.php',
+								'filename':'wpcnfg', // wp-config.php, abbreviated to avoid blockage by GridPane / extra secure hosts
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -6341,25 +6351,37 @@ EOD;
 
 			$wp_reference_base_url = 'https://developer.wordpress.org/reference/hooks';		
 
-			$response = wp_remote_get( plugin_dir_url( __DIR__ ). 'admin/references/wpcore_hooks_actions_filters.json' );
-			$hooks_json = wp_remote_retrieve_body( $response );
+			if ( $type == 'action' ) {
+				$response = wp_remote_get( plugin_dir_url( __DIR__ ). 'admin/references/actions.json' );
+			} elseif ( $type == 'filter' ) {
+				$response = wp_remote_get( plugin_dir_url( __DIR__ ). 'admin/references/filters.json' );
+			}
 
+			$hooks_json = wp_remote_retrieve_body( $response ); // as JSON
 			$hooks = json_decode( $hooks_json, TRUE ); // convert into array
+			$hooks = $hooks['hooks']; // only use the hooks array
 
 			$output = '';
-			$action_hooks = '';
-			$filter_hooks = '';
-			$action_hooks_count = 0;
-			$filter_hooks_count = 0;
+			$hooks_list = '';
+			$hooks_count = 0;
 
 			foreach ( $hooks as $hook ) {
 
-				$hook_name_clean = str_replace("{", "", $hook['name']);
-				$hook_name_clean = str_replace("}", "", $hook_name_clean);
-				$hook_name_clean = str_replace("$", "", $hook_name_clean);
-				$hook_name_clean = str_replace(">", "-", $hook_name_clean);
+				$hook_name = $hook['name'];
+				$hook_slug = str_replace( array("{","}","$",">"), array("","","","-"), $hook_name ); // for href
+				$hook_file = $hook['file'];
+				$hook_short_description = $hook['doc']['description'];
+				$hook_long_description = $hook['doc']['long_description'];
 
-				if ( strpos( $hook['type'], 'action' ) !== false ) {
+				$hook_tags = $hook['doc']['tags'];
+
+				foreach ( $hook_tags as $hook_tag ) {
+					if ( $hook_tag['name'] == 'since' ) {
+						$hook_since_version = $hook_tag['content'];
+					}
+				}
+
+				if ( $type == 'action' ) {
 
 					// Search filter data attributes
 					$search_atts = array(
@@ -6367,14 +6389,7 @@ EOD;
 						'core-act-hook-name'	=> $hook['name'],
 					);
 
-					$action_hooks .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
-					$action_hooks .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/' . $hook_name_clean . '/" target="_blank">'. $hook['name'] . '</a> <br /><span>' . $hook['file'] . '</span>' );
-					$action_hooks .= $this->sd_html( 'field-content-second', $hook['description'] );
-					$action_hooks .= $this->sd_html( 'field-content-end' );
-
-					$action_hooks_count++;
-
-				} elseif ( strpos( $hook['type'], 'filter' ) !== false ) {
+				} elseif ( $type == 'filter' ) {
 
 					// Search filter data attributes
 					$search_atts = array(
@@ -6382,32 +6397,21 @@ EOD;
 						'core-fil-hook-name'	=> $hook['name'],
 					);
 
-					$filter_hooks .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
-					$filter_hooks .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/' . $hook_name_clean . '/" target="_blank">'. $hook['name'] . '</a> <br /><span>' . $hook['file'] . '</span>' );
-					$filter_hooks .= $this->sd_html( 'field-content-second', $hook['description'] );
-					$filter_hooks .= $this->sd_html( 'field-content-end' );
+				}
 
-					$filter_hooks_count++;
+				$hooks_list .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
+				$hooks_list .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/' . $hook_slug . '/" target="_blank">'. $hook_name . '</a> <br /><span>' . $hook_file . '</span><br /><span>Since ' . $hook_since_version . '</span>' );
+				$hooks_list .= $this->sd_html( 'field-content-second', $hook_short_description . ' ' . $hook_long_description );
+				$hooks_list .= $this->sd_html( 'field-content-end' );
 
-				} else {}
+				$hooks_count++;
 
 			}
 
-			if ( $type == 'action' ) {
+			// Add search filter box and total hooks count
+			$output .= $this->sd_html( 'search-filter', 'Total: ' . $hooks_count . ' hooks', '', ['search-wpcore-action-hooks' => ''] );
 
-				// Add search filter box and total hooks count
-				$output .= $this->sd_html( 'search-filter', 'Total: ' . $action_hooks_count . ' hooks', '', ['search-wpcore-action-hooks' => ''] );
-
-				$output .= $action_hooks;
-
-			} elseif ( $type == 'filter' ) {
-
-				// Add search filter box and total hooks count
-				$output .= $this->sd_html( 'search-filter', 'Total: ' . $filter_hooks_count . ' hooks', '', ['search-wpcore-filter-hooks' => ''] );
-
-				$output .= $filter_hooks;
-
-			} else {}
+			$output .= $hooks_list;
 
 			echo $output;
 
@@ -9325,10 +9329,18 @@ EOD;
 	 */
 	public function sd_debuglog_file_info() {
 
-		// Assemble the errors log file path
+		if ( defined( 'WP_DEBUG_LOG' ) && ( ! is_string( WP_DEBUG_LOG ) ) ) {
 
-        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] );
-        $errors_log_file_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG . '/logs/errors/' . $plain_domain . '_debug.log';
+			// Assemble the errors log file path, i.e. use System Dashboard's log file
+	        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] );
+	        $errors_log_file_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG . '/logs/errors/' . $plain_domain . '_debug.log';
+
+		} elseif ( defined( 'WP_DEBUG_LOG' ) && is_string( WP_DEBUG_LOG ) ) {
+
+			$errors_log_file_path = WP_DEBUG_LOG;
+
+		}
+
         $errors_log_short_file_path = str_replace( ABSPATH, "", $errors_log_file_path );
 
         if ( file_exists( $errors_log_file_path ) ) {
@@ -9657,29 +9669,50 @@ EOD;
 					</thead>
 					<tbody>';
 
-		// Assemble the errors log file path
-        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] );
-        $errors_log_file_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG . '/logs/errors/' . $plain_domain . '_debug.log';
+		if ( defined( 'WP_DEBUG_LOG' ) && ( ! is_string( WP_DEBUG_LOG ) ) ) {
+
+			// Assemble the errors log file path, i.e. use System Dashboard's log file
+	        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] );
+	        $errors_log_file_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG . '/logs/errors/' . $plain_domain . '_debug.log';
+
+		} elseif ( defined( 'WP_DEBUG_LOG' ) && is_string( WP_DEBUG_LOG ) ) {
+
+			$errors_log_file_path = WP_DEBUG_LOG;
+
+		} else {}
 
         // Read the erros log file, reverse the order of the entries, prune to the latest 5000 entries
         $log = file_get_contents( $errors_log_file_path );
-        $lines = explode("[", $log);
 
-        // Put back the missing '[' after explode operation
+        $log 	= str_replace( "[\\", "^\\", $log ); // certain error message contains the '[\' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^\'
+        $log = str_replace( "[internal function]", "^internal function^", $log );
+
+        // We are splitting the log file not using PHP_EOL to preserve the stack traces for PHP Fatal Errors among other things
+        $lines = explode("[", $log);
         $prepended_lines = array();
+
         foreach ( $lines as $line ) {
         	if ( !empty($line) ) {
-        		$line = str_replace( "]", "]@@@", $line ); // add line break after time stamp
-        		$line = str_replace( "Stack trace:", "<hr />Stack trace:", $line ); // add line break for stack trace section
-        		$line = str_replace( "#", "<hr />#", $line ); // add line break on stack trace lines
-        		$line = str_replace( "Argument <hr />#", "Argument #", $line ); // add line break on stack trace lines
-	        	$prepended_line = '[' . $line;
-	        	$prepended_lines[] = $prepended_line;
+        		$line 				= str_replace( "UTC]", "UTC]@@@", $line ); // add '@@@' as marker/separator after time stamp
+        		$line 				= str_replace( "Stack trace:", "<hr />Stack trace:", $line ); // add line break for stack trace section
+				if ( strpos( $line, 'PHP Fatal' ) !== false ) {
+	        		$line 			= str_replace( "#", "<hr />#", $line ); // add line break on PHP Fatal error's stack trace lines
+	        	}
+        		$line 			= str_replace( "Argument <hr />#", "Argument #", $line ); // remove hr on certain error message
+        		$line 			= str_replace( "parameter <hr />#", "parameter #", $line ); // remove hr on certain error message
+        		$line 			= str_replace( "the <hr />#", "the #", $line ); // remove hr on certain error message
+        		$line 			= str_replace( "^\\", "[\\", $line ); // reverse the temporary replacement of '[\' with '^\'
+        		$line = str_replace( "^internal function^", "[internal function]", $line );
+	        	$prepended_line 	= '[' . $line; // Put back the missing '[' after explode operation
+	        	$prepended_lines[] 	= $prepended_line;
         	}
         }
 
-        $lines_newest_first = array_reverse( $prepended_lines );
-        $latest_lines = array_slice( $lines_newest_first, 0, 50000 );
+        $lines_newest_first 	= array_reverse( $prepended_lines );
+        $latest_lines 			= array_slice( $lines_newest_first, 0, 50000 );
+
+        // Will hold error details types
+        $errors_master_list = array();
 
         // Will hold error details types
         $errors_master_list = array();
@@ -9689,7 +9722,11 @@ EOD;
 			$line = explode("@@@ ", $line);
 
 			$timestamp = str_replace( [ "[", "]" ], "", $line[0] );
-			$error = $line[1];
+			if ( array_key_exists('1', $line) ) {
+				$error = $line[1];
+			} else {
+				$error = 'No error message specified...';
+			}
 
 			if ( strpos( $error, 'PHP Fatal' ) !==false ) {
 				$error_type = 'PHP Fatal';
@@ -9703,6 +9740,9 @@ EOD;
 			} elseif ( strpos( $error, 'PHP Deprecated' ) !==false ) {
 				$error_type = 'PHP Deprecated';
 				$error_details = str_replace( "PHP Deprecated: ", "", $error );
+			} elseif ( strpos( $error, 'PHP Parse' ) !== false ) {
+				$error_type = 'PHP Parse';
+				$error_details 	= str_replace( "PHP Parse error: ", "", $error );
 			} elseif ( strpos( $error, 'WordPress database error' ) !==false ) {
 				$error_type = 'WP DB error';
 				$error_details = str_replace( "WordPress database error ", "", $error );
@@ -9715,9 +9755,9 @@ EOD;
 			if ( array_search( trim( $error_details ), array_column( $errors_master_list, 'details' ) ) === false ) {
 
 				$errors_master_list[] = array(
-					'occurrences'	=> array( $timestamp ),
 					'type'			=> $error_type,
 					'details'		=> trim( $error_details ),
+					'occurrences'	=> array( $timestamp ),
 				);
 
 			} else {
@@ -11739,7 +11779,7 @@ EOD;
 									array(
 										'id'		=> 'hooks_wpcore',
 										'type'		=> 'accordion',
-										'title'		=> 'Core (v5.9)',
+										'title'		=> 'Core (v6.0)',
 										'subtitle'	=> 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each hook.',
 										'class'		=> 'wpcore-hooks',
 										'accordions'	=> array(
@@ -12587,7 +12627,7 @@ EOD;
 									array(
 										'type'		=> 'content',
 										'title'		=> 'Total Disk Space',
-										'content'	=> $this->sd_total_disk_space(),
+										'content'	=> $this->sd_total_disk_space( 'formatted' ),
 									),
 
 								),
