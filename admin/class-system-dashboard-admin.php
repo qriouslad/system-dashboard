@@ -9329,10 +9329,18 @@ EOD;
 	 */
 	public function sd_debuglog_file_info() {
 
-		// Assemble the errors log file path
+		if ( defined( 'WP_DEBUG_LOG' ) && ( ! is_string( WP_DEBUG_LOG ) ) ) {
 
-        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] );
-        $errors_log_file_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG . '/logs/errors/' . $plain_domain . '_debug.log';
+			// Assemble the errors log file path, i.e. use System Dashboard's log file
+	        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] );
+	        $errors_log_file_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG . '/logs/errors/' . $plain_domain . '_debug.log';
+
+		} elseif ( defined( 'WP_DEBUG_LOG' ) && is_string( WP_DEBUG_LOG ) ) {
+
+			$errors_log_file_path = WP_DEBUG_LOG;
+
+		}
+
         $errors_log_short_file_path = str_replace( ABSPATH, "", $errors_log_file_path );
 
         if ( file_exists( $errors_log_file_path ) ) {
@@ -9661,29 +9669,50 @@ EOD;
 					</thead>
 					<tbody>';
 
-		// Assemble the errors log file path
-        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] );
-        $errors_log_file_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG . '/logs/errors/' . $plain_domain . '_debug.log';
+		if ( defined( 'WP_DEBUG_LOG' ) && ( ! is_string( WP_DEBUG_LOG ) ) ) {
+
+			// Assemble the errors log file path, i.e. use System Dashboard's log file
+	        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] );
+	        $errors_log_file_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG . '/logs/errors/' . $plain_domain . '_debug.log';
+
+		} elseif ( defined( 'WP_DEBUG_LOG' ) && is_string( WP_DEBUG_LOG ) ) {
+
+			$errors_log_file_path = WP_DEBUG_LOG;
+
+		} else {}
 
         // Read the erros log file, reverse the order of the entries, prune to the latest 5000 entries
         $log = file_get_contents( $errors_log_file_path );
-        $lines = explode("[", $log);
 
-        // Put back the missing '[' after explode operation
+        $log 	= str_replace( "[\\", "^\\", $log ); // certain error message contains the '[\' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^\'
+        $log = str_replace( "[internal function]", "^internal function^", $log );
+
+        // We are splitting the log file not using PHP_EOL to preserve the stack traces for PHP Fatal Errors among other things
+        $lines = explode("[", $log);
         $prepended_lines = array();
+
         foreach ( $lines as $line ) {
         	if ( !empty($line) ) {
-        		$line = str_replace( "]", "]@@@", $line ); // add line break after time stamp
-        		$line = str_replace( "Stack trace:", "<hr />Stack trace:", $line ); // add line break for stack trace section
-        		$line = str_replace( "#", "<hr />#", $line ); // add line break on stack trace lines
-        		$line = str_replace( "Argument <hr />#", "Argument #", $line ); // add line break on stack trace lines
-	        	$prepended_line = '[' . $line;
-	        	$prepended_lines[] = $prepended_line;
+        		$line 				= str_replace( "UTC]", "UTC]@@@", $line ); // add '@@@' as marker/separator after time stamp
+        		$line 				= str_replace( "Stack trace:", "<hr />Stack trace:", $line ); // add line break for stack trace section
+				if ( strpos( $line, 'PHP Fatal' ) !== false ) {
+	        		$line 			= str_replace( "#", "<hr />#", $line ); // add line break on PHP Fatal error's stack trace lines
+	        	}
+        		$line 			= str_replace( "Argument <hr />#", "Argument #", $line ); // remove hr on certain error message
+        		$line 			= str_replace( "parameter <hr />#", "parameter #", $line ); // remove hr on certain error message
+        		$line 			= str_replace( "the <hr />#", "the #", $line ); // remove hr on certain error message
+        		$line 			= str_replace( "^\\", "[\\", $line ); // reverse the temporary replacement of '[\' with '^\'
+        		$line = str_replace( "^internal function^", "[internal function]", $line );
+	        	$prepended_line 	= '[' . $line; // Put back the missing '[' after explode operation
+	        	$prepended_lines[] 	= $prepended_line;
         	}
         }
 
-        $lines_newest_first = array_reverse( $prepended_lines );
-        $latest_lines = array_slice( $lines_newest_first, 0, 50000 );
+        $lines_newest_first 	= array_reverse( $prepended_lines );
+        $latest_lines 			= array_slice( $lines_newest_first, 0, 50000 );
+
+        // Will hold error details types
+        $errors_master_list = array();
 
         // Will hold error details types
         $errors_master_list = array();
@@ -9693,7 +9722,11 @@ EOD;
 			$line = explode("@@@ ", $line);
 
 			$timestamp = str_replace( [ "[", "]" ], "", $line[0] );
-			$error = $line[1];
+			if ( array_key_exists('1', $line) ) {
+				$error = $line[1];
+			} else {
+				$error = 'No error message specified...';
+			}
 
 			if ( strpos( $error, 'PHP Fatal' ) !==false ) {
 				$error_type = 'PHP Fatal';
@@ -9707,6 +9740,9 @@ EOD;
 			} elseif ( strpos( $error, 'PHP Deprecated' ) !==false ) {
 				$error_type = 'PHP Deprecated';
 				$error_details = str_replace( "PHP Deprecated: ", "", $error );
+			} elseif ( strpos( $error, 'PHP Parse' ) !== false ) {
+				$error_type = 'PHP Parse';
+				$error_details 	= str_replace( "PHP Parse error: ", "", $error );
 			} elseif ( strpos( $error, 'WordPress database error' ) !==false ) {
 				$error_type = 'WP DB error';
 				$error_details = str_replace( "WordPress database error ", "", $error );
@@ -9719,9 +9755,9 @@ EOD;
 			if ( array_search( trim( $error_details ), array_column( $errors_master_list, 'details' ) ) === false ) {
 
 				$errors_master_list[] = array(
-					'occurrences'	=> array( $timestamp ),
 					'type'			=> $error_type,
 					'details'		=> trim( $error_details ),
+					'occurrences'	=> array( $timestamp ),
 				);
 
 			} else {
