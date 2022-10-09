@@ -4,8 +4,8 @@ Contributors: qriouslad
 Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
-Tested up to: 6.0.1  
-Stable tag: 2.8.2  
+Tested up to: 6.0.2  
+Stable tag: 2.8.3  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -217,8 +217,9 @@ About 260 dev hours have been spent towards v2.6.2 so far.
 
 ### Check These Out Too
 
-* [Code Explorer](https://wordpress.org/plugins/code-explorer/): Fast directory explorer and file/code viewer with syntax highlighting.
+* [Debug Log Manager](https://wordpress.org/plugins/debug-log-manager/): Log PHP, database and JavaScript errors via WP_DEBUG with one click. Conveniently create, view, filter and clear the debug.log file.
 * [Variable Inspector](https://wordpress.org/plugins/variable-inspector/): Inspect PHP variables on a central dashboard in wp-admin for convenient debugging.
+* [Code Explorer](https://wordpress.org/plugins/code-explorer/): Fast directory explorer and file/code viewer with syntax highlighting.
 * [Database Admin](https://github.com/qriouslad/database-admin): Securely manage your WordPress website's database with a clean and user-friendly interface based on a custom-themed Adminer app. Only available on Github.
 
 ## Screenshots
@@ -273,6 +274,14 @@ About 260 dev hours have been spent towards v2.6.2 so far.
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.8.3 (2022.10.09)
+
+* Hooks > Core: Update action and filter hooks definition to [WordPress v6.0](https://github.com/wp-hooks/wordpress-core). Include long description and "since WordPress version" info.
+* Database > Themes & Plugins: Update table name <-> plugin relationships database from [WP-Optimize](https://wordpress.org/plugins/wp-optimize/) v3.2.9.
+* Logs > PHP Erros: Make it work with existing [Debug Log Manager](https://wordpress.org/plugins/debug-log-manager/) log file, or other log file path defined in WP_DEBUG_LOG constant.
+* Server > Hardware: Fix formatting of Total Disk Space
+* Hide "Screen Options" drawer
 
 ### 2.8.2 (2022.09.24)
 
