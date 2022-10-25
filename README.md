@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 6.0.2  
-Stable tag: 2.8.3  
+Stable tag: 2.8.4  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -274,6 +274,10 @@ About 260 dev hours have been spent towards v2.6.2 so far.
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.8.4 (2022.10.25)
+
+* All admin notices are now suppressed, i.e. no longer shown, on the System Dashboard page
 
 ### 2.8.3 (2022.10.09)
 

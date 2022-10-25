@@ -209,6 +209,8 @@ class System_Dashboard {
 		$this->loader->add_filter( 'plugin_action_links_'.$this->plugin_name.'/'.$this->plugin_name.'.php', $plugin_admin, 'sd_add_plugin_action_links' );
 		// $this->loader->add_filter( 'plugin_row_meta', $plugin_admin, 'sd_add_plugin_meta_links', $this->plugin_name.'/'.$this->plugin_name.'.php', 'data', 'active' );
 
+		$this->loader->add_action( 'admin_notices', $plugin_admin, 'sd_suppress_admin_notices', 5 ); // Load early with priority 5 (default is 10)
+
 		// Register AJAX callback functions
 		$this->loader->add_action( 'admin_footer', $plugin_admin, 'sd_ajax_calls' );
 		$this->loader->add_action( 'wp_ajax_sd_db_tables', $plugin_admin, 'sd_db_tables' );
