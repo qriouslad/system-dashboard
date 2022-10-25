@@ -12800,7 +12800,24 @@ EOD;
 	 *
 	 * @since    1.0.0
 	 */
-	
+
+	/**
+	 * To stop other plugins' admin notices overlaying in the Variable Inspector UI, remove them.
+	 *
+	 * @hooked admin_notices
+	 *
+	 * @since 2.8.4
+	 */
+	public function sd_suppress_admin_notices() {
+
+		global $plugin_page;
+
+		if ( 'system-dashboard' === $plugin_page ) {
+			remove_all_actions( 'admin_notices' );
+		}
+
+	}	
+
 	public function sd_add_plugin_meta_links( $plugin_meta, $plugin_file ) {
 
 		if ( strpos( $plugin_file, 'system-dashboard.php' ) !== false ) {
