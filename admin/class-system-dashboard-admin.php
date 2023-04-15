@@ -265,6 +265,17 @@ class System_Dashboard_Admin {
 
 	}
 
+	/**
+	 * Check if current installation is localhost or not
+	 * 
+	 * @since 2.8.5
+	 */
+	public function is_localhost() {
+		
+		$localhost = array( '127.0.0.1', '::1' );
+		return in_array( $_SERVER['REMOTE_ADDR'], $localhost );
+
+	}
 
 	/**
 	 * print_r variable value -- for debugging
@@ -1346,8 +1357,8 @@ class System_Dashboard_Admin {
 	 * @since 1.0.0
 	 */
 	public function sd_server_uptime() {
-
-		if ($this->is_shell_exec_enabled()) {
+		
+		if ( ! $this->is_localhost() && $this->is_shell_exec_enabled() ) {
 
 			$uptime = trim(shell_exec("cut -d. -f1 /proc/uptime"));
 			$uptime = number_format_i18n($uptime / 60 / 60 / 24). ' days';
@@ -1355,7 +1366,7 @@ class System_Dashboard_Admin {
 		} else {
 
 			$uptime = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
-
+			
 		}
 
 		return $uptime;
@@ -1403,7 +1414,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_server_location() {
 
-		if ( function_exists( 'file_get_contents' ) ) {
+		if ( ! $this->is_localhost() && function_exists( 'file_get_contents' ) ) {
 
 			if ( isset( $_SERVER['HTTP_X_SERVER_ADDR'] ) ) {
 
@@ -1633,7 +1644,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_total_ram()	{
 
-		if ($this->is_shell_exec_enabled()) {
+		if ( ! $this->is_localhost() && $this->is_shell_exec_enabled() ) {
 
 			$total_ram = get_transient('sd_total_ram');
 
@@ -1740,7 +1751,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_used_ram() {
 
-		if ($this->is_shell_exec_enabled()) {
+		if ( ! $this->is_localhost() && $this->is_shell_exec_enabled() ) {
 
 			$free_ram = $this->sd_free_ram();
 			$total_ram = $this->sd_total_ram();
@@ -10907,7 +10918,7 @@ EOD;
 				'menu_parent'		=> 'index.php',
 				'menu_position'		=> 1,
 				// 'menu_icon'			=> 'dashicons-arrow-up-alt2',
-				'framework_title' 	=> 'System Dashboard <small>by <a href="https://bowo.io" target="_blank">bowo.io</a></small>',
+				'framework_title' 	=> 'System Dashboard <small>by <a href="https://bowo.io/bowoio-sd" target="_blank">Bowo</a></small>',
 				'framework_class' 	=> 'sd-options',
 				'show_bar_menu' 	=> false,
 				'show_search' 		=> false,
@@ -10916,7 +10927,7 @@ EOD;
 				'show_form_warning' => false,
 				'save_defaults'		=> true,
 				'show_footer' 		=> false,
-				'footer_credit'		=> '<a href="https://wordpress.org/plugins/system-dashboard/" target="_blank">System Dashboard</a> (<a href="https://github.com/qriouslad/system-dashboard" target="_blank">github</a>) is built with the <a href="https://github.com/devinvinson/WordPress-Plugin-Boilerplate/" target="_blank">WordPress Plugin Boilerplate</a>, <a href="https://wppb.me" target="_blank">wppb.me</a> and <a href="https://github.com/Codestar/codestar-framework" target="_blank">CodeStar</a>.',
+				'footer_credit'		=> '<a href="https://bowo.io/dotorg-sd" target="_blank">System Dashboard</a> is on <a href="https://bowo.io/github-sd" target="_blank">github</a>',
 			) );
 
 			CSF::createSection( $prefix, array(
@@ -12777,6 +12788,15 @@ EOD;
 			) );
 
 		}
+	}
+	
+	/**
+	 * Replace WP version number text in footer
+	 * 
+	 * @since 2.8.5
+	 */
+	public function footer_version_text() {
+        return 'Also by Bowo &#8594; <a href="https://bowo.io/wpn-dlm" target="_blank">WordPress Newsboard</a>: The latest from 100+ sources';		
 	}
 
 	/**
