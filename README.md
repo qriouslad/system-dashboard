@@ -1,11 +1,11 @@
 # System Dashboard
 
 Contributors: qriouslad  
-Donate link: https://paypal.me/qriouslad
+Donate link: https://bowo.io/dotorg-sponsor-sd
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
-Tested up to: 6.0.2  
-Stable tag: 2.8.4  
+Tested up to: 6.2  
+Stable tag: 2.8.5  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -209,10 +209,10 @@ To preview the module screenshots more easily, please scroll down the [github re
 
 About 260 dev hours have been spent towards v2.6.2 so far.
 
-* [A nice review](https://wordpress.org/plugins/system-dashboard/#reviews) would be great!
-* [Give feedback](https://wordpress.org/support/plugin/system-dashboard/) and help improve future versions.
-* [Github repo](https://github.com/qriouslad/system-dashboard) to contribute code.
-* [Donate](https://paypal.me/qriouslad) and support my work.
+* [A nice review](https://bowo.io/review-sd) would be great!
+* [Give feedback](https://bowo.io/feedback-sd) and help improve future versions.
+* [Github repo](https://bowo.io/github-sd) to contribute code.
+* [Sponsor](https://bowo.io/dotorg-sponsor-sd) my work.
 * Tell your colleagues about System Dashboard.
 
 ### Check These Out Too
@@ -221,6 +221,8 @@ About 260 dev hours have been spent towards v2.6.2 so far.
 * [Variable Inspector](https://wordpress.org/plugins/variable-inspector/): Inspect PHP variables on a central dashboard in wp-admin for convenient debugging.
 * [Code Explorer](https://wordpress.org/plugins/code-explorer/): Fast directory explorer and file/code viewer with syntax highlighting.
 * [Database Admin](https://github.com/qriouslad/database-admin): Securely manage your WordPress website's database with a clean and user-friendly interface based on a custom-themed Adminer app. Only available on Github.
+* [Admin and Site Enhancements](https://wordpress.org/plugins/admin-site-enhancements/) helps you to easily enhance various admin workflows and site aspects while replacing multiple plugins doing it.
+* [Flexible Scroll Top](https://wordpress.org/plugins/flexible-scroll-top/) and [Floating Share Buttons](https://wordpress.org/plugins/floating-share-button/) is a lightweight combo with minimalist UI.
 
 ## Screenshots
 
@@ -274,6 +276,11 @@ About 260 dev hours have been spent towards v2.6.2 so far.
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.8.5 (2023.04.15)
+
+* Improve compatibility with localhost installation. Following up on reports by [@enterprisebranding](https://wordpress.org/support/topic/localhost-localwp-dot-com-fatal-error/) and [@brasofilo](https://wordpress.org/support/topic/localhost-wp-local-fatal-error-solution/).
+* Add button to [my Github sponsorship](https://bowo.io/github-sd) page. Please consider the ongoing development and maintenance of this plugin. Thank you!
 
 ### 2.8.4 (2022.10.25)
 
