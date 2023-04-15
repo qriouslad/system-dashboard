@@ -50,6 +50,44 @@
     margin-left: 0;
 }
 
+/* Button Style - Outlined */
+
+.wp-core-ui .vi-header .button-primary {
+    font-weight: 500;
+    transition: .1s;
+}
+
+.wp-core-ui .button-primary.plugin-sponsor {
+    margin-left: 16px;
+    color: #de4c73;
+    background: transparent;
+    border-color: #de4c73;
+}
+
+.wp-core-ui .button-primary.plugin-sponsor:hover {
+    color: #fff;
+    background: #de4c73;
+    text-decoration: none;
+}
+
+.wp-core-ui .button-primary.plugin-upgrade {
+    margin-left: 8px;
+    color: green;
+    background: transparent;
+    border-color: green;
+}
+
+.wp-core-ui .button-primary.plugin-upgrade:hover {
+    color: #fff;
+    background: green;
+    text-decoration: none;
+}
+
+.wp-core-ui .button-primary.plugin-sponsor:focus,
+.wp-core-ui .button-primary.plugin-upgrade:focus {
+    box-shadow: none;
+}
+
 .sd-options .field-info-line {
     display:  block;
     width: 100%;

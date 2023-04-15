@@ -200,6 +200,9 @@ class System_Dashboard {
 
 			$this->loader->add_action( 'csf_loaded', $plugin_admin, 'sd_dashboard_page' );
 
+			// Replace WP version text in footer
+			$this->loader->add_action( 'update_footer', $plugin_admin, 'footer_version_text', 20 );
+
 		} elseif ( is_admin() && ( ! $this->is_sd() ) ) {
 
 			$this->loader->add_action( 'admin_menu', $plugin_admin, 'sd_register_submenu' );
