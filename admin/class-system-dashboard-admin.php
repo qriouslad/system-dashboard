@@ -225,6 +225,8 @@ class System_Dashboard_Admin {
 	 * @since 2.2.0
 	 */
 	public function sd_html_parts( $type, $classes = '', $first_part = '', $second_part = '', $third_part = '', $fourth_part = '' ) {
+		
+		$classes_output = '';
 
 		if ( !empty( $classes ) ) {
 
@@ -1428,19 +1430,27 @@ class System_Dashboard_Admin {
 
 			$location_data = get_transient('sd_server_location');
 
-			if ($location_data === false) {
+			if ( false === $location_data ) {
 
 				$location_data = unserialize( file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $server_ip ) );
 
 				set_transient('sd_server_location', $location_data, WEEK_IN_SECONDS);
 
 			}
+			
+			if ( is_array( $location_data ) && isset( $location_data['geoplugin_city'] ) && isset( $location_data['geoplugin_countryName'] ) ) {
 
-			$location = $location_data['geoplugin_city'] . ', ' . $location_data['geoplugin_countryName'];
+				$location = $location_data['geoplugin_city'] . ', ' . $location_data['geoplugin_countryName'];
 
-			$location = trim(trim($location),',');
+				$location = trim(trim($location),',');
+				
+			} else {
+				
+				$location = 'Undetectable';
 
-			return empty( $location ) ? 'Undetectable' : $location;
+			}
+
+			return $location;
 
 		} else {
 
@@ -2273,7 +2283,7 @@ class System_Dashboard_Admin {
 
 		$output .= $this->sd_html( 'field-content-start' );
 		$output .= $this->sd_html( 'field-content-first', '$_SERVER[\'HOME\']' );
-		$output .= $this->sd_html( 'field-content-second', $_SERVER['HOME'] );
+		$output .= $this->sd_html( 'field-content-second', isset( $_SERVER['HOME'] ) ? $_SERVER['HOME'] : '' );
 		$output .= $this->sd_html( 'field-content-end' );
 
 		$output .= $this->sd_html( 'field-content-start' );
@@ -2488,7 +2498,7 @@ class System_Dashboard_Admin {
 
 		$output .= $this->sd_html( 'field-content-start' );
 		$output .= $this->sd_html( 'field-content-first', '$_SERVER[\'DOCUMENT_URI\']' );
-		$output .= $this->sd_html( 'field-content-second', $_SERVER['DOCUMENT_URI'] );
+		$output .= $this->sd_html( 'field-content-second', isset( $_SERVER['DOCUMENT_URI'] ) ? $_SERVER['DOCUMENT_URI'] : '' );
 		$output .= $this->sd_html( 'field-content-end' );
 
 		$output .= $this->sd_html( 'field-content-start' );
@@ -4585,13 +4595,28 @@ EOD;
 		// Option value from wp_options table for the various logging tools
 
 		$page_access_log = get_option( 'system_dashboard_page_access_log' );
-		$page_access_log_status = $page_access_log['status'];
+		
+		if ( is_array( $page_access_log ) && isset( $page_access_log['status'] ) ) {
+			$page_access_log_status = $page_access_log['status'];		
+		} else {
+			$page_access_log_status = 'Unknown';
+		}
 
 		$errors_log = get_option( 'system_dashboard_errors_log' );
-		$errors_log_status = $errors_log['status'];
+
+		if ( is_array( $errors_log ) && isset( $errors_log['status'] ) ) {
+			$errors_log_status = $errors_log['status'];
+		} else {
+			$errors_log_status = 'Unknown';
+		}
 
 		$email_delivery_log = get_option( 'system_dashboard_email_delivery_log' );
-		$email_delivery_log_status = $email_delivery_log['status'];
+
+		if ( is_array( $email_delivery_log ) && isset( $email_delivery_log['status'] ) ) {
+			$email_delivery_log_status = $email_delivery_log['status'];
+		} else {
+			$email_delivery_log_status = 'Unknown';
+		}
 
 		?>
 
