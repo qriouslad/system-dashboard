@@ -5,7 +5,7 @@ Donate link: https://bowo.io/dotorg-sponsor-sd
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 6.2  
-Stable tag: 2.8.5  
+Stable tag: 2.8.6  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -16,7 +16,13 @@ Central dashboard to monitor various WordPress components, processes and data, i
 
 ## Description
 
-This plugin provides a central dashboard to monitor various WordPress components, processes and data, including server hardware, software and resource usage. Pairs well with [Query Monitor](https://wordpress.org/plugins/query-monitor/) and [WP Console](https://wordpress.org/plugins/wp-console/) to help you do some solid dev work.
+This plugin provides a central dashboard to monitor various WordPress components, processes and data, including server hardware, software and resource usage. Pairs well with [Query Monitor](https://wordpress.org/plugins/query-monitor/) to help you do some solid dev work.
+
+_"**A must-have for serious WordPress developers**."_ ~[Jeff Starr](https://digwp.com/2023/06/plugins-troubleshoot-debug-wordpress/)
+
+_"**A power tool** for WordPress site builders and plugin/theme developers that **will save a ton of time**."_ ~[Ivan Arnaudov](https://wordpress.org/support/topic/a-swiss-army-knife-with-on-board-nuclear-reactor/)
+
+_"Hands down **one of the best plugins for developers**. Keep up the good work!"_ ~[Abracadabra DGTL](https://wordpress.org/support/topic/simple-yet-effective-71/)
 
 Despite having 20 WordPress modules and 4 server modules, the single-page dashboard loads fast as queries are optimized and most modules employ fast AJAX loading of data. It does not weight down wp-admin, and nothing is loaded on the front-end. Install, activate and let it sit there ready to summon the info/data you need.
 
@@ -223,6 +229,8 @@ About 260 dev hours have been spent towards v2.6.2 so far.
 * [Database Admin](https://github.com/qriouslad/database-admin): Securely manage your WordPress website's database with a clean and user-friendly interface based on a custom-themed Adminer app. Only available on Github.
 * [Admin and Site Enhancements](https://wordpress.org/plugins/admin-site-enhancements/) helps you to easily enhance various admin workflows and site aspects while replacing multiple plugins doing it.
 * [Flexible Scroll Top](https://wordpress.org/plugins/flexible-scroll-top/) and [Floating Share Buttons](https://wordpress.org/plugins/floating-share-button/) is a lightweight combo with minimalist UI.
+* [WordPress Newsboard](https://www.wpnewsboard.com/): The latest news, articles, podcasts and videos from 100+ WordPress-focused sources.
+* [WordPress Newsboard](https://www.wpnewsboard.com/): The latest news, articles, podcasts and videos from 100+ WordPress-focused sources.
 
 ## Screenshots
 
@@ -277,10 +285,16 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 
 ## Changelog
 
+### 2.8.6 (2023.07.09)
+
+* Fixed: PHP fatal error for certain scenario in getting server location. Props to [@malaga16](https://wordpress.org/support/users/malaga16/) for [reporting it](https://wordpress.org/support/topic/fatal-error-when-try-to-open-the-dashboard-page/) and also [@clouddevelopment](https://wordpress.org/support/users/clouddevelopment/) for [another report of it](https://wordpress.org/support/topic/fatal-error-uncaught-error-cannot-access-offset-of-type-string-on-string-in/)
+* Fixed: several PHP warnings. Props to [@alx359](https://wordpress.org/support/users/alx359/) for [reporting it](https://wordpress.org/support/topic/issues-wamp-php8-x/) and [@shawfactor](https://wordpress.org/support/users/alx359/) for [another report](https://wordpress.org/support/topic/issues-wamp-php8-x/).
+
+
 ### 2.8.5 (2023.04.15)
 
 * Improve compatibility with localhost installation. Following up on reports by [@enterprisebranding](https://wordpress.org/support/topic/localhost-localwp-dot-com-fatal-error/) and [@brasofilo](https://wordpress.org/support/topic/localhost-wp-local-fatal-error-solution/).
-* Add button to [my Github sponsorship](https://bowo.io/github-sd) page. Please consider the ongoing development and maintenance of this plugin. Thank you!
+* **[SPONSORSHIP]** If you like or have benefited from this plugin in your **personal project(s), paid work and/or client site(s)**, please kindly consider [sponsoring the ongoing development and maintenance](https://bowo.io/dotorg-sponsor-sd) of this plugin (and [my other plugins](https://profiles.wordpress.org/qriouslad/#content-plugins)) from as little as USD 1 / month. Thank you!
 
 ### 2.8.4 (2022.10.25)
 
