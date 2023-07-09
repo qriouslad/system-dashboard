@@ -1363,7 +1363,8 @@ class System_Dashboard_Admin {
 		if ( ! $this->is_localhost() && $this->is_shell_exec_enabled() ) {
 
 			$uptime = trim(shell_exec("cut -d. -f1 /proc/uptime"));
-			$uptime = number_format_i18n($uptime / 60 / 60 / 24). ' days';
+			$uptime_in_days = (float) ( $uptime / 60 / 60 / 24 );
+			$uptime = number_format_i18n( $uptime_in_days ). ' days';
 
 		} else {
 
