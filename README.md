@@ -4,8 +4,8 @@ Contributors: qriouslad
 Donate link: https://bowo.io/dotorg-sponsor-sd
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
-Tested up to: 6.2  
-Stable tag: 2.8.7  
+Tested up to: 6.4.1  
+Stable tag: 2.8.8  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -284,6 +284,14 @@ About 260 dev hours have been spent towards v2.6.2 so far.
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.8.8 (2023.11.29)
+
+* **[IMPORTANT][SECURITY]** Fixed vulnerabilities that caused sensitive data to be accessible by non-administrators via ajax requests. The vulnerability was responsibly disclosed by Dmitrii Ignatyev from Clean Talk inc on October 20, 2023. Apologies if this took me a while to get around to as I was fully occupied with the launch of [ASE Pro](https://www.wpase.com).
+
+* Fixed: PHP fatal error - mysqli_get_server_info(): Argument #1 ($mysql) must be of type mysqli, bool given. Props to Adrien R. for [reporting](https://wordpress.org/support/topic/php-fatal-errror-regarding-mysqli/) the issue.
+
+* Fixed: PHP fatal error - Class "Redis" not found. Props to [Julian Song](https://wordpress.org/support/users/julians3/) for [reporting this](https://wordpress.org/support/topic/fatal-error-4495/).
 
 ### 2.8.7 (2023.07.10)
 

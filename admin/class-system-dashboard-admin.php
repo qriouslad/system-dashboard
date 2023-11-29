@@ -59,7 +59,6 @@ class System_Dashboard_Admin {
 	 */
 	private $wp_configs;
 
-
 	/**
 	 * Initialize the class and set its properties.
 	 *
@@ -476,8 +475,16 @@ class System_Dashboard_Admin {
 		 if ( is_callable( 'mysqli_get_client_info' ) ) {
 
 		 	$connection = mysqli_connect( DB_HOST, DB_USER, DB_PASSWORD, DB_NAME );
+		 	
+		 	if ( ! is_bool( $connection ) ) {
 
-			return mysqli_get_server_info( $connection );		 	
+				return mysqli_get_server_info( $connection );		 	
+		 		
+		 	} else {
+		 		
+		 		return 'Undetectable';
+
+		 	}
 
 		 } elseif ( !is_callable( 'mysqli_get_client_info' ) ) {
 
@@ -527,7 +534,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_post_types(){
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			global $wpdb;
 
@@ -566,7 +573,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_taxonomies( $type = 'name' ) {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			$taxonomies_info = '';
 
@@ -611,7 +618,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_old_slugs() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			global $wpdb;
 
@@ -650,7 +657,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_media_count() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			$attachments_count = wp_count_attachments();
 			$output = '';
@@ -768,7 +775,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_mime_types() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			$mime_types = get_allowed_mime_types();
 
@@ -804,7 +811,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_media_handling() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			$output = '';
 
@@ -923,7 +930,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_roles_capabilities( $return = 'all' ) {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			$default_wp_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
 
@@ -1110,7 +1117,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_user_count() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			$users = count_users();
 			$output = '';
@@ -1204,7 +1211,7 @@ class System_Dashboard_Admin {
 
 		}
 
-		if ( isset( $_REQUEST ) && isset( $_REQUEST['type'] ) ) {
+		if ( isset( $_REQUEST ) && isset( $_REQUEST['type'] ) && current_user_can( 'manage_options' ) ) {
 
 			$type = $_REQUEST['type'];
 
@@ -1924,7 +1931,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_php_info() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 
 			if ( !class_exists( 'DOMDocument' ) ) {
@@ -2065,7 +2072,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_directory_sizes() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			$output = '';
 
@@ -2118,7 +2125,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_filesystem_permissions() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			$output = '';
 
@@ -2212,7 +2219,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_viewer() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			$filename = $_REQUEST['filename'];
 
@@ -2259,7 +2266,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_viewer_url() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			$path = $_REQUEST['path'];
 
@@ -2664,7 +2671,7 @@ class System_Dashboard_Admin {
 
 		} else {}
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			$type = $_REQUEST['type'];
 
@@ -2941,110 +2948,114 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_db_specs() {
 
-		global $wpdb;
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
-		$default_storage_engine_query = $wpdb->get_row("SHOW VARIABLES LIKE 'default_storage_engine'");
-		$default_storage_engine = $default_storage_engine_query->Value;
+			global $wpdb;
 
-		$charset = $wpdb->charset;
-		$collation = $wpdb->collate;
+			$default_storage_engine_query = $wpdb->get_row("SHOW VARIABLES LIKE 'default_storage_engine'");
+			$default_storage_engine = $default_storage_engine_query->Value;
 
-		$innodb_buffer_pool_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'innodb_buffer_pool_size'");
-		$innodb_buffer_pool_size = $this->sd_format_filesize( $innodb_buffer_pool_size_query->Value );
+			$charset = $wpdb->charset;
+			$collation = $wpdb->collate;
 
-		$key_buffer_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'key_buffer_size'");
-		$key_buffer_size = $this->sd_format_filesize( $key_buffer_size_query->Value );
+			$innodb_buffer_pool_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'innodb_buffer_pool_size'");
+			$innodb_buffer_pool_size = $this->sd_format_filesize( $innodb_buffer_pool_size_query->Value );
 
-		$max_allowed_packet_query = $wpdb->get_row("SHOW VARIABLES LIKE 'max_allowed_packet'");
-		$max_allowed_packet = $this->sd_format_filesize( $max_allowed_packet_query->Value );
+			$key_buffer_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'key_buffer_size'");
+			$key_buffer_size = $this->sd_format_filesize( $key_buffer_size_query->Value );
 
-		$max_connection_query = $wpdb->get_row("SHOW VARIABLES LIKE 'max_connections'");
-		$max_connection = number_format_i18n( $max_connection_query->Value );
+			$max_allowed_packet_query = $wpdb->get_row("SHOW VARIABLES LIKE 'max_allowed_packet'");
+			$max_allowed_packet = $this->sd_format_filesize( $max_allowed_packet_query->Value );
 
-		$query_cache_limit_query = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_limit'");
-		$query_cache_limit = $this->sd_format_filesize( $query_cache_limit_query->Value );
+			$max_connection_query = $wpdb->get_row("SHOW VARIABLES LIKE 'max_connections'");
+			$max_connection = number_format_i18n( $max_connection_query->Value );
 
-		$query_cache_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_size'");
-		$query_cache_size = $this->sd_format_filesize( $query_cache_size_query->Value );
+			$query_cache_limit_query = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_limit'");
+			$query_cache_limit = $this->sd_format_filesize( $query_cache_limit_query->Value );
 
-		$query_cache_type_query = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_type'");
-		$query_cache_type = $query_cache_type_query->Value;
+			$query_cache_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_size'");
+			$query_cache_size = $this->sd_format_filesize( $query_cache_size_query->Value );
 
-		$db_specs = array(
-			array(
-				'name'					=> 'Extension',
-				'value'					=> $this->sd_db_client( 'extension' ),
-			),
-			array(
-				'name'					=> 'Client Version',
-				'value'					=> $this->sd_db_client( 'client_version' ),
-			),
-			array(
-				'name'					=> 'Engine',
-				'value'					=> $default_storage_engine,
-			),
-			array(
-				'name'					=> 'Character Set',
-				'value'					=> $charset,
-			),
-			array(
-				'name'					=> 'Collation',
-				'value'					=> $collation,
-			),
-			array(
-				'name'					=> 'Host',
-				'value'					=> DB_HOST,
-			),
-			array(
-				'name'					=> 'Name',
-				'value'					=> DB_NAME,
-			),
-			array(
-				'name'					=> 'User',
-				'value'					=> DB_USER,
-			),
-			array(
-				'name'					=> 'innodb_buffer_pool_size',
-				'value'					=> $innodb_buffer_pool_size,
-			),
-			array(
-				'name'					=> 'key_buffer_size',
-				'value'					=> $key_buffer_size,
-			),
-			array(
-				'name'					=> 'max_allowed_packet',
-				'value'					=> $max_allowed_packet,
-			),
-			array(
-				'name'					=> 'max_connections',
-				'value'					=> $max_connection,
-			),
-			array(
-				'name'					=> 'query_cache_limit',
-				'value'					=> $query_cache_limit,
-			),
-			array(
-				'name'					=> 'query_cache_size',
-				'value'					=> $query_cache_size,
-			),
-			array(
-				'name'					=> 'query_cache_type',
-				'value'					=> $query_cache_type,
-			),
-		);
+			$query_cache_type_query = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_type'");
+			$query_cache_type = $query_cache_type_query->Value;
 
-		$output = '';
+			$db_specs = array(
+				array(
+					'name'					=> 'Extension',
+					'value'					=> $this->sd_db_client( 'extension' ),
+				),
+				array(
+					'name'					=> 'Client Version',
+					'value'					=> $this->sd_db_client( 'client_version' ),
+				),
+				array(
+					'name'					=> 'Engine',
+					'value'					=> $default_storage_engine,
+				),
+				array(
+					'name'					=> 'Character Set',
+					'value'					=> $charset,
+				),
+				array(
+					'name'					=> 'Collation',
+					'value'					=> $collation,
+				),
+				array(
+					'name'					=> 'Host',
+					'value'					=> DB_HOST,
+				),
+				array(
+					'name'					=> 'Name',
+					'value'					=> DB_NAME,
+				),
+				array(
+					'name'					=> 'User',
+					'value'					=> DB_USER,
+				),
+				array(
+					'name'					=> 'innodb_buffer_pool_size',
+					'value'					=> $innodb_buffer_pool_size,
+				),
+				array(
+					'name'					=> 'key_buffer_size',
+					'value'					=> $key_buffer_size,
+				),
+				array(
+					'name'					=> 'max_allowed_packet',
+					'value'					=> $max_allowed_packet,
+				),
+				array(
+					'name'					=> 'max_connections',
+					'value'					=> $max_connection,
+				),
+				array(
+					'name'					=> 'query_cache_limit',
+					'value'					=> $query_cache_limit,
+				),
+				array(
+					'name'					=> 'query_cache_size',
+					'value'					=> $query_cache_size,
+				),
+				array(
+					'name'					=> 'query_cache_type',
+					'value'					=> $query_cache_type,
+				),
+			);
 
-		foreach ( $db_specs as $spec ) {
+			$output = '';
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $spec['name'] );
-			$output .= $this->sd_html( 'field-content-second', $spec['value'] );
-			$output .= $this->sd_html( 'field-content-end' );
+			foreach ( $db_specs as $spec ) {
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', $spec['name'] );
+				$output .= $this->sd_html( 'field-content-second', $spec['value'] );
+				$output .= $this->sd_html( 'field-content-end' );
+
+			}
+
+			echo $output;
 
 		}
-
-		echo $output;
 
 	}
 
@@ -3056,7 +3067,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_db_details() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			global $wpdb;
 			$dbinfo = $wpdb->get_results("SHOW VARIABLES");
@@ -3320,7 +3331,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_shortcodes() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			global $shortcode_tags;
 
@@ -4181,7 +4192,9 @@ class System_Dashboard_Admin {
 		if ( $return == 'cache_content_from_memory' )  {	
 
 			// Redis Object Cache plugin - RunCloud Hub plugin - Powered Cache plugin
-			if ( defined( 'WP_REDIS_PREFIX' ) || defined( 'RCWP_REDIS_DROPIN' ) || ( defined( 'POWERED_OBJECT_CACHE' ) && defined( 'WP_REDIS_OBJECT_CACHE' ) ) ) {
+			if ( class_exists( 'Redis' ) 
+				&& ( defined( 'WP_REDIS_PREFIX' ) || defined( 'RCWP_REDIS_DROPIN' ) || ( defined( 'POWERED_OBJECT_CACHE' ) && defined( 'WP_REDIS_OBJECT_CACHE' ) ) ) 
+			) {
 
 				// Set a test cache key value
 
@@ -4458,7 +4471,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_cache_value() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			$cache_key = $_REQUEST['cache_key'];
 			$cache_group = $_REQUEST['cache_group'];
@@ -4592,7 +4605,10 @@ EOD;
 			$this->sd_fast_ajax_mu();
 
 		}
-
+		
+		// Generate nonce to secure ajax calls
+		$nonce = wp_create_nonce( 'sd-nonce-key' );
+		
 		// Option value from wp_options table for the various logging tools
 
 		$page_access_log = get_option( 'system_dashboard_page_access_log' );
@@ -6340,30 +6356,35 @@ EOD;
 	 */
 	public function sd_option_value() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			$option_name = $_REQUEST['option_name'];
+			
+			if ( ! empty( $option_name ) ) {
 
-			$option_value = maybe_unserialize( get_option( $option_name ) );
+				$option_value = maybe_unserialize( get_option( $option_name ) );
 
-			$option_value_type = gettype( $option_value );
+				$option_value_type = gettype( $option_value );
 
-			if  ( ( $option_value_type == 'array' ) || ( $option_value_type == 'object' ) ) {
+				if  ( ( $option_value_type == 'array' ) || ( $option_value_type == 'object' ) ) {
 
-				// JSON_UNESCAPED_SLASHES will remove backslashes used for escaping, e.g. \' will become just '. stripslashes will further remove backslashes using to escape backslashes, e.g. double \\ will become a single \. JSON_PRETTY_PRINT and <pre> beautifies the output on the HTML side.
+					// JSON_UNESCAPED_SLASHES will remove backslashes used for escaping, e.g. \' will become just '. stripslashes will further remove backslashes using to escape backslashes, e.g. double \\ will become a single \. JSON_PRETTY_PRINT and <pre> beautifies the output on the HTML side.
 
-				// echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>'; // Raw JSON beautified
-				echo json_encode( $option_value ); // for JSON Tree viewer
+					// echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>'; // Raw JSON beautified
+					echo json_encode( $option_value ); // for JSON Tree viewer
 
-			} elseif ( ( $option_value_type == 'boolean' ) || ( $option_value_type == 'integer' ) || ( $option_value_type == 'string' ) ) {
+				} elseif ( ( $option_value_type == 'boolean' ) || ( $option_value_type == 'integer' ) || ( $option_value_type == 'string' ) ) {
 
-				echo '<pre>' . htmlspecialchars( $option_value ) . '</pre>'; // Raw JSON beautified
+					echo '<pre>' . htmlspecialchars( $option_value ) . '</pre>'; // Raw JSON beautified
 
-			} else {}
+				} else {}
+				
+			} else {
 
-		} else {
+				echo 'None. Please define option name first.';
+				
+			}
 
-			echo 'None. Please define option name first.';
 
 		}
 
@@ -6382,7 +6403,7 @@ EOD;
 	 */
 	public function sd_wpcore_hooks() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			$type = $_REQUEST['type'];
 
@@ -6531,7 +6552,7 @@ EOD;
 	 */
 	public function sd_classes() {
 
-		if ( isset( $_REQUEST ) && isset( $_REQUEST['type'] ) ) {
+		if ( isset( $_REQUEST ) && isset( $_REQUEST['type'] ) && current_user_can( 'manage_options' ) ) {
 
 			$type = $_REQUEST['type'];
 
@@ -6772,7 +6793,7 @@ EOD;
 
 		// For AJAX calls
 
-		if ( isset( $_REQUEST ) && isset( $_REQUEST['type'] ) ) {
+		if ( isset( $_REQUEST ) && isset( $_REQUEST['type'] ) && current_user_can( 'manage_options' ) ) {
 
 			$type = $_REQUEST['type'];
 
@@ -7381,7 +7402,7 @@ EOD;
 	 */
 	public function sd_global_value() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			$global_name = $_REQUEST['global_name'];
 
@@ -7598,7 +7619,7 @@ EOD;
 	 */
 	public function sd_hooks() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			$type = $_REQUEST['type'];
 
@@ -7928,8 +7949,8 @@ EOD;
 	 * @since 1.0.0
 	 */
 	public function sd_constants() {
-
-		if ( isset( $_REQUEST ) ) {
+		
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			$type = $_REQUEST['type'];
 
@@ -9002,7 +9023,7 @@ EOD;
 
 		$output = '';
 
-		if ( isset( $_REQUEST ) && isset( $_REQUEST['log_type'] ) ) {
+		if ( isset( $_REQUEST ) && isset( $_REQUEST['log_type'] ) && current_user_can( 'manage_options' ) ) {
 
 			$log_type = $_REQUEST['log_type'];
 
@@ -9698,130 +9719,134 @@ EOD;
 	 */
 	public function sd_errors_log() {
 
-		$output = '<table id="errors-log" class="wp-list-table widefat striped">
-					<thead>
-						<tr>
-							<th>Entries</th>
-						</tr>
-					</thead>
-					<tbody>';
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			
+			$output = '<table id="errors-log" class="wp-list-table widefat striped">
+						<thead>
+							<tr>
+								<th>Entries</th>
+							</tr>
+						</thead>
+						<tbody>';
 
-		if ( defined( 'WP_DEBUG_LOG' ) && ( ! is_string( WP_DEBUG_LOG ) ) ) {
+			if ( defined( 'WP_DEBUG_LOG' ) && ( ! is_string( WP_DEBUG_LOG ) ) ) {
 
-			// Assemble the errors log file path, i.e. use System Dashboard's log file
-	        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] );
-	        $errors_log_file_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG . '/logs/errors/' . $plain_domain . '_debug.log';
+				// Assemble the errors log file path, i.e. use System Dashboard's log file
+		        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] );
+		        $errors_log_file_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG . '/logs/errors/' . $plain_domain . '_debug.log';
 
-		} elseif ( defined( 'WP_DEBUG_LOG' ) && is_string( WP_DEBUG_LOG ) ) {
+			} elseif ( defined( 'WP_DEBUG_LOG' ) && is_string( WP_DEBUG_LOG ) ) {
 
-			$errors_log_file_path = WP_DEBUG_LOG;
+				$errors_log_file_path = WP_DEBUG_LOG;
 
-		} else {}
+			} else {}
 
-        // Read the erros log file, reverse the order of the entries, prune to the latest 5000 entries
-        $log = file_get_contents( $errors_log_file_path );
+	        // Read the erros log file, reverse the order of the entries, prune to the latest 5000 entries
+	        $log = file_get_contents( $errors_log_file_path );
 
-        $log 	= str_replace( "[\\", "^\\", $log ); // certain error message contains the '[\' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^\'
-        $log = str_replace( "[internal function]", "^internal function^", $log );
+	        $log 	= str_replace( "[\\", "^\\", $log ); // certain error message contains the '[\' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^\'
+	        $log = str_replace( "[internal function]", "^internal function^", $log );
 
-        // We are splitting the log file not using PHP_EOL to preserve the stack traces for PHP Fatal Errors among other things
-        $lines = explode("[", $log);
-        $prepended_lines = array();
+	        // We are splitting the log file not using PHP_EOL to preserve the stack traces for PHP Fatal Errors among other things
+	        $lines = explode("[", $log);
+	        $prepended_lines = array();
 
-        foreach ( $lines as $line ) {
-        	if ( !empty($line) ) {
-        		$line 				= str_replace( "UTC]", "UTC]@@@", $line ); // add '@@@' as marker/separator after time stamp
-        		$line 				= str_replace( "Stack trace:", "<hr />Stack trace:", $line ); // add line break for stack trace section
-				if ( strpos( $line, 'PHP Fatal' ) !== false ) {
-	        		$line 			= str_replace( "#", "<hr />#", $line ); // add line break on PHP Fatal error's stack trace lines
+	        foreach ( $lines as $line ) {
+	        	if ( !empty($line) ) {
+	        		$line 				= str_replace( "UTC]", "UTC]@@@", $line ); // add '@@@' as marker/separator after time stamp
+	        		$line 				= str_replace( "Stack trace:", "<hr />Stack trace:", $line ); // add line break for stack trace section
+					if ( strpos( $line, 'PHP Fatal' ) !== false ) {
+		        		$line 			= str_replace( "#", "<hr />#", $line ); // add line break on PHP Fatal error's stack trace lines
+		        	}
+	        		$line 			= str_replace( "Argument <hr />#", "Argument #", $line ); // remove hr on certain error message
+	        		$line 			= str_replace( "parameter <hr />#", "parameter #", $line ); // remove hr on certain error message
+	        		$line 			= str_replace( "the <hr />#", "the #", $line ); // remove hr on certain error message
+	        		$line 			= str_replace( "^\\", "[\\", $line ); // reverse the temporary replacement of '[\' with '^\'
+	        		$line = str_replace( "^internal function^", "[internal function]", $line );
+		        	$prepended_line 	= '[' . $line; // Put back the missing '[' after explode operation
+		        	$prepended_lines[] 	= $prepended_line;
 	        	}
-        		$line 			= str_replace( "Argument <hr />#", "Argument #", $line ); // remove hr on certain error message
-        		$line 			= str_replace( "parameter <hr />#", "parameter #", $line ); // remove hr on certain error message
-        		$line 			= str_replace( "the <hr />#", "the #", $line ); // remove hr on certain error message
-        		$line 			= str_replace( "^\\", "[\\", $line ); // reverse the temporary replacement of '[\' with '^\'
-        		$line = str_replace( "^internal function^", "[internal function]", $line );
-	        	$prepended_line 	= '[' . $line; // Put back the missing '[' after explode operation
-	        	$prepended_lines[] 	= $prepended_line;
-        	}
-        }
+	        }
 
-        $lines_newest_first 	= array_reverse( $prepended_lines );
-        $latest_lines 			= array_slice( $lines_newest_first, 0, 50000 );
+	        $lines_newest_first 	= array_reverse( $prepended_lines );
+	        $latest_lines 			= array_slice( $lines_newest_first, 0, 50000 );
 
-        // Will hold error details types
-        $errors_master_list = array();
+	        // Will hold error details types
+	        $errors_master_list = array();
 
-        // Will hold error details types
-        $errors_master_list = array();
+	        // Will hold error details types
+	        $errors_master_list = array();
 
-		foreach( $latest_lines as $line ) {
+			foreach( $latest_lines as $line ) {
 
-			$line = explode("@@@ ", $line);
+				$line = explode("@@@ ", $line);
 
-			$timestamp = str_replace( [ "[", "]" ], "", $line[0] );
-			if ( array_key_exists('1', $line) ) {
-				$error = $line[1];
-			} else {
-				$error = 'No error message specified...';
-			}
+				$timestamp = str_replace( [ "[", "]" ], "", $line[0] );
+				if ( array_key_exists('1', $line) ) {
+					$error = $line[1];
+				} else {
+					$error = 'No error message specified...';
+				}
 
-			if ( strpos( $error, 'PHP Fatal' ) !==false ) {
-				$error_type = 'PHP Fatal';
-				$error_details = str_replace( "PHP Fatal: ", "", $error );
-			} elseif ( strpos( $error, 'PHP Warning' ) !==false ) {
-				$error_type = 'PHP Warning';
-				$error_details = str_replace( "PHP Warning: ", "", $error );
-			} elseif ( strpos( $error, 'PHP Notice' ) !==false ) {
-				$error_type = 'PHP Notice';
-				$error_details = str_replace( "PHP Notice: ", "", $error );
-			} elseif ( strpos( $error, 'PHP Deprecated' ) !==false ) {
-				$error_type = 'PHP Deprecated';
-				$error_details = str_replace( "PHP Deprecated: ", "", $error );
-			} elseif ( strpos( $error, 'PHP Parse' ) !== false ) {
-				$error_type = 'PHP Parse';
-				$error_details 	= str_replace( "PHP Parse error: ", "", $error );
-			} elseif ( strpos( $error, 'WordPress database error' ) !==false ) {
-				$error_type = 'WP DB error';
-				$error_details = str_replace( "WordPress database error ", "", $error );
-			} else {
-				$error_type = 'Other';
-				$error_details = $error;
-			}
+				if ( strpos( $error, 'PHP Fatal' ) !==false ) {
+					$error_type = 'PHP Fatal';
+					$error_details = str_replace( "PHP Fatal: ", "", $error );
+				} elseif ( strpos( $error, 'PHP Warning' ) !==false ) {
+					$error_type = 'PHP Warning';
+					$error_details = str_replace( "PHP Warning: ", "", $error );
+				} elseif ( strpos( $error, 'PHP Notice' ) !==false ) {
+					$error_type = 'PHP Notice';
+					$error_details = str_replace( "PHP Notice: ", "", $error );
+				} elseif ( strpos( $error, 'PHP Deprecated' ) !==false ) {
+					$error_type = 'PHP Deprecated';
+					$error_details = str_replace( "PHP Deprecated: ", "", $error );
+				} elseif ( strpos( $error, 'PHP Parse' ) !== false ) {
+					$error_type = 'PHP Parse';
+					$error_details 	= str_replace( "PHP Parse error: ", "", $error );
+				} elseif ( strpos( $error, 'WordPress database error' ) !==false ) {
+					$error_type = 'WP DB error';
+					$error_details = str_replace( "WordPress database error ", "", $error );
+				} else {
+					$error_type = 'Other';
+					$error_details = $error;
+				}
 
-			// https://www.php.net/manual/en/function.array-search.php#120784
-			if ( array_search( trim( $error_details ), array_column( $errors_master_list, 'details' ) ) === false ) {
+				// https://www.php.net/manual/en/function.array-search.php#120784
+				if ( array_search( trim( $error_details ), array_column( $errors_master_list, 'details' ) ) === false ) {
 
-				$errors_master_list[] = array(
-					'type'			=> $error_type,
-					'details'		=> trim( $error_details ),
-					'occurrences'	=> array( $timestamp ),
-				);
+					$errors_master_list[] = array(
+						'type'			=> $error_type,
+						'details'		=> trim( $error_details ),
+						'occurrences'	=> array( $timestamp ),
+					);
 
-			} else {
+				} else {
 
-				$error_position = array_search( trim( $error_details ), array_column( $errors_master_list, 'details' ) ); // integer
+					$error_position = array_search( trim( $error_details ), array_column( $errors_master_list, 'details' ) ); // integer
 
-				array_push( $errors_master_list[$error_position]['occurrences'], $timestamp );
+					array_push( $errors_master_list[$error_position]['occurrences'], $timestamp );
+
+				}
 
 			}
+
+			foreach ( $errors_master_list as $error ) {
+
+				$localized_timestamp = wp_date( 'j-M-Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+				$occurrence_count = count( $error['occurrences'] );
+
+				$output .= '<tr>
+								<td><span class="hidden">' . esc_html( $localized_timestamp ) . '</span><strong>Last seen on</strong>: ' . esc_html( $localized_timestamp ) .' <span class="sd-faint">(' . esc_html( $occurrence_count ) . ' occurrences logged)</span><br />
+								<strong>'. esc_html( $error['type'] ) .'</strong>: '. $error['details'] .'</td>
+							</tr>';
+
+			}
+
+			$output .= '</tbody></table>';
+
+			echo $output;
 
 		}
-
-		foreach ( $errors_master_list as $error ) {
-
-			$localized_timestamp = wp_date( 'j-M-Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
-			$occurrence_count = count( $error['occurrences'] );
-
-			$output .= '<tr>
-							<td><span class="hidden">' . esc_html( $localized_timestamp ) . '</span><strong>Last seen on</strong>: ' . esc_html( $localized_timestamp ) .' <span class="sd-faint">(' . esc_html( $occurrence_count ) . ' occurrences logged)</span><br />
-							<strong>'. esc_html( $error['type'] ) .'</strong>: '. $error['details'] .'</td>
-						</tr>';
-
-		}
-
-		$output .= '</tbody></table>';
-
-		echo $output;
 
 	}
 
@@ -9897,41 +9922,45 @@ EOD;
 	 */
 	public function sd_email_delivery_log() {
 
-		$output = '<table id="email-delivery-log" class="wp-list-table widefat striped">
-					<thead>
-						<tr>
-							<th>Entries</th>
-						</tr>
-					</thead>
-					<tbody>';
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
-		global $wpdb;
+			$output = '<table id="email-delivery-log" class="wp-list-table widefat striped">
+						<thead>
+							<tr>
+								<th>Entries</th>
+							</tr>
+						</thead>
+						<tbody>';
 
-		$email_delivery_log_table = $wpdb->prefix . 'sd_email_delivery_log';
+			global $wpdb;
 
-		$limit = 1000;
+			$email_delivery_log_table = $wpdb->prefix . 'sd_email_delivery_log';
 
-		$sql = $wpdb->prepare( "SELECT * FROM {$email_delivery_log_table} ORDER BY ID DESC LIMIT %d", array( $limit ) );
+			$limit = 1000;
 
-		$results = $wpdb->get_results( $sql, ARRAY_A );
+			$sql = $wpdb->prepare( "SELECT * FROM {$email_delivery_log_table} ORDER BY ID DESC LIMIT %d", array( $limit ) );
 
-		foreach( $results as $log ) {
+			$results = $wpdb->get_results( $sql, ARRAY_A );
 
-			$output .= '<tr>
-							<td><strong>Sent on:</strong> '. $log['sent_on'] . '<br />
-							<strong>To:</strong> ' . $log['to_email'] . '<br />
-							<strong>Subject:</strong> ' . $log['subject'] . 
-							'<div class="ui accordion">
-								<div class="title"><i class="dropdown icon"></i>View message</div>
-								<div class="content">' . $log['message'] .'</div>
-							</div></td>
-						</tr>';
+			foreach( $results as $log ) {
+
+				$output .= '<tr>
+								<td><strong>Sent on:</strong> '. $log['sent_on'] . '<br />
+								<strong>To:</strong> ' . $log['to_email'] . '<br />
+								<strong>Subject:</strong> ' . $log['subject'] . 
+								'<div class="ui accordion">
+									<div class="title"><i class="dropdown icon"></i>View message</div>
+									<div class="content">' . $log['message'] .'</div>
+								</div></td>
+							</tr>';
+
+			}
+
+			$output .= '</tbody></table>';
+
+			echo $output;
 
 		}
-
-		$output .= '</tbody></table>';
-
-		echo $output;
 
 	}
 
