@@ -4192,7 +4192,9 @@ class System_Dashboard_Admin {
 		if ( $return == 'cache_content_from_memory' )  {	
 
 			// Redis Object Cache plugin - RunCloud Hub plugin - Powered Cache plugin
-			if ( defined( 'WP_REDIS_PREFIX' ) || defined( 'RCWP_REDIS_DROPIN' ) || ( defined( 'POWERED_OBJECT_CACHE' ) && defined( 'WP_REDIS_OBJECT_CACHE' ) ) ) {
+			if ( class_exists( 'Redis' ) 
+				&& ( defined( 'WP_REDIS_PREFIX' ) || defined( 'RCWP_REDIS_DROPIN' ) || ( defined( 'POWERED_OBJECT_CACHE' ) && defined( 'WP_REDIS_OBJECT_CACHE' ) ) ) 
+			) {
 
 				// Set a test cache key value
 
