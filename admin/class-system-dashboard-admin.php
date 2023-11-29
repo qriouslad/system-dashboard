@@ -471,36 +471,41 @@ class System_Dashboard_Admin {
 	 * @since 1.0.0
 	 */
 	function sd_get_mysql_version() {
+		
+		global $wpdb;
 
-		 if ( is_callable( 'mysqli_get_client_info' ) ) {
+		 // if ( is_callable( 'mysqli_get_client_info' ) ) {
 
-		 	$connection = mysqli_connect( DB_HOST, DB_USER, DB_PASSWORD, DB_NAME );
+		 // 	$connection = mysqli_connect( DB_HOST, DB_USER, DB_PASSWORD, DB_NAME );
 		 	
-		 	if ( ! is_bool( $connection ) ) {
+		 // 	if ( ! is_bool( $connection ) ) {
 
-				return mysqli_get_server_info( $connection );		 	
+		// 		return mysqli_get_server_info( $connection );		 	
 		 		
-		 	} else {
+		 // 	} else {
 		 		
-		 		return 'Undetectable';
+		 // 		return 'Undetectable';
 
-		 	}
+		 // 	}
 
-		 } elseif ( !is_callable( 'mysqli_get_client_info' ) ) {
+		 // } elseif ( !is_callable( 'mysqli_get_client_info' ) ) {
 
-			global $wpdb;
+		// 	global $wpdb;
 
-			$rows = $wpdb->get_results('select version() as mysqlversion');
+		// 	$rows = $wpdb->get_results('select version() as mysqlversion');
 
-			if (!empty($rows)) {
-			         return $rows[0]->mysqlversion;
-			}
+		// 	if (!empty($rows)) {
+		// 	         return $rows[0]->mysqlversion;
+		// 	}
 
-		 } else {
+		 // } else {
 
-			return 'Undetectable';
+		// 	return 'Undetectable';
 
-		 }
+		 // }
+
+		// return $wpdb->db_version(); // e.g. 10.5.23
+		return $wpdb->db_server_info(); // e.g. 10.5.23-MariaDB-1:10.5.23+maria~ubu2004
 
 	}
 
