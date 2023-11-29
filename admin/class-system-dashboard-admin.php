@@ -475,8 +475,16 @@ class System_Dashboard_Admin {
 		 if ( is_callable( 'mysqli_get_client_info' ) ) {
 
 		 	$connection = mysqli_connect( DB_HOST, DB_USER, DB_PASSWORD, DB_NAME );
+		 	
+		 	if ( ! is_bool( $connection ) ) {
 
-			return mysqli_get_server_info( $connection );		 	
+				return mysqli_get_server_info( $connection );		 	
+		 		
+		 	} else {
+		 		
+		 		return 'Undetectable';
+
+		 	}
 
 		 } elseif ( !is_callable( 'mysqli_get_client_info' ) ) {
 
