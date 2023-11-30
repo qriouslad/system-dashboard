@@ -524,11 +524,11 @@ class System_Dashboard_Admin {
 			$ip = $_SERVER['HTTP_CLIENT_IP'];
 		} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
 			//to check ip is pass from proxy
-			$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+			$ip = filter_var( $_SERVER['HTTP_X_FORWARDED_FOR'], FILTER_VALIDATE_IP );
 		} elseif( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
 			$ip = $_SERVER['REMOTE_ADDR'];
 		}
-		return apply_filters( 'edd_get_ip', $ip );
+		return $ip;
 	}
 
 	/**
