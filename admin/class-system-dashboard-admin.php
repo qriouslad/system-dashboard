@@ -1375,8 +1375,13 @@ class System_Dashboard_Admin {
 		if ( ! $this->is_localhost() && $this->is_shell_exec_enabled() ) {
 
 			$uptime = trim(shell_exec("cut -d. -f1 /proc/uptime"));
-			$uptime_in_days = (float) ( $uptime / 60 / 60 / 24 );
-			$uptime = number_format_i18n( $uptime_in_days ). ' days';
+
+			if ( is_numeric( $uptime ) ) {
+				$uptime_in_days = (float) ( $uptime / 60 / 60 / 24 );
+				$uptime = number_format_i18n( $uptime_in_days ). ' days';				
+			} else {
+				$uptime = 'Undetectable.';			
+			}
 
 		} else {
 
@@ -1403,9 +1408,13 @@ class System_Dashboard_Admin {
 			$os = str_replace( "Release", " | Release", $os );
 			$os = str_replace( "Codename", " | Codename", $os );
 			$os_array = explode(" | ", $os);
-			$os = $os_array[1];
-			$os = str_replace( ":", "", $os );
-			$os = str_replace( "Description", "", $os );
+			if ( isset( $os_array[1] ) ) {
+				$os = $os_array[1];
+				$os = str_replace( ":", "", $os );
+				$os = str_replace( "Description", "", $os );				
+			} else {
+				$os = 'Undetectable';
+			}
 
 			if ( empty( $os ) ) {
 				$os = 'Undetectable';
