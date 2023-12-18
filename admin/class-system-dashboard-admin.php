@@ -1374,13 +1374,19 @@ class System_Dashboard_Admin {
 		
 		if ( ! $this->is_localhost() && $this->is_shell_exec_enabled() ) {
 
-			$uptime = trim(shell_exec("cut -d. -f1 /proc/uptime"));
+			$raw_uptime = shell_exec("cut -d. -f1 /proc/uptime");
 
-			if ( is_numeric( $uptime ) ) {
-				$uptime_in_days = (float) ( $uptime / 60 / 60 / 24 );
-				$uptime = number_format_i18n( $uptime_in_days ). ' days';				
+			if ( ! is_null( $raw_uptime ) ) {
+				$uptime = trim(shell_exec("cut -d. -f1 /proc/uptime"));
+
+				if ( is_numeric( $uptime ) ) {
+					$uptime_in_days = (float) ( $uptime / 60 / 60 / 24 );
+					$uptime = number_format_i18n( $uptime_in_days ). ' days';				
+				} else {
+					$uptime = 'Undetectable.';					
+				}
 			} else {
-				$uptime = 'Undetectable.';			
+				$uptime = 'Undetectable.';				
 			}
 
 		} else {
@@ -1404,19 +1410,19 @@ class System_Dashboard_Admin {
 		if ( $this->is_shell_exec_enabled() ) {
 
 			$os = shell_exec( 'lsb_release -a' );
-			$os = str_replace( "Description", " | Description", $os );
-			$os = str_replace( "Release", " | Release", $os );
-			$os = str_replace( "Codename", " | Codename", $os );
-			$os_array = explode(" | ", $os);
-			if ( isset( $os_array[1] ) ) {
-				$os = $os_array[1];
-				$os = str_replace( ":", "", $os );
-				$os = str_replace( "Description", "", $os );				
+			if ( ! is_null( $os ) && ! is_empty( $os ) ) {
+				$os = str_replace( "Description", " | Description", $os );
+				$os = str_replace( "Release", " | Release", $os );
+				$os = str_replace( "Codename", " | Codename", $os );
+				$os_array = explode(" | ", $os);
+				if ( isset( $os_array[1] ) ) {
+					$os = $os_array[1];
+					$os = str_replace( ":", "", $os );
+					$os = str_replace( "Description", "", $os );				
+				} else {
+					$os = 'Undetectable';
+				}
 			} else {
-				$os = 'Undetectable';
-			}
-
-			if ( empty( $os ) ) {
 				$os = 'Undetectable';
 			}
 
@@ -1610,53 +1616,70 @@ class System_Dashboard_Admin {
 			}
 
 			$cpu_load_average = shell_exec("uptime");
-			$cpu_load_average_array = explode( ", ", $cpu_load_average );
 
-			$last_1minute = (float)trim( array_pop( $cpu_load_average_array ) );
+			if ( ! is_null( $cpu_load_average ) ) {
+				
+				$cpu_load_average_array = explode( ", ", $cpu_load_average );
+				
+				if ( is_array( $cpu_load_average_array ) && ! empty( $cpu_load_average_array ) ) {
 
-			if ( is_numeric( $last_1minute ) ) {
+					$last_1minute = (float)trim( array_pop( $cpu_load_average_array ) );
 
-				$last_1minutes_pct_num = ( $last_1minute / $cpu_core_count ) * 100;
-				$last_1minutes_pct_num_rounded = round( $last_1minutes_pct_num, 0 );
-				$last_1minutes_pct = $last_1minutes_pct_num_rounded .'%';
+					if ( is_numeric( $last_1minute ) ) {
 
+						$last_1minutes_pct_num = ( $last_1minute / $cpu_core_count ) * 100;
+						$last_1minutes_pct_num_rounded = round( $last_1minutes_pct_num, 0 );
+						$last_1minutes_pct = $last_1minutes_pct_num_rounded .'%';
+
+					} else {
+
+						$last_1minutes_pct = 'N/A';
+
+					}
+
+					$last_5minutes = (float)trim( array_pop( $cpu_load_average_array ) );
+
+					if ( is_numeric( $last_5minutes ) ) {
+
+						$last_5minutes_pct_num = ( $last_5minutes / $cpu_core_count ) * 100;
+						$last_5minutes_pct_num_rounded = round( $last_5minutes_pct_num, 0 );
+						$last_5minutes_pct = $last_5minutes_pct_num_rounded .'%';
+
+					} else {
+
+						$last_5minutes_pct = 'N/A';
+
+					}
+
+					$last_15minutes = array_pop( $cpu_load_average_array );
+					$last_15minutes = str_replace(":", "", $last_15minutes);
+					$last_15minutes = (float)trim( str_replace("load average", "", $last_15minutes) );
+
+					if ( is_numeric( $last_15minutes ) ) {
+
+						$last_15minutes_pct_num = ( $last_15minutes / $cpu_core_count ) * 100;
+						$last_15minutes_pct_num_rounded = round( $last_15minutes_pct_num, 0 );
+						$last_15minutes_pct = $last_15minutes_pct_num_rounded .'%';
+
+					} else {
+
+						$last_15minutes_pct = 'N/A';
+
+					}
+
+					$cpu_load_average = 'Last 15 minutes: '. $last_15minutes_pct .' ('. $last_15minutes .')<br /> Last 5 minutes: '. $last_5minutes_pct .' ('. $last_5minutes .')<br /> Last 1 minute: '. $last_1minutes_pct .' ('. $last_1minute .')';	
+					
+				} else {
+
+					$cpu_load_average = 'Undetectable.';
+					
+				}
+							
 			} else {
 
-				$last_1minutes_pct = 'N/A';
-
+				$cpu_load_average = 'Undetectable.';
+				
 			}
-
-			$last_5minutes = (float)trim( array_pop( $cpu_load_average_array ) );
-
-			if ( is_numeric( $last_5minutes ) ) {
-
-				$last_5minutes_pct_num = ( $last_5minutes / $cpu_core_count ) * 100;
-				$last_5minutes_pct_num_rounded = round( $last_5minutes_pct_num, 0 );
-				$last_5minutes_pct = $last_5minutes_pct_num_rounded .'%';
-
-			} else {
-
-				$last_5minutes_pct = 'N/A';
-
-			}
-
-			$last_15minutes = array_pop( $cpu_load_average_array );
-			$last_15minutes = str_replace(":", "", $last_15minutes);
-			$last_15minutes = (float)trim( str_replace("load average", "", $last_15minutes) );
-
-			if ( is_numeric( $last_15minutes ) ) {
-
-				$last_15minutes_pct_num = ( $last_15minutes / $cpu_core_count ) * 100;
-				$last_15minutes_pct_num_rounded = round( $last_15minutes_pct_num, 0 );
-				$last_15minutes_pct = $last_15minutes_pct_num_rounded .'%';
-
-			} else {
-
-				$last_15minutes_pct = 'N/A';
-
-			}
-
-			$cpu_load_average = 'Last 15 minutes: '. $last_15minutes_pct .' ('. $last_15minutes .')<br /> Last 5 minutes: '. $last_5minutes_pct .' ('. $last_5minutes .')<br /> Last 1 minute: '. $last_1minutes_pct .' ('. $last_1minute .')';
 
 		} else {
 
@@ -1694,7 +1717,16 @@ class System_Dashboard_Admin {
 
 		}
 
-		return trim($total_ram);
+		if ( ! is_null( $total_ram ) ) {
+
+			return trim($total_ram);		
+
+		} else {
+			
+			return 'Undetectable';
+
+		}
+
 	}
 
 	/**
@@ -1711,11 +1743,20 @@ class System_Dashboard_Admin {
 
 		} else {
 
-			$ram_cache= 'Undetectable';
+			$ram_cache = 'Undetectable';
+
+		}
+		
+		if ( ! is_null( $ram_cache ) ) {
+
+			return trim($ram_cache);
+			
+		} else {
+
+			return 'Undetectable';
 
 		}
 
-		return trim($ram_cache);
 	}
 
 	/**
@@ -1736,7 +1777,16 @@ class System_Dashboard_Admin {
 
 		}
 
-		return trim($ram_buffer);
+		if ( ! is_null( $total_ram ) ) {
+
+			return trim($ram_buffer);		
+
+		} else {
+
+			return 'Undetectable';
+			
+		}
+
 	}
 
 	/**
@@ -1753,12 +1803,13 @@ class System_Dashboard_Admin {
 
 			if ( ( $this->sd_ram_cache() != 'Undetectable' ) && ( $this->sd_ram_buffer() != 'Undetectable' ) ) {
 
-				if( !is_null( $this->sd_ram_cache() ) || !is_null( $this->sd_ram_buffer() ) ) {
+				if( !is_null( $free_ram ) || !is_null( $this->sd_ram_cache() ) || !is_null( $this->sd_ram_buffer() ) ) {
+					$free_ram = is_null( $free_ram ) ? 0 : (int) $free_ram;
 					$ram_cache = is_null( $this->sd_ram_cache() ) ? 0 : (int) $this->sd_ram_cache();
 					$ram_buffer = is_null( $this->sd_ram_buffer() ) ? 0 : (int) $this->sd_ram_buffer();
 					$free_ram_final = (int) $free_ram + $ram_cache + $ram_buffer;
 				} else {
-					$free_ram_final = $free_ram;
+					$free_ram_final = is_null( $free_ram ) ? 0 : (int) $free_ram;;
 				}
 
 			} else {
@@ -1788,9 +1839,9 @@ class System_Dashboard_Admin {
 			$free_ram = $this->sd_free_ram();
 			$total_ram = $this->sd_total_ram();
 
-			if ( ( $free_ram != 'Undetectable' ) && ( $total_ram != 'Undetectable' ) ) {
+			if ( $free_ram != 'Undetectable' && is_numeric( $free_ram ) && $total_ram != 'Undetectable' && is_numeric( $total_ram ) ) {
 
-				$used_ram = $this->sd_format_filesize_kB( $total_ram - $free_ram ) .' ('. round( ( ( ( $total_ram - $free_ram ) / $total_ram ) * 100 ), 0).'%)';
+				$used_ram = $this->sd_format_filesize_kB( (int) $total_ram - (int) $free_ram ) .' ('. round( ( ( ( (int) $total_ram - (int) $free_ram ) / (int) $total_ram ) * 100 ), 0).'%)';
 
 			} else {
 
