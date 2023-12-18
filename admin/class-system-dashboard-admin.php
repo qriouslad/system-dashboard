@@ -1325,21 +1325,22 @@ class System_Dashboard_Admin {
 	 * @since 1.0.0
 	 */
 	public function sd_format_filesize($bytes)	{
-
-		if (($bytes / pow(1024, 5)) > 1) {
-			return number_format_i18n(($bytes / pow(1024, 5)), 0) . ' ' . __('PB', 'wp-server-stats');
-		} elseif (($bytes / pow(1024, 4)) > 1) {
-			return number_format_i18n(($bytes / pow(1024, 4)), 0) . ' ' . __('TB', 'wp-server-stats');
-		} elseif (($bytes / pow(1024, 3)) > 1) {
-			return number_format_i18n(($bytes / pow(1024, 3)), 0) . ' ' . __('GB', 'wp-server-stats');
-		} elseif (($bytes / pow(1024, 2)) > 1) {
-			return number_format_i18n(($bytes / pow(1024, 2)), 0) . ' ' . __('MB', 'wp-server-stats');
-		} elseif ($bytes / 1024 > 1) {
-			return number_format_i18n($bytes / 1024, 0) . ' ' . __('KB', 'wp-server-stats');
-		} elseif ($bytes >= 0) {
-			return number_format_i18n($bytes, 0) . ' ' . __('bytes', 'wp-server-stats');
+		if ( is_numeric( $kiloBytes ) ) {
+			if (($bytes / pow(1024, 5)) > 1) {
+				return number_format_i18n(($bytes / pow(1024, 5)), 0) . ' PB';
+			} elseif (($bytes / pow(1024, 4)) > 1) {
+				return number_format_i18n(($bytes / pow(1024, 4)), 0) . ' TB';
+			} elseif (($bytes / pow(1024, 3)) > 1) {
+				return number_format_i18n(($bytes / pow(1024, 3)), 0) . ' GB';
+			} elseif (($bytes / pow(1024, 2)) > 1) {
+				return number_format_i18n(($bytes / pow(1024, 2)), 0) . ' MB';
+			} elseif ($bytes / 1024 > 1) {
+				return number_format_i18n($bytes / 1024, 0) . ' KB';
+			} elseif ($bytes >= 0) {
+				return number_format_i18n($bytes, 0) . ' bytes';
+			}
 		} else {
-			return __('Unknown', 'wp-server-stats');
+			return 'Unknown';
 		}
 	}
 
@@ -1350,16 +1351,18 @@ class System_Dashboard_Admin {
 	 * @since 1.0.0
 	 */
 	public function sd_format_filesize_kB( $kiloBytes ) {
-		if (($kiloBytes / pow(1024, 4)) > 1) {
-			return number_format_i18n(($kiloBytes / pow(1024, 4)), 0) . ' PB';
-		} elseif (($kiloBytes / pow(1024, 3)) > 1) {
-			return number_format_i18n(($kiloBytes / pow(1024, 3)), 0) . ' TB';
-		} elseif (($kiloBytes / pow(1024, 2)) > 1) {
-			return number_format_i18n(($kiloBytes / pow(1024, 2)), 0) . ' GB';
-		} elseif (($kiloBytes / 1024) > 1) {
-			return number_format_i18n($kiloBytes / 1024, 0) . ' MB';
-		} elseif ($kiloBytes >= 0) {
-			return number_format_i18n($kiloBytes / 1, 0) . ' KB';
+		if ( is_numeric( $kiloBytes ) ) {
+			if (($kiloBytes / pow(1024, 4)) > 1) {
+				return number_format_i18n(($kiloBytes / pow(1024, 4)), 0) . ' PB';
+			} elseif (($kiloBytes / pow(1024, 3)) > 1) {
+				return number_format_i18n(($kiloBytes / pow(1024, 3)), 0) . ' TB';
+			} elseif (($kiloBytes / pow(1024, 2)) > 1) {
+				return number_format_i18n(($kiloBytes / pow(1024, 2)), 0) . ' GB';
+			} elseif (($kiloBytes / 1024) > 1) {
+				return number_format_i18n($kiloBytes / 1024, 0) . ' MB';
+			} elseif ($kiloBytes >= 0) {
+				return number_format_i18n($kiloBytes / 1, 0) . ' KB';
+			}
 		} else {
 			return 'Unknown';
 		}
@@ -1502,11 +1505,16 @@ class System_Dashboard_Admin {
 			if ($sd_cpu_type === false) {
 
 				$sd_cpu_type = shell_exec( 'grep "model name" /proc/cpuinfo | uniq' );
-				$sd_cpu_type = str_replace( ":", "", $sd_cpu_type );
-				$sd_cpu_type = str_replace( "model name", "", $sd_cpu_type );
-				$sd_cpu_type = trim( $sd_cpu_type );
+				if ( ! is_null( $sd_cpu_type ) ) {
+					$sd_cpu_type = str_replace( ":", "", $sd_cpu_type );
+					$sd_cpu_type = str_replace( "model name", "", $sd_cpu_type );
+					$sd_cpu_type = trim( $sd_cpu_type );
 
-				set_transient('sd_cpu_type', $sd_cpu_type, WEEK_IN_SECONDS);
+					set_transient('sd_cpu_type', $sd_cpu_type, WEEK_IN_SECONDS);					
+				} else {
+					$sd_cpu_type = 'Undetectable';
+					set_transient('sd_cpu_type', $sd_cpu_type, WEEK_IN_SECONDS);					
+				}
 
 			}
 
