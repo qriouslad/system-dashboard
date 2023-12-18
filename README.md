@@ -5,7 +5,7 @@ Donate link: https://bowo.io/dotorg-sponsor-sd
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 6.4.1  
-Stable tag: 2.8.9  
+Stable tag: 2.8.11  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -284,6 +284,16 @@ About 260 dev hours have been spent towards v2.6.2 so far.
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.8.11 (2023.12.18)
+
+* **[FIXED]** Fixed PHP Fatal Error on detection of server uptime. Props to [@darrenford77](https://wordpress.org/support/users/darrenford77/) for [reporting the issue](https://wordpress.org/support/topic/critical-error-viewing-dashboard-2/).
+
+* **[FIXED]** Fixed Warning Error on detection process of server OS. Props to [@darrenford77](https://wordpress.org/support/users/darrenford77/) for [reporting the issue](https://wordpress.org/support/topic/critical-error-viewing-dashboard-2/).
+
+### 2.8.10 (2023.11.30)
+
+* **[SECURITY]** Patched a Stored XSS vulnerability by X-Forward-For Header Injection. The vulnerability was responsibly disclosed by Dmitrii Ignatyev from Clean Talk inc on October 20, 2023. Apologies if this took me a while to get around to as I was fully occupied with the launch of [ASE Pro](https://www.wpase.com).
 
 ### 2.8.9 (2023.11.29)
 
