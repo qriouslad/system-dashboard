@@ -1413,7 +1413,7 @@ class System_Dashboard_Admin {
 		if ( $this->is_shell_exec_enabled() ) {
 
 			$os = shell_exec( 'lsb_release -a' );
-			if ( ! is_null( $os ) && ! is_empty( $os ) ) {
+			if ( ! is_null( $os ) && ! empty( $os ) ) {
 				$os = str_replace( "Description", " | Description", $os );
 				$os = str_replace( "Release", " | Release", $os );
 				$os = str_replace( "Codename", " | Codename", $os );
