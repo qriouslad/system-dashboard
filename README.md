@@ -5,7 +5,7 @@ Donate link: https://bowo.io/dotorg-sponsor-sd
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
 Tested up to: 6.4.1  
-Stable tag: 2.8.13  
+Stable tag: 2.8.14  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -284,6 +284,10 @@ About 260 dev hours have been spent towards v2.6.2 so far.
 System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.com/devinvinson/WordPress-Plugin-Boilerplate/) | [wppb.me](https://wppb.me/) | [CodeStar framework](https://github.com/Codestar/codestar-framework)
 
 ## Changelog
+
+### 2.8.14 (2023.12.19)
+
+* **[FIXED]** Fixed PHP fatal error caused by undefined function introduced in the last release. Props to Adrien R. for reporting the issue.
 
 ### 2.8.13 (2023.12.18)
 
