@@ -1785,7 +1785,7 @@ class System_Dashboard_Admin {
 
 		}
 
-		if ( ! is_null( $total_ram ) ) {
+		if ( ! is_null( $ram_buffer ) ) {
 
 			return trim($ram_buffer);		
 
