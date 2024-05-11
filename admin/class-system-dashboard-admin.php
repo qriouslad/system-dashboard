@@ -1325,7 +1325,7 @@ class System_Dashboard_Admin {
 	 * @since 1.0.0
 	 */
 	public function sd_format_filesize($bytes)	{
-		if ( is_numeric( $kiloBytes ) ) {
+		if ( is_numeric( $bytes ) ) {
 			if (($bytes / pow(1024, 5)) > 1) {
 				return number_format_i18n(($bytes / pow(1024, 5)), 0) . ' PB';
 			} elseif (($bytes / pow(1024, 4)) > 1) {
