@@ -1325,7 +1325,7 @@ class System_Dashboard_Admin {
 	 * @since 1.0.0
 	 */
 	public function sd_format_filesize($bytes)	{
-		if ( is_numeric( $kiloBytes ) ) {
+		if ( is_numeric( $bytes ) ) {
 			if (($bytes / pow(1024, 5)) > 1) {
 				return number_format_i18n(($bytes / pow(1024, 5)), 0) . ' PB';
 			} elseif (($bytes / pow(1024, 4)) > 1) {
@@ -1785,7 +1785,7 @@ class System_Dashboard_Admin {
 
 		}
 
-		if ( ! is_null( $total_ram ) ) {
+		if ( ! is_null( $ram_buffer ) ) {
 
 			return trim($ram_buffer);		
 
@@ -1982,7 +1982,7 @@ class System_Dashboard_Admin {
 		$free_disk_space = $this->sd_free_disk_space();
 		$total_disk_space = $this->sd_total_disk_space();
 
-		if ( ( $free_disk_space != 'Undetectable' ) && ( $total_disk_space != 'Undetectable' ) ) {
+		if ( ( $free_disk_space != 'Undetectable' ) && ( $total_disk_space != 'Undetectable' ) && ( $total_disk_space !== 0 ) ) {
 
 			$used_disk_space = $total_disk_space - $free_disk_space;
 
@@ -9362,7 +9362,7 @@ EOD;
 	        $data = array(
 					'access_on'	=> $date_time,
 					'from_ip'	=> $ip_address,
-					'page_url'	=> $request_uri,
+					'page_url'	=> sanitize_url( $request_uri ),
 				);
 
 	        $format = array(

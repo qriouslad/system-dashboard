@@ -12,7 +12,7 @@ if ( ! class_exists( 'CSF_Setup' ) ) {
 
     // Default constants
     public static $premium  = false;
-    public static $version  = '2.2.8';
+    public static $version  = '2.3.1';
     public static $dir      = '';
     public static $url      = '';
     public static $css      = '';
@@ -483,6 +483,10 @@ if ( ! class_exists( 'CSF_Setup' ) ) {
 
           if ( ! empty( $field['accordions'] ) ) {
             self::set_used_fields( array( 'fields' => $field['accordions'] ) );
+          }
+
+          if ( ! empty( $field['elements'] ) ) {
+            self::set_used_fields( array( 'fields' => $field['elements'] ) );
           }
 
           if ( ! empty( $field['type'] ) ) {
