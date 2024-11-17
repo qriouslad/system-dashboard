@@ -9362,7 +9362,7 @@ EOD;
 	        $data = array(
 					'access_on'	=> $date_time,
 					'from_ip'	=> $ip_address,
-					'page_url'	=> $request_uri,
+					'page_url'	=> sanitize_url( $request_uri ),
 				);
 
 	        $format = array(
