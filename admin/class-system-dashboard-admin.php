@@ -2295,34 +2295,42 @@ class System_Dashboard_Admin {
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
 			$filename = $_REQUEST['filename'];
-
-			if ( $filename == 'wpcnfg' ) {
-				$file_path = $this->sd_wpconfig_file_path();
-			} else {
-				$file_path = ABSPATH . $filename;
-			}
+			
+			if ( false !== strpos( $filename, '..' ) ) {
 				
-			if ( !file_exists( $file_path ) ) {
+				$output = 'That file does not exist';
+				
+			} else {
 
-				if ( $filename == 'robots.txt' ) {
+				if ( $filename == 'wpcnfg' ) {
+					$file_path = $this->sd_wpconfig_file_path();
+				} else {
+					$file_path = ABSPATH . $filename;
+				}
+					
+				if ( !file_exists( $file_path ) ) {
 
-					$response = wp_remote_get( get_site_url() . '/' . $filename );
+					if ( $filename == 'robots.txt' ) {
 
-					$file_content = nl2br( trim( wp_remote_retrieve_body( $response ) ) );
+						$response = wp_remote_get( get_site_url() . '/' . $filename );
 
-					$output = $file_content;
+						$file_content = nl2br( trim( wp_remote_retrieve_body( $response ) ) );
+
+						$output = $file_content;
+
+					} else {
+
+						$output = $file_path . ' does not exist';
+
+					}
 
 				} else {
 
-					$output = $file_path . ' does not exist';
+					$file_content = nl2br( trim( file_get_contents( $file_path, true ) ) );
+
+					$output = $file_content;
 
 				}
-
-			} else {
-
-				$file_content = nl2br( trim( file_get_contents( $file_path, true ) ) );
-
-				$output = $file_content;
 
 			}
 

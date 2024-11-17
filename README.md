@@ -289,6 +289,8 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 
 * **[SECURITY FIX]** Page Access Log - Fix unauthenticated stored XSS vulnerability as reported by Bob, a security researcher for WPScan and Jetpack.
 
+* **[SECURITY FIX]** Viewer - Fix path traversal vulnerability that allows admins to view the contents of arbitrary files on the server, as reported by Bob, a security researcher for WPScan and Jetpack.
+
 * **[FIXED]** Disk Usage - fix fatal error in a certain scenario as [reported](https://wordpress.org/support/topic/fatal-error-uncaught-error-division-by-zero-2/) by [Rob M.](https://wordpress.org/support/users/rm54x/).
 
 * **[FIXED]** Two PHP warnings as [reported](https://github.com/qriouslad/system-dashboard/issues/25) by [@reszel](https://github.com/reszel)
