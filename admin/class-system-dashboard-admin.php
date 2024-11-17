@@ -1982,7 +1982,7 @@ class System_Dashboard_Admin {
 		$free_disk_space = $this->sd_free_disk_space();
 		$total_disk_space = $this->sd_total_disk_space();
 
-		if ( ( $free_disk_space != 'Undetectable' ) && ( $total_disk_space != 'Undetectable' ) ) {
+		if ( ( $free_disk_space != 'Undetectable' ) && ( $total_disk_space != 'Undetectable' ) && ( $total_disk_space !== 0 ) ) {
 
 			$used_disk_space = $total_disk_space - $free_disk_space;
 
