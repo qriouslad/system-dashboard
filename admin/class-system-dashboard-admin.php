@@ -2294,7 +2294,7 @@ class System_Dashboard_Admin {
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
-			$filename = $_REQUEST['filename'];
+			$filename = sanitize_text_field( $_REQUEST['filename'] );
 			
 			if ( false !== strpos( $filename, '..' ) ) {
 				
