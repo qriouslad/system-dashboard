@@ -4,8 +4,8 @@ Contributors: qriouslad
 Donate link: https://bowo.io/dotorg-sponsor-sd
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
-Tested up to: 6.7  
-Stable tag: 2.8.15  
+Tested up to: 6.7.1  
+Stable tag: 2.8.16  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -223,13 +223,10 @@ About 260 dev hours have been spent towards v2.6.2 so far.
 
 ### Check These Out Too
 
+* [Admin and Site Enhancements](https://wordpress.org/plugins/admin-site-enhancements/) helps you to easily enhance various admin workflows and site aspects while replacing multiple plugins doing it.
 * [Debug Log Manager](https://wordpress.org/plugins/debug-log-manager/): Log PHP, database and JavaScript errors via WP_DEBUG with one click. Conveniently create, view, filter and clear the debug.log file.
 * [Variable Inspector](https://wordpress.org/plugins/variable-inspector/): Inspect PHP variables on a central dashboard in wp-admin for convenient debugging.
-* [Code Explorer](https://wordpress.org/plugins/code-explorer/): Fast directory explorer and file/code viewer with syntax highlighting.
-* [Database Admin](https://github.com/qriouslad/database-admin): Securely manage your WordPress website's database with a clean and user-friendly interface based on a custom-themed Adminer app. Only available on Github.
-* [Admin and Site Enhancements](https://wordpress.org/plugins/admin-site-enhancements/) helps you to easily enhance various admin workflows and site aspects while replacing multiple plugins doing it.
 * [Flexible Scroll Top](https://wordpress.org/plugins/flexible-scroll-top/) and [Floating Share Buttons](https://wordpress.org/plugins/floating-share-button/) is a lightweight combo with minimalist UI.
-* [WordPress Newsboard](https://www.wpnewsboard.com/): The latest news, articles, podcasts and videos from 100+ WordPress-focused sources.
 * [WordPress Newsboard](https://www.wpnewsboard.com/): The latest news, articles, podcasts and videos from 100+ WordPress-focused sources.
 
 ## Screenshots
@@ -285,9 +282,15 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 
 ## Changelog
 
+### 2.8.16 (2024.02.04)
+
+* **[SECURITY FIX]** Viewer - Fix Reflected Cross-Site Scripting vulnerability via Filename Parameter, responsibly disclosed via WordFrence by vgo0.
+
 ### 2.8.15 (2024.11.17)
 
 * **[SECURITY FIX]** Page Access Log - Fix unauthenticated stored XSS vulnerability as reported by Bob, a security researcher for WPScan and Jetpack.
+
+* **[SECURITY FIX]** Viewer - Fix path traversal vulnerability that allows admins to view the contents of arbitrary files on the server, as reported by Bob, a security researcher for WPScan and Jetpack.
 
 * **[FIXED]** Disk Usage - fix fatal error in a certain scenario as [reported](https://wordpress.org/support/topic/fatal-error-uncaught-error-division-by-zero-2/) by [Rob M.](https://wordpress.org/support/users/rm54x/).
 
