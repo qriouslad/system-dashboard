@@ -2334,7 +2334,7 @@ class System_Dashboard_Admin {
 
 			}
 
-			echo $output;
+			echo wp_kses_post( $output );
 
 		}
 
