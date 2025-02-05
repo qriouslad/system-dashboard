@@ -2296,19 +2296,15 @@ class System_Dashboard_Admin {
 
 			$filename = sanitize_text_field( $_REQUEST['filename'] );
 			
-			if ( false !== strpos( $filename, '..' ) ) {
+			if ( in_array( $filename, array( 'wpcnfg', '.htaccess', 'robots.txt', '/wp-json/wp/v2' ) ) ) {
 				
-				$output = 'That file does not exist';
-				
-			} else {
-
 				if ( $filename == 'wpcnfg' ) {
 					$file_path = $this->sd_wpconfig_file_path();
 				} else {
 					$file_path = ABSPATH . $filename;
 				}
 					
-				if ( !file_exists( $file_path ) ) {
+				if ( ! file_exists( $file_path ) ) {
 
 					if ( $filename == 'robots.txt' ) {
 
@@ -2331,6 +2327,10 @@ class System_Dashboard_Admin {
 					$output = $file_content;
 
 				}
+				
+			} else {
+				
+				$output = '';
 
 			}
 

@@ -282,7 +282,7 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 
 ## Changelog
 
-### 2.8.16 (2024.02.04)
+### 2.8.17 (2024.02.05)
 
 * **[SECURITY FIX]** Viewer - Fix Reflected Cross-Site Scripting vulnerability via Filename Parameter, responsibly disclosed via WordFrence by vgo0.
 
