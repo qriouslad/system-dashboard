@@ -698,75 +698,79 @@ class System_Dashboard_Admin {
 	 * @since 2.4.4
 	 */
 	public function sd_image_sizes() {
+		
+		if ( current_user_can( 'manage_options' ) ) {
+			global $_wp_additional_image_sizes;
 
-		global $_wp_additional_image_sizes;
+			do_action( 'inspect', [ '_wp_additional_image_sizes', $_wp_additional_image_sizes ] );
 
-		do_action( 'inspect', [ '_wp_additional_image_sizes', $_wp_additional_image_sizes ] );
+			$builtin_sizes = array( 'thumbnail', 'medium', 'large', 'full', 'post-thumbnail' );
+			$sizes = array();
 
-		$builtin_sizes = array( 'thumbnail', 'medium', 'large', 'full', 'post-thumbnail' );
-		$sizes = array();
+			$intermediate_image_sizes = get_intermediate_image_sizes();
+			$additional_image_sizes = wp_get_additional_image_sizes();
 
-		$intermediate_image_sizes = get_intermediate_image_sizes();
-		$additional_image_sizes = wp_get_additional_image_sizes();
+			do_action( 'inspect', [ 'additional_image_sizes', $additional_image_sizes ] );
 
-		do_action( 'inspect', [ 'additional_image_sizes', $additional_image_sizes ] );
+			foreach ( $intermediate_image_sizes as $size ) {
 
-		foreach ( $intermediate_image_sizes as $size ) {
+				if ( in_array( $size, $builtin_sizes ) ) {
 
-			if ( in_array( $size, $builtin_sizes ) ) {
+					$sizes[$size] = array(
+						'type'		=> 'Default',
+						'width' 	=> get_option( $size . '_size_w' ),
+						'height' 	=> get_option( $size . '_size_h' ),
+						'crop'		=> (bool) get_option( $size . '_crop' ),
+					);
 
-				$sizes[$size] = array(
-					'type'		=> 'Default',
-					'width' 	=> get_option( $size . '_size_w' ),
-					'height' 	=> get_option( $size . '_size_h' ),
-					'crop'		=> (bool) get_option( $size . '_crop' ),
-				);
+				} elseif ( isset( $additional_image_sizes[$size] ) ) {
 
-			} elseif ( isset( $additional_image_sizes[$size] ) ) {
-
-				$sizes[$size] = array(
-					'type'		=> 'Custom',
-					'width'		=> $additional_image_sizes[$size]['width'],
-					'height'	=> $additional_image_sizes[$size]['height'],
-					'crop'		=> $additional_image_sizes[$size]['crop'],
-				);
-
-			}
-
-		}
-
-		do_action( 'inspect', [ 'sizes', $sizes ] );
-
-		$output = '';
-
-		foreach ( $sizes as $key => $value ) {
-
-			if ( isset( $value['crop'] ) ) {
-
-				if ( $value['crop'] === true ) {
-
-					$crop_value = ' | Crop: true';
-					$size_type = 'Exactly';
-
-				} elseif ( $value['crop'] === false ) {
-
-					$crop_value = '';
-					$size_type = 'Maximum';
-
-				} else {
-
-					$crop_value = ' | Crop: ' . $value['crop'][0] . '-' . $value['crop'][1];
-					$size_type = 'Exactly';
+					$sizes[$size] = array(
+						'type'		=> 'Custom',
+						'width'		=> $additional_image_sizes[$size]['width'],
+						'height'	=> $additional_image_sizes[$size]['height'],
+						'crop'		=> $additional_image_sizes[$size]['crop'],
+					);
 
 				}
 
 			}
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $key . ' ('. $value['type'] . $crop_value . ')' );
-			$output .= $this->sd_html( 'field-content-second', $size_type . ' ' . $value['width'] . ' (width) x ' . $value['height'] . ' (height) pixels ' );
-			$output .= $this->sd_html( 'field-content-end' );
+			do_action( 'inspect', [ 'sizes', $sizes ] );
 
+			$output = '';
+
+			foreach ( $sizes as $key => $value ) {
+
+				if ( isset( $value['crop'] ) ) {
+
+					if ( $value['crop'] === true ) {
+
+						$crop_value = ' | Crop: true';
+						$size_type = 'Exactly';
+
+					} elseif ( $value['crop'] === false ) {
+
+						$crop_value = '';
+						$size_type = 'Maximum';
+
+					} else {
+
+						$crop_value = ' | Crop: ' . $value['crop'][0] . '-' . $value['crop'][1];
+						$size_type = 'Exactly';
+
+					}
+
+				}
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', $key . ' ('. $value['type'] . $crop_value . ')' );
+				$output .= $this->sd_html( 'field-content-second', $size_type . ' ' . $value['width'] . ' (width) x ' . $value['height'] . ' (height) pixels ' );
+				$output .= $this->sd_html( 'field-content-end' );
+
+			}			
+		} else {
+			$output = '';
 		}
 
 		echo $output;
@@ -3321,25 +3325,27 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_rewrite_rules() {
 
-		$rewrite_rules = get_option( 'rewrite_rules' );
-
 		$output = '';
+		
+		if ( current_user_can( 'manage_options' ) ) {
+			$rewrite_rules = get_option( 'rewrite_rules' );
 
-		if ( !empty( $rewrite_rules ) ) {
+			if ( !empty( $rewrite_rules ) ) {
 
-			foreach ( $rewrite_rules as $key => $value ) {
+				foreach ( $rewrite_rules as $key => $value ) {
 
-				$output .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
-				$output .= $this->sd_html( 'field-content-first', $key, 'full-width long-value' );
-				$output .= $this->sd_html( 'field-content-second', '&#10132; ' . $value, 'full-width long-value' );
-				$output .= $this->sd_html( 'field-content-end' );
+					$output .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
+					$output .= $this->sd_html( 'field-content-first', $key, 'full-width long-value' );
+					$output .= $this->sd_html( 'field-content-second', '&#10132; ' . $value, 'full-width long-value' );
+					$output .= $this->sd_html( 'field-content-end' );
 
-			}
+				}
 
-		} else {
+			} else {
 
-			$output = 'Currently, there are no defined rewrite rules.';
+				$output = 'Currently, there are no defined rewrite rules.';
 
+			}			
 		}
 
 		echo $output;
@@ -9291,38 +9297,42 @@ EOD;
 	 * @since 2.6.0
 	 */
 	public function sd_page_access_log() {
+		
+		if ( current_user_can( 'manage_options' ) ) {
+			$output = '<table id="page-access-log" class="wp-list-table widefat striped">
+						<thead>
+							<tr>
+								<th>Date Time</th>
+								<th>Visitor IP</th>
+								<th>Page URI Accessed</th>							
+							</tr>
+						</thead>
+						<tbody>';
 
-		$output = '<table id="page-access-log" class="wp-list-table widefat striped">
-					<thead>
-						<tr>
-							<th>Date Time</th>
-							<th>Visitor IP</th>
-							<th>Page URI Accessed</th>							
-						</tr>
-					</thead>
-					<tbody>';
+			global $wpdb;
 
-		global $wpdb;
+			$access_log_table = $wpdb->prefix . 'sd_page_access_log';
 
-		$access_log_table = $wpdb->prefix . 'sd_page_access_log';
+			$limit = 100;
 
-		$limit = 100;
+			$sql = $wpdb->prepare( "SELECT * FROM {$access_log_table} ORDER BY ID DESC LIMIT %d", array( $limit ) );
 
-		$sql = $wpdb->prepare( "SELECT * FROM {$access_log_table} ORDER BY ID DESC LIMIT %d", array( $limit ) );
+			$results = $wpdb->get_results( $sql, ARRAY_A );
 
-		$results = $wpdb->get_results( $sql, ARRAY_A );
+			foreach( $results as $log ) {
 
-		foreach( $results as $log ) {
+				$output .= '<tr>
+								<td>'. $log['access_on'] .'</td>
+								<td>'. $log['from_ip'] .'</td>
+								<td>'. $log['page_url'] .'</td>
+							</tr>';
 
-			$output .= '<tr>
-							<td>'. $log['access_on'] .'</td>
-							<td>'. $log['from_ip'] .'</td>
-							<td>'. $log['page_url'] .'</td>
-						</tr>';
+			}
 
+			$output .= '</tbody></table>';			
+		} else {
+			$output = '';
 		}
-
-		$output .= '</tbody></table>';
 
 		echo $output;
 

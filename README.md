@@ -282,6 +282,10 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 
 ## Changelog
 
+### 2.8.19 (2024.02.20)
+
+* **[SECURITY FIX]** implemented authorization checks to page access log AJAX endpoint to fix "Missing Authorization to Authenticated (Subscriber) View Page Access Log" vulnerability as reponsibly disclosed by security researcher Trương Hữu Phúc (truonghuuphuc) via Pathstack.
+
 ### 2.8.18 (2024.02.05)
 
 * **[SECURITY FIX]** Viewer - Fix Reflected Cross-Site Scripting vulnerability via Filename Parameter, responsibly disclosed via WordFrence by vgo0. Added proper validation, sanitization and escaping.
