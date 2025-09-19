@@ -299,9 +299,9 @@ class System_Dashboard_Admin {
 
 		$output = '<div class="wordpress-overview">';
 
-		$output .= '<strong>Site Health</strong>: <br />' . $this->sd_site_health() . '<br />';
+		$output .= '<strong>' . __( 'Site Health', 'system-dashboard' ) . '</strong>: <br />' . $this->sd_site_health() . '<br />';
 
-		$output .= '<strong>Theme</strong>: <br /><a href="'. wp_get_theme()->get( 'ThemeURI' ) .'" target="_blank">'.wp_get_theme()->get( 'Name' ) .'</a> v'.wp_get_theme()->get( 'Version' ).'<br />';
+		$output .= '<strong>' . __( 'Theme', 'system-dashboard' ) . '</strong>: <br /><a href="'. wp_get_theme()->get( 'ThemeURI' ) .'" target="_blank">'.wp_get_theme()->get( 'Name' ) .'</a> v'.wp_get_theme()->get( 'Version' ).'<br />';
 
 		// if ( !empty( wp_get_theme()->get( 'Author' ) ) ) {
 
@@ -315,17 +315,17 @@ class System_Dashboard_Admin {
 
 		}
 
-		$output .= '<strong>Plugins</strong>: <br /><a href="/wp-admin/plugins.php" target="_blank">' . count( get_plugins() ) . ' installed</a> | <a href="/wp-admin/plugins.php?plugin_status=active" target="_blank">' . count( get_option( 'active_plugins' ) ) . ' active</a><br />';
+		$output .= '<strong>' . __( 'Plugins', 'system-dashboard' ) . '</strong>: <br /><a href="/wp-admin/plugins.php" target="_blank">' . count( get_plugins() ) . ' ' . __( 'installed', 'system-dashboard' ) . '</a> | <a href="/wp-admin/plugins.php?plugin_status=active" target="_blank">' . count( get_option( 'active_plugins' ) ) . ' ' . __( 'active', 'system-dashboard' ) . '</a><br />';
 
-		$output .= '<strong>Permalink Structure</strong>: <br />' . get_option( 'permalink_structure' ) . '<br />';
+		$output .= '<strong>' . __( 'Permalink Structure', 'system-dashboard' ) . '</strong>: <br />' . get_option( 'permalink_structure' ) . '<br />';
 
-		$output .= '<strong>Search Engine Visibility</strong>: <br />' . ( ( 0 == get_option( 'blog_public' ) ) ? 'Discouraged' : 'Encouraged' ) . '<br />';
+		$output .= '<strong>' . __( 'Search Engine Visibility', 'system-dashboard' ) . '</strong>: <br />' . ( ( 0 == get_option( 'blog_public' ) ) ? __( 'Discouraged', 'system-dashboard' ) : __( 'Encouraged', 'system-dashboard' ) ) . '<br />';
 
-		$output .= '<strong>Timezone</strong>: <br />' . get_option( 'timezone_string' ) . '<br />';
+		$output .= '<strong>' . __( 'Timezone', 'system-dashboard' ) . '</strong>: <br />' . get_option( 'timezone_string' ) . '<br />';
 
-		$output .= '<strong>Current Date Time</strong>: <br />' . current_time( 'F j, Y - H:i' ) . '<br />';
+		$output .= '<strong>' . __( 'Current Date Time', 'system-dashboard' ) . '</strong>: <br />' . current_time( 'F j, Y - H:i' ) . '<br />';
 
-		$output .= '<strong>Your IP</strong>: <br />' . $this->sd_get_user_ip() . '<br />';
+		$output .= '<strong>' . __( 'Your IP', 'system-dashboard' ) . '</strong>: <br />' . $this->sd_get_user_ip() . '<br />';
 
 		$output .= '<div style="display: none;">' . $this->sd_active_plugins( 'original', 'print_r') . '</div>';
 
@@ -422,9 +422,9 @@ class System_Dashboard_Admin {
 
 		$output = '<div class="server-overview">';
 
-		$output .= '<strong>Operating System</strong>: <br />' . $this->sd_os_info(). '<br />';
+		$output .= '<strong>' . __( 'Operating System', 'system-dashboard' ) . '</strong>: <br />' . $this->sd_os_info(). '<br />';
 
-		$output .= '<strong>Web Server</strong>: <br />' .$_SERVER['SERVER_SOFTWARE'] . ' | ' . php_sapi_name() . '<br />';
+		$output .= '<strong>' . __( 'Web Server', 'system-dashboard' ) . '</strong>: <br />' .$_SERVER['SERVER_SOFTWARE'] . ' | ' . php_sapi_name() . '<br />';
 
 		if ( function_exists( 'file_get_contents' ) ) {
 
@@ -450,13 +450,13 @@ class System_Dashboard_Admin {
 
 		$hostname = $hostname_query->Value;
 
-		$output .= '<strong>Hostname</strong>: <br />' . $hostname . '<br />';
+		$output .= '<strong>' . __( 'Hostname', 'system-dashboard' ) . '</strong>: <br />' . $hostname . '<br />';
 
-		$output .= '<strong>Location</strong>: <br />' . $this->sd_server_location() . '<br />';
+		$output .= '<strong>' . __( 'Location', 'system-dashboard' ) . '</strong>: <br />' . $this->sd_server_location() . '<br />';
 
-		$output .= '<strong>Timezone</strong>: <br />' . date_default_timezone_get() . '<br />';
+		$output .= '<strong>' . __( 'Timezone', 'system-dashboard' ) . '</strong>: <br />' . date_default_timezone_get() . '<br />';
 
-		$output .= '<strong>Server Date Time</strong>: <br />' . date( 'F j, Y - H:i', time() );
+		$output .= '<strong>' . __( 'Server Date Time', 'system-dashboard' ) . '</strong>: <br />' . date( 'F j, Y - H:i', time() );
 
 		$output .= '</div>';
 
@@ -746,18 +746,18 @@ class System_Dashboard_Admin {
 
 					if ( $value['crop'] === true ) {
 
-						$crop_value = ' | Crop: true';
-						$size_type = 'Exactly';
+						$crop_value = __( ' | Crop: true', 'system-dashboard' );
+						$size_type = __( 'Exactly', 'system-dashboard' );
 
 					} elseif ( $value['crop'] === false ) {
 
 						$crop_value = '';
-						$size_type = 'Maximum';
+						$size_type = __( 'Maximum', 'system-dashboard' );
 
 					} else {
 
-						$crop_value = ' | Crop: ' . $value['crop'][0] . '-' . $value['crop'][1];
-						$size_type = 'Exactly';
+						$crop_value = __( ' | Crop: ', 'system-dashboard' ) . $value['crop'][0] . '-' . $value['crop'][1];
+						$size_type = __( 'Exactly', 'system-dashboard' );
 
 					}
 
@@ -791,8 +791,8 @@ class System_Dashboard_Admin {
 			$output = '';
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', '<strong>File Extension(s)</strong>' );
-			$output .= $this->sd_html( 'field-content-second', '<strong>MIME Type</strong>' );
+			$output .= $this->sd_html( 'field-content-first', '<strong>' . __( 'File Extension(s)', 'system-dashboard' ) . '</strong>' );
+			$output .= $this->sd_html( 'field-content-second', '<strong>' . __( 'MIME Type', 'system-dashboard' ) . '</strong>' );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			foreach ( $mime_types as $extensions => $mime_type ) {
@@ -825,7 +825,7 @@ class System_Dashboard_Admin {
 			$output = '';
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'Active editor' );
+			$output .= $this->sd_html( 'field-content-first', __( 'Active editor', 'system-dashboard' ) );
 			$output .= $this->sd_html( 'field-content-second', _wp_image_editor_choose() );
 			$output .= $this->sd_html( 'field-content-end' );
 
@@ -839,34 +839,34 @@ class System_Dashboard_Admin {
 			}
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'ImageMagick version number' );
+			$output .= $this->sd_html( 'field-content-first', __( 'ImageMagick version number', 'system-dashboard' ) );
 			$output .= $this->sd_html( 'field-content-second', ( is_array( $imagemagick_version ) ? $imagemagick_version['versionNumber'] : $imagemagick_version ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'ImageMagick version string' );
+			$output .= $this->sd_html( 'field-content-first', __( 'ImageMagick version string', 'system-dashboard' ) );
 			$output .= $this->sd_html( 'field-content-second', ( is_array( $imagemagick_version ) ? $imagemagick_version['versionString'] : $imagemagick_version ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$imagick_version = phpversion( 'imagick' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'Imagick version' );
+			$output .= $this->sd_html( 'field-content-first', __( 'Imagick version', 'system-dashboard' ) );
 			$output .= $this->sd_html( 'field-content-second', ( $imagick_version ) ? $imagick_version : __( 'Not available' ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'Max size of post data allowed' );
+			$output .= $this->sd_html( 'field-content-first', __( 'Max size of post data allowed', 'system-dashboard' ) );
 			$output .= $this->sd_html( 'field-content-second', ini_get( 'post_max_size' ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'Max size of an uploaded file' );
+			$output .= $this->sd_html( 'field-content-first', __( 'Max size of an uploaded file', 'system-dashboard' ) );
 			$output .= $this->sd_html( 'field-content-second', ini_get( 'upload_max_filesize' ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'Max number of files allowed' );
+			$output .= $this->sd_html( 'field-content-first', __( 'Max number of files allowed', 'system-dashboard' ) );
 			$output .= $this->sd_html( 'field-content-second', number_format( ini_get( 'max_file_uploads' ) ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
@@ -878,8 +878,8 @@ class System_Dashboard_Admin {
 			}
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'GD version' );
-			$output .= $this->sd_html( 'field-content-second', ( is_array( $gd ) ? $gd['GD Version'] : 'Not available' ) );
+			$output .= $this->sd_html( 'field-content-first', __( 'GD version', 'system-dashboard' ) );
+			$output .= $this->sd_html( 'field-content-second', ( is_array( $gd ) ? $gd['GD Version'] : __( 'Not available', 'system-dashboard' ) ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$gd_image_formats     = array();
@@ -896,14 +896,14 @@ class System_Dashboard_Admin {
 			);
 
 			foreach ( $gd_supported_formats as $format_key => $format ) {
-				$index = $format_key . ' Support';
+				$index = $format_key . ' ' . __( 'Support', 'system-dashboard' );
 				if ( isset( $gd[ $index ] ) && $gd[ $index ] ) {
 					array_push( $gd_image_formats, $format );
 				}
 			}
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'GD supported file formats' );
+			$output .= $this->sd_html( 'field-content-first', __( 'GD supported file formats', 'system-dashboard' ) );
 			$output .= $this->sd_html( 'field-content-second', implode( ', ', $gd_image_formats ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
@@ -912,15 +912,15 @@ class System_Dashboard_Admin {
 				$gs = exec( 'gs --version' );
 
 				if ( empty( $gs ) ) {
-					$gs = 'Not available';
+					$gs = __( 'Not available', 'system-dashboard' );
 				} else {
 				}
 			} else {
-				$gs = 'Unable to determine if Ghostscript is installed';
+				$gs = __( 'Unable to determine if Ghostscript is installed', 'system-dashboard' );
 			}
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'Ghostscript version' );
+			$output .= $this->sd_html( 'field-content-first', __( 'Ghostscript version', 'system-dashboard' ) );
 			$output .= $this->sd_html( 'field-content-second', $gs );
 			$output .= $this->sd_html( 'field-content-end' );
 
@@ -1043,13 +1043,13 @@ class System_Dashboard_Admin {
 				if ( in_array( $roleslug, $default_wp_roles ) ) {
 
 					// $output .= $roleslug . ' is default.<br />';
-					$role_type = 'Default role';
+					$role_type = __( 'Default role', 'system-dashboard' );
 					$default_roles[] = $roleslug;
 
 				} else {
 
 					// $output .= $roleslug . ' is custom.<br />';
-					$role_type = 'Custom role';
+					$role_type = __( 'Custom role', 'system-dashboard' );
 					$custom_roles[] = $roleslug;
 
 				}
@@ -1133,7 +1133,7 @@ class System_Dashboard_Admin {
 
 			$output .= $this->sd_html( 'field-content-start' );
 			$output .= $this->sd_html( 'field-content-first', 'All roles' );
-			$output .= $this->sd_html( 'field-content-second', $users['total_users'] .' users' );
+			$output .= $this->sd_html( 'field-content-second', $users['total_users'] .' ' . __( 'users', 'system-dashboard' ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			foreach ( $users['avail_roles'] as $role => $count ) {
@@ -1142,7 +1142,7 @@ class System_Dashboard_Admin {
 
 					$output .= $this->sd_html( 'field-content-start' );
 					$output .= $this->sd_html( 'field-content-first', $role );
-					$output .= $this->sd_html( 'field-content-second', $count .' users' );
+					$output .= $this->sd_html( 'field-content-second', $count .' ' . __( 'users', 'system-dashboard' ) );
 					$output .= $this->sd_html( 'field-content-end' );
 
 				}
@@ -1344,7 +1344,7 @@ class System_Dashboard_Admin {
 				return number_format_i18n($bytes, 0) . ' bytes';
 			}
 		} else {
-			return 'Unknown';
+			return __( 'Unknown', 'system-dashboard' );
 		}
 	}
 
@@ -1368,7 +1368,7 @@ class System_Dashboard_Admin {
 				return number_format_i18n($kiloBytes / 1, 0) . ' KB';
 			}
 		} else {
-			return 'Unknown';
+			return __( 'Unknown', 'system-dashboard' );
 		}
 	}
 
@@ -1390,15 +1390,15 @@ class System_Dashboard_Admin {
 					$uptime_in_days = (float) ( $uptime / 60 / 60 / 24 );
 					$uptime = number_format_i18n( $uptime_in_days ). ' days';				
 				} else {
-					$uptime = 'Undetectable.';					
+					$uptime = __( 'Undetectable', 'system-dashboard' );					
 				}
 			} else {
-				$uptime = 'Undetectable.';				
+				$uptime = __( 'Undetectable', 'system-dashboard' );				
 			}
 
 		} else {
 
-			$uptime = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+			$uptime = __( 'Undetectable. Please enable \'shell_exec\' function in PHP first.', 'system-dashboard' );
 			
 		}
 
@@ -1427,10 +1427,10 @@ class System_Dashboard_Admin {
 					$os = str_replace( ":", "", $os );
 					$os = str_replace( "Description", "", $os );				
 				} else {
-					$os = 'Undetectable';
+					$os = __( 'Undetectable', 'system-dashboard' );
 				}
 			} else {
-				$os = 'Undetectable';
+				$os = __( 'Undetectable', 'system-dashboard' );
 			}
 
 		} else {
@@ -1481,7 +1481,7 @@ class System_Dashboard_Admin {
 				
 			} else {
 				
-				$location = 'Undetectable';
+				$location = __( 'Undetectable', 'system-dashboard' );
 
 			}
 
@@ -1489,7 +1489,7 @@ class System_Dashboard_Admin {
 
 		} else {
 
-			return 'Undetectable';
+			return __( 'Undetectable', 'system-dashboard' );
 
 		}
 
@@ -1516,7 +1516,7 @@ class System_Dashboard_Admin {
 
 					set_transient('sd_cpu_type', $sd_cpu_type, WEEK_IN_SECONDS);					
 				} else {
-					$sd_cpu_type = 'Undetectable';
+					$sd_cpu_type = __( 'Undetectable', 'system-dashboard' );
 					set_transient('sd_cpu_type', $sd_cpu_type, WEEK_IN_SECONDS);					
 				}
 
@@ -1524,7 +1524,7 @@ class System_Dashboard_Admin {
 
 		} else {
 
-			$sd_cpu_type = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+			$sd_cpu_type = __( 'Undetectable. Please enable \'shell_exec\' function in PHP first.', 'system-dashboard' );
 
 		}
 
@@ -1602,11 +1602,11 @@ class System_Dashboard_Admin {
 
 		if ( ( $cpus_count != 'Undetectable' ) && ( $cores_count != 'Undetectable' ) ) {
 
-			return $this->sd_cpu_count(). ' CPUs / '. $this->sd_cpu_core_count() . ' cores';
+			return $this->sd_cpu_count(). ' CPUs / '. $this->sd_cpu_core_count() . ' ' . __( 'cores', 'system-dashboard' );
 
 		} else {
 
-			return 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+			return __( 'Undetectable. Please enable \'shell_exec\' function in PHP first.', 'system-dashboard' );
 
 		}
 
@@ -1679,23 +1679,23 @@ class System_Dashboard_Admin {
 
 					}
 
-					$cpu_load_average = 'Last 15 minutes: '. $last_15minutes_pct .' ('. $last_15minutes .')<br /> Last 5 minutes: '. $last_5minutes_pct .' ('. $last_5minutes .')<br /> Last 1 minute: '. $last_1minutes_pct .' ('. $last_1minute .')';	
+					$cpu_load_average = __( 'Last 15 minutes', 'system-dashboard' ) . ': '. $last_15minutes_pct .' ('. $last_15minutes .')<br /> ' . __( 'Last 5 minutes', 'system-dashboard' ) . ': '. $last_5minutes_pct .' ('. $last_5minutes .')<br /> ' . __( 'Last 1 minute', 'system-dashboard' ) . ': '. $last_1minutes_pct .' ('. $last_1minute .')';	
 					
 				} else {
 
-					$cpu_load_average = 'Undetectable.';
+					$cpu_load_average = __( 'Undetectable', 'system-dashboard' );
 					
 				}
 							
 			} else {
 
-				$cpu_load_average = 'Undetectable.';
+				$cpu_load_average = __( 'Undetectable', 'system-dashboard' );
 				
 			}
 
 		} else {
 
-			$cpu_load_average = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+			$cpu_load_average = __( 'Undetectable. Please enable \'shell_exec\' function in PHP first.', 'system-dashboard' );
 
 		}
 
@@ -1887,7 +1887,7 @@ class System_Dashboard_Admin {
 
 		} else {
 
-			return 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+			return __( 'Undetectable. Please enable \'shell_exec\' function in PHP first.', 'system-dashboard' );
 
 		}
 
@@ -1904,7 +1904,7 @@ class System_Dashboard_Admin {
 
 		if ( $total_ram == 'Undetectable' ) {
 
-			return 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+			return __( 'Undetectable. Please enable \'shell_exec\' function in PHP first.', 'system-dashboard' );
 
 		} else {
 
@@ -1994,7 +1994,7 @@ class System_Dashboard_Admin {
 
 		} else {
 
-			return 'Undetectable';
+			return __( 'Undetectable', 'system-dashboard' );
 
 		}
 
@@ -2012,7 +2012,7 @@ class System_Dashboard_Admin {
 
 
 			if ( !class_exists( 'DOMDocument' ) ) {
-				return 'Please enable DOMDocument extension first.';
+				return __( 'Please enable DOMDocument extension first.', 'system-dashboard' );
 			} else {
 
 				ob_start();
@@ -2154,37 +2154,37 @@ class System_Dashboard_Admin {
 			$output = '';
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'All directories and files' );
+			$output .= $this->sd_html( 'field-content-first', __( 'All directories and files', 'system-dashboard' ) );
 			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ) . $this->sd_files_count( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'wp-admin directory' );
+			$output .= $this->sd_html( 'field-content-first', '/wp-admin' );
 			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-admin' ) . $this->sd_files_count( ABSPATH . '/wp-admin' ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'wp-includes directory' );
+			$output .= $this->sd_html( 'field-content-first', '/wp-includes' );
 			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-includes' ) . $this->sd_files_count( ABSPATH . '/wp-includes' ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'wp-content directory' );
+			$output .= $this->sd_html( 'field-content-first', '/wp-content' );
 			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR ) . $this->sd_files_count( WP_CONTENT_DIR ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'wp-content/uploads directory' );
+			$output .= $this->sd_html( 'field-content-first', '/wp-content/uploads' );
 			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/uploads' ) . $this->sd_files_count( WP_CONTENT_DIR.'/uploads' ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'wp-content/plugins directory' );
+			$output .= $this->sd_html( 'field-content-first', '/wp-content/plugins' );
 			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/plugins' ) . $this->sd_files_count( WP_CONTENT_DIR.'/plugins' ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'wp-content/themes directory' );
+			$output .= $this->sd_html( 'field-content-first', '/wp-content/themes' );
 			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/themes' ) . $this->sd_files_count( WP_CONTENT_DIR.'/themes' ) );
 			$output .= $this->sd_html( 'field-content-end' );
 
@@ -2210,57 +2210,57 @@ class System_Dashboard_Admin {
 			$xmark = '<span class="sd__symbol sd__symbol--red">&cross;</span>';
 
 			if ( wp_is_writable( ABSPATH ) ) {
-				$is_writable_abspath = $checkmark . ' Writeable';
+				$is_writable_abspath = $checkmark . ' ' . __( 'Writeable', 'system-dashboard' );
 			} else {
-				$is_writable_abspath = $xmark . ' Not writeable';			
+				$is_writable_abspath = $xmark . ' ' . __( 'Not writeable', 'system-dashboard' );			
 			}
 
 			if ( wp_is_writable( WP_CONTENT_DIR ) ) {
-				$is_writable_wp_content_dir = $checkmark . ' Writeable';
+				$is_writable_wp_content_dir = $checkmark . ' ' . __( 'Writeable', 'system-dashboard' );
 			} else {
-				$is_writable_wp_content_dir = $xmark . ' Not writeable';			
+				$is_writable_wp_content_dir = $xmark . ' ' . __( 'Not writeable', 'system-dashboard' );			
 			}
 
 			if ( wp_is_writable( wp_upload_dir()['basedir'] ) ) {
-				$is_writable_upload_dir = $checkmark . ' Writeable';
+				$is_writable_upload_dir = $checkmark . ' ' . __( 'Writeable', 'system-dashboard' );
 			} else {
-				$is_writable_upload_dir = $xmark . ' Not writeable';			
+				$is_writable_upload_dir = $xmark . ' ' . __( 'Not writeable', 'system-dashboard' );			
 			}
 
 			if ( wp_is_writable( WP_PLUGIN_DIR ) ) {
-				$is_writable_wp_plugin_dir = $checkmark . ' Writeable';
+				$is_writable_wp_plugin_dir = $checkmark . ' ' . __( 'Writeable', 'system-dashboard' );
 			} else {
-				$is_writable_wp_plugin_dir = $xmark . ' Not writeable';			
+				$is_writable_wp_plugin_dir = $xmark . ' ' . __( 'Not writeable', 'system-dashboard' );			
 			}
 
 			if ( wp_is_writable( get_theme_root( get_template() ) ) ) {
-				$is_writable_template_directory = $checkmark . ' Writeable';
+				$is_writable_template_directory = $checkmark . ' ' . __( 'Writeable', 'system-dashboard' );
 			} else {
-				$is_writable_template_directory = $xmark . ' Not writeable';			
+				$is_writable_template_directory = $xmark . ' ' . __( 'Not writeable', 'system-dashboard' );			
 			}
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'The main WordPress directory' );
+			$output .= $this->sd_html( 'field-content-first', __( 'The main WordPress directory', 'system-dashboard' ) );
 			$output .= $this->sd_html( 'field-content-second', $is_writable_abspath );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'The wp-content directory' );
+			$output .= $this->sd_html( 'field-content-first', '/wp-content' );
 			$output .= $this->sd_html( 'field-content-second', $is_writable_wp_content_dir );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'The wp-content/uploads directory' );
+			$output .= $this->sd_html( 'field-content-first', '/wp-content/uploads' );
 			$output .= $this->sd_html( 'field-content-second', $is_writable_upload_dir );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'The wp-content/plugins directory' );
+			$output .= $this->sd_html( 'field-content-first', '/wp-content/plugins' );
 			$output .= $this->sd_html( 'field-content-second', $is_writable_wp_plugin_dir );
 			$output .= $this->sd_html( 'field-content-end' );
 
 			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'The wp-content/themes directory' );
+			$output .= $this->sd_html( 'field-content-first', '/wp-content/themes' );
 			$output .= $this->sd_html( 'field-content-second', $is_writable_template_directory );
 			$output .= $this->sd_html( 'field-content-end' );
 
@@ -2285,7 +2285,7 @@ class System_Dashboard_Admin {
 
 		$count = iterator_count( $objects );
 
-		return ' - ' . number_format($count) . ' files and directories';
+		return ' - ' . number_format($count) . ' ' . __( 'files and directories', 'system-dashboard' );
 
 	}
 	/**
@@ -2320,7 +2320,7 @@ class System_Dashboard_Admin {
 
 					} else {
 
-						$output = $file_path . ' does not exist';
+						$output = $file_path . ' ' . __( 'does not exist', 'system-dashboard' );
 
 					}
 
@@ -2793,15 +2793,15 @@ class System_Dashboard_Admin {
 			if ( $type == 'core' ) {
 
 				$output = $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', '<strong>Table Name</strong>' );
-				$output .= $this->sd_html( 'field-content-second', $this->sd_html_parts( 'thirds', 'parts-heading', 'Data Size', 'Index Size', 'Rows' ) );
+				$output .= $this->sd_html( 'field-content-first', '<strong>' . __( 'Table Name', 'system-dashboard' ) . '</strong>' );
+				$output .= $this->sd_html( 'field-content-second', $this->sd_html_parts( 'thirds', 'parts-heading', __( 'Data Size', 'system-dashboard' ), __( 'Index Size', 'system-dashboard' ), __( 'Rows', 'system-dashboard' ) ) );
 				$output .= $this->sd_html( 'field-content-end' );
 
 			} elseif ( $type == 'noncore' ) {
 
 				$output = $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', '<strong>Table Name</strong> &#10132; <strong>Origin (Status)</strong>' );
-				$output .= $this->sd_html( 'field-content-second', $this->sd_html_parts( 'thirds', 'parts-heading', 'Data Size', 'Index Size', 'Rows' ) );
+				$output .= $this->sd_html( 'field-content-first', '<strong>' . __( 'Table Name', 'system-dashboard' ) . '</strong> &#10132; <strong>' . __( 'Origin (Status)', 'system-dashboard' ) . '</strong>' );
+				$output .= $this->sd_html( 'field-content-second', $this->sd_html_parts( 'thirds', 'parts-heading', __( 'Data Size', 'system-dashboard' ), __( 'Index Size', 'system-dashboard' ), __( 'Rows', 'system-dashboard' ) ) );
 				$output .= $this->sd_html( 'field-content-end' );
 
 			}
@@ -2871,7 +2871,7 @@ class System_Dashboard_Admin {
 
 											if ( strpos( $plugin_file, $origin_plugin ) !== false ) {
 
-												$plugin_status = 'active';
+												$plugin_status = __( 'active', 'system-dashboard' );
 
 												$origin_plugin_output .= '<span class="db-table-origin-plugin">&#10132; <a href="https://wordpress.org/plugins/'.$origin_plugin.'/" target="_blank">' . $plugin_info['Name'] . '</a> ('. $plugin_status .')</span><br />';
 
@@ -2885,7 +2885,7 @@ class System_Dashboard_Admin {
 
 											if ( strpos( $plugin_file, $origin_plugin ) !== false ) {
 
-												$plugin_status = 'deactivated';
+												$plugin_status = __( 'deactivated', 'system-dashboard' );
 
 												$origin_plugin_output .= '<span class="db-table-origin-plugin">&#10132; <a href="https://wordpress.org/plugins/'.$origin_plugin.'/" target="_blank">' . $plugin_info['Name'] . '</a> ('. $plugin_status .')</span><br />';
 
@@ -2901,7 +2901,7 @@ class System_Dashboard_Admin {
 
 									$orphaned_tables[] = $table_name;
 
-									$plugin_status = 'uninstalled';
+									$plugin_status = __( 'uninstalled', 'system-dashboard' );
 
 									$origin_plugin_output .= '';
 
@@ -2919,7 +2919,7 @@ class System_Dashboard_Admin {
 
 						} else {
 
-							$origin_plugin_output .= '<span class="db-table-origin-plugin">&#10132; Originating plugin is undetectable</span>';
+							$origin_plugin_output .= '<span class="db-table-origin-plugin">&#10132; ' . __( 'Originating plugin is undetectable', 'system-dashboard' ) . '</span>';
 
 						}
 
@@ -3007,7 +3007,7 @@ class System_Dashboard_Admin {
 
 			} else {
 
-				$client_version = 'Undetectable';
+				$client_version = __( 'Undetectable', 'system-dashboard' );
 
 			}
 
@@ -3066,35 +3066,35 @@ class System_Dashboard_Admin {
 
 			$db_specs = array(
 				array(
-					'name'					=> 'Extension',
+					'name'					=> __( 'Extension', 'system-dashboard' ),
 					'value'					=> $this->sd_db_client( 'extension' ),
 				),
 				array(
-					'name'					=> 'Client Version',
+					'name'					=> __( 'Client Version', 'system-dashboard' ),
 					'value'					=> $this->sd_db_client( 'client_version' ),
 				),
 				array(
-					'name'					=> 'Engine',
+					'name'					=> __( 'Engine', 'system-dashboard' ),
 					'value'					=> $default_storage_engine,
 				),
 				array(
-					'name'					=> 'Character Set',
+					'name'					=> __( 'Character Set', 'system-dashboard' ),
 					'value'					=> $charset,
 				),
 				array(
-					'name'					=> 'Collation',
+					'name'					=> __( 'Collation', 'system-dashboard' ),
 					'value'					=> $collation,
 				),
 				array(
-					'name'					=> 'Host',
+					'name'					=> __( 'Host', 'system-dashboard' ),
 					'value'					=> DB_HOST,
 				),
 				array(
-					'name'					=> 'Name',
+					'name'					=> __( 'Name', 'system-dashboard' ),
 					'value'					=> DB_NAME,
 				),
 				array(
-					'name'					=> 'User',
+					'name'					=> __( 'User', 'system-dashboard' ),
 					'value'					=> DB_USER,
 				),
 				array(
@@ -3172,7 +3172,7 @@ class System_Dashboard_Admin {
 
 			} else {
 
-				$output .= 'Undetectable';
+				$output .= __( 'Undetectable', 'system-dashboard' );
 
 			}
 
@@ -3213,8 +3213,8 @@ class System_Dashboard_Admin {
 		$custom_crons_count = 0;
 
 		$header = $this->sd_html( 'field-content-start' );
-		$header .= $this->sd_html( 'field-content-first', '<strong>Hook</strong>' );
-		$header .= $this->sd_html( 'field-content-second', '<strong>Recurrence</strong>' );
+		$header .= $this->sd_html( 'field-content-first', '<strong>' . __( 'Hook', 'system-dashboard' ) . '</strong>' );
+		$header .= $this->sd_html( 'field-content-second', '<strong>' . __( 'Recurrence', 'system-dashboard' ) . '</strong>' );
 		$header .= $this->sd_html( 'field-content-end' );
 
 		$wpcore_crons .= $header;
@@ -3343,7 +3343,7 @@ class System_Dashboard_Admin {
 
 			} else {
 
-				$output = 'Currently, there are no defined rewrite rules.';
+				$output = __( 'Currently, there are no defined rewrite rules.', 'system-dashboard' );
 
 			}			
 		}
@@ -3429,8 +3429,8 @@ class System_Dashboard_Admin {
 				$output = '';
 
 				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', '<strong>Shortcode</strong>' );
-				$output .= $this->sd_html( 'field-content-second', '<strong>Rendered By</strong>' );
+				$output .= $this->sd_html( 'field-content-first', '<strong>' . __( 'Shortcode', 'system-dashboard' ) . '</strong>' );
+				$output .= $this->sd_html( 'field-content-second', '<strong>' . __( 'Rendered By', 'system-dashboard' ) . '</strong>' );
 				$output .= $this->sd_html( 'field-content-end' );
 
 				foreach ( $shortcode_tags as $shortcode => $callback ) {
@@ -3944,8 +3944,8 @@ class System_Dashboard_Admin {
 		$table_prefix = $wpdb->prefix;
 
 		$output = '';
-		$enable_persistent_cache_msg = 'Please enable a <a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">persistence object cache plugin</a> first to see the relevant info here.';
-		$enable_persistent_cache_msg_full = 'Please enable a <a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">persistence object cache plugin</a> first to see the relevant info here. Plugins that have been tested to work with this module is listed under \'Tools\' below. For Redis implementation by managed WordPress hosting, only Runcloud Hub plugin is currently tested to work. Please <a href="https://wordpress.org/support/plugin/system-dashboard/" target="_blank">provide feedback</a> if it does not work with your hosting environment. Specifically, please post a sample cached key-value pairs from the Globals >> Common >> $wp_object_cache global, and also the relevant constants from Constants >> Defined Constants >> From Themes and Plugin, e.g. SOMEHOST_REDIS_ENABLED.';
+		$enable_persistent_cache_msg = __( 'Please enable a <a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">persistence object cache plugin</a> first to see the relevant info here.', 'system-dashboard' );
+		$enable_persistent_cache_msg_full = __( 'Please enable a <a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">persistence object cache plugin</a> first to see the relevant info here. Plugins that have been tested to work with this module is listed under \'Tools\' below. For Redis implementation by managed WordPress hosting, only Runcloud Hub plugin is currently tested to work. Please <a href="https://wordpress.org/support/plugin/system-dashboard/" target="_blank">provide feedback</a> if it does not work with your hosting environment. Specifically, please post a sample cached key-value pairs from the Globals >> Common >> $wp_object_cache global, and also the relevant constants from Constants >> Defined Constants >> From Themes and Plugin, e.g. SOMEHOST_REDIS_ENABLED.', 'system-dashboard' );
 
 		// Get Object Cache backend status
 
@@ -3973,7 +3973,7 @@ class System_Dashboard_Admin {
 
 			} else {
 
-				$output .= '<a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">Persistent object cache plugin</a> is not in use';
+				$output .= __( '<a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">Persistent object cache plugin</a> is not in use', 'system-dashboard' );
 
 			}
 
@@ -4582,7 +4582,7 @@ class System_Dashboard_Admin {
 
 		} else {
 
-			echo 'None. Please define cache key and cache group first.';
+			echo __( 'None. Please define cache key and cache group first.', 'system-dashboard' );
 
 		}
 
@@ -4703,7 +4703,7 @@ EOD;
 		if ( is_array( $page_access_log ) && isset( $page_access_log['status'] ) ) {
 			$page_access_log_status = $page_access_log['status'];		
 		} else {
-			$page_access_log_status = 'Unknown';
+			$page_access_log_status = __( 'Unknown', 'system-dashboard' );
 		}
 
 		$errors_log = get_option( 'system_dashboard_errors_log' );
@@ -4711,7 +4711,7 @@ EOD;
 		if ( is_array( $errors_log ) && isset( $errors_log['status'] ) ) {
 			$errors_log_status = $errors_log['status'];
 		} else {
-			$errors_log_status = 'Unknown';
+			$errors_log_status = __( 'Unknown', 'system-dashboard' );
 		}
 
 		$email_delivery_log = get_option( 'system_dashboard_email_delivery_log' );
@@ -4719,7 +4719,7 @@ EOD;
 		if ( is_array( $email_delivery_log ) && isset( $email_delivery_log['status'] ) ) {
 			$email_delivery_log_status = $email_delivery_log['status'];
 		} else {
-			$email_delivery_log_status = 'Unknown';
+			$email_delivery_log_status = __( 'Unknown', 'system-dashboard' );
 		}
 
 		?>
@@ -6468,7 +6468,7 @@ EOD;
 				
 			} else {
 
-				echo 'None. Please define option name first.';
+				echo __( 'None. Please define option name first.', 'system-dashboard' );
 				
 			}
 
@@ -7522,7 +7522,7 @@ EOD;
 
 		} else {
 
-			echo 'None. Please define global variable\'s name first.';
+			echo __( 'None. Please define global variable\'s name first.', 'system-dashboard' );
 
 		}
 
@@ -10457,7 +10457,7 @@ EOD;
 		$output = '';
 
 		$output .= $this->sd_html( 'accordions-start-left' );
-		$output .= $this->sd_html( 'accordion-head', 'View' );
+		$output .= $this->sd_html( 'accordion-head', __( 'View', 'system-dashboard' ) );
 
 		$tools_output = '';
 
@@ -11005,7 +11005,7 @@ EOD;
 		$output = '';
 
 		$output .= $this->sd_html( 'accordions-start-left' );
-		$output .= $this->sd_html( 'accordion-head', 'View' );
+		$output .= $this->sd_html( 'accordion-head', __( 'View', 'system-dashboard' ) );
 
 		$references_output = '';
 
@@ -11058,7 +11058,7 @@ EOD;
 			// Create options
 
 			CSF::createOptions ( $prefix, array(
-				'menu_title' 		=> 'System',
+				'menu_title' 		=> __( 'System', 'system-dashboard' ),
 				'menu_slug' 		=> 'system-dashboard',
 				'menu_type'			=> 'submenu',
 				'menu_parent'		=> 'index.php',
@@ -11089,27 +11089,27 @@ EOD;
 						'tabs'		=> array(
 					
 							array(
-								'title'		=> 'Database',
+								'title'		=> __( 'Database', 'system-dashboard' ),
 								'fields'	=> array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'System & Uptime',
+										'title'		=> __( 'System & Uptime', 'system-dashboard' ),
 										'content'	=> $this->sd_get_mysql_version() . ' / ' . $this->sd_db_uptime(),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Data & Index Size',
+										'title'		=> __( 'Data & Index Size', 'system-dashboard' ),
 										'content'	=> $this->sd_db_disk_usage( 'data' ) . ' / ' . $this->sd_db_disk_usage( 'index' ),
 									),
 									array(
 										'id'		=> 'core_db_tables',
 										'type'		=> 'accordion',
-										'title'		=> 'Core',
+										'title'		=> __( 'Core', 'system-dashboard' ),
 										'subtitle'	=> $this->sd_db_tables( 'count-core' ) . ' tables',
 										'class'		=> 'core-db-tables',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Tables',
+												'title'		=> __( 'View Tables', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11122,12 +11122,12 @@ EOD;
 									array(
 										'id'		=> 'noncore_db_tables',
 										'type'		=> 'accordion',
-										'title'		=> 'Themes & Plugins',
+										'title'		=> __( 'Themes & Plugins', 'system-dashboard' ),
 										'subtitle'	=> $this->sd_db_tables( 'count-noncore' ) . ' tables',
 										'class'		=> 'noncore-db-tables',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Tables',
+												'title'		=> __( 'View Tables', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11139,11 +11139,11 @@ EOD;
 									),									array(
 										'id'		=> 'db_key_specs',
 										'type'		=> 'accordion',
-										'title'		=> 'Key Info',
+										'title'		=> __( 'Key Info', 'system-dashboard' ),
 										'class'		=> 'db-specs',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11156,11 +11156,11 @@ EOD;
 									array(
 										'id'		=> 'db_detail_specs',
 										'type'		=> 'accordion',
-										'title'		=> 'Detailed Specifications',
+										'title'		=> __( 'Detailed Specifications', 'system-dashboard' ),
 										'class'		=> 'db-details',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11172,12 +11172,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'Tools', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'database' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'database' ),
 									),
 
@@ -11185,16 +11185,16 @@ EOD;
 							),
 
 							array(
-								'title' => 'Post Types & Taxonomies',
+								'title' => __( 'Post Types & Taxonomies', 'system-dashboard' ),
 								'fields' => array(
 									array(
 										'id'		=> 'post_types',
 										'type'		=> 'accordion',
-										'title'		=> 'Post Types Post Count',
+										'title'		=> __( 'Post Types Post Count', 'system-dashboard' ),
 										'class'		=> 'post-types',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11207,11 +11207,11 @@ EOD;
 									array(
 										'id'		=> 'taxonomies',
 										'type'		=> 'accordion',
-										'title'		=> 'Taxonomies Term Count',
+										'title'		=> __( 'Taxonomies Term Count', 'system-dashboard' ),
 										'class'		=> 'taxonomies',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11224,11 +11224,11 @@ EOD;
 									array(
 										'id'		=> 'pttax_old_slugs',
 										'type'		=> 'accordion',
-										'title'		=> 'Old Slugs',
+										'title'		=> __( 'Old Slugs', 'system-dashboard' ),
 										'class'		=> 'old-slugs',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11240,12 +11240,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'Tools', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'posttypes_taxonomies' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'posttypes_taxonomies' ),
 									),
 
@@ -11253,17 +11253,17 @@ EOD;
 							),
 
 							array(
-								'title'		=> 'Media',
+								'title'		=> __( 'Media', 'system-dashboard' ),
 								'fields'	=> array(
 
 									array(
 										'id'		=> 'media_count_by_mime',
 										'type'		=> 'accordion',
-										'title'		=> 'Media Count by Mime Type',
+										'title'		=> __( 'Media Count by Mime Type', 'system-dashboard' ),
 										'class'		=> 'media-count',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11276,11 +11276,11 @@ EOD;
 									array(
 										'id'		=> 'media_allowed_mime_types',
 										'type'		=> 'accordion',
-										'title'		=> 'Allowed Mime Types',
+										'title'		=> __( 'Allowed Mime Types', 'system-dashboard' ),
 										'class'		=> 'mime-types',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11293,11 +11293,11 @@ EOD;
 									array(
 										'id'		=> 'image_sizes',
 										'type'		=> 'accordion',
-										'title'		=> 'Registered Image Sizes',
+										'title'		=> __( 'Registered Image Sizes', 'system-dashboard' ),
 										'class'		=> 'image-sizes',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11311,11 +11311,11 @@ EOD;
 									array(
 										'id'		=> 'media_handling',
 										'type'		=> 'accordion',
-										'title'		=> 'Media Handling',
+										'title'		=> __( 'Media Handling', 'system-dashboard' ),
 										'class'		=> 'media-handling',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11327,12 +11327,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'Tools', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'media' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'media' ),
 									),
 
@@ -11344,17 +11344,17 @@ EOD;
 								'fields' => array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Root path',
+										'title'		=> __( 'Root path', 'system-dashboard' ),
 										'content'	=> str_replace( "/wp-content", "", WP_CONTENT_DIR ),
 									),
 									array(
 										'id'		=> 'directory_sizes',
 										'type'		=> 'accordion',
-										'title'		=> 'Directory Sizes',
+										'title'		=> __( 'Directory Sizes', 'system-dashboard' ),
 										'class'		=> 'directory-sizes',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11367,11 +11367,11 @@ EOD;
 									array(
 										'id'		=> 'filesystem_permissions',
 										'type'		=> 'accordion',
-										'title'		=> 'Filesystem Permissions',
+										'title'		=> __( 'Filesystem Permissions', 'system-dashboard' ),
 										'class'		=> 'filesystem-permissions',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11383,30 +11383,30 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'Tools', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'directories' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'directories' ),
 									),
 								),
 							),
 
 							array(
-								'title' => 'Custom Fields',
+								'title' => __( 'Custom Fields', 'system-dashboard' ),
 								'fields' => array(
 
 									array(
 										'id'		=> 'custom_fields',
 										'type'		=> 'accordion',
-										'title'		=> 'By Type',
+										'title'		=> __( 'By Type', 'system-dashboard' ),
 										'class'		=> 'custom-fields',
 										'accordions'	=> array(
 
 											array(
-												'title'		=> 'View Public Fields (' . $this->sd_custom_fields( 'public-count' ) . ')',
+												'title'		=> __( 'View Public Fields', 'system-dashboard' ) . ' (' . $this->sd_custom_fields( 'public-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11415,7 +11415,7 @@ EOD;
 												),
 											),
 											array(
-												'title'		=> 'View Private Fields (' . $this->sd_custom_fields( 'private-count' ) . ')',
+												'title'		=> __( 'View Private Fields', 'system-dashboard' ) . ' (' . $this->sd_custom_fields( 'private-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11428,12 +11428,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'Tools', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'custom_fields' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'custom_fields' ),
 									),
 
@@ -11441,17 +11441,17 @@ EOD;
 							),
 
 							array(
-								'title' => 'Users',
+								'title' => __( 'Users', 'system-dashboard' ),
 								'fields' => array(
 
 									array(
 										'id'		=> 'user_count_by_role',
 										'type'		=> 'accordion',
-										'title'		=> 'Users Count by Role',
+										'title'		=> __( 'Users Count by Role', 'system-dashboard' ),
 										'class'		=> 'user-count',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11464,11 +11464,11 @@ EOD;
 									array(
 										'id'		=> 'urc_tools',
 										'type'		=> 'accordion',
-										'title'		=> 'Roles & Capabilities',
+										'title'		=> __( 'Roles & Capabilities', 'system-dashboard' ),
 										'class'		=> 'roles-capabilities',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11480,12 +11480,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'Tools', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'users_roles_capabilities' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'users_roles_capabilities' ),
 									),
 
@@ -11504,26 +11504,26 @@ EOD;
 						'tabs'		=> array(
 
 							array(
-								'title'		=> 'Options',
+								'title'		=> __( 'Options', 'system-dashboard' ),
 								'fields'	=> array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Total',
+										'title'		=> __( 'Total', 'system-dashboard' ),
 										'content'	=> $this->sd_options( 'total_count' ) . ' options',
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Autoloaded',
+										'title'		=> __( 'Autoloaded', 'system-dashboard' ),
 										'content'	=> $this->sd_options( 'total_count_autoloaded' ) . ' options | Total size: ' . $this->sd_options( 'total_autoloaded_size' ),
 									),
 									array(
 										'id'		=> 'wp_core_options',
 										'type'		=> 'accordion',
-										'title'		=> 'Core',
+										'title'		=> __( 'Core', 'system-dashboard' ),
 										'subtitle'	=> $this->sd_options( 'wpcore_count' ) . ' options',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Options',
+												'title'		=> __( 'View Options', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11536,11 +11536,11 @@ EOD;
 									array(
 										'id'		=> 'wp_noncore_options',
 										'type'		=> 'accordion',
-										'title'		=> 'Themes & Plugins',
+										'title'		=> __( 'Themes & Plugins', 'system-dashboard' ),
 										'subtitle'	=> $this->sd_options( 'noncore_count' ) . ' options',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Options',
+												'title'		=> __( 'View Options', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11553,11 +11553,11 @@ EOD;
 									array(
 										'id'		=> 'wp_noncore_options',
 										'type'		=> 'accordion',
-										'title'		=> 'Largest Autoloaded',
+										'title'		=> __( 'Largest Autoloaded', 'system-dashboard' ),
 										'subtitle'	=> '10 options',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Options',
+												'title'		=> __( 'View Options', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11569,12 +11569,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'Tools', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'options' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'options' ),
 									),
 
@@ -11582,26 +11582,26 @@ EOD;
 							),
 
 							array(
-								'title'		=> 'Transients',
+								'title'		=> __( 'Transients', 'system-dashboard' ),
 								'fields'	=> array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Total',
+										'title'		=> __( 'Total', 'system-dashboard' ),
 										'content'	=> $this->sd_transients( 'total_count' ) . ' transients',
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Autoloaded',
+										'title'		=> __( 'Autoloaded', 'system-dashboard' ),
 										'content'	=> $this->sd_transients( 'total_count_autoloaded' ) . ' transients | Total size: ' . $this->sd_transients( 'total_autoloaded_size' ),
 									),
 									array(
 										'id'		=> 'transients_active',
 										'type'		=> 'accordion',
-										'title'		=> 'With Expiration',
+										'title'		=> __( 'With Expiration', 'system-dashboard' ),
 										'subtitle'	=> $this->sd_transients( 'count', 'active' ) . ' transients',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Transients',
+												'title'		=> __( 'View Transients', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11614,11 +11614,11 @@ EOD;
 									array(
 										'id'		=> 'transients_expired',
 										'type'		=> 'accordion',
-										'title'		=> 'Expired',
+										'title'		=> __( 'Expired', 'system-dashboard' ),
 										'subtitle'	=> $this->sd_transients( 'count', 'expired' ) . ' transients',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Transients',
+												'title'		=> __( 'View Transients', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11631,11 +11631,11 @@ EOD;
 									array(
 										'id'		=> 'transients_neverexpire',
 										'type'		=> 'accordion',
-										'title'		=> 'Does Not Expire',
+										'title'		=> __( 'Does Not Expire', 'system-dashboard' ),
 										'subtitle'	=> $this->sd_transients( 'count', 'neverexpire' ) . ' transients',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Transients',
+												'title'		=> __( 'View Transients', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11647,12 +11647,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'Tools', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'transients' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'transients' ),
 									),
 
@@ -11660,25 +11660,25 @@ EOD;
 							),
 
 							array(
-								'title'		=> 'Object Cache',
+								'title'		=> __( 'Object Cache', 'system-dashboard' ),
 								'fields'	=> array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Status',
+										'title'		=> __( 'Status', 'system-dashboard' ),
 										'content'	=> $this->sd_object_cache( 'status' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Stats',
+										'title'		=> __( 'Stats', 'system-dashboard' ),
 										'content'	=> $this->sd_object_cache( 'stats' ),
 									),
 									array(
 										'id'		=> 'object_cache_global_groups',
 										'type'		=> 'accordion',
-										'title'		=> 'Global Groups',
+										'title'		=> __( 'Global Groups', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11691,10 +11691,10 @@ EOD;
 									array(
 										'id'		=> 'object_cache_ignored_groups',
 										'type'		=> 'accordion',
-										'title'		=> 'Non-persistent Groups',
+										'title'		=> __( 'Non-persistent Groups', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11707,10 +11707,10 @@ EOD;
 									array(
 										'id'		=> 'object_cache_content',
 										'type'		=> 'accordion',
-										'title'		=> 'From $wp_object_cache',
+										'title'		=> __( 'From $wp_object_cache', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Cache Content',
+												'title'		=> __( 'View Cache Content', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11723,10 +11723,10 @@ EOD;
 									array(
 										'id'		=> 'object_cache_content',
 										'type'		=> 'accordion',
-										'title'		=> 'From Memory',
+										'title'		=> __( 'From Memory', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Cache Content',
+												'title'		=> __( 'View Cache Content', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11739,10 +11739,10 @@ EOD;
 									array(
 										'id'		=> 'object_cache_diagnostics',
 										'type'		=> 'accordion',
-										'title'		=> 'Diagnostics',
+										'title'		=> __( 'Diagnostics', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11754,33 +11754,33 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'Tools', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'object_cache' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'object_cache' ),
 									),
 
 								),
 							),
 							array(
-								'title'		=> 'Cron',
+								'title'		=> __( 'Cron', 'system-dashboard' ),
 								'fields'	=> array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Total',
+										'title'		=> __( 'Total', 'system-dashboard' ),
 										'content'	=> $this->sd_cron( 'all', 'count' ) . ' cron events',
 									),
 									array(
 										'id'		=> 'cron_events',
 										'type'		=> 'accordion',
-										'title'		=> 'Core',
+										'title'		=> __( 'Core', 'system-dashboard' ),
 										'subtitle'		=> $this->sd_cron( 'wpcore', 'count' ) . ' events',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11793,11 +11793,11 @@ EOD;
 									array(
 										'id'		=> 'cron_events',
 										'type'		=> 'accordion',
-										'title'		=> 'Themes & Plugins',
+										'title'		=> __( 'Themes & Plugins', 'system-dashboard' ),
 										'subtitle'		=> $this->sd_cron( 'custom', 'count' ) . ' events',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11810,11 +11810,11 @@ EOD;
 									array(
 										'id'		=> 'cron_events',
 										'type'		=> 'accordion',
-										'title'		=> 'Schedules',
+										'title'		=> __( 'Schedules', 'system-dashboard' ),
 										'subtitle'		=> $this->sd_cron( 'schedules', 'count' ) . ' intervals',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11826,12 +11826,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'View', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'cron' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'cron' ),
 									),
 
@@ -11840,23 +11840,23 @@ EOD;
 
 
 							array(
-								'title'		=> 'Rewrite Rules',
+								'title'		=> __( 'Rewrite Rules', 'system-dashboard' ),
 								'fields'	=> array(
 
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Total',
+										'title'		=> __( 'Total', 'system-dashboard' ),
 										'content'	=> $this->sd_rewrite_rules_count() . ' rules',
 									),
 									array(
 										'id'		=> 'rewrite_rules',
 										'type'		=> 'accordion',
-										'title'		=> 'List',
-										'subtitle'	=> 'URL Structure <br />&#10132; Query Parameters',
+										'title'		=> __( 'List', 'system-dashboard' ),
+										'subtitle'	=> __( 'URL Structure <br />&#10132; Query Parameters', 'system-dashboard' ),
 										'class'		=> 'rewrite-rules',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11868,12 +11868,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'View', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'rewrite_rules' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'rewrite_rules' ),
 									),
 
@@ -11881,22 +11881,22 @@ EOD;
 							),
 
 							array(
-								'title'		=> 'Shortcodes',
+								'title'		=> __( 'Shortcodes', 'system-dashboard' ),
 								'fields'	=> array(
 
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Total',
+										'title'		=> __( 'Total', 'system-dashboard' ),
 										'content'	=> $this->sd_shortcodes_count() . ' shortcodes',
 									),
 									array(
 										'id'		=> 'shortcodes',
 										'type'		=> 'accordion',
-										'title'		=> 'List',
+										'title'		=> __( 'List', 'system-dashboard' ),
 										'class'		=> 'shortcodes',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11908,12 +11908,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'View', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'shortcodes' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'shortcodes' ),
 									),
 
@@ -11931,17 +11931,17 @@ EOD;
 						'tabs'		=> array(
 
 							array(
-								'title'		=> 'Hooks',
+								'title'		=> __( 'Hooks', 'system-dashboard' ),
 								'fields'	=> array(
 									array(
 										'id'		=> 'hooks_wpcore',
 										'type'		=> 'accordion',
-										'title'		=> 'Core (v6.0)',
-										'subtitle'	=> 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each hook.',
+										'title'		=> __( 'Core', 'system-dashboard' ) . ' (v6.0)',
+										'subtitle'	=>__( 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each hook.', 'system-dashboard' ),
 										'class'		=> 'wpcore-hooks',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Action Hooks',
+												'title'		=> __( 'View Action Hooks', 'system-dashboard' ),
 												'class'		=> 'core-action-hooks',
 												'fields'	=> array(
 													array(
@@ -11951,7 +11951,7 @@ EOD;
 												),
 											),
 											array(
-												'title'		=> 'View Filter Hooks',
+												'title'		=> __( 'View Filter Hooks', 'system-dashboard' ),
 												'class'		=> 'core-filter-hooks',
 												'fields'	=> array(
 													array(
@@ -11961,7 +11961,7 @@ EOD;
 												),
 											),
 											// array(
-											// 	'title'		=> 'Hooks on this page',
+											// 	'title'		=> __( 'Hooks on this page', 'system-dashboard' ),
 											// 	'fields'	=> array(
 											// 		array(
 											// 			'type'		=> 'content',
@@ -11975,12 +11975,12 @@ EOD;
 									array(
 										'id'		=> 'hooks_active_theme',
 										'type'		=> 'accordion',
-										'title'		=> 'Current Theme',
-										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.',
+										'title'		=> __( 'Current Theme', 'system-dashboard' ),
+										'subtitle'	=> __( 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.', 'system-dashboard' ),
 										'class'		=> 'sd__hooks theme-hooks',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Hooks',
+												'title'		=> __( 'View Hooks', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11993,8 +11993,8 @@ EOD;
 									array(
 										'id'		=> 'hooks_active_plugins',
 										'type'		=> 'accordion',
-										'title'		=> 'Active Plugins',
-										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.',
+										'title'		=> __( 'Active Plugins', 'system-dashboard' ),
+										'subtitle'	=> __( 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.', 'system-dashboard' ),
 										'class'		=> 'sd__hooks plugins-hooks',
 										'accordions'	=> array(
 											array(
@@ -12010,12 +12010,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'View', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'hooks' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'hooks' ),
 									),
 
@@ -12023,17 +12023,17 @@ EOD;
 							),
 
 							array(
-								'title'		=> 'Classes',
+								'title'		=> __( 'Classes', 'system-dashboard' ),
 								'fields'	=> array(
 									array(
 										'id'		=> 'classes_core',
 										'type'		=> 'accordion',
-										'title'		=> 'Core',
-										'subtitle'		=> 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each class.',
+										'title'		=> __( 'Core', 'system-dashboard' ),
+										'subtitle'		=> __( 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each class.', 'system-dashboard' ),
 										'class'		=> 'core-classes',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Classes and Methods',
+												'title'		=> __( 'View Classes and Methods', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12046,12 +12046,12 @@ EOD;
 									array(
 										'id'		=> 'classes_themes',
 										'type'		=> 'accordion',
-										'title'		=> 'Current Theme',
-										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.',
+										'title'		=> __( 'Current Theme', 'system-dashboard' ),
+										'subtitle'	=> __( 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.', 'system-dashboard' ),
 										'class'		=> 'theme-classes',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Classes and Methods',
+												'title'		=> __( 'View Classes and Methods', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12064,12 +12064,12 @@ EOD;
 									array(
 										'id'		=> 'classes_plugins',
 										'type'		=> 'accordion',
-										'title'		=> 'Active Plugins',
-										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.',
+										'title'		=> __( 'Active Plugins', 'system-dashboard' ),
+										'subtitle'	=> __( 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.', 'system-dashboard' ),
 										'class'		=> 'plugins-classes',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Classes and Methods',
+												'title'		=> __( 'View Classes and Methods', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12081,12 +12081,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'View', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'classes' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'classes' ),
 									),
 
@@ -12094,17 +12094,17 @@ EOD;
 							),
 
 							array(
-								'title'		=> 'Functions',
+								'title'		=> __( 'Functions', 'system-dashboard' ),
 								'fields'	=> array(
 									array(
 										'id'		=> 'functions_core',
 										'type'		=> 'accordion',
-										'title'		=> 'Core',
-										'subtitle'		=> 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each function.',
+										'title'		=> __( 'Core', 'system-dashboard' ),
+										'subtitle'		=> __( 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each function.', 'system-dashboard' ),
 										'class'		=> 'core-functions',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Functions'  . ' (' . $this->sd_functions( 'core-count' ) . ')',
+												'title'		=> __( 'View Functions', 'system-dashboard' )  . ' (' . $this->sd_functions( 'core-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12117,12 +12117,12 @@ EOD;
 									array(
 										'id'		=> 'functions_themes',
 										'type'		=> 'accordion',
-										'title'		=> 'Current Theme',
-										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.',
+										'title'		=> __( 'Current Theme', 'system-dashboard' ),
+										'subtitle'	=> __( 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.', 'system-dashboard' ),
 										'class'		=> 'theme-functions',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Functions'  . ' (' . $this->sd_functions( 'theme-count' ) . ')',
+												'title'		=> __( 'View Functions', 'system-dashboard' )  . ' (' . $this->sd_functions( 'theme-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12135,12 +12135,12 @@ EOD;
 									array(
 										'id'		=> 'functions_plugins',
 										'type'		=> 'accordion',
-										'title'		=> 'Active Plugins',
-										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.',
+										'title'		=> __( 'Active Plugins', 'system-dashboard' ),
+										'subtitle'	=> __( 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.', 'system-dashboard' ),
 										'class'		=> 'plugins-functions',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Functions'  . ' (' . $this->sd_functions( 'plugins-count' ) . ')',
+												'title'		=> __( 'View Functions', 'system-dashboard' )  . ' (' . $this->sd_functions( 'plugins-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12152,12 +12152,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'View', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'classes' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'classes' ),
 									),
 
@@ -12165,16 +12165,16 @@ EOD;
 							),
 
 							array(
-								'title'		=> 'Globals',
+								'title'		=> __( 'Globals', 'system-dashboard' ),
 								'fields'	=> array(
 
 									array(
 										'id'			=> 'version_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Version',
+										'title'			=> __( 'Version', 'system-dashboard' ),
 										'accordions'  	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12187,10 +12187,10 @@ EOD;
 									array(
 										'id'			=> 'common_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Common',
+										'title'			=> __( 'Common', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12203,10 +12203,10 @@ EOD;
 									array(
 										'id'			=> 'themes_plugins_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'On Themes & Plugins',
+										'title'			=> __( 'On Themes & Plugins', 'system-dashboard' ),
 										'accordions'  	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12219,10 +12219,10 @@ EOD;
 									array(
 										'id'			=> 'various_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Various',
+										'title'			=> __( 'Various', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 													'type'    => 'content',
@@ -12235,10 +12235,10 @@ EOD;
 									array(
 										'id'			=> 'admin_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Admin',
+										'title'			=> __( 'Admin', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12251,10 +12251,10 @@ EOD;
 									array(
 										'id'			=> 'current_user_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Current User',
+										'title'			=> __( 'Current User', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12267,10 +12267,10 @@ EOD;
 									array(
 										'id'			=> 'main_wp_query_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Main Query',
+										'title'			=> __( 'Main Query', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12283,10 +12283,10 @@ EOD;
 									array(
 										'id'			=> 'multisite_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Multisite',
+										'title'			=> __( 'Multisite', 'system-dashboard' ),
 										'accordions'	=> array(
 										  array(
-										    'title'   => 'View',
+										    'title'   => __( 'View', 'system-dashboard' ),
 										    'fields'  => array(
 										      array(
 										        'type'    => 'content',
@@ -12299,10 +12299,10 @@ EOD;
 									array(
 										'id'			=> 'locales_localization_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Locales & Localization',
+										'title'			=> __( 'Locales & Localization', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12315,10 +12315,10 @@ EOD;
 									array(
 										'id'			=> 'rest_api_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'REST API',
+										'title'			=> __( 'REST API', 'system-dashboard' ),
 										'accordions'	=> array(
 										  array(
-										    'title'   => 'View',
+										    'title'   => __( 'View', 'system-dashboard' ),
 										    'fields'  => array(
 										      array(
 										        'type'    => 'content',
@@ -12331,10 +12331,10 @@ EOD;
 									array(
 										'id'			=> 'browser_detection_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Browser Detection',
+										'title'			=> __( 'Browser Detection', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12347,10 +12347,10 @@ EOD;
 									array(
 										'id'			=> 'web_server_detection_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Web Server Detection',
+										'title'			=> __( 'Web Server Detection', 'system-dashboard' ),
 										'accordions'  => array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12363,10 +12363,10 @@ EOD;
 									array(
 										'id'			=> 'posts_loop_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Posts Loop',
+										'title'			=> __( 'Posts Loop', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12379,10 +12379,10 @@ EOD;
 									array(
 										'id'			=> 'comments_loop_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Comments Loop',
+										'title'			=> __( 'Comments Loop', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12395,10 +12395,10 @@ EOD;
 									array(
 										'id'			=> 'frontend_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Front-End',
+										'title'			=> __( 'Front-End', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12411,10 +12411,10 @@ EOD;
 									array(
 										'id'			=> 'non_wpcore_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'From Themes & Plugins',
+										'title'			=> __( 'From Themes & Plugins', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12427,10 +12427,10 @@ EOD;
 									array(
 										'id'			=> 'constants_reference',
 										'type'			=> 'accordion',
-										'title'			=> 'PHP Super Globals',
+										'title'			=> __( 'PHP Super Globals', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12442,7 +12442,7 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'globals' ),
 									),
 
@@ -12450,16 +12450,16 @@ EOD;
 							),
 
 							array(
-								'title'		=> 'Constants',
+								'title'		=> __( 'Constants', 'system-dashboard' ),
 								'fields'	=> array(
 									array(
 										'id'		=> 'defined_constants',
 										'type'		=> 'accordion',
-										'title'		=> 'Defined Constants',
+										'title'		=> __( 'Defined Constants', 'system-dashboard' ),
 										'class'		=> 'constant-values',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12473,11 +12473,11 @@ EOD;
 									array(
 										'id'		=> 'constants_reference',
 										'type'		=> 'accordion',
-										'title'		=> 'Constants Documentation',
+										'title'		=> __( 'Constants Documentation', 'system-dashboard' ),
 										'class'		=> 'constant-docs',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12490,7 +12490,7 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'constants' ),
 									),
 
@@ -12498,18 +12498,18 @@ EOD;
 							),
 
 							array(
-								'title' => 'Viewer',
+								'title' => __( 'Viewer', 'system-dashboard' ),
 								'fields' => array(
 
 									array(
 										'id'		=> 'viewer_wpconfig',
 										'type'		=> 'accordion',
 										'title'		=> 'wp-config.php',
-										'subtitle'	=> 'WordPress main configuration file',
+										'subtitle'	=> __( 'WordPress main configuration file', 'system-dashboard' ),
 										'class'		=> 'sd-viewer wpconfig',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12523,11 +12523,11 @@ EOD;
 										'id'		=> 'viewer_htaccess',
 										'type'		=> 'accordion',
 										'title'		=> '.htaccess',
-										'subtitle'	=> 'Apache server configuration only for the directory the file is in',
+										'subtitle'	=> __( 'Apache server configuration only for the directory the file is in', 'system-dashboard' ),
 										'class'		=> 'htaccess',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12540,12 +12540,12 @@ EOD;
 									array(
 										'id'		=> 'viewer_restapi',
 										'type'		=> 'accordion',
-										'title'		=> 'WordPress <a href="/wp-json/wp/v2" target="_blank">REST API</a>',
-										'subtitle'	=> 'An interface for applications to interact with WordPress',
+										'title'		=> __( 'WordPress <a href="/wp-json/wp/v2" target="_blank">REST API</a>', 'system-dashboard' ),
+										'subtitle'	=> __( 'An interface for applications to interact with WordPress', 'system-dashboard' ),
 										'class'		=> 'restapi_viewer',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12559,11 +12559,11 @@ EOD;
 										'id'		=> 'viewer_robots',
 										'type'		=> 'accordion',
 										'title'		=> 'robots.txt',
-										'subtitle'	=> 'Tell search engine crawlers which URLs they can access on your site',
+										'subtitle'	=> __( 'Tell search engine crawlers which URLs they can access on your site', 'system-dashboard' ),
 										'class'		=> 'robotstxt',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12575,19 +12575,19 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Sitemap',
-										'subtitle'	=> 'Contains information for search engines to crawl your site more efficiently',
-										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
+										'title'		=> __( 'Sitemap', 'system-dashboard' ),
+										'subtitle'	=> __( 'Contains information for search engines to crawl your site more efficiently', 'system-dashboard' ),
+										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">' . __( 'Access now', 'system-dashboard' ) . ' &raquo;</a>',
 									),
 									array(
 										'id'		=> 'viewer_urls_paths',
 										'type'		=> 'accordion',
-										'title'		=> 'URLs and Paths',
-										'subtitle'	=> 'From WP core functions and constants, as well as PHP $_SERVER superglobal',
+										'title'		=> __( 'URLs and Paths', 'system-dashboard' ),
+										'subtitle'	=> __( 'From WP core functions and constants, as well as PHP $_SERVER superglobal', 'system-dashboard' ),
 										'class'		=> 'urls-paths',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12599,26 +12599,26 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Recent Posts Feed',
+										'title'		=> __( 'Recent Posts Feed', 'system-dashboard' ),
 										'subtitle'	=> 'RSS 2.0',
 										'class'		=> 'posts-feed',
-										'content'	=> '<a href="/feed/" target="_blank">Access now &raquo;</a>',
+										'content'	=> '<a href="/feed/" target="_blank">' . __( 'Access now', 'system-dashboard' ) . ' &raquo;</a>',
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Recent Comments Feed',
+										'title'		=> __( 'Recent Comments Feed', 'system-dashboard' ),
 										'subtitle'	=> 'RSS 2.0',
 										'class'		=> 'comments-feed',
-										'content'	=> '<a href="/comments/feed/" target="_blank">Access now &raquo;</a>',
+										'content'	=> '<a href="/comments/feed/" target="_blank">' . __( 'Access now', 'system-dashboard' ) . ' &raquo;</a>',
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'View', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'viewer' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'viewer' ),
 									),
 
@@ -12626,18 +12626,18 @@ EOD;
 							), // End of Viewer module
 
 							array(
-								'title' => 'Logs',
+								'title' => __( 'Logs', 'system-dashboard' ),
 								'fields' => array(
 
 									array(
 										'id'		=> 'logs_page_access',
 										'type'		=> 'accordion',
-										'title'		=> '<input type="checkbox" id="page-access-log-checkbox" class="inset-3 page-access-log-checkbox"><label for="page-access-log-checkbox" class="green page-access-log-switcher"></label>Page Access',
+										'title'		=> '<input type="checkbox" id="page-access-log-checkbox" class="inset-3 page-access-log-checkbox"><label for="page-access-log-checkbox" class="green page-access-log-switcher"></label>' . __( 'Page Access', 'system-dashboard' ),
 										'subtitle'	=> '',
 										'class'		=> 'has-switcher page-access-log',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Log Entries',
+												'title'		=> __( 'View Log Entries', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12652,12 +12652,12 @@ EOD;
 									array(
 										'id'		=> 'logs_errors',
 										'type'		=> 'accordion',
-										'title'		=> '<input type="checkbox" id="errors-log-checkbox" class="inset-3 errors-log-checkbox"><label for="errors-log-checkbox" class="green errors-log-switcher"></label>PHP Errors',
+										'title'		=> '<input type="checkbox" id="errors-log-checkbox" class="inset-3 errors-log-checkbox"><label for="errors-log-checkbox" class="green errors-log-switcher"></label>' . __( 'PHP Errors', 'system-dashboard' ),
 										'subtitle'	=> '',
 										'class'		=> 'has-switcher errors-log',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Log Entries',
+												'title'		=> __( 'View Log Entries', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12672,12 +12672,12 @@ EOD;
 									array(
 										'id'		=> 'email_delivery',
 										'type'		=> 'accordion',
-										'title'		=> '<input type="checkbox" id="email-delivery-log-checkbox" class="inset-3 email-delivery-log-checkbox"><label for="email-delivery-log-checkbox" class="green email-delivery-log-switcher"></label>Email Delivery',
+										'title'		=> '<input type="checkbox" id="email-delivery-log-checkbox" class="inset-3 email-delivery-log-checkbox"><label for="email-delivery-log-checkbox" class="green email-delivery-log-switcher"></label>' . __( 'Email Delivery', 'system-dashboard' ),
 										'subtitle'	=> '',
 										'class'		=> 'has-switcher email-delivery-log',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Log Entries',
+												'title'		=> __( 'View Log Entries', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12698,64 +12698,64 @@ EOD;
 					array(
 						'id'		=> 'server',
 						'type'		=> 'tabbed',
-						'title' 	=> 'Server',
+						'title' 	=> __( 'Server', 'system-dashboard' ),
 						'class'		=> 'main-section',
 						'subtitle'	=> $this->sd_server_overview(),
 						'tabs'		=> array(
 
 							array(
-								'title' => 'Monitor',
+								'title' => __( 'Monitor', 'system-dashboard' ),
 								'fields' => array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Uptime',
+										'title'		=> __( 'Uptime', 'system-dashboard' ),
 										'content'	=> $this->sd_server_uptime(),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'CPU Load Average',
+										'title'		=> __( 'CPU Load Average', 'system-dashboard' ),
 										'subtitle'	=> '% of system total (raw)<br />at '. date( 'H:i:s', time() ),
 										'content'	=> $this->sd_cpu_load_average(),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'RAM Usage',
+										'title'		=> __( 'RAM Usage', 'system-dashboard' ),
 										'subtitle'	=> 'at '. date( 'H:i:s', time() ),
 										'content'	=> $this->sd_ram_usage(),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Disk Usage',
+										'title'		=> __( 'Disk Usage', 'system-dashboard' ),
 										'content'	=> $this->sd_disk_usage(),
 									),
 									// array(
 									// 	'type'		=> 'content',
-									// 	'title'		=> 'Web Server',
+									// 	'title'		=> __( 'Web Server', 'system-dashboard' ),
 									// 	'content'	=> $_SERVER['SERVER_SOFTWARE'],
 									// ),
 									// array(
 									// 	'type'		=> 'content',
-									// 	'title'		=> 'Web Server Interface',
+									// 	'title'		=> __( 'Web Server Interface', 'system-dashboard' ),
 									// 	'content'	=> php_sapi_name(),
 									// ),
 									// array(
 									// 	'type'		=> 'content',
-									// 	'title'		=> 'Database Engine',
+									// 	'title'		=> __( 'Database Engine', 'system-dashboard' ),
 									// 	'content'	=> $this->sd_get_mysql_version(),
 									// ),
 									// array(
 									// 	'type'		=> 'content',
-									// 	'title'		=> 'Timezone',
+									// 	'title'		=> __( 'Timezone', 'system-dashboard' ),
 									// 	'content'	=> date_default_timezone_get(),
 									// ),
 									// array(
 									// 	'type'		=> 'content',
-									// 	'title'		=> 'Server Time',
+									// 	'title'		=> __( 'Server Time', 'system-dashboard' ),
 									// 	'content'	=> date( 'F j, Y - H:i', time() ),
 									// ),
 									// array(
 									// 	'type'		=> 'content',
-									// 	'title'		=> 'Server IP',
+									// 	'title'		=> __( 'Server IP', 'system-dashboard' ),
 									// 	'content'	=> $_SERVER['SERVER_ADDR'],
 									// ),
 
@@ -12763,27 +12763,27 @@ EOD;
 							),
 
 							array(
-								'title' => 'Hardware',
+								'title' => __( 'Hardware', 'system-dashboard' ),
 								'fields' => array(
 
 									array(
 										'type'		=> 'content',
-										'title'		=> 'CPU type',
+										'title'		=> __( 'CPU type', 'system-dashboard' ),
 										'content'	=> $this->sd_cpu_type(),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'CPU / Cores',
+										'title'		=> __( 'CPU / Cores', 'system-dashboard' ),
 										'content'	=> $this->sd_cpus_cores_count(),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Total RAM',
+										'title'		=> __( 'Total RAM', 'system-dashboard' ),
 										'content'	=> $this->sd_total_ram_display(),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Total Disk Space',
+										'title'		=> __( 'Total Disk Space', 'system-dashboard' ),
 										'content'	=> $this->sd_total_disk_space( 'formatted' ),
 									),
 
@@ -12795,57 +12795,57 @@ EOD;
 								'fields' => array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Version',
+										'title'		=> __( 'Version', 'system-dashboard' ),
 										'content'	=> phpversion(),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'User',
+										'title'		=> __( 'User', 'system-dashboard' ),
 										'content'	=> ( function_exists('get_current_user') ? get_current_user() : 'Undetectable' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Max Execution Time',
+										'title'		=> __( 'Max Execution Time', 'system-dashboard' ),
 										'content'	=> ini_get( 'max_execution_time' ). ' seconds',
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Max Input Time',
+										'title'		=> __( 'Max Input Time', 'system-dashboard' ),
 										'content'	=> ini_get( 'max_input_time' ). ' seconds',
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Max Input Vars',
+										'title'		=> __( 'Max Input Vars', 'system-dashboard' ),
 										'content'	=> ini_get( 'max_input_vars' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Memory Limit',
+										'title'		=> __( 'Memory Limit', 'system-dashboard' ),
 										'content'	=> ini_get( 'memory_limit' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Post Max Size',
+										'title'		=> __( 'Post Max Size', 'system-dashboard' ),
 										'content'	=> ini_get( 'post_max_size' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Upload Max Size',
+										'title'		=> __( 'Upload Max Size', 'system-dashboard' ),
 										'content'	=> ini_get( 'upload_max_filesize' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Extensions Loaded',
+										'title'		=> __( 'Extensions Loaded', 'system-dashboard' ),
 										'content'	=> implode(", ", get_loaded_extensions() ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Disabled Functions',
+										'title'		=> __( 'Disabled Functions', 'system-dashboard' ),
 										'content'	=> str_replace( ",", ", ", ini_get( 'disable_functions' ) ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Error Reporting',
+										'title'		=> __( 'Error Reporting', 'system-dashboard' ),
 										'subtitle'	=> 'Code: ' . error_reporting(),
 										'content'	=> $this->sd_error_reporting(),
 									),
@@ -12891,7 +12891,7 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Detailed Specifications',
+										'title'		=> __( 'Detailed Specifications', 'system-dashboard' ),
 										'content'	=> '',
 									),
 									array(
@@ -12901,7 +12901,7 @@ EOD;
 										'class'		=> 'phpinfo-details title-hidden',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12942,7 +12942,7 @@ EOD;
 	 * @since 2.8.5
 	 */
 	public function footer_version_text() {
-        return 'Also by Bowo &#8594; <a href="https://bowo.io/wpn-dlm" target="_blank">WordPress Newsboard</a>: The latest from 100+ sources';		
+        return __( 'Also by Bowo &#8594; <a href="https://bowo.io/wpn-dlm" target="_blank">WordPress Newsboard</a>: The latest from 100+ sources', 'system-dashboard' );		
 	}
 
 	/**
@@ -12953,7 +12953,7 @@ EOD;
 	
 	public function sd_add_plugin_action_links( $links ) {
 
-		$settings_link = '<a href="index.php?page='.$this->plugin_name.'">View Dashboard</a>';
+		$settings_link = '<a href="index.php?page='.$this->plugin_name.'">' . __( 'View Dashboard', 'system-dashboard' ) . '</a>';
 
 		array_unshift($links, $settings_link); 
 
@@ -12989,7 +12989,7 @@ EOD;
 		if ( strpos( $plugin_file, 'system-dashboard.php' ) !== false ) {
 
 			$new_links = array(
-				'donate'	=> '<a href="https://paypal.me/qriouslad" target="_blank">Donate</a>',
+				'donate'	=> '<a href="https://paypal.me/qriouslad" target="_blank">' . __( 'Donate', 'system-dashboard' ) . '</a>',
 			);
 
 			$plugin_meta = array_merge( $plugin_meta, $new_links );
