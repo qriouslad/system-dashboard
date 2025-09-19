@@ -4,8 +4,8 @@ Contributors: qriouslad
 Donate link: https://bowo.io/dotorg-sponsor-sd
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
-Tested up to: 6.7.2  
-Stable tag: 2.8.20  
+Tested up to: 6.8.2  
+Stable tag: 2.8.21  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -282,15 +282,19 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 
 ## Changelog
 
-### 2.8.20 (2024.03.11)
+### 2.8.21 (2025.09.19)
+
+* **[SECURITY FIX]** added nonce checks to AJAX calls to prevent Cross-Site Request Forgery vulnerability. Props to Đỗ Quang Huy for responsibly disclosing this in the sd_toggle_logs() function via WordFence.
+
+### 2.8.20 (2025.03.11)
 
 * Internationlized UI strings so the plugin is ready for translations. This iteration covers the majority of UI elements, but excludes some of the strings in several tabs, e.g. Constants Documentation. Props to Valdemir for prompting this.
 
-### 2.8.19 (2024.02.20)
+### 2.8.19 (2025.02.20)
 
 * **[SECURITY FIX]** implemented authorization checks to page access log AJAX endpoint to fix "Missing Authorization to Authenticated (Subscriber) View Page Access Log" vulnerability as reponsibly disclosed by security researcher Trương Hữu Phúc (truonghuuphuc) via Pathstack.
 
-### 2.8.18 (2024.02.05)
+### 2.8.18 (2025.02.05)
 
 * **[SECURITY FIX]** Viewer - Fix Reflected Cross-Site Scripting vulnerability via Filename Parameter, responsibly disclosed via WordFrence by vgo0. Added proper validation, sanitization and escaping.
 
