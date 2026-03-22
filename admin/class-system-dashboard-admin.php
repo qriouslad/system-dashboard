@@ -299,9 +299,9 @@ class System_Dashboard_Admin {
 
 		$output = '<div class="wordpress-overview">';
 
-		$output .= '<strong>Site Health</strong>: <br />' . $this->sd_site_health() . '<br />';
+		$output .= '<strong>' . __( 'Site Health', 'system-dashboard' ) . '</strong>: <br />' . $this->sd_site_health() . '<br />';
 
-		$output .= '<strong>Theme</strong>: <br /><a href="'. wp_get_theme()->get( 'ThemeURI' ) .'" target="_blank">'.wp_get_theme()->get( 'Name' ) .'</a> v'.wp_get_theme()->get( 'Version' ).'<br />';
+		$output .= '<strong>' . __( 'Theme', 'system-dashboard' ) . '</strong>: <br /><a href="'. wp_get_theme()->get( 'ThemeURI' ) .'" target="_blank">'.wp_get_theme()->get( 'Name' ) .'</a> v'.wp_get_theme()->get( 'Version' ).'<br />';
 
 		// if ( !empty( wp_get_theme()->get( 'Author' ) ) ) {
 
@@ -315,17 +315,17 @@ class System_Dashboard_Admin {
 
 		}
 
-		$output .= '<strong>Plugins</strong>: <br /><a href="/wp-admin/plugins.php" target="_blank">' . count( get_plugins() ) . ' installed</a> | <a href="/wp-admin/plugins.php?plugin_status=active" target="_blank">' . count( get_option( 'active_plugins' ) ) . ' active</a><br />';
+		$output .= '<strong>' . __( 'Plugins', 'system-dashboard' ) . '</strong>: <br /><a href="/wp-admin/plugins.php" target="_blank">' . count( get_plugins() ) . ' ' . __( 'installed', 'system-dashboard' ) . '</a> | <a href="/wp-admin/plugins.php?plugin_status=active" target="_blank">' . count( get_option( 'active_plugins' ) ) . ' ' . __( 'active', 'system-dashboard' ) . '</a><br />';
 
-		$output .= '<strong>Permalink Structure</strong>: <br />' . get_option( 'permalink_structure' ) . '<br />';
+		$output .= '<strong>' . __( 'Permalink Structure', 'system-dashboard' ) . '</strong>: <br />' . get_option( 'permalink_structure' ) . '<br />';
 
-		$output .= '<strong>Search Engine Visibility</strong>: <br />' . ( ( 0 == get_option( 'blog_public' ) ) ? 'Discouraged' : 'Encouraged' ) . '<br />';
+		$output .= '<strong>' . __( 'Search Engine Visibility', 'system-dashboard' ) . '</strong>: <br />' . ( ( 0 == get_option( 'blog_public' ) ) ? __( 'Discouraged', 'system-dashboard' ) : __( 'Encouraged', 'system-dashboard' ) ) . '<br />';
 
-		$output .= '<strong>Timezone</strong>: <br />' . get_option( 'timezone_string' ) . '<br />';
+		$output .= '<strong>' . __( 'Timezone', 'system-dashboard' ) . '</strong>: <br />' . get_option( 'timezone_string' ) . '<br />';
 
-		$output .= '<strong>Current Date Time</strong>: <br />' . current_time( 'F j, Y - H:i' ) . '<br />';
+		$output .= '<strong>' . __( 'Current Date Time', 'system-dashboard' ) . '</strong>: <br />' . current_time( 'F j, Y - H:i' ) . '<br />';
 
-		$output .= '<strong>Your IP</strong>: <br />' . $this->sd_get_user_ip() . '<br />';
+		$output .= '<strong>' . __( 'Your IP', 'system-dashboard' ) . '</strong>: <br />' . $this->sd_get_user_ip() . '<br />';
 
 		$output .= '<div style="display: none;">' . $this->sd_active_plugins( 'original', 'print_r') . '</div>';
 
@@ -422,9 +422,9 @@ class System_Dashboard_Admin {
 
 		$output = '<div class="server-overview">';
 
-		$output .= '<strong>Operating System</strong>: <br />' . $this->sd_os_info(). '<br />';
+		$output .= '<strong>' . __( 'Operating System', 'system-dashboard' ) . '</strong>: <br />' . $this->sd_os_info(). '<br />';
 
-		$output .= '<strong>Web Server</strong>: <br />' .$_SERVER['SERVER_SOFTWARE'] . ' | ' . php_sapi_name() . '<br />';
+		$output .= '<strong>' . __( 'Web Server', 'system-dashboard' ) . '</strong>: <br />' .$_SERVER['SERVER_SOFTWARE'] . ' | ' . php_sapi_name() . '<br />';
 
 		if ( function_exists( 'file_get_contents' ) ) {
 
@@ -450,13 +450,13 @@ class System_Dashboard_Admin {
 
 		$hostname = $hostname_query->Value;
 
-		$output .= '<strong>Hostname</strong>: <br />' . $hostname . '<br />';
+		$output .= '<strong>' . __( 'Hostname', 'system-dashboard' ) . '</strong>: <br />' . $hostname . '<br />';
 
-		$output .= '<strong>Location</strong>: <br />' . $this->sd_server_location() . '<br />';
+		$output .= '<strong>' . __( 'Location', 'system-dashboard' ) . '</strong>: <br />' . $this->sd_server_location() . '<br />';
 
-		$output .= '<strong>Timezone</strong>: <br />' . date_default_timezone_get() . '<br />';
+		$output .= '<strong>' . __( 'Timezone', 'system-dashboard' ) . '</strong>: <br />' . date_default_timezone_get() . '<br />';
 
-		$output .= '<strong>Server Date Time</strong>: <br />' . date( 'F j, Y - H:i', time() );
+		$output .= '<strong>' . __( 'Server Date Time', 'system-dashboard' ) . '</strong>: <br />' . date( 'F j, Y - H:i', time() );
 
 		$output .= '</div>';
 
@@ -540,29 +540,34 @@ class System_Dashboard_Admin {
 	public function sd_post_types(){
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
 
-			global $wpdb;
+				global $wpdb;
 
-			$post_types = $wpdb->get_results( "SELECT post_type AS 'type', count(1) AS 'count' FROM {$wpdb->posts} GROUP BY post_type ORDER BY count DESC;" );
+				$post_types = $wpdb->get_results( "SELECT post_type AS 'type', count(1) AS 'count' FROM {$wpdb->posts} GROUP BY post_type ORDER BY count DESC;" );
 
-			$output = '';
+				$output = '';
 
-			foreach ( $post_types as $post_type ) {
+				foreach ( $post_types as $post_type ) {
 
-				$label_name = '';
+					$label_name = '';
 
-				$post_type_object = get_post_type_object( $post_type->type );
+					$post_type_object = get_post_type_object( $post_type->type );
 
-				if ( isset( $post_type_object->labels ) ) {
-					$labels = $post_type_object->labels;
-					$label_name = isset( $labels->name ) ? ' (' . $labels->name . ')' : '';
+					if ( isset( $post_type_object->labels ) ) {
+						$labels = $post_type_object->labels;
+						$label_name = isset( $labels->name ) ? ' (' . $labels->name . ')' : '';
+					}
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $post_type->type . $label_name );
+					$output .= $this->sd_html( 'field-content-second', $post_type->count );
+					$output .= $this->sd_html( 'field-content-end' );
+
 				}
-
-				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $post_type->type . $label_name );
-				$output .= $this->sd_html( 'field-content-second', $post_type->count );
-				$output .= $this->sd_html( 'field-content-end' );
-
+				
+			} else {
+				$output = '';
 			}
 
 			echo $output;
@@ -579,34 +584,39 @@ class System_Dashboard_Admin {
 	public function sd_taxonomies( $type = 'name' ) {
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
 
-			$taxonomies_info = '';
+				$taxonomies_info = '';
 
-			$args = array(
-				'public' => true,
-			);
+				$args = array(
+					'public' => true,
+				);
 
-			$output = 'names';
+				$output = 'names';
 
-			$operator = 'and';
+				$operator = 'and';
 
-			$taxonomies = get_taxonomies( $args, $output, $operator );
+				$taxonomies = get_taxonomies( $args, $output, $operator );
 
-			if ( !empty( $taxonomies ) ) {
+				if ( !empty( $taxonomies ) ) {
 
-				foreach ( $taxonomies as $taxonomy ) {
+					foreach ( $taxonomies as $taxonomy ) {
 
-					$args = array(
-						'taxonomy'		=> $taxonomy,
-					);
+						$args = array(
+							'taxonomy'		=> $taxonomy,
+						);
 
-					$taxonomies_info .= $this->sd_html( 'field-content-start' );
-					$taxonomies_info .= $this->sd_html( 'field-content-first', $taxonomy );
-					$taxonomies_info .= $this->sd_html( 'field-content-second', wp_count_terms( $args ) . ' terms');
-					$taxonomies_info .= $this->sd_html( 'field-content-end' );
+						$taxonomies_info .= $this->sd_html( 'field-content-start' );
+						$taxonomies_info .= $this->sd_html( 'field-content-first', $taxonomy );
+						$taxonomies_info .= $this->sd_html( 'field-content-second', wp_count_terms( $args ) . ' terms');
+						$taxonomies_info .= $this->sd_html( 'field-content-end' );
+
+					}
 
 				}
-
+								
+			} else {
+				$taxonomies_info = '';
 			}
 
 			echo $taxonomies_info;
@@ -624,28 +634,33 @@ class System_Dashboard_Admin {
 	public function sd_old_slugs() {
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
 
-			global $wpdb;
+				global $wpdb;
 
-			$query = "SELECT * FROM {$wpdb->prefix}postmeta WHERE meta_key = '_wp_old_slug' ORDER BY post_id";
+				$query = "SELECT * FROM {$wpdb->prefix}postmeta WHERE meta_key = '_wp_old_slug' ORDER BY post_id";
 
-			$results = $wpdb->get_results( $query );
+				$results = $wpdb->get_results( $query );
 
-			$results_array = json_decode( json_encode( $results ), true );
+				$results_array = json_decode( json_encode( $results ), true );
 
-			$output = $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', '<strong>Old Slug &#10132; Current Slug</strong>' );
-			$output .= $this->sd_html( 'field-content-second', '<strong>Post Title (Post Type - Post ID)</strong>' );
-			$output .= $this->sd_html( 'field-content-end' );			
-
-
-			foreach ( $results_array as $old_slug ) {
-
-				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $old_slug['meta_value'] . '<br />&#10132; ' . get_post_field( 'post_name', $old_slug['post_id'] ) );
-				$output .= $this->sd_html( 'field-content-second', '<a href="'. get_the_permalink( $old_slug['post_id'] ) .'" target="_blank">' . get_the_title( $old_slug['post_id'] ) . '</a><br />(' . get_post_field( 'post_type', $old_slug['post_id'] ) . ' - ' . $old_slug['post_id'] . ')' );
+				$output = $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', '<strong>Old Slug &#10132; Current Slug</strong>' );
+				$output .= $this->sd_html( 'field-content-second', '<strong>Post Title (Post Type - Post ID)</strong>' );
 				$output .= $this->sd_html( 'field-content-end' );			
 
+
+				foreach ( $results_array as $old_slug ) {
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $old_slug['meta_value'] . '<br />&#10132; ' . get_post_field( 'post_name', $old_slug['post_id'] ) );
+					$output .= $this->sd_html( 'field-content-second', '<a href="'. get_the_permalink( $old_slug['post_id'] ) .'" target="_blank">' . get_the_title( $old_slug['post_id'] ) . '</a><br />(' . get_post_field( 'post_type', $old_slug['post_id'] ) . ' - ' . $old_slug['post_id'] . ')' );
+					$output .= $this->sd_html( 'field-content-end' );			
+
+				}
+								
+			} else {
+				$output = '';
 			}
 
 			echo $output;
@@ -663,27 +678,32 @@ class System_Dashboard_Admin {
 	public function sd_media_count() {
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
 
-			$attachments_count = wp_count_attachments();
-			$output = '';
+				$attachments_count = wp_count_attachments();
+				$output = '';
 
-			foreach ( $attachments_count as $media_type => $media_num ) {
+				foreach ( $attachments_count as $media_type => $media_num ) {
 
-				if ( $media_num > 1 ) {
-					$unit = 'files';
-				} else {
-					$unit = 'file';
+					if ( $media_num > 1 ) {
+						$unit = 'files';
+					} else {
+						$unit = 'file';
+					}
+
+			        if ( ! empty( $media_num ) && $media_type !== 'trash' ) {
+
+						$output .= $this->sd_html( 'field-content-start' );
+						$output .= $this->sd_html( 'field-content-first', $media_type );
+						$output .= $this->sd_html( 'field-content-second', $media_num . ' ' . $unit);
+						$output .= $this->sd_html( 'field-content-end' );
+
+			        }
+
 				}
-
-		        if ( ! empty( $media_num ) && $media_type !== 'trash' ) {
-
-					$output .= $this->sd_html( 'field-content-start' );
-					$output .= $this->sd_html( 'field-content-first', $media_type );
-					$output .= $this->sd_html( 'field-content-second', $media_num . ' ' . $unit);
-					$output .= $this->sd_html( 'field-content-end' );
-
-		        }
-
+								
+			} else {
+				$output = '';
 			}
 
 			echo $output;
@@ -698,75 +718,80 @@ class System_Dashboard_Admin {
 	 * @since 2.4.4
 	 */
 	public function sd_image_sizes() {
-
-		global $_wp_additional_image_sizes;
-
-		do_action( 'inspect', [ '_wp_additional_image_sizes', $_wp_additional_image_sizes ] );
-
-		$builtin_sizes = array( 'thumbnail', 'medium', 'large', 'full', 'post-thumbnail' );
-		$sizes = array();
-
-		$intermediate_image_sizes = get_intermediate_image_sizes();
-		$additional_image_sizes = wp_get_additional_image_sizes();
-
-		do_action( 'inspect', [ 'additional_image_sizes', $additional_image_sizes ] );
-
-		foreach ( $intermediate_image_sizes as $size ) {
-
-			if ( in_array( $size, $builtin_sizes ) ) {
-
-				$sizes[$size] = array(
-					'type'		=> 'Default',
-					'width' 	=> get_option( $size . '_size_w' ),
-					'height' 	=> get_option( $size . '_size_h' ),
-					'crop'		=> (bool) get_option( $size . '_crop' ),
-				);
-
-			} elseif ( isset( $additional_image_sizes[$size] ) ) {
-
-				$sizes[$size] = array(
-					'type'		=> 'Custom',
-					'width'		=> $additional_image_sizes[$size]['width'],
-					'height'	=> $additional_image_sizes[$size]['height'],
-					'crop'		=> $additional_image_sizes[$size]['crop'],
-				);
-
-			}
-
-		}
-
-		do_action( 'inspect', [ 'sizes', $sizes ] );
-
 		$output = '';
+		
+		if ( current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				global $_wp_additional_image_sizes;
 
-		foreach ( $sizes as $key => $value ) {
+				do_action( 'inspect', [ '_wp_additional_image_sizes', $_wp_additional_image_sizes ] );
 
-			if ( isset( $value['crop'] ) ) {
+				$builtin_sizes = array( 'thumbnail', 'medium', 'large', 'full', 'post-thumbnail' );
+				$sizes = array();
 
-				if ( $value['crop'] === true ) {
+				$intermediate_image_sizes = get_intermediate_image_sizes();
+				$additional_image_sizes = wp_get_additional_image_sizes();
 
-					$crop_value = ' | Crop: true';
-					$size_type = 'Exactly';
+				do_action( 'inspect', [ 'additional_image_sizes', $additional_image_sizes ] );
 
-				} elseif ( $value['crop'] === false ) {
+				foreach ( $intermediate_image_sizes as $size ) {
 
-					$crop_value = '';
-					$size_type = 'Maximum';
+					if ( in_array( $size, $builtin_sizes ) ) {
 
-				} else {
+						$sizes[$size] = array(
+							'type'		=> 'Default',
+							'width' 	=> get_option( $size . '_size_w' ),
+							'height' 	=> get_option( $size . '_size_h' ),
+							'crop'		=> (bool) get_option( $size . '_crop' ),
+						);
 
-					$crop_value = ' | Crop: ' . $value['crop'][0] . '-' . $value['crop'][1];
-					$size_type = 'Exactly';
+					} elseif ( isset( $additional_image_sizes[$size] ) ) {
+
+						$sizes[$size] = array(
+							'type'		=> 'Custom',
+							'width'		=> $additional_image_sizes[$size]['width'],
+							'height'	=> $additional_image_sizes[$size]['height'],
+							'crop'		=> $additional_image_sizes[$size]['crop'],
+						);
+
+					}
 
 				}
 
-			}
+				do_action( 'inspect', [ 'sizes', $sizes ] );
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', $key . ' ('. $value['type'] . $crop_value . ')' );
-			$output .= $this->sd_html( 'field-content-second', $size_type . ' ' . $value['width'] . ' (width) x ' . $value['height'] . ' (height) pixels ' );
-			$output .= $this->sd_html( 'field-content-end' );
+				$output = '';
 
+				foreach ( $sizes as $key => $value ) {
+
+					if ( isset( $value['crop'] ) ) {
+
+						if ( $value['crop'] === true ) {
+
+							$crop_value = __( ' | Crop: true', 'system-dashboard' );
+							$size_type = __( 'Exactly', 'system-dashboard' );
+
+						} elseif ( $value['crop'] === false ) {
+
+							$crop_value = '';
+							$size_type = __( 'Maximum', 'system-dashboard' );
+
+						} else {
+
+							$crop_value = __( ' | Crop: ', 'system-dashboard' ) . $value['crop'][0] . '-' . $value['crop'][1];
+							$size_type = __( 'Exactly', 'system-dashboard' );
+
+						}
+
+					}
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $key . ' ('. $value['type'] . $crop_value . ')' );
+					$output .= $this->sd_html( 'field-content-second', $size_type . ' ' . $value['width'] . ' (width) x ' . $value['height'] . ' (height) pixels ' );
+					$output .= $this->sd_html( 'field-content-end' );
+
+				}				
+			}			
 		}
 
 		echo $output;
@@ -779,32 +804,34 @@ class System_Dashboard_Admin {
 	 * @since 1.0.0
 	 */
 	public function sd_mime_types() {
+		$output = '';
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
 
-			$mime_types = get_allowed_mime_types();
+				$mime_types = get_allowed_mime_types();
 
-			$output = '';
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', '<strong>File Extension(s)</strong>' );
-			$output .= $this->sd_html( 'field-content-second', '<strong>MIME Type</strong>' );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			foreach ( $mime_types as $extensions => $mime_type ) {
-
-				$extensions = str_replace( "|", " | ", $extensions );
+				$output = '';
 
 				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $extensions );
-				$output .= $this->sd_html( 'field-content-second', $mime_type, 'long-value' );
+				$output .= $this->sd_html( 'field-content-first', '<strong>' . __( 'File Extension(s)', 'system-dashboard' ) . '</strong>' );
+				$output .= $this->sd_html( 'field-content-second', '<strong>' . __( 'MIME Type', 'system-dashboard' ) . '</strong>' );
 				$output .= $this->sd_html( 'field-content-end' );
 
+				foreach ( $mime_types as $extensions => $mime_type ) {
+
+					$extensions = str_replace( "|", " | ", $extensions );
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $extensions );
+					$output .= $this->sd_html( 'field-content-second', $mime_type, 'long-value' );
+					$output .= $this->sd_html( 'field-content-end' );
+
+				}
 			}
-
-			echo $output;
-
 		}
+
+		echo $output;
 
 	}
 
@@ -815,115 +842,113 @@ class System_Dashboard_Admin {
 	 * @since 1.2.0
 	 */
 	public function sd_media_handling() {
+		$output = '';
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', __( 'Active editor', 'system-dashboard' ) );
+				$output .= $this->sd_html( 'field-content-second', _wp_image_editor_choose() );
+				$output .= $this->sd_html( 'field-content-end' );
 
-			$output = '';
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'Active editor' );
-			$output .= $this->sd_html( 'field-content-second', _wp_image_editor_choose() );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			// Get ImageMagic information, if available.
-			if ( class_exists( 'Imagick' ) ) {
-				// Save the Imagick instance for later use.
-				$imagick             = new Imagick();
-				$imagemagick_version = $imagick->getVersion();
-			} else {
-				$imagemagick_version = __( 'Not available' );
-			}
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'ImageMagick version number' );
-			$output .= $this->sd_html( 'field-content-second', ( is_array( $imagemagick_version ) ? $imagemagick_version['versionNumber'] : $imagemagick_version ) );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'ImageMagick version string' );
-			$output .= $this->sd_html( 'field-content-second', ( is_array( $imagemagick_version ) ? $imagemagick_version['versionString'] : $imagemagick_version ) );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			$imagick_version = phpversion( 'imagick' );
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'Imagick version' );
-			$output .= $this->sd_html( 'field-content-second', ( $imagick_version ) ? $imagick_version : __( 'Not available' ) );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'Max size of post data allowed' );
-			$output .= $this->sd_html( 'field-content-second', ini_get( 'post_max_size' ) );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'Max size of an uploaded file' );
-			$output .= $this->sd_html( 'field-content-second', ini_get( 'upload_max_filesize' ) );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'Max number of files allowed' );
-			$output .= $this->sd_html( 'field-content-second', number_format( ini_get( 'max_file_uploads' ) ) );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			// Get GD information, if available.
-			if ( function_exists( 'gd_info' ) ) {
-				$gd = gd_info();
-			} else {
-				$gd = false;
-			}
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'GD version' );
-			$output .= $this->sd_html( 'field-content-second', ( is_array( $gd ) ? $gd['GD Version'] : 'Not available' ) );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			$gd_image_formats     = array();
-			$gd_supported_formats = array(
-				'GIF Create' => 'GIF',
-				'JPEG'       => 'JPEG',
-				'PNG'        => 'PNG',
-				'WebP'       => 'WebP',
-				'BMP'        => 'BMP',
-				'AVIF'       => 'AVIF',
-				'HEIF'       => 'HEIF',
-				'TIFF'       => 'TIFF',
-				'XPM'        => 'XPM',
-			);
-
-			foreach ( $gd_supported_formats as $format_key => $format ) {
-				$index = $format_key . ' Support';
-				if ( isset( $gd[ $index ] ) && $gd[ $index ] ) {
-					array_push( $gd_image_formats, $format );
-				}
-			}
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'GD supported file formats' );
-			$output .= $this->sd_html( 'field-content-second', implode( ', ', $gd_image_formats ) );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			// Get Ghostscript information, if available.
-			if ( function_exists( 'exec' ) ) {
-				$gs = exec( 'gs --version' );
-
-				if ( empty( $gs ) ) {
-					$gs = 'Not available';
+				// Get ImageMagic information, if available.
+				if ( class_exists( 'Imagick' ) ) {
+					// Save the Imagick instance for later use.
+					$imagick             = new Imagick();
+					$imagemagick_version = $imagick->getVersion();
 				} else {
+					$imagemagick_version = __( 'Not available' );
 				}
-			} else {
-				$gs = 'Unable to determine if Ghostscript is installed';
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', __( 'ImageMagick version number', 'system-dashboard' ) );
+				$output .= $this->sd_html( 'field-content-second', ( is_array( $imagemagick_version ) ? $imagemagick_version['versionNumber'] : $imagemagick_version ) );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', __( 'ImageMagick version string', 'system-dashboard' ) );
+				$output .= $this->sd_html( 'field-content-second', ( is_array( $imagemagick_version ) ? $imagemagick_version['versionString'] : $imagemagick_version ) );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				$imagick_version = phpversion( 'imagick' );
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', __( 'Imagick version', 'system-dashboard' ) );
+				$output .= $this->sd_html( 'field-content-second', ( $imagick_version ) ? $imagick_version : __( 'Not available' ) );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', __( 'Max size of post data allowed', 'system-dashboard' ) );
+				$output .= $this->sd_html( 'field-content-second', ini_get( 'post_max_size' ) );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', __( 'Max size of an uploaded file', 'system-dashboard' ) );
+				$output .= $this->sd_html( 'field-content-second', ini_get( 'upload_max_filesize' ) );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', __( 'Max number of files allowed', 'system-dashboard' ) );
+				$output .= $this->sd_html( 'field-content-second', number_format( ini_get( 'max_file_uploads' ) ) );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				// Get GD information, if available.
+				if ( function_exists( 'gd_info' ) ) {
+					$gd = gd_info();
+				} else {
+					$gd = false;
+				}
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', __( 'GD version', 'system-dashboard' ) );
+				$output .= $this->sd_html( 'field-content-second', ( is_array( $gd ) ? $gd['GD Version'] : __( 'Not available', 'system-dashboard' ) ) );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				$gd_image_formats     = array();
+				$gd_supported_formats = array(
+					'GIF Create' => 'GIF',
+					'JPEG'       => 'JPEG',
+					'PNG'        => 'PNG',
+					'WebP'       => 'WebP',
+					'BMP'        => 'BMP',
+					'AVIF'       => 'AVIF',
+					'HEIF'       => 'HEIF',
+					'TIFF'       => 'TIFF',
+					'XPM'        => 'XPM',
+				);
+
+				foreach ( $gd_supported_formats as $format_key => $format ) {
+					$index = $format_key . ' ' . __( 'Support', 'system-dashboard' );
+					if ( isset( $gd[ $index ] ) && $gd[ $index ] ) {
+						array_push( $gd_image_formats, $format );
+					}
+				}
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', __( 'GD supported file formats', 'system-dashboard' ) );
+				$output .= $this->sd_html( 'field-content-second', implode( ', ', $gd_image_formats ) );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				// Get Ghostscript information, if available.
+				if ( function_exists( 'exec' ) ) {
+					$gs = exec( 'gs --version' );
+
+					if ( empty( $gs ) ) {
+						$gs = __( 'Not available', 'system-dashboard' );
+					} else {
+					}
+				} else {
+					$gs = __( 'Unable to determine if Ghostscript is installed', 'system-dashboard' );
+				}
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', __( 'Ghostscript version', 'system-dashboard' ) );
+				$output .= $this->sd_html( 'field-content-second', $gs );
+				$output .= $this->sd_html( 'field-content-end' );				
 			}
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'Ghostscript version' );
-			$output .= $this->sd_html( 'field-content-second', $gs );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			echo $output;
-
 		}
 
+		echo $output;
 	}
 
 	/**
@@ -934,184 +959,184 @@ class System_Dashboard_Admin {
 	 * @since 1.0.0
 	 */
 	public function sd_roles_capabilities( $return = 'all' ) {
+		$output = '';
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$default_wp_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
 
-			$default_wp_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
+				$default_capabilities = array(
+					'create_sites',
+					'delete_sites',
+					'manage_network',
+					'manage_sites',
+					'manage_network_users',
+					'manage_network_plugins',
+					'manage_network_themes',
+					'manage_network_options',
+					'upgrade_network',
+					'setup_network',
+					'activate_plugins',
+					'delete_others_pages',
+					'delete_others_posts',
+					'delete_pages',
+					'delete_posts',
+					'delete_private_pages',
+					'delete_private_posts',
+					'delete_published_pages',
+					'delete_published_posts',
+					'edit_dashboard',
+					'edit_others_pages',
+					'edit_others_posts',
+					'edit_pages',
+					'edit_posts',
+					'edit_private_pages',
+					'edit_private_posts',
+					'edit_published_pages',
+					'edit_published_posts',
+					'edit_theme_options',
+					'export',
+					'import',
+					'list_users',
+					'manage_categories',
+					'manage_links',
+					'manage_options',
+					'moderate_comments',
+					'promote_users',
+					'publish_pages',
+					'publish_posts',
+					'read_private_pages',
+					'read_private_posts',
+					'read',
+					'remove_users',
+					'switch_themes',
+					'upload_files',
+					'customize',
+					'delete_site',
+					'update_core',
+					'update_plugins',
+					'update_themes',
+					'install_plugins',
+					'install_themes',
+					'delete_themes',
+					'delete_plugins',
+					'edit_plugins',
+					'edit_themes',
+					'edit_files',
+					'edit_users',
+					'add_users',
+					'create_users',
+					'delete_users',
+					'unfiltered_html',
+					'unfiltered_upload',
+					'level_10',
+					'level_9',
+					'level_8',
+					'level_7',
+					'level_6',
+					'level_5',
+					'level_4',
+					'level_3',
+					'level_2',
+					'level_1',
+					'level_0',
+				);
 
-			$default_capabilities = array(
-				'create_sites',
-				'delete_sites',
-				'manage_network',
-				'manage_sites',
-				'manage_network_users',
-				'manage_network_plugins',
-				'manage_network_themes',
-				'manage_network_options',
-				'upgrade_network',
-				'setup_network',
-				'activate_plugins',
-				'delete_others_pages',
-				'delete_others_posts',
-				'delete_pages',
-				'delete_posts',
-				'delete_private_pages',
-				'delete_private_posts',
-				'delete_published_pages',
-				'delete_published_posts',
-				'edit_dashboard',
-				'edit_others_pages',
-				'edit_others_posts',
-				'edit_pages',
-				'edit_posts',
-				'edit_private_pages',
-				'edit_private_posts',
-				'edit_published_pages',
-				'edit_published_posts',
-				'edit_theme_options',
-				'export',
-				'import',
-				'list_users',
-				'manage_categories',
-				'manage_links',
-				'manage_options',
-				'moderate_comments',
-				'promote_users',
-				'publish_pages',
-				'publish_posts',
-				'read_private_pages',
-				'read_private_posts',
-				'read',
-				'remove_users',
-				'switch_themes',
-				'upload_files',
-				'customize',
-				'delete_site',
-				'update_core',
-				'update_plugins',
-				'update_themes',
-				'install_plugins',
-				'install_themes',
-				'delete_themes',
-				'delete_plugins',
-				'edit_plugins',
-				'edit_themes',
-				'edit_files',
-				'edit_users',
-				'add_users',
-				'create_users',
-				'delete_users',
-				'unfiltered_html',
-				'unfiltered_upload',
-				'level_10',
-				'level_9',
-				'level_8',
-				'level_7',
-				'level_6',
-				'level_5',
-				'level_4',
-				'level_3',
-				'level_2',
-				'level_1',
-				'level_0',
-			);
+				// https://paulund.co.uk/get-database-table-prefix-in-wordpress
 
-			// https://paulund.co.uk/get-database-table-prefix-in-wordpress
+				global $wpdb;
 
-			global $wpdb;
+				$table_prefix = $wpdb->prefix;
+				$user_roles_option_name = $table_prefix . 'user_roles';
+				$roles_capabilities = get_option( $user_roles_option_name );
 
-			$table_prefix = $wpdb->prefix;
-			$user_roles_option_name = $table_prefix . 'user_roles';
-			$roles_capabilities = get_option( $user_roles_option_name );
+				$default_roles = array();
+				$custom_roles = array();
+				
+				$output = $this->sd_html( 'accordions-start' );
 
-			$default_roles = array();
-			$custom_roles = array();
-			
-			$output = $this->sd_html( 'accordions-start' );
+				foreach ( $roles_capabilities as $roleslug => $role_properties ) {
 
-			foreach ( $roles_capabilities as $roleslug => $role_properties ) {
+					$role_default_capabilities = array();
+					$role_custom_capabilities = array();
+					$role_default_caps_string = '';
+					$role_custom_caps_string = '';
 
-				$role_default_capabilities = array();
-				$role_custom_capabilities = array();
-				$role_default_caps_string = '';
-				$role_custom_caps_string = '';
+					if ( in_array( $roleslug, $default_wp_roles ) ) {
 
-				if ( in_array( $roleslug, $default_wp_roles ) ) {
-
-					// $output .= $roleslug . ' is default.<br />';
-					$role_type = 'Default role';
-					$default_roles[] = $roleslug;
-
-				} else {
-
-					// $output .= $roleslug . ' is custom.<br />';
-					$role_type = 'Custom role';
-					$custom_roles[] = $roleslug;
-
-				}
-
-				$caps_output = '';
-
-				$role_title = $role_properties['name'] . ' (' . $roleslug . ') - ' . $role_type;
-
-				foreach ( $role_properties['capabilities'] as $capability => $enabled ) {
-
-					if ( in_array( $capability, $default_capabilities ) ) {
-
-						$role_default_capabilities[] = $capability;
-
-						$role_default_caps_string .= $capability . '<br />';
-
+						// $output .= $roleslug . ' is default.<br />';
+						$role_type = __( 'Default role', 'system-dashboard' );
+						$default_roles[] = $roleslug;
 
 					} else {
 
-						$role_custom_capabilities[] = $capability;
+						// $output .= $roleslug . ' is custom.<br />';
+						$role_type = __( 'Custom role', 'system-dashboard' );
+						$custom_roles[] = $roleslug;
 
-						$role_custom_caps_string .= $capability . '<br />';
+					}
+
+					$caps_output = '';
+
+					$role_title = $role_properties['name'] . ' (' . $roleslug . ') - ' . $role_type;
+
+					foreach ( $role_properties['capabilities'] as $capability => $enabled ) {
+
+						if ( in_array( $capability, $default_capabilities ) ) {
+
+							$role_default_capabilities[] = $capability;
+
+							$role_default_caps_string .= $capability . '<br />';
+
+
+						} else {
+
+							$role_custom_capabilities[] = $capability;
+
+							$role_custom_caps_string .= $capability . '<br />';
+						}
+
+					}
+
+					// if ( $property_name == 'name' ) {
+
+					// }
+
+					// if ( $property_name == 'capabilities' ) {
+
+					// }
+
+					if ( $return = 'all' ) {
+
+						$output .= $this->sd_html( 'accordion-head', $role_title );
+
+						$caps_output .= $this->sd_html( 'field-content-start', 'plain-content' );
+						$caps_output .= $this->sd_html( 'field-content-first', '<div class="field-part-title"><strong>Default capabilities:</strong></div>
+										<div class="field-part-content">' . $role_default_caps_string . '</div>' );
+						$caps_output .= $this->sd_html( 'field-content-second', '<div class="field-part-title"><strong>Custom capabilities:</strong></div>
+										<div class="field-part-content">' . $role_custom_caps_string . '</div>' );
+						$caps_output .= $this->sd_html( 'field-content-end' );
+
+
+						$output .= $this->sd_html( 'accordion-body', $caps_output );
+
+					} elseif ( $return = 'default_roles' ) {
+
+						$output .= '<pre>' . $default_roles . '</pre>';
+
+					} elseif ( $return = 'custom_roles' ) {
+
+						$output .= '<pre>' . $custom_roles . '</pre>';
+
 					}
 
 				}
 
-				// if ( $property_name == 'name' ) {
-
-				// }
-
-				// if ( $property_name == 'capabilities' ) {
-
-				// }
-
-				if ( $return = 'all' ) {
-
-					$output .= $this->sd_html( 'accordion-head', $role_title );
-
-					$caps_output .= $this->sd_html( 'field-content-start', 'plain-content' );
-					$caps_output .= $this->sd_html( 'field-content-first', '<div class="field-part-title"><strong>Default capabilities:</strong></div>
-									<div class="field-part-content">' . $role_default_caps_string . '</div>' );
-					$caps_output .= $this->sd_html( 'field-content-second', '<div class="field-part-title"><strong>Custom capabilities:</strong></div>
-									<div class="field-part-content">' . $role_custom_caps_string . '</div>' );
-					$caps_output .= $this->sd_html( 'field-content-end' );
-
-
-					$output .= $this->sd_html( 'accordion-body', $caps_output );
-
-				} elseif ( $return = 'default_roles' ) {
-
-					$output .= '<pre>' . $default_roles . '</pre>';
-
-				} elseif ( $return = 'custom_roles' ) {
-
-					$output .= '<pre>' . $custom_roles . '</pre>';
-
-				}
-
+				$output .= $this->sd_html( 'accordions-end' );				
 			}
-
-			$output .= $this->sd_html( 'accordions-end' );
-
-			echo $output;
-
 		}
 
+		echo $output;
 	}
 
 	/** 
@@ -1121,34 +1146,33 @@ class System_Dashboard_Admin {
 	 * @since 1.0.0
 	 */
 	public function sd_user_count() {
+		$output = '';
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$users = count_users();
 
-			$users = count_users();
-			$output = '';
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', 'All roles' );
+				$output .= $this->sd_html( 'field-content-second', $users['total_users'] .' ' . __( 'users', 'system-dashboard' ) );
+				$output .= $this->sd_html( 'field-content-end' );
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'All roles' );
-			$output .= $this->sd_html( 'field-content-second', $users['total_users'] .' users' );
-			$output .= $this->sd_html( 'field-content-end' );
+				foreach ( $users['avail_roles'] as $role => $count ) {
 
-			foreach ( $users['avail_roles'] as $role => $count ) {
+					if ( !empty( $count ) ) {
 
-				if ( !empty( $count ) ) {
+						$output .= $this->sd_html( 'field-content-start' );
+						$output .= $this->sd_html( 'field-content-first', $role );
+						$output .= $this->sd_html( 'field-content-second', $count .' ' . __( 'users', 'system-dashboard' ) );
+						$output .= $this->sd_html( 'field-content-end' );
 
-					$output .= $this->sd_html( 'field-content-start' );
-					$output .= $this->sd_html( 'field-content-first', $role );
-					$output .= $this->sd_html( 'field-content-second', $count .' users' );
-					$output .= $this->sd_html( 'field-content-end' );
+					}
 
-				}
-
+				}				
 			}
-
-			echo $output;
-
 		}
 
+		echo $output;
 	}
 
 	/**
@@ -1217,35 +1241,35 @@ class System_Dashboard_Admin {
 		}
 
 		if ( isset( $_REQUEST ) && isset( $_REQUEST['type'] ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$type = $_REQUEST['type'];
 
-			$type = $_REQUEST['type'];
+				if ( $type == 'public' ) {
 
-			if ( $type == 'public' ) {
+					foreach( $public_custom_fields as $public_custom_field ) {
 
-				foreach( $public_custom_fields as $public_custom_field ) {
+						$output .= $this->sd_html( 'field-content-start' );
+						$output .= $this->sd_html( 'field-content-first', $public_custom_field, 'full-width' );
+						$output .= $this->sd_html( 'field-content-end' );
 
-					$output .= $this->sd_html( 'field-content-start' );
-					$output .= $this->sd_html( 'field-content-first', $public_custom_field, 'full-width' );
-					$output .= $this->sd_html( 'field-content-end' );
+					}
 
-				}
+					echo $output;
 
-				echo $output;
+				} elseif ( $type == 'private' ) {
 
-			} elseif ( $type == 'private' ) {
+					foreach( $private_custom_fields as $private_custom_field ) {
 
-				foreach( $private_custom_fields as $private_custom_field ) {
+						$output .= $this->sd_html( 'field-content-start' );
+						$output .= $this->sd_html( 'field-content-first', $private_custom_field, 'field-full-width' );
+						$output .= $this->sd_html( 'field-content-end' );
 
-					$output .= $this->sd_html( 'field-content-start' );
-					$output .= $this->sd_html( 'field-content-first', $private_custom_field, 'field-full-width' );
-					$output .= $this->sd_html( 'field-content-end' );
+					}
 
-				}
+					echo $output;
 
-				echo $output;
-
-			} else {}
-
+				}				
+			}
 		}
 
 		if ( $count == 'public-count' ) {
@@ -1340,7 +1364,7 @@ class System_Dashboard_Admin {
 				return number_format_i18n($bytes, 0) . ' bytes';
 			}
 		} else {
-			return 'Unknown';
+			return __( 'Unknown', 'system-dashboard' );
 		}
 	}
 
@@ -1364,7 +1388,7 @@ class System_Dashboard_Admin {
 				return number_format_i18n($kiloBytes / 1, 0) . ' KB';
 			}
 		} else {
-			return 'Unknown';
+			return __( 'Unknown', 'system-dashboard' );
 		}
 	}
 
@@ -1386,15 +1410,15 @@ class System_Dashboard_Admin {
 					$uptime_in_days = (float) ( $uptime / 60 / 60 / 24 );
 					$uptime = number_format_i18n( $uptime_in_days ). ' days';				
 				} else {
-					$uptime = 'Undetectable.';					
+					$uptime = __( 'Undetectable', 'system-dashboard' );					
 				}
 			} else {
-				$uptime = 'Undetectable.';				
+				$uptime = __( 'Undetectable', 'system-dashboard' );				
 			}
 
 		} else {
 
-			$uptime = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+			$uptime = __( 'Undetectable. Please enable \'shell_exec\' function in PHP first.', 'system-dashboard' );
 			
 		}
 
@@ -1423,10 +1447,10 @@ class System_Dashboard_Admin {
 					$os = str_replace( ":", "", $os );
 					$os = str_replace( "Description", "", $os );				
 				} else {
-					$os = 'Undetectable';
+					$os = __( 'Undetectable', 'system-dashboard' );
 				}
 			} else {
-				$os = 'Undetectable';
+				$os = __( 'Undetectable', 'system-dashboard' );
 			}
 
 		} else {
@@ -1477,7 +1501,7 @@ class System_Dashboard_Admin {
 				
 			} else {
 				
-				$location = 'Undetectable';
+				$location = __( 'Undetectable', 'system-dashboard' );
 
 			}
 
@@ -1485,7 +1509,7 @@ class System_Dashboard_Admin {
 
 		} else {
 
-			return 'Undetectable';
+			return __( 'Undetectable', 'system-dashboard' );
 
 		}
 
@@ -1512,7 +1536,7 @@ class System_Dashboard_Admin {
 
 					set_transient('sd_cpu_type', $sd_cpu_type, WEEK_IN_SECONDS);					
 				} else {
-					$sd_cpu_type = 'Undetectable';
+					$sd_cpu_type = __( 'Undetectable', 'system-dashboard' );
 					set_transient('sd_cpu_type', $sd_cpu_type, WEEK_IN_SECONDS);					
 				}
 
@@ -1520,7 +1544,7 @@ class System_Dashboard_Admin {
 
 		} else {
 
-			$sd_cpu_type = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+			$sd_cpu_type = __( 'Undetectable. Please enable \'shell_exec\' function in PHP first.', 'system-dashboard' );
 
 		}
 
@@ -1598,11 +1622,11 @@ class System_Dashboard_Admin {
 
 		if ( ( $cpus_count != 'Undetectable' ) && ( $cores_count != 'Undetectable' ) ) {
 
-			return $this->sd_cpu_count(). ' CPUs / '. $this->sd_cpu_core_count() . ' cores';
+			return $this->sd_cpu_count(). ' CPUs / '. $this->sd_cpu_core_count() . ' ' . __( 'cores', 'system-dashboard' );
 
 		} else {
 
-			return 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+			return __( 'Undetectable. Please enable \'shell_exec\' function in PHP first.', 'system-dashboard' );
 
 		}
 
@@ -1675,23 +1699,23 @@ class System_Dashboard_Admin {
 
 					}
 
-					$cpu_load_average = 'Last 15 minutes: '. $last_15minutes_pct .' ('. $last_15minutes .')<br /> Last 5 minutes: '. $last_5minutes_pct .' ('. $last_5minutes .')<br /> Last 1 minute: '. $last_1minutes_pct .' ('. $last_1minute .')';	
+					$cpu_load_average = __( 'Last 15 minutes', 'system-dashboard' ) . ': '. $last_15minutes_pct .' ('. $last_15minutes .')<br /> ' . __( 'Last 5 minutes', 'system-dashboard' ) . ': '. $last_5minutes_pct .' ('. $last_5minutes .')<br /> ' . __( 'Last 1 minute', 'system-dashboard' ) . ': '. $last_1minutes_pct .' ('. $last_1minute .')';	
 					
 				} else {
 
-					$cpu_load_average = 'Undetectable.';
+					$cpu_load_average = __( 'Undetectable', 'system-dashboard' );
 					
 				}
 							
 			} else {
 
-				$cpu_load_average = 'Undetectable.';
+				$cpu_load_average = __( 'Undetectable', 'system-dashboard' );
 				
 			}
 
 		} else {
 
-			$cpu_load_average = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+			$cpu_load_average = __( 'Undetectable. Please enable \'shell_exec\' function in PHP first.', 'system-dashboard' );
 
 		}
 
@@ -1883,7 +1907,7 @@ class System_Dashboard_Admin {
 
 		} else {
 
-			return 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+			return __( 'Undetectable. Please enable \'shell_exec\' function in PHP first.', 'system-dashboard' );
 
 		}
 
@@ -1900,7 +1924,7 @@ class System_Dashboard_Admin {
 
 		if ( $total_ram == 'Undetectable' ) {
 
-			return 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
+			return __( 'Undetectable. Please enable \'shell_exec\' function in PHP first.', 'system-dashboard' );
 
 		} else {
 
@@ -1982,7 +2006,7 @@ class System_Dashboard_Admin {
 		$free_disk_space = $this->sd_free_disk_space();
 		$total_disk_space = $this->sd_total_disk_space();
 
-		if ( ( $free_disk_space != 'Undetectable' ) && ( $total_disk_space != 'Undetectable' ) ) {
+		if ( ( $free_disk_space != 'Undetectable' ) && ( $total_disk_space != 'Undetectable' ) && ( $total_disk_space !== 0 ) ) {
 
 			$used_disk_space = $total_disk_space - $free_disk_space;
 
@@ -1990,7 +2014,7 @@ class System_Dashboard_Admin {
 
 		} else {
 
-			return 'Undetectable';
+			return __( 'Undetectable', 'system-dashboard' );
 
 		}
 
@@ -2005,42 +2029,41 @@ class System_Dashboard_Admin {
 	public function sd_php_info() {
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				if ( !class_exists( 'DOMDocument' ) ) {
+					return __( 'Please enable DOMDocument extension first.', 'system-dashboard' );
+				} else {
 
+					ob_start();
+					phpinfo();
+					$phpinfo = ob_get_contents();
+					ob_end_clean();
 
-			if ( !class_exists( 'DOMDocument' ) ) {
-				return 'Please enable DOMDocument extension first.';
-			} else {
+				    // Use DOMDocument to parse phpinfo()
+					libxml_use_internal_errors(true);
+					$html = new DOMDocument('1.0', 'UTF-8');
+					$html->loadHTML($phpinfo);
 
-				ob_start();
-				phpinfo();
-				$phpinfo = ob_get_contents();
-				ob_end_clean();
+				    // Style process
+					$tables = $html->getElementsByTagName('table');
+					foreach ($tables as $table) {
+						$table->setAttribute('class', 'widefat'); // use WP default styles
+					}
 
-			    // Use DOMDocument to parse phpinfo()
-				libxml_use_internal_errors(true);
-				$html = new DOMDocument('1.0', 'UTF-8');
-				$html->loadHTML($phpinfo);
+				    // We only need the <body>
+					$xpath = new DOMXPath($html);
+					$body = $xpath->query('/html/body');
 
-			    // Style process
-				$tables = $html->getElementsByTagName('table');
-				foreach ($tables as $table) {
-					$table->setAttribute('class', 'widefat'); // use WP default styles
+				    // Save HTML fragment
+					libxml_use_internal_errors(false);
+					$phpinfo_html = $html->saveXml($body->item(0));
+
+					echo $phpinfo_html;
+
 				}
-
-			    // We only need the <body>
-				$xpath = new DOMXPath($html);
-				$body = $xpath->query('/html/body');
-
-			    // Save HTML fragment
-				libxml_use_internal_errors(false);
-				$phpinfo_html = $html->saveXml($body->item(0));
-
-				echo $phpinfo_html;
-
 			}
-
 		}
-
+		
 	}
 
 	/**
@@ -2144,50 +2167,48 @@ class System_Dashboard_Admin {
 	 * @since 2.0.0
 	 */
 	public function sd_directory_sizes() {
+		$output = '';
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', __( 'All directories and files', 'system-dashboard' ) );
+				$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ) . $this->sd_files_count( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ) );
+				$output .= $this->sd_html( 'field-content-end' );
 
-			$output = '';
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', '/wp-admin' );
+				$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-admin' ) . $this->sd_files_count( ABSPATH . '/wp-admin' ) );
+				$output .= $this->sd_html( 'field-content-end' );
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'All directories and files' );
-			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ) . $this->sd_files_count( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ) );
-			$output .= $this->sd_html( 'field-content-end' );
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', '/wp-includes' );
+				$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-includes' ) . $this->sd_files_count( ABSPATH . '/wp-includes' ) );
+				$output .= $this->sd_html( 'field-content-end' );
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'wp-admin directory' );
-			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-admin' ) . $this->sd_files_count( ABSPATH . '/wp-admin' ) );
-			$output .= $this->sd_html( 'field-content-end' );
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', '/wp-content' );
+				$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR ) . $this->sd_files_count( WP_CONTENT_DIR ) );
+				$output .= $this->sd_html( 'field-content-end' );
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'wp-includes directory' );
-			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( ABSPATH . '/wp-includes' ) . $this->sd_files_count( ABSPATH . '/wp-includes' ) );
-			$output .= $this->sd_html( 'field-content-end' );
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', '/wp-content/uploads' );
+				$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/uploads' ) . $this->sd_files_count( WP_CONTENT_DIR.'/uploads' ) );
+				$output .= $this->sd_html( 'field-content-end' );
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'wp-content directory' );
-			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR ) . $this->sd_files_count( WP_CONTENT_DIR ) );
-			$output .= $this->sd_html( 'field-content-end' );
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', '/wp-content/plugins' );
+				$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/plugins' ) . $this->sd_files_count( WP_CONTENT_DIR.'/plugins' ) );
+				$output .= $this->sd_html( 'field-content-end' );
 
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'wp-content/uploads directory' );
-			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/uploads' ) . $this->sd_files_count( WP_CONTENT_DIR.'/uploads' ) );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'wp-content/plugins directory' );
-			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/plugins' ) . $this->sd_files_count( WP_CONTENT_DIR.'/plugins' ) );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'wp-content/themes directory' );
-			$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/themes' ) . $this->sd_files_count( WP_CONTENT_DIR.'/themes' ) );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			echo $output;
-
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', '/wp-content/themes' );
+				$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/themes' ) . $this->sd_files_count( WP_CONTENT_DIR.'/themes' ) );
+				$output .= $this->sd_html( 'field-content-end' );				
+			}
 		}
 
+		echo $output;
 	}
 
 	/**
@@ -2197,73 +2218,71 @@ class System_Dashboard_Admin {
 	 * @since 1.0.0
 	 */
 	public function sd_filesystem_permissions() {
+		$output = '';
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$checkmark = '<span class="sd__symbol sd__symbol--green">&check;</span>';
+				$xmark = '<span class="sd__symbol sd__symbol--red">&cross;</span>';
 
-			$output = '';
+				if ( wp_is_writable( ABSPATH ) ) {
+					$is_writable_abspath = $checkmark . ' ' . __( 'Writeable', 'system-dashboard' );
+				} else {
+					$is_writable_abspath = $xmark . ' ' . __( 'Not writeable', 'system-dashboard' );			
+				}
 
-			$checkmark = '<span class="sd__symbol sd__symbol--green">&check;</span>';
-			$xmark = '<span class="sd__symbol sd__symbol--red">&cross;</span>';
+				if ( wp_is_writable( WP_CONTENT_DIR ) ) {
+					$is_writable_wp_content_dir = $checkmark . ' ' . __( 'Writeable', 'system-dashboard' );
+				} else {
+					$is_writable_wp_content_dir = $xmark . ' ' . __( 'Not writeable', 'system-dashboard' );			
+				}
 
-			if ( wp_is_writable( ABSPATH ) ) {
-				$is_writable_abspath = $checkmark . ' Writeable';
-			} else {
-				$is_writable_abspath = $xmark . ' Not writeable';			
+				if ( wp_is_writable( wp_upload_dir()['basedir'] ) ) {
+					$is_writable_upload_dir = $checkmark . ' ' . __( 'Writeable', 'system-dashboard' );
+				} else {
+					$is_writable_upload_dir = $xmark . ' ' . __( 'Not writeable', 'system-dashboard' );			
+				}
+
+				if ( wp_is_writable( WP_PLUGIN_DIR ) ) {
+					$is_writable_wp_plugin_dir = $checkmark . ' ' . __( 'Writeable', 'system-dashboard' );
+				} else {
+					$is_writable_wp_plugin_dir = $xmark . ' ' . __( 'Not writeable', 'system-dashboard' );			
+				}
+
+				if ( wp_is_writable( get_theme_root( get_template() ) ) ) {
+					$is_writable_template_directory = $checkmark . ' ' . __( 'Writeable', 'system-dashboard' );
+				} else {
+					$is_writable_template_directory = $xmark . ' ' . __( 'Not writeable', 'system-dashboard' );			
+				}
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', __( 'The main WordPress directory', 'system-dashboard' ) );
+				$output .= $this->sd_html( 'field-content-second', $is_writable_abspath );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', '/wp-content' );
+				$output .= $this->sd_html( 'field-content-second', $is_writable_wp_content_dir );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', '/wp-content/uploads' );
+				$output .= $this->sd_html( 'field-content-second', $is_writable_upload_dir );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', '/wp-content/plugins' );
+				$output .= $this->sd_html( 'field-content-second', $is_writable_wp_plugin_dir );
+				$output .= $this->sd_html( 'field-content-end' );
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', '/wp-content/themes' );
+				$output .= $this->sd_html( 'field-content-second', $is_writable_template_directory );
+				$output .= $this->sd_html( 'field-content-end' );				
 			}
-
-			if ( wp_is_writable( WP_CONTENT_DIR ) ) {
-				$is_writable_wp_content_dir = $checkmark . ' Writeable';
-			} else {
-				$is_writable_wp_content_dir = $xmark . ' Not writeable';			
-			}
-
-			if ( wp_is_writable( wp_upload_dir()['basedir'] ) ) {
-				$is_writable_upload_dir = $checkmark . ' Writeable';
-			} else {
-				$is_writable_upload_dir = $xmark . ' Not writeable';			
-			}
-
-			if ( wp_is_writable( WP_PLUGIN_DIR ) ) {
-				$is_writable_wp_plugin_dir = $checkmark . ' Writeable';
-			} else {
-				$is_writable_wp_plugin_dir = $xmark . ' Not writeable';			
-			}
-
-			if ( wp_is_writable( get_theme_root( get_template() ) ) ) {
-				$is_writable_template_directory = $checkmark . ' Writeable';
-			} else {
-				$is_writable_template_directory = $xmark . ' Not writeable';			
-			}
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'The main WordPress directory' );
-			$output .= $this->sd_html( 'field-content-second', $is_writable_abspath );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'The wp-content directory' );
-			$output .= $this->sd_html( 'field-content-second', $is_writable_wp_content_dir );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'The wp-content/uploads directory' );
-			$output .= $this->sd_html( 'field-content-second', $is_writable_upload_dir );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'The wp-content/plugins directory' );
-			$output .= $this->sd_html( 'field-content-second', $is_writable_wp_plugin_dir );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			$output .= $this->sd_html( 'field-content-start' );
-			$output .= $this->sd_html( 'field-content-first', 'The wp-content/themes directory' );
-			$output .= $this->sd_html( 'field-content-second', $is_writable_template_directory );
-			$output .= $this->sd_html( 'field-content-end' );
-
-			echo $output;
-
 		}
 
+		echo $output;
 	}
 
 	/**
@@ -2281,7 +2300,7 @@ class System_Dashboard_Admin {
 
 		$count = iterator_count( $objects );
 
-		return ' - ' . number_format($count) . ' files and directories';
+		return ' - ' . number_format($count) . ' ' . __( 'files and directories', 'system-dashboard' );
 
 	}
 	/**
@@ -2293,43 +2312,50 @@ class System_Dashboard_Admin {
 	public function sd_viewer() {
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-
-			$filename = $_REQUEST['filename'];
-
-			if ( $filename == 'wpcnfg' ) {
-				$file_path = $this->sd_wpconfig_file_path();
-			} else {
-				$file_path = ABSPATH . $filename;
-			}
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$filename = sanitize_text_field( $_REQUEST['filename'] );
 				
-			if ( !file_exists( $file_path ) ) {
+				if ( in_array( $filename, array( 'wpcnfg', '.htaccess', 'robots.txt', '/wp-json/wp/v2' ) ) ) {
+					
+					if ( $filename == 'wpcnfg' ) {
+						$file_path = $this->sd_wpconfig_file_path();
+					} else {
+						$file_path = ABSPATH . $filename;
+					}
+						
+					if ( ! file_exists( $file_path ) ) {
 
-				if ( $filename == 'robots.txt' ) {
+						if ( $filename == 'robots.txt' ) {
 
-					$response = wp_remote_get( get_site_url() . '/' . $filename );
+							$response = wp_remote_get( get_site_url() . '/' . $filename );
 
-					$file_content = nl2br( trim( wp_remote_retrieve_body( $response ) ) );
+							$file_content = nl2br( trim( wp_remote_retrieve_body( $response ) ) );
 
-					$output = $file_content;
+							$output = $file_content;
 
+						} else {
+
+							$output = $file_path . ' ' . __( 'does not exist', 'system-dashboard' );
+
+						}
+
+					} else {
+
+						$file_content = nl2br( trim( file_get_contents( $file_path, true ) ) );
+
+						$output = $file_content;
+
+					}
+					
 				} else {
+					
+					$output = '';
 
-					$output = $file_path . ' does not exist';
-
-				}
-
-			} else {
-
-				$file_content = nl2br( trim( file_get_contents( $file_path, true ) ) );
-
-				$output = $file_content;
-
+				}				
 			}
-
-			echo $output;
-
 		}
 
+		echo wp_kses_post( $output );
 	}
 
 	/**
@@ -2340,13 +2366,13 @@ class System_Dashboard_Admin {
 	public function sd_viewer_url() {
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$path = $_REQUEST['path'];
 
-			$path = $_REQUEST['path'];
+				$response = wp_remote_get( get_site_url() . $path );
 
-			$response = wp_remote_get( get_site_url() . $path );
-
-			echo trim( wp_remote_retrieve_body( $response ) );
-
+				echo trim( wp_remote_retrieve_body( $response ) );				
+			}
 		}
 
 	}
@@ -2681,248 +2707,252 @@ class System_Dashboard_Admin {
 	 * @since 1.0.0
 	 */
 	public function sd_db_tables( $return = 'count-core' ) {
-
-		global $wpdb;
-
-		$prefix = $wpdb->prefix;
-
-		// Get tables data from cache or DB
-
-		$tables = wp_cache_get( 'sd_db_show_table_status', 'wpdb-queries' );
-
-		if ( false === $tables ) {
-			$tables = $wpdb->get_results("SHOW TABLE STATUS");
-			wp_cache_set( 'sd_db_show_table_status', $tables, 'wpdb-queries', MINUTE_IN_SECONDS );
-		}
-
-		$wpcore_tables = array(
-			$wpdb->prefix . 'commentmeta',
-			$wpdb->prefix . 'comments',
-			$wpdb->prefix . 'links',
-			$wpdb->prefix . 'options',
-			$wpdb->prefix . 'postmeta',
-			$wpdb->prefix . 'posts',
-			$wpdb->prefix . 'term_relationships',
-			$wpdb->prefix . 'term_taxonomy',
-			$wpdb->prefix . 'termmeta',
-			$wpdb->prefix . 'terms',
-			$wpdb->prefix . 'usermeta',
-			$wpdb->prefix . 'users',
-		);
-
-		// On a multisite install, add multisite-specific tables
-		// Modified from https://plugins.svn.wordpress.org/advanced-database-cleaner/tags/3.0.4/includes/functions.php >> aDBc_get_core_tables()
-		if ( function_exists('is_multisite') && is_multisite() ){
-			array_push( $wpcore_tables, $wpdb->prefix . 'blogs' );
-			array_push( $wpcore_tables, $wpdb->prefix . 'blog_versions' );
-			array_push( $wpcore_tables, $wpdb->prefix . 'blogmeta' );
-			array_push( $wpcore_tables, $wpdb->prefix . 'registration_log' );
-			array_push( $wpcore_tables, $wpdb->prefix . 'site' );
-			array_push( $wpcore_tables, $wpdb->prefix . 'sitemeta' );
-			array_push( $wpcore_tables, $wpdb->prefix . 'signups' );
-		}
-
-		$noncore_tables = array();
-
-		foreach ( $tables as $table ) {
-
-			if ( !in_array( $table->Name, $wpcore_tables ) ) {
-
-				$noncore_tables[] = $table->Name;
-
-			}
-
-		}
-
-		if ( $return == 'count-core' ) {
-
-			return count( $wpcore_tables );
-
-		} elseif ( $return == 'count-noncore' ) {
-
-			return count( $noncore_tables );
-
-		} else {}
-
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				global $wpdb;
 
-			$type = $_REQUEST['type'];
+				$prefix = $wpdb->prefix;
 
-			// Get installed plugins folder-name / slug array
+				// Get tables data from cache or DB
 
-			$installed_plugins_info = get_plugins();
+				$tables = wp_cache_get( 'sd_db_show_table_status', 'wpdb-queries' );
 
-			$installed_plugins = array();
-			foreach ( $installed_plugins_info as $plugin_file => $plugin_info ) {
-				$installed_plugins[] = $plugin_file; // array of 'plugin-folder/plugin-file.php'
-			}
+				if ( false === $tables ) {
+					$tables = $wpdb->get_results("SHOW TABLE STATUS");
+					wp_cache_set( 'sd_db_show_table_status', $tables, 'wpdb-queries', MINUTE_IN_SECONDS );
+				}
 
-			$installed_plugins_slugs = array();
-			foreach ( $installed_plugins as $installed_plugin ) {
-				$installed_plugin = explode("/", $installed_plugin);
-				$installed_plugins_slugs[] = $installed_plugin[0];
-			}
+				$wpcore_tables = array(
+					$wpdb->prefix . 'commentmeta',
+					$wpdb->prefix . 'comments',
+					$wpdb->prefix . 'links',
+					$wpdb->prefix . 'options',
+					$wpdb->prefix . 'postmeta',
+					$wpdb->prefix . 'posts',
+					$wpdb->prefix . 'term_relationships',
+					$wpdb->prefix . 'term_taxonomy',
+					$wpdb->prefix . 'termmeta',
+					$wpdb->prefix . 'terms',
+					$wpdb->prefix . 'usermeta',
+					$wpdb->prefix . 'users',
+				);
 
-			// Get active plugins folder-name / slug array
+				// On a multisite install, add multisite-specific tables
+				// Modified from https://plugins.svn.wordpress.org/advanced-database-cleaner/tags/3.0.4/includes/functions.php >> aDBc_get_core_tables()
+				if ( function_exists('is_multisite') && is_multisite() ){
+					array_push( $wpcore_tables, $wpdb->prefix . 'blogs' );
+					array_push( $wpcore_tables, $wpdb->prefix . 'blog_versions' );
+					array_push( $wpcore_tables, $wpdb->prefix . 'blogmeta' );
+					array_push( $wpcore_tables, $wpdb->prefix . 'registration_log' );
+					array_push( $wpcore_tables, $wpdb->prefix . 'site' );
+					array_push( $wpcore_tables, $wpdb->prefix . 'sitemeta' );
+					array_push( $wpcore_tables, $wpdb->prefix . 'signups' );
+				}
 
-			$active_plugins = get_option( 'active_plugins' );
-			$active_plugins_slugs = array();
+				$noncore_tables = array();
 
-			foreach ( $active_plugins as $active_plugin ) {
-				$active_plugin = explode("/", $active_plugin);
-				$active_plugins_slugs[] = $active_plugin[0];
-			}
+				foreach ( $tables as $table ) {
 
-			// Get data array of relationship between table name and plugins creating and using it
+					if ( !in_array( $table->Name, $wpcore_tables ) ) {
 
-			$tables_plugins = wp_remote_get( plugin_dir_url( __DIR__ ). 'admin/references/tables_and_plugins_relationships_by_wpoptimize.json' );
-			$tables_plugins_relatioships = json_decode( wp_remote_retrieve_body( $tables_plugins ), true );
+						$noncore_tables[] = $table->Name;
 
-			if ( $type == 'core' ) {
+					}
 
-				$output = $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', '<strong>Table Name</strong>' );
-				$output .= $this->sd_html( 'field-content-second', $this->sd_html_parts( 'thirds', 'parts-heading', 'Data Size', 'Index Size', 'Rows' ) );
-				$output .= $this->sd_html( 'field-content-end' );
+				}
 
-			} elseif ( $type == 'noncore' ) {
+				if ( $return == 'count-core' ) {
 
-				$output = $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', '<strong>Table Name</strong> &#10132; <strong>Origin (Status)</strong>' );
-				$output .= $this->sd_html( 'field-content-second', $this->sd_html_parts( 'thirds', 'parts-heading', 'Data Size', 'Index Size', 'Rows' ) );
-				$output .= $this->sd_html( 'field-content-end' );
+					return count( $wpcore_tables );
 
-			}
+				} elseif ( $return == 'count-noncore' ) {
 
-			$n = 1;
+					return count( $noncore_tables );
 
-			foreach( $tables as $table ) {
+				} else {}
 
-				if ( $type == 'core' ) {
+				if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
-					if ( in_array( $table->Name, $wpcore_tables ) ) {
+					$type = $_REQUEST['type'];
 
-						$output .= $this->sd_html( 'field-content-start' );
+					// Get installed plugins folder-name / slug array
 
-						// If SQL Buddy is active, link to table viewer there
+					$installed_plugins_info = get_plugins();
 
-						if ( in_array( 'sql-buddy/sql-buddy.php', $active_plugins ) ) {
-							$table_name_output = '<a href="/wp-admin/tools.php?page=sql-buddy-dashboard#/tables?table=' . $table->Name . '" target="_blank">' . $table->Name . '</a>';
-						} else {
-							$table_name_output = $table->Name;
-						}
+					$installed_plugins = array();
+					foreach ( $installed_plugins_info as $plugin_file => $plugin_info ) {
+						$installed_plugins[] = $plugin_file; // array of 'plugin-folder/plugin-file.php'
+					}
 
-						$output .= $this->sd_html( 'field-content-first', $table_name_output, 'long-value' );
-						$output .= $this->sd_html( 'field-content-second', $this->sd_html_parts( 'thirds', '', $this->sd_format_filesize( $table->Data_length ), $this->sd_format_filesize( $table->Index_length ), number_format( $table->Rows ) ) );
+					$installed_plugins_slugs = array();
+					foreach ( $installed_plugins as $installed_plugin ) {
+						$installed_plugin = explode("/", $installed_plugin);
+						$installed_plugins_slugs[] = $installed_plugin[0];
+					}
+
+					// Get active plugins folder-name / slug array
+
+					$active_plugins = get_option( 'active_plugins' );
+					$active_plugins_slugs = array();
+
+					foreach ( $active_plugins as $active_plugin ) {
+						$active_plugin = explode("/", $active_plugin);
+						$active_plugins_slugs[] = $active_plugin[0];
+					}
+
+					// Get data array of relationship between table name and plugins creating and using it
+
+					$tables_plugins = wp_remote_get( plugin_dir_url( __DIR__ ). 'admin/references/tables_and_plugins_relationships_by_wpoptimize.json' );
+					$tables_plugins_relatioships = json_decode( wp_remote_retrieve_body( $tables_plugins ), true );
+
+					if ( $type == 'core' ) {
+
+						$output = $this->sd_html( 'field-content-start' );
+						$output .= $this->sd_html( 'field-content-first', '<strong>' . __( 'Table Name', 'system-dashboard' ) . '</strong>' );
+						$output .= $this->sd_html( 'field-content-second', $this->sd_html_parts( 'thirds', 'parts-heading', __( 'Data Size', 'system-dashboard' ), __( 'Index Size', 'system-dashboard' ), __( 'Rows', 'system-dashboard' ) ) );
+						$output .= $this->sd_html( 'field-content-end' );
+
+					} elseif ( $type == 'noncore' ) {
+
+						$output = $this->sd_html( 'field-content-start' );
+						$output .= $this->sd_html( 'field-content-first', '<strong>' . __( 'Table Name', 'system-dashboard' ) . '</strong> &#10132; <strong>' . __( 'Origin (Status)', 'system-dashboard' ) . '</strong>' );
+						$output .= $this->sd_html( 'field-content-second', $this->sd_html_parts( 'thirds', 'parts-heading', __( 'Data Size', 'system-dashboard' ), __( 'Index Size', 'system-dashboard' ), __( 'Rows', 'system-dashboard' ) ) );
 						$output .= $this->sd_html( 'field-content-end' );
 
 					}
 
-				} elseif ( $type == 'noncore' ) {
+					$n = 1;
 
-					if ( in_array( $table->Name, $noncore_tables ) ) {
+					foreach( $tables as $table ) {
 
-						$output .= $this->sd_html( 'field-content-start' );
+						if ( $type == 'core' ) {
 
-						// If SQL Buddy is active, link to table viewer there
+							if ( in_array( $table->Name, $wpcore_tables ) ) {
 
-						if ( in_array( 'sql-buddy/sql-buddy.php', $active_plugins ) ) {
-							$table_name_output = $n . '. <a href="/wp-admin/tools.php?page=sql-buddy-dashboard#/tables?table=' . $table->Name . '" target="_blank">' . $table->Name . '</a>';
-						} else {
-							$table_name_output = $n . '. ' . $table->Name;
-						}
+								$output .= $this->sd_html( 'field-content-start' );
 
-						// Get table's origin plugin info
+								// If SQL Buddy is active, link to table viewer there
 
-						$table_name = str_replace( $prefix, "", $table->Name); // remove prefix
+								if ( in_array( 'sql-buddy/sql-buddy.php', $active_plugins ) ) {
+									$table_name_output = '<a href="/wp-admin/tools.php?page=sql-buddy-dashboard#/tables?table=' . $table->Name . '" target="_blank">' . $table->Name . '</a>';
+								} else {
+									$table_name_output = $table->Name;
+								}
 
-						$origin_plugin_output = '';
-						$orphaned_tables = array();
+								$output .= $this->sd_html( 'field-content-first', $table_name_output, 'long-value' );
+								$output .= $this->sd_html( 'field-content-second', $this->sd_html_parts( 'thirds', '', $this->sd_format_filesize( $table->Data_length ), $this->sd_format_filesize( $table->Index_length ), number_format( $table->Rows ) ) );
+								$output .= $this->sd_html( 'field-content-end' );
 
-						// Check if table name is listed in the reference table_name<-->plugins relationships array
+							}
 
-						if ( array_key_exists( $table_name, $tables_plugins_relatioships ) ) {
+						} elseif ( $type == 'noncore' ) {
 
-							$origin_plugins = $tables_plugins_relatioships[$table_name];
+							if ( in_array( $table->Name, $noncore_tables ) ) {
 
-							foreach ( $origin_plugins as $origin_plugin ) {
+								$output .= $this->sd_html( 'field-content-start' );
 
-								// Check if the originating plugin is installed or not, and if active or deactivated
+								// If SQL Buddy is active, link to table viewer there
 
-								if ( in_array( $origin_plugin, $installed_plugins_slugs ) ) {
+								if ( in_array( 'sql-buddy/sql-buddy.php', $active_plugins ) ) {
+									$table_name_output = $n . '. <a href="/wp-admin/tools.php?page=sql-buddy-dashboard#/tables?table=' . $table->Name . '" target="_blank">' . $table->Name . '</a>';
+								} else {
+									$table_name_output = $n . '. ' . $table->Name;
+								}
 
-									$has_origin_plugin_installed = true;
+								// Get table's origin plugin info
 
-									if ( in_array( $origin_plugin, $active_plugins_slugs ) ) {
+								$table_name = str_replace( $prefix, "", $table->Name); // remove prefix
 
-										foreach ( $installed_plugins_info as $plugin_file => $plugin_info ) {
+								$origin_plugin_output = '';
+								$orphaned_tables = array();
 
-											if ( strpos( $plugin_file, $origin_plugin ) !== false ) {
+								// Check if table name is listed in the reference table_name<-->plugins relationships array
 
-												$plugin_status = 'active';
+								if ( array_key_exists( $table_name, $tables_plugins_relatioships ) ) {
 
-												$origin_plugin_output .= '<span class="db-table-origin-plugin">&#10132; <a href="https://wordpress.org/plugins/'.$origin_plugin.'/" target="_blank">' . $plugin_info['Name'] . '</a> ('. $plugin_status .')</span><br />';
+									$origin_plugins = $tables_plugins_relatioships[$table_name];
+
+									foreach ( $origin_plugins as $origin_plugin ) {
+
+										// Check if the originating plugin is installed or not, and if active or deactivated
+
+										if ( in_array( $origin_plugin, $installed_plugins_slugs ) ) {
+
+											$has_origin_plugin_installed = true;
+
+											if ( in_array( $origin_plugin, $active_plugins_slugs ) ) {
+
+												foreach ( $installed_plugins_info as $plugin_file => $plugin_info ) {
+
+													if ( strpos( $plugin_file, $origin_plugin ) !== false ) {
+
+														$plugin_status = __( 'active', 'system-dashboard' );
+
+														$origin_plugin_output .= '<span class="db-table-origin-plugin">&#10132; <a href="https://wordpress.org/plugins/'.$origin_plugin.'/" target="_blank">' . $plugin_info['Name'] . '</a> ('. $plugin_status .')</span><br />';
+
+													}
+
+												}
+
+											} else {
+
+												foreach ( $installed_plugins_info as $plugin_file => $plugin_info ) {
+
+													if ( strpos( $plugin_file, $origin_plugin ) !== false ) {
+
+														$plugin_status = __( 'deactivated', 'system-dashboard' );
+
+														$origin_plugin_output .= '<span class="db-table-origin-plugin">&#10132; <a href="https://wordpress.org/plugins/'.$origin_plugin.'/" target="_blank">' . $plugin_info['Name'] . '</a> ('. $plugin_status .')</span><br />';
+
+													}
+
+												}
 
 											}
 
-										}
+										} else {
 
-									} else {
+											$has_origin_plugin_installed = false;
 
-										foreach ( $installed_plugins_info as $plugin_file => $plugin_info ) {
+											$orphaned_tables[] = $table_name;
 
-											if ( strpos( $plugin_file, $origin_plugin ) !== false ) {
+											$plugin_status = __( 'uninstalled', 'system-dashboard' );
 
-												$plugin_status = 'deactivated';
-
-												$origin_plugin_output .= '<span class="db-table-origin-plugin">&#10132; <a href="https://wordpress.org/plugins/'.$origin_plugin.'/" target="_blank">' . $plugin_info['Name'] . '</a> ('. $plugin_status .')</span><br />';
-
-											}
+											$origin_plugin_output .= '';
 
 										}
 
 									}
 
+									// For tables that has no origin plugin installed but has detectable origin plugin
+
+									if ( ( $has_origin_plugin_installed == false ) && ( count( $origin_plugins ) == 1 ) ) {
+
+										$origin_plugin_output .= '<span class="db-table-origin-plugin">&#10132; <a href="https://wordpress.org/plugins/'.$origin_plugin.'/" target="_blank">' . $origin_plugin . '</a> ('. $plugin_status .')</span><br />';
+
+									}
+
 								} else {
 
-									$has_origin_plugin_installed = false;
-
-									$orphaned_tables[] = $table_name;
-
-									$plugin_status = 'uninstalled';
-
-									$origin_plugin_output .= '';
+									$origin_plugin_output .= '<span class="db-table-origin-plugin">&#10132; ' . __( 'Originating plugin is undetectable', 'system-dashboard' ) . '</span>';
 
 								}
 
-							}
+								$output .= $this->sd_html( 'field-content-first', $table_name_output . '<br />' .$origin_plugin_output , 'long-value' );
+								$output .= $this->sd_html( 'field-content-second', '<div class="parts"><span class="thirds">' . $this->sd_format_filesize( $table->Data_length ) . '</span><span class="thirds">' . $this->sd_format_filesize( $table->Index_length ) . '</span><span class="thirds">' . number_format( $table->Rows ) . '</span></div>' );
+								$output .= $this->sd_html( 'field-content-end' );
 
-							// For tables that has no origin plugin installed but has detectable origin plugin
-
-							if ( ( $has_origin_plugin_installed == false ) && ( count( $origin_plugins ) == 1 ) ) {
-
-								$origin_plugin_output .= '<span class="db-table-origin-plugin">&#10132; <a href="https://wordpress.org/plugins/'.$origin_plugin.'/" target="_blank">' . $origin_plugin . '</a> ('. $plugin_status .')</span><br />';
+								$n++;
 
 							}
 
-						} else {
+						} else {}
 
-							$origin_plugin_output .= '<span class="db-table-origin-plugin">&#10132; Originating plugin is undetectable</span>';
-
-						}
-
-						$output .= $this->sd_html( 'field-content-first', $table_name_output . '<br />' .$origin_plugin_output , 'long-value' );
-						$output .= $this->sd_html( 'field-content-second', '<div class="parts"><span class="thirds">' . $this->sd_format_filesize( $table->Data_length ) . '</span><span class="thirds">' . $this->sd_format_filesize( $table->Index_length ) . '</span><span class="thirds">' . number_format( $table->Rows ) . '</span></div>' );
-						$output .= $this->sd_html( 'field-content-end' );
-
-						$n++;
-
-					}
-
-				} else {}
-
+					}				
+			} else {
+				$output = '';
 			}
-
+		}
 			echo $output;
 
 		}
@@ -2995,7 +3025,7 @@ class System_Dashboard_Admin {
 
 			} else {
 
-				$client_version = 'Undetectable';
+				$client_version = __( 'Undetectable', 'system-dashboard' );
 
 			}
 
@@ -3022,112 +3052,116 @@ class System_Dashboard_Admin {
 	public function sd_db_specs() {
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
 
-			global $wpdb;
+				global $wpdb;
 
-			$default_storage_engine_query = $wpdb->get_row("SHOW VARIABLES LIKE 'default_storage_engine'");
-			$default_storage_engine = $default_storage_engine_query->Value;
+				$default_storage_engine_query = $wpdb->get_row("SHOW VARIABLES LIKE 'default_storage_engine'");
+				$default_storage_engine = $default_storage_engine_query->Value;
 
-			$charset = $wpdb->charset;
-			$collation = $wpdb->collate;
+				$charset = $wpdb->charset;
+				$collation = $wpdb->collate;
 
-			$innodb_buffer_pool_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'innodb_buffer_pool_size'");
-			$innodb_buffer_pool_size = $this->sd_format_filesize( $innodb_buffer_pool_size_query->Value );
+				$innodb_buffer_pool_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'innodb_buffer_pool_size'");
+				$innodb_buffer_pool_size = $this->sd_format_filesize( $innodb_buffer_pool_size_query->Value );
 
-			$key_buffer_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'key_buffer_size'");
-			$key_buffer_size = $this->sd_format_filesize( $key_buffer_size_query->Value );
+				$key_buffer_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'key_buffer_size'");
+				$key_buffer_size = $this->sd_format_filesize( $key_buffer_size_query->Value );
 
-			$max_allowed_packet_query = $wpdb->get_row("SHOW VARIABLES LIKE 'max_allowed_packet'");
-			$max_allowed_packet = $this->sd_format_filesize( $max_allowed_packet_query->Value );
+				$max_allowed_packet_query = $wpdb->get_row("SHOW VARIABLES LIKE 'max_allowed_packet'");
+				$max_allowed_packet = $this->sd_format_filesize( $max_allowed_packet_query->Value );
 
-			$max_connection_query = $wpdb->get_row("SHOW VARIABLES LIKE 'max_connections'");
-			$max_connection = number_format_i18n( $max_connection_query->Value );
+				$max_connection_query = $wpdb->get_row("SHOW VARIABLES LIKE 'max_connections'");
+				$max_connection = number_format_i18n( $max_connection_query->Value );
 
-			$query_cache_limit_query = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_limit'");
-			$query_cache_limit = $this->sd_format_filesize( $query_cache_limit_query->Value );
+				$query_cache_limit_query = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_limit'");
+				$query_cache_limit = $this->sd_format_filesize( $query_cache_limit_query->Value );
 
-			$query_cache_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_size'");
-			$query_cache_size = $this->sd_format_filesize( $query_cache_size_query->Value );
+				$query_cache_size_query = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_size'");
+				$query_cache_size = $this->sd_format_filesize( $query_cache_size_query->Value );
 
-			$query_cache_type_query = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_type'");
-			$query_cache_type = $query_cache_type_query->Value;
+				$query_cache_type_query = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_type'");
+				$query_cache_type = $query_cache_type_query->Value;
 
-			$db_specs = array(
-				array(
-					'name'					=> 'Extension',
-					'value'					=> $this->sd_db_client( 'extension' ),
-				),
-				array(
-					'name'					=> 'Client Version',
-					'value'					=> $this->sd_db_client( 'client_version' ),
-				),
-				array(
-					'name'					=> 'Engine',
-					'value'					=> $default_storage_engine,
-				),
-				array(
-					'name'					=> 'Character Set',
-					'value'					=> $charset,
-				),
-				array(
-					'name'					=> 'Collation',
-					'value'					=> $collation,
-				),
-				array(
-					'name'					=> 'Host',
-					'value'					=> DB_HOST,
-				),
-				array(
-					'name'					=> 'Name',
-					'value'					=> DB_NAME,
-				),
-				array(
-					'name'					=> 'User',
-					'value'					=> DB_USER,
-				),
-				array(
-					'name'					=> 'innodb_buffer_pool_size',
-					'value'					=> $innodb_buffer_pool_size,
-				),
-				array(
-					'name'					=> 'key_buffer_size',
-					'value'					=> $key_buffer_size,
-				),
-				array(
-					'name'					=> 'max_allowed_packet',
-					'value'					=> $max_allowed_packet,
-				),
-				array(
-					'name'					=> 'max_connections',
-					'value'					=> $max_connection,
-				),
-				array(
-					'name'					=> 'query_cache_limit',
-					'value'					=> $query_cache_limit,
-				),
-				array(
-					'name'					=> 'query_cache_size',
-					'value'					=> $query_cache_size,
-				),
-				array(
-					'name'					=> 'query_cache_type',
-					'value'					=> $query_cache_type,
-				),
-			);
+				$db_specs = array(
+					array(
+						'name'					=> __( 'Extension', 'system-dashboard' ),
+						'value'					=> $this->sd_db_client( 'extension' ),
+					),
+					array(
+						'name'					=> __( 'Client Version', 'system-dashboard' ),
+						'value'					=> $this->sd_db_client( 'client_version' ),
+					),
+					array(
+						'name'					=> __( 'Engine', 'system-dashboard' ),
+						'value'					=> $default_storage_engine,
+					),
+					array(
+						'name'					=> __( 'Character Set', 'system-dashboard' ),
+						'value'					=> $charset,
+					),
+					array(
+						'name'					=> __( 'Collation', 'system-dashboard' ),
+						'value'					=> $collation,
+					),
+					array(
+						'name'					=> __( 'Host', 'system-dashboard' ),
+						'value'					=> DB_HOST,
+					),
+					array(
+						'name'					=> __( 'Name', 'system-dashboard' ),
+						'value'					=> DB_NAME,
+					),
+					array(
+						'name'					=> __( 'User', 'system-dashboard' ),
+						'value'					=> DB_USER,
+					),
+					array(
+						'name'					=> 'innodb_buffer_pool_size',
+						'value'					=> $innodb_buffer_pool_size,
+					),
+					array(
+						'name'					=> 'key_buffer_size',
+						'value'					=> $key_buffer_size,
+					),
+					array(
+						'name'					=> 'max_allowed_packet',
+						'value'					=> $max_allowed_packet,
+					),
+					array(
+						'name'					=> 'max_connections',
+						'value'					=> $max_connection,
+					),
+					array(
+						'name'					=> 'query_cache_limit',
+						'value'					=> $query_cache_limit,
+					),
+					array(
+						'name'					=> 'query_cache_size',
+						'value'					=> $query_cache_size,
+					),
+					array(
+						'name'					=> 'query_cache_type',
+						'value'					=> $query_cache_type,
+					),
+				);
 
-			$output = '';
+				$output = '';
 
-			foreach ( $db_specs as $spec ) {
+				foreach ( $db_specs as $spec ) {
 
-				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', $spec['name'] );
-				$output .= $this->sd_html( 'field-content-second', $spec['value'] );
-				$output .= $this->sd_html( 'field-content-end' );
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', $spec['name'] );
+					$output .= $this->sd_html( 'field-content-second', $spec['value'] );
+					$output .= $this->sd_html( 'field-content-end' );
 
+				}	
+							
+			} else {
+				$output = '';
 			}
 
 			echo $output;
-
 		}
 
 	}
@@ -3141,27 +3175,32 @@ class System_Dashboard_Admin {
 	public function sd_db_details() {
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
 
-			global $wpdb;
-			$dbinfo = $wpdb->get_results("SHOW VARIABLES");
+				global $wpdb;
+				$dbinfo = $wpdb->get_results("SHOW VARIABLES");
 
-			$output = '';
+				$output = '';
 
-			if ( !empty( $dbinfo ) ) {
+				if ( !empty( $dbinfo ) ) {
 
-				foreach( $dbinfo as $info ) {
+					foreach( $dbinfo as $info ) {
 
-					$output .= $this->sd_html( 'field-content-start' );
-					$output .= $this->sd_html( 'field-content-first', $info->Variable_name );
-					$output .= $this->sd_html( 'field-content-second', $info->Value );
-					$output .= $this->sd_html( 'field-content-end' );
+						$output .= $this->sd_html( 'field-content-start' );
+						$output .= $this->sd_html( 'field-content-first', $info->Variable_name );
+						$output .= $this->sd_html( 'field-content-second', $info->Value );
+						$output .= $this->sd_html( 'field-content-end' );
+
+					}
+
+				} else {
+
+					$output .= __( 'Undetectable', 'system-dashboard' );
 
 				}
-
+								
 			} else {
-
-				$output .= 'Undetectable';
-
+				$output = '';
 			}
 
 			echo $output;
@@ -3201,8 +3240,8 @@ class System_Dashboard_Admin {
 		$custom_crons_count = 0;
 
 		$header = $this->sd_html( 'field-content-start' );
-		$header .= $this->sd_html( 'field-content-first', '<strong>Hook</strong>' );
-		$header .= $this->sd_html( 'field-content-second', '<strong>Recurrence</strong>' );
+		$header .= $this->sd_html( 'field-content-first', '<strong>' . __( 'Hook', 'system-dashboard' ) . '</strong>' );
+		$header .= $this->sd_html( 'field-content-second', '<strong>' . __( 'Recurrence', 'system-dashboard' ) . '</strong>' );
 		$header .= $this->sd_html( 'field-content-end' );
 
 		$wpcore_crons .= $header;
@@ -3312,26 +3351,29 @@ class System_Dashboard_Admin {
 	 * @since 1.8.0
 	 */
 	public function sd_rewrite_rules() {
-
-		$rewrite_rules = get_option( 'rewrite_rules' );
-
 		$output = '';
+		
+		if ( current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$rewrite_rules = get_option( 'rewrite_rules' );
 
-		if ( !empty( $rewrite_rules ) ) {
+				if ( !empty( $rewrite_rules ) ) {
 
-			foreach ( $rewrite_rules as $key => $value ) {
+					foreach ( $rewrite_rules as $key => $value ) {
 
-				$output .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
-				$output .= $this->sd_html( 'field-content-first', $key, 'full-width long-value' );
-				$output .= $this->sd_html( 'field-content-second', '&#10132; ' . $value, 'full-width long-value' );
-				$output .= $this->sd_html( 'field-content-end' );
+						$output .= $this->sd_html( 'field-content-start', '', 'flex-direction-column' );
+						$output .= $this->sd_html( 'field-content-first', $key, 'full-width long-value' );
+						$output .= $this->sd_html( 'field-content-second', '&#10132; ' . $value, 'full-width long-value' );
+						$output .= $this->sd_html( 'field-content-end' );
 
+					}
+
+				} else {
+
+					$output = __( 'Currently, there are no defined rewrite rules.', 'system-dashboard' );
+
+				}				
 			}
-
-		} else {
-
-			$output = 'Currently, there are no defined rewrite rules.';
-
 		}
 
 		echo $output;
@@ -3403,37 +3445,35 @@ class System_Dashboard_Admin {
 	 * @since 1.8.0
 	 */
 	public function sd_shortcodes() {
+		$output = '';
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				global $shortcode_tags;
 
-			global $shortcode_tags;
+				if ( ( is_array( $shortcode_tags ) ) && ( !empty( $shortcode_tags ) ) ) {
 
-			if ( ( is_array( $shortcode_tags ) ) && ( !empty( $shortcode_tags ) ) ) {
+					ksort( $shortcode_tags );
 
-				ksort( $shortcode_tags );
-
-				$output = '';
-
-				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', '<strong>Shortcode</strong>' );
-				$output .= $this->sd_html( 'field-content-second', '<strong>Rendered By</strong>' );
-				$output .= $this->sd_html( 'field-content-end' );
-
-				foreach ( $shortcode_tags as $shortcode => $callback ) {
 
 					$output .= $this->sd_html( 'field-content-start' );
-					$output .= $this->sd_html( 'field-content-first', '[' . $shortcode . ']' );
-					$output .= $this->sd_html( 'field-content-second', $this->sd_determine_callback_type( $callback ) );
+					$output .= $this->sd_html( 'field-content-first', '<strong>' . __( 'Shortcode', 'system-dashboard' ) . '</strong>' );
+					$output .= $this->sd_html( 'field-content-second', '<strong>' . __( 'Rendered By', 'system-dashboard' ) . '</strong>' );
 					$output .= $this->sd_html( 'field-content-end' );
 
+					foreach ( $shortcode_tags as $shortcode => $callback ) {
+
+						$output .= $this->sd_html( 'field-content-start' );
+						$output .= $this->sd_html( 'field-content-first', '[' . $shortcode . ']' );
+						$output .= $this->sd_html( 'field-content-second', $this->sd_determine_callback_type( $callback ) );
+						$output .= $this->sd_html( 'field-content-end' );
+
+					}				
 				}
-
-				echo $output;
-
 			}
-
 		}
 
+		echo $output;
 	}
 
 	/**
@@ -3930,8 +3970,8 @@ class System_Dashboard_Admin {
 		$table_prefix = $wpdb->prefix;
 
 		$output = '';
-		$enable_persistent_cache_msg = 'Please enable a <a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">persistence object cache plugin</a> first to see the relevant info here.';
-		$enable_persistent_cache_msg_full = 'Please enable a <a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">persistence object cache plugin</a> first to see the relevant info here. Plugins that have been tested to work with this module is listed under \'Tools\' below. For Redis implementation by managed WordPress hosting, only Runcloud Hub plugin is currently tested to work. Please <a href="https://wordpress.org/support/plugin/system-dashboard/" target="_blank">provide feedback</a> if it does not work with your hosting environment. Specifically, please post a sample cached key-value pairs from the Globals >> Common >> $wp_object_cache global, and also the relevant constants from Constants >> Defined Constants >> From Themes and Plugin, e.g. SOMEHOST_REDIS_ENABLED.';
+		$enable_persistent_cache_msg = __( 'Please enable a <a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">persistence object cache plugin</a> first to see the relevant info here.', 'system-dashboard' );
+		$enable_persistent_cache_msg_full = __( 'Please enable a <a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">persistence object cache plugin</a> first to see the relevant info here. Plugins that have been tested to work with this module is listed under \'Tools\' below. For Redis implementation by managed WordPress hosting, only Runcloud Hub plugin is currently tested to work. Please <a href="https://wordpress.org/support/plugin/system-dashboard/" target="_blank">provide feedback</a> if it does not work with your hosting environment. Specifically, please post a sample cached key-value pairs from the Globals >> Common >> $wp_object_cache global, and also the relevant constants from Constants >> Defined Constants >> From Themes and Plugin, e.g. SOMEHOST_REDIS_ENABLED.', 'system-dashboard' );
 
 		// Get Object Cache backend status
 
@@ -3959,7 +3999,7 @@ class System_Dashboard_Admin {
 
 			} else {
 
-				$output .= '<a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">Persistent object cache plugin</a> is not in use';
+				$output .= __( '<a href="https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins" target="_blank">Persistent object cache plugin</a> is not in use', 'system-dashboard' );
 
 			}
 
@@ -4545,35 +4585,32 @@ class System_Dashboard_Admin {
 	public function sd_cache_value() {
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$cache_key = $_REQUEST['cache_key'];
+				$cache_group = $_REQUEST['cache_group'];
 
-			$cache_key = $_REQUEST['cache_key'];
-			$cache_group = $_REQUEST['cache_group'];
+				$cache_value = maybe_unserialize( wp_cache_get( $cache_key, $cache_group ) );
 
-			$cache_value = maybe_unserialize( wp_cache_get( $cache_key, $cache_group ) );
+				$cache_value_type = gettype( $cache_value );
 
-			$cache_value_type = gettype( $cache_value );
+				if  ( ( $cache_value_type == 'array' ) || ( $cache_value_type == 'object' ) ) {
 
-			if  ( ( $cache_value_type == 'array' ) || ( $cache_value_type == 'object' ) ) {
+					// JSON_UNESCAPED_SLASHES will remove backslashes used for escaping, e.g. \' will become just '. stripslashes will further remove backslashes using to escape backslashes, e.g. double \\ will become a single \. JSON_PRETTY_PRINT and <pre> beautifies the output on the HTML side.
 
-				// JSON_UNESCAPED_SLASHES will remove backslashes used for escaping, e.g. \' will become just '. stripslashes will further remove backslashes using to escape backslashes, e.g. double \\ will become a single \. JSON_PRETTY_PRINT and <pre> beautifies the output on the HTML side.
+					// echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>'; // Raw JSON beautified
+					echo json_encode( $cache_value ); // for JSON Tree viewer
 
-				// echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>'; // Raw JSON beautified
-				echo json_encode( $cache_value ); // for JSON Tree viewer
+				} elseif ( ( $cache_value_type == 'boolean' ) || ( $cache_value_type == 'integer' ) || ( $cache_value_type == 'string' ) ) {
 
-			} elseif ( ( $cache_value_type == 'boolean' ) || ( $cache_value_type == 'integer' ) || ( $cache_value_type == 'string' ) ) {
+					echo '<pre>' . htmlspecialchars( $cache_value ) . '</pre>'; // Raw JSON beautified
 
-				echo '<pre>' . htmlspecialchars( $cache_value ) . '</pre>'; // Raw JSON beautified
-
-			} else {}
-
-		} else {
-
-			echo 'None. Please define cache key and cache group first.';
-
+				} else {}
+			} else {
+				echo __( 'None. Please define cache key and cache group first.', 'system-dashboard' );
+			}
 		}
 
 		wp_die();
-
 	}
 
 	/**
@@ -4680,7 +4717,7 @@ EOD;
 		}
 		
 		// Generate nonce to secure ajax calls
-		$nonce = wp_create_nonce( 'sd-nonce-key' );
+		$nonce = wp_create_nonce( 'sd-nonce-key-' . get_current_user_id() );
 		
 		// Option value from wp_options table for the various logging tools
 
@@ -4689,7 +4726,7 @@ EOD;
 		if ( is_array( $page_access_log ) && isset( $page_access_log['status'] ) ) {
 			$page_access_log_status = $page_access_log['status'];		
 		} else {
-			$page_access_log_status = 'Unknown';
+			$page_access_log_status = __( 'Unknown', 'system-dashboard' );
 		}
 
 		$errors_log = get_option( 'system_dashboard_errors_log' );
@@ -4697,7 +4734,7 @@ EOD;
 		if ( is_array( $errors_log ) && isset( $errors_log['status'] ) ) {
 			$errors_log_status = $errors_log['status'];
 		} else {
-			$errors_log_status = 'Unknown';
+			$errors_log_status = __( 'Unknown', 'system-dashboard' );
 		}
 
 		$email_delivery_log = get_option( 'system_dashboard_email_delivery_log' );
@@ -4705,7 +4742,7 @@ EOD;
 		if ( is_array( $email_delivery_log ) && isset( $email_delivery_log['status'] ) ) {
 			$email_delivery_log_status = $email_delivery_log['status'];
 		} else {
-			$email_delivery_log_status = 'Unknown';
+			$email_delivery_log_status = __( 'Unknown', 'system-dashboard' );
 		}
 
 		?>
@@ -4846,6 +4883,7 @@ EOD;
 						url: ajaxurl,
 						data: {
 							'action':'sd_toggle_logs',
+							'nonce':'<?php echo esc_js( $nonce ); ?>',
 							'log_type':'page_access_log',
 							'fast_ajax':true,
 							'load_plugins':["system-dashboard/system-dashboard.php"]
@@ -4879,6 +4917,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_page_access_log',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -4924,6 +4963,7 @@ EOD;
 						url: ajaxurl,
 						data: {
 							'action':'sd_toggle_logs',
+							'nonce':'<?php echo esc_js( $nonce ); ?>',
 							'log_type':'errors_log',
 							'fast_ajax':true,
 							'load_plugins':["system-dashboard/system-dashboard.php"]
@@ -4957,6 +4997,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_errors_log',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -5003,6 +5044,7 @@ EOD;
 						url: ajaxurl,
 						data: {
 							'action':'sd_toggle_logs',
+							'nonce':'<?php echo esc_js( $nonce ); ?>',
 							'log_type':'email_delivery_log',
 							'fast_ajax':true,
 							'load_plugins':["system-dashboard/system-dashboard.php"]
@@ -5036,6 +5078,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_email_delivery_log',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -5071,6 +5114,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_db_tables',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'type':'core',
 								'fast_ajax':true,
 								'load_plugins':["sql-buddy/sql-buddy.php","system-dashboard/system-dashboard.php"]
@@ -5102,6 +5146,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_db_tables',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'type':'noncore'
 							},
 							success:function(data) {
@@ -5131,6 +5176,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_db_specs',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -5161,6 +5207,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_db_details',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -5190,7 +5237,8 @@ EOD;
 						jQuery.ajax({
 							url: ajaxurl,
 							data: {
-								'action':'sd_post_types'
+								'action':'sd_post_types',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -5219,6 +5267,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_taxonomies',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -5249,6 +5298,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_old_slugs',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -5279,6 +5329,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_media_count',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -5309,6 +5360,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_image_sizes',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -5336,6 +5388,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_mime_types',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -5366,6 +5419,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_media_handling',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -5396,6 +5450,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_directory_sizes',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -5426,6 +5481,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_filesystem_permissions',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -5456,6 +5512,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_custom_fields',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'type':'public',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
@@ -5488,6 +5545,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_custom_fields',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'type':'private',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
@@ -5520,6 +5578,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_user_count',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -5550,6 +5609,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_roles_capabilities',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -5581,6 +5641,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_rewrite_rules',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -5609,7 +5670,8 @@ EOD;
 						jQuery.ajax({
 							url: ajaxurl,
 							data: {
-								'action':'sd_shortcodes'
+								'action':'sd_shortcodes',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 							},
 							success:function(data) {
 								var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -5648,6 +5710,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_option_value',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'option_name':optionName,
 								'fast_ajax':fastAjaxValue,
 								'load_plugins':loadedPlugins
@@ -5689,6 +5752,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_option_value',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'option_name':transientName,
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
@@ -5731,6 +5795,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_cache_value',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'cache_key':cacheKey,
 								'cache_group':cacheGroup,
 								'fast_ajax':true,
@@ -5772,6 +5837,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_cache_value',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'cache_key':cacheKey,
 								'cache_group':cacheGroup,
 								'fast_ajax':true,
@@ -5811,6 +5877,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_wpcore_hooks',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'type':'action',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
@@ -5856,6 +5923,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_wpcore_hooks',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'type':'filter',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
@@ -5900,6 +5968,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_hooks',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'type':'active_theme',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
@@ -5932,6 +6001,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_hooks',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'type':'active_plugins'
 							},
 							success:function(data) {
@@ -5962,6 +6032,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_classes',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'type':'core',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
@@ -5994,6 +6065,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_classes',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'type':'theme',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
@@ -6026,6 +6098,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_classes',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'type':'plugins'
 							},
 							success:function(data) {
@@ -6056,6 +6129,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_functions',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'type':'core',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
@@ -6101,6 +6175,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_functions',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'type':'theme',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
@@ -6133,6 +6208,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_functions',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'type':'plugins'
 							},
 							success:function(data) {
@@ -6164,6 +6240,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_global_value',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'global_name':name
 							},
 							success:function(data) {
@@ -6201,6 +6278,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_constants',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'type':'defined'
 							},
 							success:function(data) {
@@ -6232,6 +6310,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_constants',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'type':'docs',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
@@ -6264,6 +6343,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_viewer',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'filename':'wpcnfg', // wp-config.php, abbreviated to avoid blockage by GridPane / extra secure hosts
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
@@ -6295,6 +6375,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_viewer',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'filename':'.htaccess',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
@@ -6326,6 +6407,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_viewer',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'filename':'robots.txt',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
@@ -6357,6 +6439,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_viewer_url',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'path':'/wp-json/wp/v2',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
@@ -6395,6 +6478,7 @@ EOD;
 							url: ajaxurl,
 							data: {
 								'action':'sd_php_info',
+								'nonce':'<?php echo esc_js( $nonce ); ?>',
 								'fast_ajax':true,
 								'load_plugins':["system-dashboard/system-dashboard.php"]
 							},
@@ -6430,35 +6514,34 @@ EOD;
 	public function sd_option_value() {
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-
-			$option_name = $_REQUEST['option_name'];
-			
-			if ( ! empty( $option_name ) ) {
-
-				$option_value = maybe_unserialize( get_option( $option_name ) );
-
-				$option_value_type = gettype( $option_value );
-
-				if  ( ( $option_value_type == 'array' ) || ( $option_value_type == 'object' ) ) {
-
-					// JSON_UNESCAPED_SLASHES will remove backslashes used for escaping, e.g. \' will become just '. stripslashes will further remove backslashes using to escape backslashes, e.g. double \\ will become a single \. JSON_PRETTY_PRINT and <pre> beautifies the output on the HTML side.
-
-					// echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>'; // Raw JSON beautified
-					echo json_encode( $option_value ); // for JSON Tree viewer
-
-				} elseif ( ( $option_value_type == 'boolean' ) || ( $option_value_type == 'integer' ) || ( $option_value_type == 'string' ) ) {
-
-					echo '<pre>' . htmlspecialchars( $option_value ) . '</pre>'; // Raw JSON beautified
-
-				} else {}
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$option_name = $_REQUEST['option_name'];
 				
-			} else {
+				if ( ! empty( $option_name ) ) {
 
-				echo 'None. Please define option name first.';
-				
+					$option_value = maybe_unserialize( get_option( $option_name ) );
+
+					$option_value_type = gettype( $option_value );
+
+					if  ( ( $option_value_type == 'array' ) || ( $option_value_type == 'object' ) ) {
+
+						// JSON_UNESCAPED_SLASHES will remove backslashes used for escaping, e.g. \' will become just '. stripslashes will further remove backslashes using to escape backslashes, e.g. double \\ will become a single \. JSON_PRETTY_PRINT and <pre> beautifies the output on the HTML side.
+
+						// echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>'; // Raw JSON beautified
+						echo json_encode( $option_value ); // for JSON Tree viewer
+
+					} elseif ( ( $option_value_type == 'boolean' ) || ( $option_value_type == 'integer' ) || ( $option_value_type == 'string' ) ) {
+
+						echo '<pre>' . htmlspecialchars( $option_value ) . '</pre>'; // Raw JSON beautified
+
+					} else {}
+					
+				} else {
+
+					echo __( 'None. Please define option name first.', 'system-dashboard' );
+					
+				}				
 			}
-
-
 		}
 
 		wp_die();
@@ -6475,79 +6558,78 @@ EOD;
 	 * @since 1.0.0
 	 */
 	public function sd_wpcore_hooks() {
+		$output = '';
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$type = $_REQUEST['type'];
 
-			$type = $_REQUEST['type'];
-
-			$wp_reference_base_url = 'https://developer.wordpress.org/reference/hooks';		
-
-			if ( $type == 'action' ) {
-				$response = wp_remote_get( plugin_dir_url( __DIR__ ). 'admin/references/actions.json' );
-			} elseif ( $type == 'filter' ) {
-				$response = wp_remote_get( plugin_dir_url( __DIR__ ). 'admin/references/filters.json' );
-			}
-
-			$hooks_json = wp_remote_retrieve_body( $response ); // as JSON
-			$hooks = json_decode( $hooks_json, TRUE ); // convert into array
-			$hooks = $hooks['hooks']; // only use the hooks array
-
-			$output = '';
-			$hooks_list = '';
-			$hooks_count = 0;
-
-			foreach ( $hooks as $hook ) {
-
-				$hook_name = $hook['name'];
-				$hook_slug = str_replace( array("{","}","$",">"), array("","","","-"), $hook_name ); // for href
-				$hook_file = $hook['file'];
-				$hook_short_description = $hook['doc']['description'];
-				$hook_long_description = $hook['doc']['long_description'];
-
-				$hook_tags = $hook['doc']['tags'];
-
-				foreach ( $hook_tags as $hook_tag ) {
-					if ( $hook_tag['name'] == 'since' ) {
-						$hook_since_version = $hook_tag['content'];
-					}
-				}
+				$wp_reference_base_url = 'https://developer.wordpress.org/reference/hooks';		
 
 				if ( $type == 'action' ) {
-
-					// Search filter data attributes
-					$search_atts = array(
-						'core-act-hook'			=> '',
-						'core-act-hook-name'	=> $hook['name'],
-					);
-
+					$response = wp_remote_get( plugin_dir_url( __DIR__ ). 'admin/references/actions.json' );
 				} elseif ( $type == 'filter' ) {
+					$response = wp_remote_get( plugin_dir_url( __DIR__ ). 'admin/references/filters.json' );
+				}
 
-					// Search filter data attributes
-					$search_atts = array(
-						'core-fil-hook'			=> '',
-						'core-fil-hook-name'	=> $hook['name'],
-					);
+				$hooks_json = wp_remote_retrieve_body( $response ); // as JSON
+				$hooks = json_decode( $hooks_json, TRUE ); // convert into array
+				$hooks = $hooks['hooks']; // only use the hooks array
+
+				$hooks_list = '';
+				$hooks_count = 0;
+
+				foreach ( $hooks as $hook ) {
+
+					$hook_name = $hook['name'];
+					$hook_slug = str_replace( array("{","}","$",">"), array("","","","-"), $hook_name ); // for href
+					$hook_file = $hook['file'];
+					$hook_short_description = $hook['doc']['description'];
+					$hook_long_description = $hook['doc']['long_description'];
+
+					$hook_tags = $hook['doc']['tags'];
+
+					foreach ( $hook_tags as $hook_tag ) {
+						if ( $hook_tag['name'] == 'since' ) {
+							$hook_since_version = $hook_tag['content'];
+						}
+					}
+
+					if ( $type == 'action' ) {
+
+						// Search filter data attributes
+						$search_atts = array(
+							'core-act-hook'			=> '',
+							'core-act-hook-name'	=> $hook['name'],
+						);
+
+					} elseif ( $type == 'filter' ) {
+
+						// Search filter data attributes
+						$search_atts = array(
+							'core-fil-hook'			=> '',
+							'core-fil-hook-name'	=> $hook['name'],
+						);
+
+					}
+
+					$hooks_list .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
+					$hooks_list .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/' . $hook_slug . '/" target="_blank">'. $hook_name . '</a> <br /><span>' . $hook_file . '</span><br /><span>Since ' . $hook_since_version . '</span>' );
+					$hooks_list .= $this->sd_html( 'field-content-second', $hook_short_description . ' ' . $hook_long_description );
+					$hooks_list .= $this->sd_html( 'field-content-end' );
+
+					$hooks_count++;
 
 				}
 
-				$hooks_list .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
-				$hooks_list .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/' . $hook_slug . '/" target="_blank">'. $hook_name . '</a> <br /><span>' . $hook_file . '</span><br /><span>Since ' . $hook_since_version . '</span>' );
-				$hooks_list .= $this->sd_html( 'field-content-second', $hook_short_description . ' ' . $hook_long_description );
-				$hooks_list .= $this->sd_html( 'field-content-end' );
+				// Add search filter box and total hooks count
+				$output .= $this->sd_html( 'search-filter', 'Total: ' . $hooks_count . ' hooks', '', ['search-wpcore-action-hooks' => ''] );
 
-				$hooks_count++;
-
+				$output .= $hooks_list;				
 			}
-
-			// Add search filter box and total hooks count
-			$output .= $this->sd_html( 'search-filter', 'Total: ' . $hooks_count . ' hooks', '', ['search-wpcore-action-hooks' => ''] );
-
-			$output .= $hooks_list;
-
-			echo $output;
-
 		}
 
+		echo $output;
 	}
 
 	/**
@@ -6626,106 +6708,54 @@ EOD;
 	public function sd_classes() {
 
 		if ( isset( $_REQUEST ) && isset( $_REQUEST['type'] ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$type = $_REQUEST['type'];
 
-			$type = $_REQUEST['type'];
+				$output = '';
+				$wp_reference_base_url = 'https://developer.wordpress.org/reference';
+				$plugin_file_editor_base_url = '/wp-admin/plugin-editor.php?file=';
+				$theme_file_editor_base_url = '/wp-admin/theme-editor.php?file=';
 
-			$output = '';
-			$wp_reference_base_url = 'https://developer.wordpress.org/reference';
-			$plugin_file_editor_base_url = '/wp-admin/plugin-editor.php?file=';
-			$theme_file_editor_base_url = '/wp-admin/theme-editor.php?file=';
+				$classes = get_declared_classes();
 
-			$classes = get_declared_classes();
+				sort( $classes );
 
-			sort( $classes );
+				$classes_core = array();
+				$classes_plugins = array();
+				$classes_themes = array();
 
-			$classes_core = array();
-			$classes_plugins = array();
-			$classes_themes = array();
+				foreach( $classes as $class ) {
 
-			foreach( $classes as $class ) {
-
-				// Get the filename where class is defined
-				// https://www.php.net/manual/en/reflectionclass.getfilename.php
-				$rc = new \ReflectionClass( $class );
-				$filename = $rc->getFileName();
-
-				if ( ! empty( $filename ) ) {
-					$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
-
-					if ( strpos( $filename, 'wp-includes' ) !== false ) {
-						$classes_core[] = $class;
-					}
-
-					if ( strpos( $filename, 'wp-content/plugins' ) !== false ) {
-						$classes_plugins[] = $class;
-					}
-
-					if ( strpos( $filename, 'wp-content/themes' ) !== false ) {
-						$classes_themes[] = $class;
-					}
-
-				}
-
-			}
-
-			if ( $type == 'core' ) {
-
-				$classes_output = '';
-				$class_count = 0;
-
-				foreach( $classes_core as $class ) {
-
-					$class_lc = strtolower( $class );
+					// Get the filename where class is defined
+					// https://www.php.net/manual/en/reflectionclass.getfilename.php
 					$rc = new \ReflectionClass( $class );
 					$filename = $rc->getFileName();
 
 					if ( ! empty( $filename ) ) {
 						$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
+
+						if ( strpos( $filename, 'wp-includes' ) !== false ) {
+							$classes_core[] = $class;
+						}
+
+						if ( strpos( $filename, 'wp-content/plugins' ) !== false ) {
+							$classes_plugins[] = $class;
+						}
+
+						if ( strpos( $filename, 'wp-content/themes' ) !== false ) {
+							$classes_themes[] = $class;
+						}
+
 					}
-
-					$class_methods = get_class_methods( $class );
-					$class_methods_output = '';
-
-					foreach ( $class_methods as $method ) {
-
-						$class_methods_output .= '<div class="field-part-item">' . $method . '</div>';
-
-					}
-
-					$classes_output .= $this->sd_html( 'field-content-start' );
-					$classes_output .= $this->sd_html( 'field-content-first', '<strong>' . $class .'</strong> (' . count( $class_methods ) . ' methods)<br /><a href="' . $wp_reference_base_url . '/classes/' . $class_lc . '/" target="_blank">' . $filename .'</a>' . $class_methods_output, 'full-width' );
-					$classes_output .= $this->sd_html( 'field-content-end' );
-
-					$class_count++;
 
 				}
 
-				$output .= $this->sd_html( 'field-content-start' );
-				$output .= $this->sd_html( 'field-content-first', '<strong>There are ' . $class_count . ' classes in total</strong>', 'full-width' );
-				$output .= $this->sd_html( 'field-content-end' );
+				if ( $type == 'core' ) {
 
-				$output .= $classes_output;
-
-			} elseif ( $type == 'plugins' ) {
-
-				$active_plugin_dirfile_names = $this->sd_active_plugins( 'original', 'raw' );
-
-				$output .= $this->sd_html( 'accordions-start' );
-
-				// for each 'plugin-slug/plugin-slug.php'
-				foreach ( $active_plugin_dirfile_names as $dirfile_name ) {
-
-					$plugin_slug_array = explode( "/", $dirfile_name );
-					$plugin_slug = $plugin_slug_array[0];
-
-					$plugins_path = str_replace( $this->plugin_name . '/', "", plugin_dir_path( __DIR__ ) );
-					$plugin_file_path = $plugins_path . $dirfile_name;
-					$plugin_data = get_plugin_data( $plugin_file_path );
-			
 					$classes_output = '';
-					$classes_count = 0;
+					$class_count = 0;
 
-					foreach( $classes_plugins as $class ) {
+					foreach( $classes_core as $class ) {
 
 						$class_lc = strtolower( $class );
 						$rc = new \ReflectionClass( $class );
@@ -6733,82 +6763,134 @@ EOD;
 
 						if ( ! empty( $filename ) ) {
 							$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
-							$filename_for_editor = urlencode( str_replace( "/wp-content/plugins/", "", $filename ) );
 						}
 
-						$filename_array = explode( "/", $filename );
-						$class_plugin_slug = $filename_array[3];
+						$class_methods = get_class_methods( $class );
+						$class_methods_output = '';
 
-						if ( $plugin_slug == $class_plugin_slug ) {
+						foreach ( $class_methods as $method ) {
 
-							$class_methods = get_class_methods( $class );
-							$class_methods_output = '';
+							$class_methods_output .= '<div class="field-part-item">' . $method . '</div>';
 
-							foreach ( $class_methods as $method ) {
+						}
 
-								$class_methods_output .= '<div class="field-part-item">' . $method . '</div>';
+						$classes_output .= $this->sd_html( 'field-content-start' );
+						$classes_output .= $this->sd_html( 'field-content-first', '<strong>' . $class .'</strong> (' . count( $class_methods ) . ' methods)<br /><a href="' . $wp_reference_base_url . '/classes/' . $class_lc . '/" target="_blank">' . $filename .'</a>' . $class_methods_output, 'full-width' );
+						$classes_output .= $this->sd_html( 'field-content-end' );
+
+						$class_count++;
+
+					}
+
+					$output .= $this->sd_html( 'field-content-start' );
+					$output .= $this->sd_html( 'field-content-first', '<strong>There are ' . $class_count . ' classes in total</strong>', 'full-width' );
+					$output .= $this->sd_html( 'field-content-end' );
+
+					$output .= $classes_output;
+
+				} elseif ( $type == 'plugins' ) {
+
+					$active_plugin_dirfile_names = $this->sd_active_plugins( 'original', 'raw' );
+
+					$output .= $this->sd_html( 'accordions-start' );
+
+					// for each 'plugin-slug/plugin-slug.php'
+					foreach ( $active_plugin_dirfile_names as $dirfile_name ) {
+
+						$plugin_slug_array = explode( "/", $dirfile_name );
+						$plugin_slug = $plugin_slug_array[0];
+
+						$plugins_path = str_replace( $this->plugin_name . '/', "", plugin_dir_path( __DIR__ ) );
+						$plugin_file_path = $plugins_path . $dirfile_name;
+						$plugin_data = get_plugin_data( $plugin_file_path );
+				
+						$classes_output = '';
+						$classes_count = 0;
+
+						foreach( $classes_plugins as $class ) {
+
+							$class_lc = strtolower( $class );
+							$rc = new \ReflectionClass( $class );
+							$filename = $rc->getFileName();
+
+							if ( ! empty( $filename ) ) {
+								$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
+								$filename_for_editor = urlencode( str_replace( "/wp-content/plugins/", "", $filename ) );
+							}
+
+							$filename_array = explode( "/", $filename );
+							$class_plugin_slug = $filename_array[3];
+
+							if ( $plugin_slug == $class_plugin_slug ) {
+
+								$class_methods = get_class_methods( $class );
+								$class_methods_output = '';
+
+								foreach ( $class_methods as $method ) {
+
+									$class_methods_output .= '<div class="field-part-item">' . $method . '</div>';
+
+								}
+
+								$classes_output .= $this->sd_html( 'field-content-start' );
+								$classes_output .= $this->sd_html( 'field-content-first', '<strong>' . $class . '</strong> (' . count( $class_methods ) . ' methods)<br /><a href="' . $plugin_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>' . $class_methods_output, 'full-width' );
+								$classes_output .= $this->sd_html( 'field-content-end' );
+								$classes_count++;
 
 							}
 
-							$classes_output .= $this->sd_html( 'field-content-start' );
-							$classes_output .= $this->sd_html( 'field-content-first', '<strong>' . $class . '</strong> (' . count( $class_methods ) . ' methods)<br /><a href="' . $plugin_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>' . $class_methods_output, 'full-width' );
-							$classes_output .= $this->sd_html( 'field-content-end' );
-							$classes_count++;
+						}
+
+						$output .= $this->sd_html( 'accordion-head', $plugin_data['Name'] . ' v' . $plugin_data['Version'] . ' (' . $classes_count . ' classes)' );
+
+						$output .= $this->sd_html( 'accordion-body', $classes_output );
+
+					}
+
+					$output .= $this->sd_html( 'accordions-end' );
+
+				}  elseif ( $type == 'theme' ) {
+
+					$classes_output = '';
+					$classes_count = 0;
+
+					foreach( $classes_themes as $class ) {
+
+						$class_lc = strtolower( $class );
+						$rc = new \ReflectionClass( $class );
+						$filename = $rc->getFileName();
+
+						if ( ! empty( $filename ) ) {
+		  					$filename_for_editor = $this->sd_prepare_theme_filename_for_preview( $filename );
+						}
+
+						$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
+
+						$class_methods = get_class_methods( $class );
+						$class_methods_output = '';
+
+						foreach ( $class_methods as $method ) {
+
+							$class_methods_output .= '<div class="field-part-item">' . $method . '</div>';
 
 						}
 
+						$class_vars = get_class_vars( $class );
+
+						$classes_output .= $this->sd_html( 'field-content-start' );
+						$classes_output .= $this->sd_html( 'field-content-first', '<strong>' . $class .'</strong> (' . count( $class_methods ) . ' methods)<br /><a href="' . $theme_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>' . $class_methods_output, 'full-width' );
+						$classes_output .= $this->sd_html( 'field-content-end' );
+						$classes_count++;
+
 					}
 
-					$output .= $this->sd_html( 'accordion-head', $plugin_data['Name'] . ' v' . $plugin_data['Version'] . ' (' . $classes_count . ' classes)' );
-
+					$output = $this->sd_html( 'accordions-start-simple' );
+					$output .= $this->sd_html( 'accordion-head', $this->sd_active_theme( 'name' ) . ' v' . $this->sd_active_theme( 'version' ) . ' (' . $classes_count . ' classes)' );
 					$output .= $this->sd_html( 'accordion-body', $classes_output );
+					$output .= $this->sd_html( 'accordions-end' );
 
-				}
-
-				$output .= $this->sd_html( 'accordions-end' );
-
-			}  elseif ( $type == 'theme' ) {
-
-				$classes_output = '';
-				$classes_count = 0;
-
-				foreach( $classes_themes as $class ) {
-
-					$class_lc = strtolower( $class );
-					$rc = new \ReflectionClass( $class );
-					$filename = $rc->getFileName();
-
-					if ( ! empty( $filename ) ) {
-	  					$filename_for_editor = $this->sd_prepare_theme_filename_for_preview( $filename );
-					}
-
-					$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
-
-					$class_methods = get_class_methods( $class );
-					$class_methods_output = '';
-
-					foreach ( $class_methods as $method ) {
-
-						$class_methods_output .= '<div class="field-part-item">' . $method . '</div>';
-
-					}
-
-					$class_vars = get_class_vars( $class );
-
-					$classes_output .= $this->sd_html( 'field-content-start' );
-					$classes_output .= $this->sd_html( 'field-content-first', '<strong>' . $class .'</strong> (' . count( $class_methods ) . ' methods)<br /><a href="' . $theme_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>' . $class_methods_output, 'full-width' );
-					$classes_output .= $this->sd_html( 'field-content-end' );
-					$classes_count++;
-
-				}
-
-				$output = $this->sd_html( 'accordions-start-simple' );
-				$output .= $this->sd_html( 'accordion-head', $this->sd_active_theme( 'name' ) . ' v' . $this->sd_active_theme( 'version' ) . ' (' . $classes_count . ' classes)' );
-				$output .= $this->sd_html( 'accordion-body', $classes_output );
-				$output .= $this->sd_html( 'accordions-end' );
-
-			} else {}
-
+				} else {}				
+			}
 		}
 
 		echo $output;
@@ -6867,56 +6949,14 @@ EOD;
 		// For AJAX calls
 
 		if ( isset( $_REQUEST ) && isset( $_REQUEST['type'] ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$type = $_REQUEST['type'];
 
-			$type = $_REQUEST['type'];
+				if ( $type == 'core' ) {
 
-			if ( $type == 'core' ) {
+					$output .= $this->sd_html( 'search-filter', '', '', ['search-functions-wpcore' => ''] );
 
-				$output .= $this->sd_html( 'search-filter', '', '', ['search-functions-wpcore' => ''] );
-
-				foreach( $functions_core as $function ) {
-
-					$function_lc = strtolower( $function );
-					$rf = new \ReflectionFunction( $function );
-					$filename = $rf->getFileName();
-
-					if ( ! empty( $filename ) ) {
-						$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
-					}
-
-					// Search filter data attributes
-					$search_atts = array(
-						'fn-core'	=> '',
-						'fn-core-name'	=> $function_lc,
-					);
-
-					$output .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
-					$output .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/functions/' . $function_lc . '/" target="_blank">' . $function .'</a><br /><a href="' . $wp_file_base_url . $filename . '" class="link-muted" target="_blank">' . $filename .'</a>', 'full-width' );
-					$output .= $this->sd_html( 'field-content-end' );
-
-				}
-
-				echo $output;
-
-			} elseif ( $type == 'plugins' ) {
-
-				$active_plugin_dirfile_names = $this->sd_active_plugins( 'original', 'raw' );
-
-				$output .= $this->sd_html( 'accordions-start' );
-
-				foreach ( $active_plugin_dirfile_names as $dirfile_name ) {
-
-					$plugin_slug_array = explode( "/", $dirfile_name );
-					$plugin_slug = $plugin_slug_array[0];
-
-					$plugins_path = str_replace( $this->plugin_name . '/', "", plugin_dir_path( __DIR__ ) );
-					$plugin_file_path = $plugins_path . $dirfile_name;
-					$plugin_data = get_plugin_data( $plugin_file_path );
-			
-					$functions_output = '';
-					$functions_count = 0;
-
-					foreach( $functions_plugins as $function ) {
+					foreach( $functions_core as $function ) {
 
 						$function_lc = strtolower( $function );
 						$rf = new \ReflectionFunction( $function );
@@ -6924,67 +6964,109 @@ EOD;
 
 						if ( ! empty( $filename ) ) {
 							$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
-							$filename_for_editor = urlencode( str_replace( "/wp-content/plugins/", "", $filename ) );
 						}
 
-						$filename_array = explode( "/", $filename );
-						$function_plugin_slug = $filename_array[3];
+						// Search filter data attributes
+						$search_atts = array(
+							'fn-core'	=> '',
+							'fn-core-name'	=> $function_lc,
+						);
 
-						if ( $plugin_slug == $function_plugin_slug ) {
-
-							$functions_output .= $this->sd_html( 'field-content-start' );
-							$functions_output .= $this->sd_html( 'field-content-first', $function .'<br /><a href="' . $plugin_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>', 'full-width' );
-							$functions_output .= $this->sd_html( 'field-content-end' );
-
-							$functions_count++;
-
-						}
+						$output .= $this->sd_html( 'field-content-start', '', '', $search_atts, '' );
+						$output .= $this->sd_html( 'field-content-first', '<a href="' . $wp_reference_base_url . '/functions/' . $function_lc . '/" target="_blank">' . $function .'</a><br /><a href="' . $wp_file_base_url . $filename . '" class="link-muted" target="_blank">' . $filename .'</a>', 'full-width' );
+						$output .= $this->sd_html( 'field-content-end' );
 
 					}
 
-					$output .= $this->sd_html( 'accordion-head', $plugin_data['Name'] . ' v' . $plugin_data['Version'] . ' (' . $functions_count . ' functions)' );
+					echo $output;
 
+				} elseif ( $type == 'plugins' ) {
+
+					$active_plugin_dirfile_names = $this->sd_active_plugins( 'original', 'raw' );
+
+					$output .= $this->sd_html( 'accordions-start' );
+
+					foreach ( $active_plugin_dirfile_names as $dirfile_name ) {
+
+						$plugin_slug_array = explode( "/", $dirfile_name );
+						$plugin_slug = $plugin_slug_array[0];
+
+						$plugins_path = str_replace( $this->plugin_name . '/', "", plugin_dir_path( __DIR__ ) );
+						$plugin_file_path = $plugins_path . $dirfile_name;
+						$plugin_data = get_plugin_data( $plugin_file_path );
+				
+						$functions_output = '';
+						$functions_count = 0;
+
+						foreach( $functions_plugins as $function ) {
+
+							$function_lc = strtolower( $function );
+							$rf = new \ReflectionFunction( $function );
+							$filename = $rf->getFileName();
+
+							if ( ! empty( $filename ) ) {
+								$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
+								$filename_for_editor = urlencode( str_replace( "/wp-content/plugins/", "", $filename ) );
+							}
+
+							$filename_array = explode( "/", $filename );
+							$function_plugin_slug = $filename_array[3];
+
+							if ( $plugin_slug == $function_plugin_slug ) {
+
+								$functions_output .= $this->sd_html( 'field-content-start' );
+								$functions_output .= $this->sd_html( 'field-content-first', $function .'<br /><a href="' . $plugin_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>', 'full-width' );
+								$functions_output .= $this->sd_html( 'field-content-end' );
+
+								$functions_count++;
+
+							}
+
+						}
+
+						$output .= $this->sd_html( 'accordion-head', $plugin_data['Name'] . ' v' . $plugin_data['Version'] . ' (' . $functions_count . ' functions)' );
+
+						$output .= $this->sd_html( 'accordion-body', $functions_output );
+
+					}
+
+					$output .= $this->sd_html( 'accordions-end' );
+
+					echo $output;
+
+				}  elseif ( $type == 'theme' ) {
+
+					$functions_output = '';
+					$functions_count = 0;
+
+					foreach( $functions_theme as $function ) {
+
+						$function_lc = strtolower( $function );
+						$rf = new \ReflectionFunction( $function );
+						$filename = $rf->getFileName();
+
+						if ( ! empty( $filename ) ) {
+		  					$filename_for_editor = $this->sd_prepare_theme_filename_for_preview( $filename );
+							$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
+						}
+
+						$functions_output .= $this->sd_html( 'field-content-start' );
+						$functions_output .= $this->sd_html( 'field-content-first', $function .'<br /><a href="' . $theme_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>', 'full-width' );
+						$functions_output .= $this->sd_html( 'field-content-end' );
+
+						$functions_count++;
+
+					}
+
+					$output .= $this->sd_html( 'accordions-start-simple-margin-default' );
+					$output .= $this->sd_html( 'accordion-head', $this->sd_active_theme( 'name' ) . ' v' . $this->sd_active_theme( 'version' ) . ' ( ' . $functions_count . ' functions)' );
 					$output .= $this->sd_html( 'accordion-body', $functions_output );
+					$output .= $this->sd_html( 'accordions-end' );
 
-				}
+					echo $output;
 
-				$output .= $this->sd_html( 'accordions-end' );
-
-				echo $output;
-
-			}  elseif ( $type == 'theme' ) {
-
-				$functions_output = '';
-				$functions_count = 0;
-
-				foreach( $functions_theme as $function ) {
-
-					$function_lc = strtolower( $function );
-					$rf = new \ReflectionFunction( $function );
-					$filename = $rf->getFileName();
-
-					if ( ! empty( $filename ) ) {
-	  					$filename_for_editor = $this->sd_prepare_theme_filename_for_preview( $filename );
-						$filename = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $filename );
-					}
-
-					$functions_output .= $this->sd_html( 'field-content-start' );
-					$functions_output .= $this->sd_html( 'field-content-first', $function .'<br /><a href="' . $theme_file_editor_base_url . $filename_for_editor . '" target="_blank">' . $filename .'</a>', 'full-width' );
-					$functions_output .= $this->sd_html( 'field-content-end' );
-
-					$functions_count++;
-
-				}
-
-				$output .= $this->sd_html( 'accordions-start-simple-margin-default' );
-				$output .= $this->sd_html( 'accordion-head', $this->sd_active_theme( 'name' ) . ' v' . $this->sd_active_theme( 'version' ) . ' ( ' . $functions_count . ' functions)' );
-				$output .= $this->sd_html( 'accordion-body', $functions_output );
-				$output .= $this->sd_html( 'accordions-end' );
-
-				echo $output;
-
-			} else {}
-
+				} else {}				
+			}
 		}
 
 		// For direct function calls
@@ -7476,42 +7558,39 @@ EOD;
 	public function sd_global_value() {
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$global_name = $_REQUEST['global_name'];
 
-			$global_name = $_REQUEST['global_name'];
+				global $$global_name;
 
-			global $$global_name;
+				$global_value = $$global_name;
 
-			$global_value = $$global_name;
+				$global_value_type = gettype( $global_value );
 
-			$global_value_type = gettype( $global_value );
+				if  ( ( $global_value_type == 'array' ) || ( $global_value_type == 'object' ) ) {
 
-			if  ( ( $global_value_type == 'array' ) || ( $global_value_type == 'object' ) ) {
+					// JSON_UNESCAPED_SLASHES will remove backslashes used for escaping, e.g. \' will become just '. stripslashes will further remove backslashes using to escape backslashes, e.g. double \\ will become a single \. JSON_PRETTY_PRINT and <pre> beautifies the output on the HTML side.
 
-				// JSON_UNESCAPED_SLASHES will remove backslashes used for escaping, e.g. \' will become just '. stripslashes will further remove backslashes using to escape backslashes, e.g. double \\ will become a single \. JSON_PRETTY_PRINT and <pre> beautifies the output on the HTML side.
+					// echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>'; // Raw JSON beautified
+					echo json_encode( $global_value ); // for JSON Tree viewer
 
-				// echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>'; // Raw JSON beautified
-				echo json_encode( $global_value ); // for JSON Tree viewer
+				} elseif ( $global_value_type == 'boolean' ) {
 
-			} elseif ( $global_value_type == 'boolean' ) {
+					if ( $global_value ) {
+						echo 'true';
+					} else {
+						echo 'false';
+					}
 
-				if ( $global_value ) {
-					echo 'true';
-				} else {
-					echo 'false';
-				}
+				} elseif ( ( $global_value_type == 'integer' ) || ( $global_value_type == 'string' ) ) {
 
-			} elseif ( ( $global_value_type == 'integer' ) || ( $global_value_type == 'string' ) ) {
+					echo '<pre>' . htmlspecialchars( $global_value ) . '</pre>'; // Raw JSON beautified
 
-				echo '<pre>' . htmlspecialchars( $global_value ) . '</pre>'; // Raw JSON beautified
-
-			} else {}
-
-		} else {
-
-			echo 'None. Please define global variable\'s name first.';
-
+				} else {}				
+			} else {
+				echo __( 'None. Please define global variable\'s name first.', 'system-dashboard' );
+			}
 		}
-
 		wp_die();
 
 	}
@@ -7693,90 +7772,221 @@ EOD;
 	public function sd_hooks() {
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$type = $_REQUEST['type'];
 
-			$type = $_REQUEST['type'];
+				// This sd_hooks method can only works if shell_exec is enabled in PHP, so, check first.
+				if ( $this->is_shell_exec_enabled() ) {
 
-			// This sd_hooks method can only works if shell_exec is enabled in PHP, so, check first.
-			if ( $this->is_shell_exec_enabled() ) {
+					$base_dir_path = wp_upload_dir()['basedir'] . '/' . $this->plugin_name;
+					$hooks_base_dir_path = $base_dir_path . '/hooks';
+					$plugins_hooks_dir_path = $hooks_base_dir_path . '/plugins';
+					$themes_hooks_dir_path = $hooks_base_dir_path . '/themes';
 
-				$base_dir_path = wp_upload_dir()['basedir'] . '/' . $this->plugin_name;
-				$hooks_base_dir_path = $base_dir_path . '/hooks';
-				$plugins_hooks_dir_path = $hooks_base_dir_path . '/plugins';
-				$themes_hooks_dir_path = $hooks_base_dir_path . '/themes';
+					// Create base directories in Uploads folder if they don't exist
 
-				// Create base directories in Uploads folder if they don't exist
+					if ( !is_dir( $base_dir_path ) ) {
 
-				if ( !is_dir( $base_dir_path ) ) {
+						mkdir( $base_dir_path );
 
-					mkdir( $base_dir_path );
+					}
 
-				}
+					if ( !is_dir( $hooks_base_dir_path ) ) {
 
-				if ( !is_dir( $hooks_base_dir_path ) ) {
+						mkdir( $hooks_base_dir_path );
 
-					mkdir( $hooks_base_dir_path );
+					} else {}
 
-				} else {}
+					if ( !is_dir( $plugins_hooks_dir_path ) ) {
 
-				if ( !is_dir( $plugins_hooks_dir_path ) ) {
+						mkdir( $plugins_hooks_dir_path );
 
-					mkdir( $plugins_hooks_dir_path );
+					} else {}
 
-				} else {}
+					if ( !is_dir( $themes_hooks_dir_path ) ) {
 
-				if ( !is_dir( $themes_hooks_dir_path ) ) {
+						mkdir( $themes_hooks_dir_path );
 
-					mkdir( $themes_hooks_dir_path );
+					} else {}
 
-				} else {}
+					// Generate hooks for active plugins
 
-				// Generate hooks for active plugins
+					if ( $type == 'active_plugins' ) {
 
-				if ( $type == 'active_plugins' ) {
+						$active_plugin_dirfile_names = $this->sd_active_plugins( 'original', 'raw' );
 
-					$active_plugin_dirfile_names = $this->sd_active_plugins( 'original', 'raw' );
+						$plugin_file_editor_base_url = '/wp-admin/plugin-editor.php?file=';
 
-					$plugin_file_editor_base_url = '/wp-admin/plugin-editor.php?file=';
+						$output = $this->sd_html( 'accordions-start' );
 
-					$output = $this->sd_html( 'accordions-start' );
+						// $plugins_data = array();
 
-					// $plugins_data = array();
+						foreach ( $active_plugin_dirfile_names as $dirfile_name ) {
 
-					foreach ( $active_plugin_dirfile_names as $dirfile_name ) {
+							// Get plugin info, looking for version number
+							$this_plugin_path = plugin_dir_path( __DIR__ );
+							$plugins_path = str_replace( $this->plugin_name.'/', "", $this_plugin_path );
+							$plugin_file_path = $plugins_path . $dirfile_name;
+							$plugins_data = get_plugin_data( $plugin_file_path );
 
-						// Get plugin info, looking for version number
-						$this_plugin_path = plugin_dir_path( __DIR__ );
-						$plugins_path = str_replace( $this->plugin_name.'/', "", $this_plugin_path );
-						$plugin_file_path = $plugins_path . $dirfile_name;
-						$plugins_data = get_plugin_data( $plugin_file_path );
+							// Remove dot, slash and underscore from version
+							$plugin_version = str_replace( ".", "", $plugins_data['Version'] );
+							$plugin_version = str_replace( "-", "", $plugin_version );
+							$plugin_version = str_replace( "_", "", $plugin_version );
 
-						// Remove dot, slash and underscore from version
-						$plugin_version = str_replace( ".", "", $plugins_data['Version'] );
-						$plugin_version = str_replace( "-", "", $plugin_version );
-						$plugin_version = str_replace( "_", "", $plugin_version );
+							// Prepare directory name for plugins hooks output files. Each version has a different folder.
+							$dirfile_name_array = explode( "/", $dirfile_name);
+							$directory_name = $dirfile_name_array[0];
+							$plugin_hooks_path = $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version;
 
-						// Prepare directory name for plugins hooks output files. Each version has a different folder.
-						$dirfile_name_array = explode( "/", $dirfile_name);
-						$directory_name = $dirfile_name_array[0];
-						$plugin_hooks_path = $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version;
+							// Prepare shell command to generate hooks for the plugin
+							// Go to plugins root folder before executing wp-hooks-generator which is symlink to /johnbillion/wp-hooks-generator/src/generate.php. Make sure generator is executable. The additional '2>&1' is to output error response as well, without which, blank response is returned in case of error
 
-						// Prepare shell command to generate hooks for the plugin
-						// Go to plugins root folder before executing wp-hooks-generator which is symlink to /johnbillion/wp-hooks-generator/src/generate.php. Make sure generator is executable. The additional '2>&1' is to output error response as well, without which, blank response is returned in case of error
+							$shell_command = 'cd ' . plugin_dir_path( __DIR__ ) . ' && chmod +x ./vendor/johnbillion/wp-hooks-generator/src/generate.php && ./vendor/johnbillion/wp-hooks-generator/src/generate.php --input=' . $plugins_path . $directory_name . ' --output=' . $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . ' 2>&1';
 
-						$shell_command = 'cd ' . plugin_dir_path( __DIR__ ) . ' && chmod +x ./vendor/johnbillion/wp-hooks-generator/src/generate.php && ./vendor/johnbillion/wp-hooks-generator/src/generate.php --input=' . $plugins_path . $directory_name . ' --output=' . $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . ' 2>&1';
+							$shell_output = '';
+
+							// If no directory exist yet, create it
+							if ( !is_dir( $plugin_hooks_path ) ) {
+
+								mkdir( $plugin_hooks_path );
+
+							} else {}
+
+							// If no action hooks json have been generated for the plugin, generate it
+							if ( !is_file( $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . '/actions.json' ) ) {
+
+								$shell_output = shell_exec( $shell_command );
+
+								// delay execution of wp_remote_get by 0.25 seconds, so file writing process can be completed properly first.
+								sleep(0.25); 
+
+							}
+
+							// If hooks generation failed, output error message
+
+							if ( !is_file( $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . '/actions.json' ) ) {
+
+								$output .= $directory_name . '<pre>' . $shell_output . '</pre>';
+
+							}
+
+							$response = wp_remote_get( wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/plugins/' . $directory_name . '-' . $plugin_version . '/actions.json' );
+							$action_hooks_json = wp_remote_retrieve_body( $response );
+
+							$response = wp_remote_get(  wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/plugins/' . $directory_name . '-' . $plugin_version . '/filters.json'  );
+							$filter_hooks_json = wp_remote_retrieve_body( $response );
+
+							$action_hooks = json_decode( $action_hooks_json, TRUE )['hooks']; // convert into array
+							$filter_hooks = json_decode( $filter_hooks_json, TRUE )['hooks']; // convert into array
+
+							// Output action hooks
+
+							$output .= '<h4 class="mc-collapsible-title">' . $plugins_data['Name'] . ' v' . $plugins_data['Version'] . '</h4>';
+
+							if ( !empty( $action_hooks ) ) {
+								$action_hooks_count = count( $action_hooks );
+							} else {
+								$action_hooks_count = 0;
+							}
+
+							$output .= $this->sd_html( 'accordion-head', 'Action Hooks (' . $action_hooks_count . ')' );
+
+							$hooks_output = '';
+
+							foreach ( $action_hooks as $hook ) {
+
+								$plugin_file_editor_url = $plugin_file_editor_base_url . urlencode( $directory_name .'/'. $hook['file'] ) .'&plugin='. urlencode( $dirfile_name );
+
+								$hooks_output .= $this->sd_html( 'field-content-start' );
+								$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $plugin_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
+								$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'] );
+								$hooks_output .= $this->sd_html( 'field-content-end' );
+
+							}
+
+							if ( empty( $hooks_output ) ) {
+								$hooks_output .= $this->sd_html( 'field-content-start' );
+								$hooks_output .= $this->sd_html( 'field-content-first', 'There are no action hooks defined.', 'full-width' );
+								$hooks_output .= $this->sd_html( 'field-content-end' );
+							}
+
+							$output .= $this->sd_html( 'accordion-body', $hooks_output );
+
+							// Output filter hooks
+
+							if ( !empty( $filter_hooks ) ) {
+								$filter_hooks_count = count( $filter_hooks );
+							} else {
+								$filter_hooks_count = 0;
+							}
+
+							$output .= $this->sd_html( 'accordion-head', 'Filter Hooks (' . $filter_hooks_count . ')' );
+
+							$hooks_output = '';
+
+							foreach ( $filter_hooks as $hook ) {
+
+								$plugin_file_editor_url = $plugin_file_editor_base_url . urlencode( $directory_name .'/'. $hook['file'] ) .'&plugin='. urlencode( $dirfile_name );
+
+								$hooks_output .= $this->sd_html( 'field-content-start' );
+								$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $plugin_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
+								$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'] );
+								$hooks_output .= $this->sd_html( 'field-content-end' );
+
+							}
+
+							if ( empty( $hooks_output ) ) {
+								$hooks_output .= $this->sd_html( 'field-content-start' );
+								$hooks_output .= $this->sd_html( 'field-content-first', 'There are no filter hooks defined.', 'full-width' );
+								$hooks_output .= $this->sd_html( 'field-content-end' );
+							}
+
+							$output .= $this->sd_html( 'accordion-body', $hooks_output );
+
+						}
+
+						$output .= $this->sd_html( 'accordions-end' );
+
+						echo $output;
+
+					// Generate hooks for active theme
+
+					} elseif ( $type == 'active_theme' ) {
+
+						$theme_path = get_template_directory(); // absolute path to theme directory, without trailing slash
+						$theme_path_array = explode( "/", $theme_path );
+						$theme_dirname = end( $theme_path_array );
+						$theme_version = $this->sd_active_theme( 'version_trimmed' );
+
+						// Get theme hooks by first creating directory for hooks output files
+
+						$active_theme_hooks_path = $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version;
+
+						$theme_file_editor_base_url = '/wp-admin/theme-editor.php?file=';
+
+						$output = $this->sd_html( 'accordions-start' );
+
+						// Go to plugins root folder before executing wp-hooks-generator which is symlink to /johnbillion/wp-hooks-generator/src/generate.php. The additional '2>&1' is to output error response as well, without which, blank response is returned in case of error
+
+						$shell_command = 'cd ' . plugin_dir_path( __DIR__ ) . ' && chmod +x ./vendor/johnbillion/wp-hooks-generator/src/generate.php && ./vendor/johnbillion/wp-hooks-generator/src/generate.php --input=' . $theme_path . ' --output=' . $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version . ' 2>&1';
 
 						$shell_output = '';
 
-						// If no directory exist yet, create it
-						if ( !is_dir( $plugin_hooks_path ) ) {
+						// If no directory exist, create it and generate hooks files in it
 
-							mkdir( $plugin_hooks_path );
+						if ( !is_dir( $active_theme_hooks_path ) ) {
+
+							// Create directory
+							mkdir( $active_theme_hooks_path );
 
 						} else {}
 
-						// If no action hooks json have been generated for the plugin, generate it
-						if ( !is_file( $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . '/actions.json' ) ) {
+						// If no action hooks json have been generated for the theme, generate it
 
+						if ( !is_file( $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version . '/actions.json' ) ) {
+
+							// Generate hooks
 							$shell_output = shell_exec( $shell_command );
 
 							// delay execution of wp_remote_get by 0.25 seconds, so file writing process can be completed properly first.
@@ -7786,16 +7996,18 @@ EOD;
 
 						// If hooks generation failed, output error message
 
-						if ( !is_file( $plugins_hooks_dir_path . '/' . $directory_name . '-' . $plugin_version . '/actions.json' ) ) {
+						if ( !is_file( $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version . '/actions.json' ) ) {
 
-							$output .= $directory_name . '<pre>' . $shell_output . '</pre>';
+							$output .= $theme_dirname . '<pre>' . $shell_output . '</pre>';
 
 						}
 
-						$response = wp_remote_get( wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/plugins/' . $directory_name . '-' . $plugin_version . '/actions.json' );
+						// Get json of action and filter hooks
+
+						$response = wp_remote_get( wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/themes/' . $theme_dirname . '-' . $theme_version . '/actions.json' );
 						$action_hooks_json = wp_remote_retrieve_body( $response );
 
-						$response = wp_remote_get(  wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/plugins/' . $directory_name . '-' . $plugin_version . '/filters.json'  );
+						$response = wp_remote_get( wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/themes/' . $theme_dirname . '-' . $theme_version . '/filters.json' );
 						$filter_hooks_json = wp_remote_retrieve_body( $response );
 
 						$action_hooks = json_decode( $action_hooks_json, TRUE )['hooks']; // convert into array
@@ -7803,7 +8015,7 @@ EOD;
 
 						// Output action hooks
 
-						$output .= '<h4 class="mc-collapsible-title">' . $plugins_data['Name'] . ' v' . $plugins_data['Version'] . '</h4>';
+						$output .= '<h4 class="mc-collapsible-title">' . $this->sd_active_theme( 'name' ) . ' ' . $this->sd_active_theme( 'version' ) . '</h4>';
 
 						if ( !empty( $action_hooks ) ) {
 							$action_hooks_count = count( $action_hooks );
@@ -7817,24 +8029,22 @@ EOD;
 
 						foreach ( $action_hooks as $hook ) {
 
-							$plugin_file_editor_url = $plugin_file_editor_base_url . urlencode( $directory_name .'/'. $hook['file'] ) .'&plugin='. urlencode( $dirfile_name );
+							$theme_file_editor_url = $theme_file_editor_base_url . $hook['file'];
 
 							$hooks_output .= $this->sd_html( 'field-content-start' );
-							$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $plugin_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
-							$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'] );
+							$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $theme_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
+							$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'], 'long-value' );
 							$hooks_output .= $this->sd_html( 'field-content-end' );
 
 						}
 
 						if ( empty( $hooks_output ) ) {
-							$hooks_output .= $this->sd_html( 'field-content-start' );
-							$hooks_output .= $this->sd_html( 'field-content-first', 'There are no action hooks defined.', 'full-width' );
-							$hooks_output .= $this->sd_html( 'field-content-end' );
+								$hooks_output .= $this->sd_html( 'field-content-start' );
+								$hooks_output .= $this->sd_html( 'field-content-first', 'There are no action hooks defined.', 'full-width' );
+								$hooks_output .= $this->sd_html( 'field-content-end' );
 						}
 
 						$output .= $this->sd_html( 'accordion-body', $hooks_output );
-
-						// Output filter hooks
 
 						if ( !empty( $filter_hooks ) ) {
 							$filter_hooks_count = count( $filter_hooks );
@@ -7842,16 +8052,18 @@ EOD;
 							$filter_hooks_count = 0;
 						}
 
+						// Output filter hooks
+
 						$output .= $this->sd_html( 'accordion-head', 'Filter Hooks (' . $filter_hooks_count . ')' );
 
 						$hooks_output = '';
 
 						foreach ( $filter_hooks as $hook ) {
 
-							$plugin_file_editor_url = $plugin_file_editor_base_url . urlencode( $directory_name .'/'. $hook['file'] ) .'&plugin='. urlencode( $dirfile_name );
+							$theme_file_editor_url = $theme_file_editor_base_url . $hook['file'];
 
 							$hooks_output .= $this->sd_html( 'field-content-start' );
-							$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $plugin_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
+							$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $theme_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
 							$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'] );
 							$hooks_output .= $this->sd_html( 'field-content-end' );
 
@@ -7865,153 +8077,20 @@ EOD;
 
 						$output .= $this->sd_html( 'accordion-body', $hooks_output );
 
-					}
+						$output .= $this->sd_html( 'accordions-end' );
 
-					$output .= $this->sd_html( 'accordions-end' );
-
-					echo $output;
-
-				// Generate hooks for active theme
-
-				} elseif ( $type == 'active_theme' ) {
-
-					$theme_path = get_template_directory(); // absolute path to theme directory, without trailing slash
-					$theme_path_array = explode( "/", $theme_path );
-					$theme_dirname = end( $theme_path_array );
-					$theme_version = $this->sd_active_theme( 'version_trimmed' );
-
-					// Get theme hooks by first creating directory for hooks output files
-
-					$active_theme_hooks_path = $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version;
-
-					$theme_file_editor_base_url = '/wp-admin/theme-editor.php?file=';
-
-					$output = $this->sd_html( 'accordions-start' );
-
-					// Go to plugins root folder before executing wp-hooks-generator which is symlink to /johnbillion/wp-hooks-generator/src/generate.php. The additional '2>&1' is to output error response as well, without which, blank response is returned in case of error
-
-					$shell_command = 'cd ' . plugin_dir_path( __DIR__ ) . ' && chmod +x ./vendor/johnbillion/wp-hooks-generator/src/generate.php && ./vendor/johnbillion/wp-hooks-generator/src/generate.php --input=' . $theme_path . ' --output=' . $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version . ' 2>&1';
-
-					$shell_output = '';
-
-					// If no directory exist, create it and generate hooks files in it
-
-					if ( !is_dir( $active_theme_hooks_path ) ) {
-
-						// Create directory
-						mkdir( $active_theme_hooks_path );
+						echo $output;
 
 					} else {}
 
-					// If no action hooks json have been generated for the theme, generate it
+				} else {
 
-					if ( !is_file( $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version . '/actions.json' ) ) {
-
-						// Generate hooks
-						$shell_output = shell_exec( $shell_command );
-
-						// delay execution of wp_remote_get by 0.25 seconds, so file writing process can be completed properly first.
-						sleep(0.25); 
-
-					}
-
-					// If hooks generation failed, output error message
-
-					if ( !is_file( $themes_hooks_dir_path . '/' . $theme_dirname . '-' . $theme_version . '/actions.json' ) ) {
-
-						$output .= $theme_dirname . '<pre>' . $shell_output . '</pre>';
-
-					}
-
-					// Get json of action and filter hooks
-
-					$response = wp_remote_get( wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/themes/' . $theme_dirname . '-' . $theme_version . '/actions.json' );
-					$action_hooks_json = wp_remote_retrieve_body( $response );
-
-					$response = wp_remote_get( wp_upload_dir()['baseurl'] . '/' . $this->plugin_name . '/hooks/themes/' . $theme_dirname . '-' . $theme_version . '/filters.json' );
-					$filter_hooks_json = wp_remote_retrieve_body( $response );
-
-					$action_hooks = json_decode( $action_hooks_json, TRUE )['hooks']; // convert into array
-					$filter_hooks = json_decode( $filter_hooks_json, TRUE )['hooks']; // convert into array
-
-					// Output action hooks
-
-					$output .= '<h4 class="mc-collapsible-title">' . $this->sd_active_theme( 'name' ) . ' ' . $this->sd_active_theme( 'version' ) . '</h4>';
-
-					if ( !empty( $action_hooks ) ) {
-						$action_hooks_count = count( $action_hooks );
-					} else {
-						$action_hooks_count = 0;
-					}
-
-					$output .= $this->sd_html( 'accordion-head', 'Action Hooks (' . $action_hooks_count . ')' );
-
-					$hooks_output = '';
-
-					foreach ( $action_hooks as $hook ) {
-
-						$theme_file_editor_url = $theme_file_editor_base_url . $hook['file'];
-
-						$hooks_output .= $this->sd_html( 'field-content-start' );
-						$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $theme_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
-						$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'], 'long-value' );
-						$hooks_output .= $this->sd_html( 'field-content-end' );
-
-					}
-
-					if ( empty( $hooks_output ) ) {
-							$hooks_output .= $this->sd_html( 'field-content-start' );
-							$hooks_output .= $this->sd_html( 'field-content-first', 'There are no action hooks defined.', 'full-width' );
-							$hooks_output .= $this->sd_html( 'field-content-end' );
-					}
-
-					$output .= $this->sd_html( 'accordion-body', $hooks_output );
-
-					if ( !empty( $filter_hooks ) ) {
-						$filter_hooks_count = count( $filter_hooks );
-					} else {
-						$filter_hooks_count = 0;
-					}
-
-					// Output filter hooks
-
-					$output .= $this->sd_html( 'accordion-head', 'Filter Hooks (' . $filter_hooks_count . ')' );
-
-					$hooks_output = '';
-
-					foreach ( $filter_hooks as $hook ) {
-
-						$theme_file_editor_url = $theme_file_editor_base_url . $hook['file'];
-
-						$hooks_output .= $this->sd_html( 'field-content-start' );
-						$hooks_output .= $this->sd_html( 'field-content-first', $hook['name'] . ' <br /><span><a href="' . $theme_file_editor_url . '" target="_blank">' . $hook['file'] . '</a></span>' );
-						$hooks_output .= $this->sd_html( 'field-content-second', $hook['doc']['description'] );
-						$hooks_output .= $this->sd_html( 'field-content-end' );
-
-					}
-
-					if ( empty( $hooks_output ) ) {
-						$hooks_output .= $this->sd_html( 'field-content-start' );
-						$hooks_output .= $this->sd_html( 'field-content-first', 'There are no filter hooks defined.', 'full-width' );
-						$hooks_output .= $this->sd_html( 'field-content-end' );
-					}
-
-					$output .= $this->sd_html( 'accordion-body', $hooks_output );
-
-					$output .= $this->sd_html( 'accordions-end' );
+					$output = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
 
 					echo $output;
 
-				} else {}
-
-			} else {
-
-				$output = 'Undetectable. Please enable \'shell_exec\' function in PHP first.';
-
-				echo $output;
-
+				}				
 			}
-
 		}
 		
 	}
@@ -8022,949 +8101,999 @@ EOD;
 	 * @since 1.0.0
 	 */
 	public function sd_constants() {
+		$output = '';
 		
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$type = $_REQUEST['type'];
 
-			$type = $_REQUEST['type'];
+				$wp_constants = array(
 
-			$wp_constants = array(
+					'general'	=> array(
+						'title'		=> 'General',
+						'constants'	=> array(
+							array(
+								'name'		=> 'AUTOSAVE_INTERVAL',
+								'description'	=> 'Defines an interval, in which WordPress should do an autosave.',
+								'value'			=> 'Time in seconds (Default: 60)',
+							),
+							array(
+								'name'		=> 'CORE_UPGRADE_SKIP_NEW_BUNDLED',
+								'description'	=> 'Allows you to skip new bundles files like plugins and/or themes on upgrades.',
+								'value'			=> 'true|false',
+							),
+							array(
+								'name'		=> 'DISABLE_WP_CRON',
+								'description'	=> 'Deactivates the cron function of WordPress.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'EMPTY_TRASH_DAYS',
+								'description'	=> 'Controls the number of days before WordPress permanently deletes posts, pages, attachments, and comments, from the trash bin.',
+								'value'			=> 'time in days (Default: 30)',
+							),
+							array(
+								'name'		=> 'IMAGE_EDIT_OVERWRITE',
+								'description'	=> 'Allows WordPress to override an image after editing or to save the image as a copy.',
+								'value'			=> 'true|false',
+							),
+							array(
+								'name'		=> 'MEDIA_TRASH',
+								'description'	=> '(De)activates the trash bin function for media.',
+								'value'			=> 'true|false (Default: false)',
+							),
+							array(
+								'name'		=> 'WPLANG',
+								'description'	=> 'Defines the language which WordPress should use.',
+								'value'			=> 'e.g. en_US | de_DE',
+							),
+							array(
+								'name'		=> 'WP_DEFAULT_THEME',
+								'description'	=> 'Defines a default theme for new sites, also used as fallback for a broken theme.',
+								'value'			=> 'template name (Default: twentyeleven)',
+							),
+							array(
+								'name'		=> 'WP_CRON_LOCK_TIMEOUT',
+								'description'	=> 'Defines a period of time in which only one cronjob will be fired. Since WordPress 3.3.',
+								'value'			=> 'time in seconds (Default: 60)',
+							),
+							array(
+								'name'		=> 'WP_MAIL_INTERVAL',
+								'description'	=> 'Defines a period of time in which only one mail request can be done.',
+								'value'			=> 'time in seconds (Default: 300)',
+							),
+							array(
+								'name'		=> 'WP_POST_REVISIONS',
+								'description'	=> '(De)activates the revision function for posts. A number greater than 0 defines the number of revisions for one post.',
+								'value'			=> 'true|false|number (Default: true)',
+							),
+							array(
+								'name'		=> 'WP_MAX_MEMORY_LIMIT',
+								'description'	=> 'Allows you to change the maximum memory limit for some WordPress functions.',
+								'value'			=> '(Default: 256M)',
+							),
+							array(
+								'name'		=> 'WP_MEMORY_LIMIT',
+								'description'	=> 'Defines the memory limit for WordPress.',
+								'value'			=> '(Default: 32M, for Multisite 64M)',
+							),
+							array(
+								'name'		=> 'WP_AUTO_UPDATE_CORE',
+								'description'	=> 'Manages core auto-updates.',
+								'value'			=> 'true | false | minor',
+							),
+							array(
+								'name'		=> 'AUTOMATIC_UPDATER_DISABLED',
+								'description'	=> 'Disables the auto-update engine introduced in version 3.7.',
+								'value'			=> 'true | valse',
+							),
+							array(
+								'name'		=> 'REST_API_VERSION',
+								'description'	=> 'Version of REST API in WordPress core.',
+								'value'			=> '',
+							),
+						)
+					),
 
-				'general'	=> array(
-					'title'		=> 'General',
-					'constants'	=> array(
-						array(
-							'name'		=> 'AUTOSAVE_INTERVAL',
-							'description'	=> 'Defines an interval, in which WordPress should do an autosave.',
-							'value'			=> 'Time in seconds (Default: 60)',
-						),
-						array(
-							'name'		=> 'CORE_UPGRADE_SKIP_NEW_BUNDLED',
-							'description'	=> 'Allows you to skip new bundles files like plugins and/or themes on upgrades.',
-							'value'			=> 'true|false',
-						),
-						array(
-							'name'		=> 'DISABLE_WP_CRON',
-							'description'	=> 'Deactivates the cron function of WordPress.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'EMPTY_TRASH_DAYS',
-							'description'	=> 'Controls the number of days before WordPress permanently deletes posts, pages, attachments, and comments, from the trash bin.',
-							'value'			=> 'time in days (Default: 30)',
-						),
-						array(
-							'name'		=> 'IMAGE_EDIT_OVERWRITE',
-							'description'	=> 'Allows WordPress to override an image after editing or to save the image as a copy.',
-							'value'			=> 'true|false',
-						),
-						array(
-							'name'		=> 'MEDIA_TRASH',
-							'description'	=> '(De)activates the trash bin function for media.',
-							'value'			=> 'true|false (Default: false)',
-						),
-						array(
-							'name'		=> 'WPLANG',
-							'description'	=> 'Defines the language which WordPress should use.',
-							'value'			=> 'e.g. en_US | de_DE',
-						),
-						array(
-							'name'		=> 'WP_DEFAULT_THEME',
-							'description'	=> 'Defines a default theme for new sites, also used as fallback for a broken theme.',
-							'value'			=> 'template name (Default: twentyeleven)',
-						),
-						array(
-							'name'		=> 'WP_CRON_LOCK_TIMEOUT',
-							'description'	=> 'Defines a period of time in which only one cronjob will be fired. Since WordPress 3.3.',
-							'value'			=> 'time in seconds (Default: 60)',
-						),
-						array(
-							'name'		=> 'WP_MAIL_INTERVAL',
-							'description'	=> 'Defines a period of time in which only one mail request can be done.',
-							'value'			=> 'time in seconds (Default: 300)',
-						),
-						array(
-							'name'		=> 'WP_POST_REVISIONS',
-							'description'	=> '(De)activates the revision function for posts. A number greater than 0 defines the number of revisions for one post.',
-							'value'			=> 'true|false|number (Default: true)',
-						),
-						array(
-							'name'		=> 'WP_MAX_MEMORY_LIMIT',
-							'description'	=> 'Allows you to change the maximum memory limit for some WordPress functions.',
-							'value'			=> '(Default: 256M)',
-						),
-						array(
-							'name'		=> 'WP_MEMORY_LIMIT',
-							'description'	=> 'Defines the memory limit for WordPress.',
-							'value'			=> '(Default: 32M, for Multisite 64M)',
-						),
-						array(
-							'name'		=> 'WP_AUTO_UPDATE_CORE',
-							'description'	=> 'Manages core auto-updates.',
-							'value'			=> 'true | false | minor',
-						),
-						array(
-							'name'		=> 'AUTOMATIC_UPDATER_DISABLED',
-							'description'	=> 'Disables the auto-update engine introduced in version 3.7.',
-							'value'			=> 'true | valse',
-						),
-						array(
-							'name'		=> 'REST_API_VERSION',
-							'description'	=> 'Version of REST API in WordPress core.',
-							'value'			=> '',
-						),
-					)
-				),
+					'status'	=> array(
+						'title'		=> 'Status',
+						'constants'	=> array(
+							array(
+								'name'		=> 'APP_REQUEST',
+								'description'	=> 'Will be defined if it’s an Atom Publishing Protocol request.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'COMMENTS_TEMPLATE',
+								'description'	=> 'Will be defined if the comments template is loaded.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'DOING_AJAX',
+								'description'	=> 'Will be defined if it’s an AJAX request.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'DOING_AUTOSAVE',
+								'description'	=> 'Will be defined if WordPress is doing an autosave for posts.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'DOING_CRON',
+								'description'	=> 'Will be defined if WordPress is doing a cronjob.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'IFRAME_REQUEST',
+								'description'	=> 'Will be defined if it’s an inlineframe request.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'IS_PROFILE_PAGE',
+								'description'	=> 'Will be defined if a user change his profile settings.',
+								'value'			=> 'tre',
+							),
+							array(
+								'name'		=> 'SHORTINIT',
+								'description'	=> 'Can be defined to load only the half of WordPress.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'	=> 'WP_ADMIN',
+								'description'	=> 'Will be defined if it’s a request in backend of WordPress.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'WP_BLOG_ADMIN',
+								'description'	=> 'Will be defined if it’s a request in /wp-admin/.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'WP_IMPORTING',
+								'description'	=> 'Will be defined if WordPress is importing data.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'WP_INSTALLING',
+								'description'	=> 'Will be defined on an new installation or on an upgrade.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'WP_INSTALLING_NETWORK',
+								'description'	=> 'Will be defined if it’s a request in network admin or on installing a network. Since WordPress 3.3, previous WP_NETWORK_ADMIN_PAGE.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'WP_LOAD_IMPORTERS',
+								'description'	=> 'Will be defined if you visit the importer overview (Tools → Importer).',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'WP_NETWORK_ADMIN',
+								'description'	=> 'Will be defined if it’s a request in /wp-admin/network/.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'WP_REPAIRING',
+								'description'	=> 'Will be defined if it’s a request to /wp-admin/maint/repair.php.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'WP_SETUP_CONFIG',
+								'description'	=> 'Will be defined if WordPress will be installed or configured.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'WP_UNINSTALL_PLUGIN',
+								'description'	=> 'Will be defined if a plugin wil be uninstalled (for uninstall.php).',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'WP_USER_ADMIN',
+								'description'	=> 'Will be defined if it’s a request in /wp-admin/user/.',
+								'value'			=> 'values',
+							),
+							array(
+								'name'		=> 'XMLRPC_REQUEST',
+								'description'	=> 'Will be defined if it’s a request over the XML-RPC API.',
+								'value'			=> 'true',
+							),
+						)
+					),
 
-				'status'	=> array(
-					'title'		=> 'Status',
-					'constants'	=> array(
-						array(
-							'name'		=> 'APP_REQUEST',
-							'description'	=> 'Will be defined if it’s an Atom Publishing Protocol request.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'COMMENTS_TEMPLATE',
-							'description'	=> 'Will be defined if the comments template is loaded.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'DOING_AJAX',
-							'description'	=> 'Will be defined if it’s an AJAX request.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'DOING_AUTOSAVE',
-							'description'	=> 'Will be defined if WordPress is doing an autosave for posts.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'DOING_CRON',
-							'description'	=> 'Will be defined if WordPress is doing a cronjob.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'IFRAME_REQUEST',
-							'description'	=> 'Will be defined if it’s an inlineframe request.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'IS_PROFILE_PAGE',
-							'description'	=> 'Will be defined if a user change his profile settings.',
-							'value'			=> 'tre',
-						),
-						array(
-							'name'		=> 'SHORTINIT',
-							'description'	=> 'Can be defined to load only the half of WordPress.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'	=> 'WP_ADMIN',
-							'description'	=> 'Will be defined if it’s a request in backend of WordPress.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'WP_BLOG_ADMIN',
-							'description'	=> 'Will be defined if it’s a request in /wp-admin/.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'WP_IMPORTING',
-							'description'	=> 'Will be defined if WordPress is importing data.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'WP_INSTALLING',
-							'description'	=> 'Will be defined on an new installation or on an upgrade.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'WP_INSTALLING_NETWORK',
-							'description'	=> 'Will be defined if it’s a request in network admin or on installing a network. Since WordPress 3.3, previous WP_NETWORK_ADMIN_PAGE.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'WP_LOAD_IMPORTERS',
-							'description'	=> 'Will be defined if you visit the importer overview (Tools → Importer).',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'WP_NETWORK_ADMIN',
-							'description'	=> 'Will be defined if it’s a request in /wp-admin/network/.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'WP_REPAIRING',
-							'description'	=> 'Will be defined if it’s a request to /wp-admin/maint/repair.php.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'WP_SETUP_CONFIG',
-							'description'	=> 'Will be defined if WordPress will be installed or configured.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'WP_UNINSTALL_PLUGIN',
-							'description'	=> 'Will be defined if a plugin wil be uninstalled (for uninstall.php).',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'WP_USER_ADMIN',
-							'description'	=> 'Will be defined if it’s a request in /wp-admin/user/.',
-							'value'			=> 'values',
-						),
-						array(
-							'name'		=> 'XMLRPC_REQUEST',
-							'description'	=> 'Will be defined if it’s a request over the XML-RPC API.',
-							'value'			=> 'true',
-						),
-					)
-				),
+					'database'	=> array(
+						'title'		=> 'Database',
+						'constants'	=> array(
+							array(
+								'name'		=> 'DB_CHARSET',
+								'description'	=> 'Defines the database charset.',
+								'value'			=> 'See MySQL docs (Default: utf8)',
+							),
+							array(
+								'name'		=> 'DB_COLLATE',
+								'description'	=> 'Defines the database collation.',
+								'value'			=> 'See MySQL docs (Default: utf8_general_ci)',
+							),
+							array(
+								'name'		=> 'DB_HOST',
+								'description'	=> 'Defines the database host.',
+								'value'			=> 'IP address, domain and/or port (Default: localhost)',
+							),
+							array(
+								'name'		=> 'DB_NAME',
+								'description'	=> 'Defines the database name.',
+								'value'			=> '',
+							),
+							array(
+								'name'		=> 'DB_USER',
+								'description'	=> 'Defines the database user.',
+								'value'			=> '',
+							),
+							array(
+								'name'		=> 'DB_PASSWORD',
+								'description'	=> 'Defines the database password.',
+								'value'			=> '',
+							),
+							array(
+								'name'		=> 'WP_ALLOW_REPAIR',
+								'description'	=> 'Allows you to automatically repair and optimize the database tables via /wp-admin/maint/repair.php.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'CUSTOM_USER_TABLE',
+								'description'	=> 'Allows you to define a custom user table.',
+								'value'			=> 'table name',
+							),
+							array(
+								'name'		=> 'CUSTOM_USER_META_TABLE',
+								'description'	=> 'Allows you to define a custom user meta table.',
+								'value'			=> 'table name',
+							),
+						)
+					),
 
-				'database'	=> array(
-					'title'		=> 'Database',
-					'constants'	=> array(
-						array(
-							'name'		=> 'DB_CHARSET',
-							'description'	=> 'Defines the database charset.',
-							'value'			=> 'See MySQL docs (Default: utf8)',
-						),
-						array(
-							'name'		=> 'DB_COLLATE',
-							'description'	=> 'Defines the database collation.',
-							'value'			=> 'See MySQL docs (Default: utf8_general_ci)',
-						),
-						array(
-							'name'		=> 'DB_HOST',
-							'description'	=> 'Defines the database host.',
-							'value'			=> 'IP address, domain and/or port (Default: localhost)',
-						),
-						array(
-							'name'		=> 'DB_NAME',
-							'description'	=> 'Defines the database name.',
-							'value'			=> '',
-						),
-						array(
-							'name'		=> 'DB_USER',
-							'description'	=> 'Defines the database user.',
-							'value'			=> '',
-						),
-						array(
-							'name'		=> 'DB_PASSWORD',
-							'description'	=> 'Defines the database password.',
-							'value'			=> '',
-						),
-						array(
-							'name'		=> 'WP_ALLOW_REPAIR',
-							'description'	=> 'Allows you to automatically repair and optimize the database tables via /wp-admin/maint/repair.php.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'CUSTOM_USER_TABLE',
-							'description'	=> 'Allows you to define a custom user table.',
-							'value'			=> 'table name',
-						),
-						array(
-							'name'		=> 'CUSTOM_USER_META_TABLE',
-							'description'	=> 'Allows you to define a custom user meta table.',
-							'value'			=> 'table name',
-						),
-					)
-				),
+					'paths_dirs_links'	=> array(
+						'title'		=> 'Paths, Directories & Links',
+						'constants'	=> array(
+							array(
+								'name'		=> 'ABSPATH',
+								'description'	=> 'Absolute path to the WordPress root dir.',
+								'value'			=> 'path to wp-load.php',
+							),
+							array(
+								'name'		=> 'WPINC',
+								'description'	=> 'Relative path to the /wp-includes/. You can’t change it.',
+								'value'			=> 'wp-includes',
+							),
+							array(
+								'name'		=> 'WP_LANG_DIR',
+								'description'	=> 'Absolute path to the folder with language files.',
+								'value'			=> 'WP_CONTENT_DIR /languages or WP_CONTENT_DIR WPINC /languages',
+							),
+							array(
+								'name'		=> 'WP_PLUGIN_DIR',
+								'description'	=> 'Absolute path to the plugins dir.',
+								'value'			=> 'WP_CONTENT_DIR /plugins',
+							),
+							array(
+								'name'		=> 'WP_PLUGIN_URL',
+								'description'	=> 'URL to the plugins dir.',
+								'value'			=> 'WP_CONTENT_URL /plugins',
+							),
+							array(
+								'name'		=> 'WP_CONTENT_DIR',
+								'description'	=> 'Absolute path to thewp-content dir.',
+								'value'			=> 'ABSPATH /wp-content',
+							),
+							array(
+								'name'		=> 'WP_CONTENT_URL',
+								'description'	=> 'URL to the wp-content dir.',
+								'value'			=> '{Site URL}/wp-content',
+							),
+							array(
+								'name'		=> 'WP_HOME',
+								'description'	=> 'Home URL of your WordPress.',
+								'value'			=> '',
+							),
+							array(
+								'name'		=> 'WP_SITEURL',
+								'description'	=> 'URL to the WordPress root dir.',
+								'value'			=> 'values',
+							),
+							array(
+								'name'		=> 'WP_TEMP_DIR',
+								'description'	=> 'Absolute path to a dir, where temporary files can be saved.',
+								'value'			=> '',
+							),
+							array(
+								'name'		=> 'WPMU_PLUGIN_DIR',
+								'description'	=> 'Absolute path to the must use plugin dir.',
+								'value'			=> 'WP_CONTENT_DIR /mu-plugins',
+							),
+							array(
+								'name'		=> 'WPMU_PLUGIN_URL',
+								'description'	=> 'URL to the must use plugin dir.',
+								'value'			=> 'WP_CONTENT_URL /mu-plugins',
+							),
+							array(
+								'name'		=> 'PLUGINDIR',
+								'description'	=> 'Allows for the plugins directory to be moved from the default location.',
+								'value'			=> 'wp-content/plugins ',
+							),
+							array(
+								'name'		=> 'MUPLUGINDIR',
+								'description'	=> 'Allows for the mu-plugins directory to be moved from the default location.',
+								'value'			=> 'wp-content/mu-plugins',
+							),
+							array(
+								'name'		=> 'DIRECTORY_SEPARATOR',
+								'description'	=> 'A predefined constant that contains either a forward slash or backslash depending on the OS your web server is on',
+								'value'			=> '/ or \\',
+							),
+						)
+					),
 
-				'paths_dirs_links'	=> array(
-					'title'		=> 'Paths, Directories & Links',
-					'constants'	=> array(
-						array(
-							'name'		=> 'ABSPATH',
-							'description'	=> 'Absolute path to the WordPress root dir.',
-							'value'			=> 'path to wp-load.php',
-						),
-						array(
-							'name'		=> 'WPINC',
-							'description'	=> 'Relative path to the /wp-includes/. You can’t change it.',
-							'value'			=> 'wp-includes',
-						),
-						array(
-							'name'		=> 'WP_LANG_DIR',
-							'description'	=> 'Absolute path to the folder with language files.',
-							'value'			=> 'WP_CONTENT_DIR /languages or WP_CONTENT_DIR WPINC /languages',
-						),
-						array(
-							'name'		=> 'WP_PLUGIN_DIR',
-							'description'	=> 'Absolute path to the plugins dir.',
-							'value'			=> 'WP_CONTENT_DIR /plugins',
-						),
-						array(
-							'name'		=> 'WP_PLUGIN_URL',
-							'description'	=> 'URL to the plugins dir.',
-							'value'			=> 'WP_CONTENT_URL /plugins',
-						),
-						array(
-							'name'		=> 'WP_CONTENT_DIR',
-							'description'	=> 'Absolute path to thewp-content dir.',
-							'value'			=> 'ABSPATH /wp-content',
-						),
-						array(
-							'name'		=> 'WP_CONTENT_URL',
-							'description'	=> 'URL to the wp-content dir.',
-							'value'			=> '{Site URL}/wp-content',
-						),
-						array(
-							'name'		=> 'WP_HOME',
-							'description'	=> 'Home URL of your WordPress.',
-							'value'			=> '',
-						),
-						array(
-							'name'		=> 'WP_SITEURL',
-							'description'	=> 'URL to the WordPress root dir.',
-							'value'			=> 'values',
-						),
-						array(
-							'name'		=> 'WP_TEMP_DIR',
-							'description'	=> 'Absolute path to a dir, where temporary files can be saved.',
-							'value'			=> '',
-						),
-						array(
-							'name'		=> 'WPMU_PLUGIN_DIR',
-							'description'	=> 'Absolute path to the must use plugin dir.',
-							'value'			=> 'WP_CONTENT_DIR /mu-plugins',
-						),
-						array(
-							'name'		=> 'WPMU_PLUGIN_URL',
-							'description'	=> 'URL to the must use plugin dir.',
-							'value'			=> 'WP_CONTENT_URL /mu-plugins',
-						),
-						array(
-							'name'		=> 'PLUGINDIR',
-							'description'	=> 'Allows for the plugins directory to be moved from the default location.',
-							'value'			=> 'wp-content/plugins ',
-						),
-						array(
-							'name'		=> 'MUPLUGINDIR',
-							'description'	=> 'Allows for the mu-plugins directory to be moved from the default location.',
-							'value'			=> 'wp-content/mu-plugins',
-						),
-						array(
-							'name'		=> 'DIRECTORY_SEPARATOR',
-							'description'	=> 'A predefined constant that contains either a forward slash or backslash depending on the OS your web server is on',
-							'value'			=> '/ or \\',
-						),
-					)
-				),
+					'file_system_connections'	=> array(
+						'title'		=> 'File System & Connections',
+						'constants'	=> array(
+							array(
+								'name'		=> 'FS_CHMOD_DIR',
+								'description'	=> 'Defines the read and write permissions for directories.',
+								'value'			=> 'See PHP handbook (Default: 0755)',
+							),
+							array(
+								'name'		=> 'FS_CHMOD_FILE',
+								'description'	=> 'Defines the read and write permissions for files.',
+								'value'			=> 'ee PHP handbook (Default: 0644)',
+							),
+							array(
+								'name'		=> 'FS_CONNECT_TIMEOUT',
+								'description'	=> 'Defines a timeout for building a connection.',
+								'value'			=> 'time in seconds (Default: 30)',
+							),
+							array(
+								'name'		=> 'FS_METHOD',
+								'description'	=> 'Defines the method to connect to the filesystem.',
+								'value'			=> 'direct|ssh|ftpext|ftpsockets',
+							),
+							array(
+								'name'		=> 'FS_TIMEOUT',
+								'description'	=> 'Defines a timeout after a connection has been lost.',
+								'value'			=> 'time in seconds (Default: 30)',
+							),
+							array(
+								'name'		=> 'FTP_BASE',
+								'description'	=> 'Path to the WordPress root dir.',
+								'value'			=> 'ABSPATH',
+							),
+							array(
+								'name'		=> 'FTP_CONTENT_DIR',
+								'description'	=> 'Path to the /wp-content/ dir.',
+								'value'			=> 'WP_CONTENT_DIR',
+							),
+							array(
+								'name'		=> 'FTP_HOST',
+								'description'	=> 'Defines the FTP host.',
+								'value'			=> 'IP Adresse, Domain und/oder Port',
+							),
+							array(
+								'name'		=> 'FTP_LANG_DIR',
+								'description'	=> 'Path to the folder with language files.',
+								'value'			=> 'WP_LANG_DIR',
+							),
+							array(
+								'name'		=> 'FTP_PASS',
+								'description'	=> 'Defines the FTP password.',
+								'value'			=> '',
+							),
+							array(
+								'name'		=> 'FTP_PLUGIN_DIR',
+								'description'	=> 'Path to the plugin dir.',
+								'value'			=> 'WP_PLUGIN_DIR',
+							),
+							array(
+								'name'		=> 'FTP_PRIKEY',
+								'description'	=> 'Defines a private key for SSH.',
+								'value'			=> '',
+							),
+							array(
+								'name'		=> 'FTP_PUBKEY',
+								'description'	=> 'Defines a public key for SSH.',
+								'value'			=> '',
+							),
+							array(
+								'name'		=> 'FTP_SSH',
+								'description'	=> '(De)activates SSH.',
+								'value'			=> 'true|false',
+							),
+							array(
+								'name'		=> 'FTP_SSL',
+								'description'	=> '(De)activates SSL.',
+								'value'			=> 'true|false',
+							),
+							array(
+								'name'		=> 'FTP_USER',
+								'description'	=> 'Defines the FTP username.',
+								'value'			=> '',
+							),
+							array(
+								'name'		=> 'WP_PROXY_BYPASS_HOSTS',
+								'description'	=> 'Allows you to define some adresses which shouldn’t be passed through a proxy.',
+								'value'			=> 'www.example.com, *.example.org',
+							),
+							array(
+								'name'		=> 'WP_PROXY_HOST',
+								'description'	=> 'Defines the proxy address.',
+								'value'			=> 'IP address or domain',
+							),
+							array(
+								'name'		=> 'WP_PROXY_PASSWORD',
+								'description'	=> 'Defines the proxy password.',
+								'value'			=> '',
+							),
+							array(
+								'name'		=> 'WP_PROXY_PORT',
+								'description'	=> 'Defines the proxy port.',
+								'value'			=> '',
+							),
+							array(
+								'name'		=> 'WP_PROXY_USERNAME',
+								'description'	=> 'Defines the proxy username.',
+								'value'			=> '',
+							),
+							array(
+								'name'		=> 'WP_HTTP_BLOCK_EXTERNAL',
+								'description'	=> 'Allows you to block external request.',
+								'value'			=> 'true|false',
+							),
+							array(
+								'name'		=> 'WP_ACCESSIBLE_HOSTS',
+								'description'	=> 'If WP_HTTP_BLOCK_EXTERNAL is defined you can add hosts which shouldn’t be blocked.',
+								'value'			=> 'www.example.com, *.example.org',
+							),
+						)
+					),
 
-				'file_system_connections'	=> array(
-					'title'		=> 'File System & Connections',
-					'constants'	=> array(
-						array(
-							'name'		=> 'FS_CHMOD_DIR',
-							'description'	=> 'Defines the read and write permissions for directories.',
-							'value'			=> 'See PHP handbook (Default: 0755)',
-						),
-						array(
-							'name'		=> 'FS_CHMOD_FILE',
-							'description'	=> 'Defines the read and write permissions for files.',
-							'value'			=> 'ee PHP handbook (Default: 0644)',
-						),
-						array(
-							'name'		=> 'FS_CONNECT_TIMEOUT',
-							'description'	=> 'Defines a timeout for building a connection.',
-							'value'			=> 'time in seconds (Default: 30)',
-						),
-						array(
-							'name'		=> 'FS_METHOD',
-							'description'	=> 'Defines the method to connect to the filesystem.',
-							'value'			=> 'direct|ssh|ftpext|ftpsockets',
-						),
-						array(
-							'name'		=> 'FS_TIMEOUT',
-							'description'	=> 'Defines a timeout after a connection has been lost.',
-							'value'			=> 'time in seconds (Default: 30)',
-						),
-						array(
-							'name'		=> 'FTP_BASE',
-							'description'	=> 'Path to the WordPress root dir.',
-							'value'			=> 'ABSPATH',
-						),
-						array(
-							'name'		=> 'FTP_CONTENT_DIR',
-							'description'	=> 'Path to the /wp-content/ dir.',
-							'value'			=> 'WP_CONTENT_DIR',
-						),
-						array(
-							'name'		=> 'FTP_HOST',
-							'description'	=> 'Defines the FTP host.',
-							'value'			=> 'IP Adresse, Domain und/oder Port',
-						),
-						array(
-							'name'		=> 'FTP_LANG_DIR',
-							'description'	=> 'Path to the folder with language files.',
-							'value'			=> 'WP_LANG_DIR',
-						),
-						array(
-							'name'		=> 'FTP_PASS',
-							'description'	=> 'Defines the FTP password.',
-							'value'			=> '',
-						),
-						array(
-							'name'		=> 'FTP_PLUGIN_DIR',
-							'description'	=> 'Path to the plugin dir.',
-							'value'			=> 'WP_PLUGIN_DIR',
-						),
-						array(
-							'name'		=> 'FTP_PRIKEY',
-							'description'	=> 'Defines a private key for SSH.',
-							'value'			=> '',
-						),
-						array(
-							'name'		=> 'FTP_PUBKEY',
-							'description'	=> 'Defines a public key for SSH.',
-							'value'			=> '',
-						),
-						array(
-							'name'		=> 'FTP_SSH',
-							'description'	=> '(De)activates SSH.',
-							'value'			=> 'true|false',
-						),
-						array(
-							'name'		=> 'FTP_SSL',
-							'description'	=> '(De)activates SSL.',
-							'value'			=> 'true|false',
-						),
-						array(
-							'name'		=> 'FTP_USER',
-							'description'	=> 'Defines the FTP username.',
-							'value'			=> '',
-						),
-						array(
-							'name'		=> 'WP_PROXY_BYPASS_HOSTS',
-							'description'	=> 'Allows you to define some adresses which shouldn’t be passed through a proxy.',
-							'value'			=> 'www.example.com, *.example.org',
-						),
-						array(
-							'name'		=> 'WP_PROXY_HOST',
-							'description'	=> 'Defines the proxy address.',
-							'value'			=> 'IP address or domain',
-						),
-						array(
-							'name'		=> 'WP_PROXY_PASSWORD',
-							'description'	=> 'Defines the proxy password.',
-							'value'			=> '',
-						),
-						array(
-							'name'		=> 'WP_PROXY_PORT',
-							'description'	=> 'Defines the proxy port.',
-							'value'			=> '',
-						),
-						array(
-							'name'		=> 'WP_PROXY_USERNAME',
-							'description'	=> 'Defines the proxy username.',
-							'value'			=> '',
-						),
-						array(
-							'name'		=> 'WP_HTTP_BLOCK_EXTERNAL',
-							'description'	=> 'Allows you to block external request.',
-							'value'			=> 'true|false',
-						),
-						array(
-							'name'		=> 'WP_ACCESSIBLE_HOSTS',
-							'description'	=> 'If WP_HTTP_BLOCK_EXTERNAL is defined you can add hosts which shouldn’t be blocked.',
-							'value'			=> 'www.example.com, *.example.org',
-						),
-					)
-				),
+					'multisite'	=> array(
+						'title'		=> 'WordPress Multisite',
+						'constants'	=> array(
+							array(
+								'name'		=> 'ALLOW_SUBDIRECTORY_INSTALL',
+								'description'	=> 'Allows you to install Multisite in a subdirectory.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'BLOGUPLOADDIR',
+								'description'	=> 'Absolute path to the site specific upload dir.',
+								'value'			=> 'WP_CONTENT_DIR /blogs.dir/{Blog ID}/files/',
+							),
+							array(
+								'name'		=> 'BLOG_ID_CURRENT_SITE',
+								'description'	=> 'Blog ID of the main site.',
+								'value'			=> '1',
+							),
+							array(
+								'name'		=> 'DOMAIN_CURRENT_SITE',
+								'description'	=> 'Domain of the main site.',
+								'value'			=> 'domain',
+							),
+							array(
+								'name'		=> 'DIEONDBERROR',
+								'description'	=> 'When defined database errors will be displayed on screen.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'ERRORLOGFILE',
+								'description'	=> 'When defined database erros will be logged into a file.',
+								'value'			=> 'absolute path to a writeable file',
+							),
+							array(
+								'name'		=> 'MULTISITE',
+								'description'	=> 'Will be defined if Multisite is used.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'NOBLOGREDIRECT',
+								'description'	=> 'Defines an URL of a site on which WordPress should redirect, if registration is closed or a site doesn’t exists.',
+								'value'			=> '%siteurl% for mainsite or custom URL',
+							),
+							array(
+								'name'		=> 'PATH_CURRENT_SITE',
+								'description'	=> 'Path to the main site.',
+								'value'			=> '',
+							),
+							array(
+								'name'		=> 'UPLOADBLOGSDIR',
+								'description'	=> 'Path to the upload base dir, relative to ABSPATH.',
+								'value'			=> 'wp-content/blogs.dir',
+							),
+							array(
+								'name'		=> 'SITE_ID_CURRENT_SITE',
+								'description'	=> 'Network ID of the main site.',
+								'value'			=> '1',
+							),
+							array(
+								'name'		=> 'SUBDOMAIN_INSTALL',
+								'description'	=> 'Defines if it’s a subdomain install or not.',
+								'value'			=> 'true|false',
+							),
+							array(
+								'name'		=> 'SUNRISE',
+								'description'	=> 'When defined WordPres will load the /wp-content/sunrise.php file.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'		=> 'UPLOADS',
+								'description'	=> 'Path to site specific upload dir, relative to ABSPATH.',
+								'value'			=> 'UPLOADBLOGSDIR /{blogid}/files/',
+							),
+							array(
+								'name'		=> 'WPMU_ACCEL_REDIRECT',
+								'description'	=> '(De)activates support for X-Sendfile Header.',
+								'value'			=> 'true|false (Default: false)',
+							),
+							array(
+								'name'		=> 'WPMU_SENDFILE',
+								'description'	=> '(De)activates support for X-Accel-Redirect Header.',
+								'value'			=> 'true|false (Default: false)',
+							),
+							array(
+								'name'		=> 'WP_ALLOW_MULTISITE',
+								'description'	=> 'When defined the multisite function will be accessible (Tools → Network Setup).',
+								'value'			=> 'true',
+							),
+						)
+					),
 
-				'multisite'	=> array(
-					'title'		=> 'WordPress Multisite',
-					'constants'	=> array(
-						array(
-							'name'		=> 'ALLOW_SUBDIRECTORY_INSTALL',
-							'description'	=> 'Allows you to install Multisite in a subdirectory.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'BLOGUPLOADDIR',
-							'description'	=> 'Absolute path to the site specific upload dir.',
-							'value'			=> 'WP_CONTENT_DIR /blogs.dir/{Blog ID}/files/',
-						),
-						array(
-							'name'		=> 'BLOG_ID_CURRENT_SITE',
-							'description'	=> 'Blog ID of the main site.',
-							'value'			=> '1',
-						),
-						array(
-							'name'		=> 'DOMAIN_CURRENT_SITE',
-							'description'	=> 'Domain of the main site.',
-							'value'			=> 'domain',
-						),
-						array(
-							'name'		=> 'DIEONDBERROR',
-							'description'	=> 'When defined database errors will be displayed on screen.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'ERRORLOGFILE',
-							'description'	=> 'When defined database erros will be logged into a file.',
-							'value'			=> 'absolute path to a writeable file',
-						),
-						array(
-							'name'		=> 'MULTISITE',
-							'description'	=> 'Will be defined if Multisite is used.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'NOBLOGREDIRECT',
-							'description'	=> 'Defines an URL of a site on which WordPress should redirect, if registration is closed or a site doesn’t exists.',
-							'value'			=> '%siteurl% for mainsite or custom URL',
-						),
-						array(
-							'name'		=> 'PATH_CURRENT_SITE',
-							'description'	=> 'Path to the main site.',
-							'value'			=> '',
-						),
-						array(
-							'name'		=> 'UPLOADBLOGSDIR',
-							'description'	=> 'Path to the upload base dir, relative to ABSPATH.',
-							'value'			=> 'wp-content/blogs.dir',
-						),
-						array(
-							'name'		=> 'SITE_ID_CURRENT_SITE',
-							'description'	=> 'Network ID of the main site.',
-							'value'			=> '1',
-						),
-						array(
-							'name'		=> 'SUBDOMAIN_INSTALL',
-							'description'	=> 'Defines if it’s a subdomain install or not.',
-							'value'			=> 'true|false',
-						),
-						array(
-							'name'		=> 'SUNRISE',
-							'description'	=> 'When defined WordPres will load the /wp-content/sunrise.php file.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'		=> 'UPLOADS',
-							'description'	=> 'Path to site specific upload dir, relative to ABSPATH.',
-							'value'			=> 'UPLOADBLOGSDIR /{blogid}/files/',
-						),
-						array(
-							'name'		=> 'WPMU_ACCEL_REDIRECT',
-							'description'	=> '(De)activates support for X-Sendfile Header.',
-							'value'			=> 'true|false (Default: false)',
-						),
-						array(
-							'name'		=> 'WPMU_SENDFILE',
-							'description'	=> '(De)activates support for X-Accel-Redirect Header.',
-							'value'			=> 'true|false (Default: false)',
-						),
-						array(
-							'name'		=> 'WP_ALLOW_MULTISITE',
-							'description'	=> 'When defined the multisite function will be accessible (Tools → Network Setup).',
-							'value'			=> 'true',
-						),
-					)
-				),
+					'cache_compression'	=> array(
+						'title'		=> 'Cache & Compression',
+						'constants'	=> array(
+							array(
+								'name'		=> 'WP_CACHE',
+								'description'	=> 'When defined WordPres will load the /wp-content/advanced-cache.php file.',
+								'value'			=> 'true|false (Default: false)',
+							),
+							array(
+								'name'		=> 'WP_CACHE_KEY_SALT',
+								'description'	=> 'Secret key.',
+								'value'			=> '',
+							),
+							array(
+								'name'		=> 'COMPRESS_CSS',
+								'description'	=> '(De)activates the compressing of stylesheets.',
+								'value'			=> 'true|false',
+							),
+							array(
+								'name'		=> 'COMPRESS_SCRIPTS',
+								'description'	=> '(De)activates the compressing of Javascript files.',
+								'value'			=> 'true|false',
+							),
+							array(
+								'name'		=> 'CONCATENATE_SCRIPTS',
+								'description'	=> '(De)activates the consolidation of Javascript or CSS files before compressing.',
+								'value'			=> 'true|false',
+							),
+							array(
+								'name'		=> 'ENFORCE_GZIP',
+								'description'	=> '(De)activates gzip output.',
+								'value'			=> 'true|false',
+							),
+						)
+					),
 
-				'cache_compression'	=> array(
-					'title'		=> 'Cache & Compression',
-					'constants'	=> array(
-						array(
-							'name'		=> 'WP_CACHE',
-							'description'	=> 'When defined WordPres will load the /wp-content/advanced-cache.php file.',
-							'value'			=> 'true|false (Default: false)',
-						),
-						array(
-							'name'		=> 'WP_CACHE_KEY_SALT',
-							'description'	=> 'Secret key.',
-							'value'			=> '',
-						),
-						array(
-							'name'		=> 'COMPRESS_CSS',
-							'description'	=> '(De)activates the compressing of stylesheets.',
-							'value'			=> 'true|false',
-						),
-						array(
-							'name'		=> 'COMPRESS_SCRIPTS',
-							'description'	=> '(De)activates the compressing of Javascript files.',
-							'value'			=> 'true|false',
-						),
-						array(
-							'name'		=> 'CONCATENATE_SCRIPTS',
-							'description'	=> '(De)activates the consolidation of Javascript or CSS files before compressing.',
-							'value'			=> 'true|false',
-						),
-						array(
-							'name'		=> 'ENFORCE_GZIP',
-							'description'	=> '(De)activates gzip output.',
-							'value'			=> 'true|false',
-						),
-					)
-				),
+					'themes'	=> array(
+						'title'		=> 'Theme',
+						'constants'	=> array(
+							array(
+								'name'	=> 'BACKGROUND_IMAGE',
+								'description'	=> 'Defines the default background image.',
+								'value'			=> '',
+							),
+							array(
+								'name'	=> 'HEADER_IMAGE',
+								'description'	=> 'Defines the default header image.',
+								'value'			=> '',
+							),
+							array(
+								'name'	=> 'HEADER_IMAGE_HEIGHT',
+								'description'	=> 'Specifies the height of the header image.',
+								'value'			=> '',
+							),
+							array(
+								'name'	=> 'HEADER_IMAGE_WIDTH',
+								'description'	=> 'Defines the width of the header image.',
+								'value'			=> '',
+							),
+							array(
+								'name'	=> 'HEADER_TEXTCOLOR',
+								'description'	=> 'Determines the color of the header text.',
+								'value'			=> '',
+							),
+							array(
+								'name'	=> 'NO_HEADER_TEXT',
+								'description'	=> 'Enables or disables support for header text.',
+								'value'			=> 'true|false',
+							),
+							array(
+								'name'	=> 'STYLESHEETPATH',
+								'description'	=> 'Specifies the absolute path to the theme folder, which is the folder where the current parent or child theme\'s stylesheet file is located. It does not contain a trailing slash. See also. get_stylesheet_directory().',
+								'value'			=> '',
+							),
+							array(
+								'name'	=> 'TEMPLATEPATH',
+								'description'	=> 'Specifies an absolute path from the root of the site to the current theme (parent, not child). Does not contain a slash at the end. See "Theme Loading". get_template_directory().',
+								'value'			=> 'values',
+							),
+							array(
+								'name'	=> 'WP_USE_THEMES',
+								'description'	=> 'Enables or disables theme loading.',
+								'value'			=> 'true|false',
+							),
+						)
+					),
 
-				'themes'	=> array(
-					'title'		=> 'Theme',
-					'constants'	=> array(
-						array(
-							'name'	=> 'BACKGROUND_IMAGE',
-							'description'	=> 'Defines the default background image.',
-							'value'			=> '',
-						),
-						array(
-							'name'	=> 'HEADER_IMAGE',
-							'description'	=> 'Defines the default header image.',
-							'value'			=> '',
-						),
-						array(
-							'name'	=> 'HEADER_IMAGE_HEIGHT',
-							'description'	=> 'Specifies the height of the header image.',
-							'value'			=> '',
-						),
-						array(
-							'name'	=> 'HEADER_IMAGE_WIDTH',
-							'description'	=> 'Defines the width of the header image.',
-							'value'			=> '',
-						),
-						array(
-							'name'	=> 'HEADER_TEXTCOLOR',
-							'description'	=> 'Determines the color of the header text.',
-							'value'			=> '',
-						),
-						array(
-							'name'	=> 'NO_HEADER_TEXT',
-							'description'	=> 'Enables or disables support for header text.',
-							'value'			=> 'true|false',
-						),
-						array(
-							'name'	=> 'STYLESHEETPATH',
-							'description'	=> 'Specifies the absolute path to the theme folder, which is the folder where the current parent or child theme\'s stylesheet file is located. It does not contain a trailing slash. See also. get_stylesheet_directory().',
-							'value'			=> '',
-						),
-						array(
-							'name'	=> 'TEMPLATEPATH',
-							'description'	=> 'Specifies an absolute path from the root of the site to the current theme (parent, not child). Does not contain a slash at the end. See "Theme Loading". get_template_directory().',
-							'value'			=> 'values',
-						),
-						array(
-							'name'	=> 'WP_USE_THEMES',
-							'description'	=> 'Enables or disables theme loading.',
-							'value'			=> 'true|false',
-						),
-					)
-				),
-
-				'blocks'	=> array(
-					'title'		=> 'Blocks',
-					'constants'	=> array(
-						array(
-							'name'	=> 'WP_TEMPLATE_PART_AREA_HEADER',
-							'description'	=> 'Constant for supported wp_template_part_area taxonomy (related to blocks)',
-							'value'			=> 'header',
-						),
-						array(
-							'name'	=> 'WP_TEMPLATE_PART_AREA_FOOTER',
-							'description'	=> 'Constant for supported wp_template_part_area taxonomy (related to blocks)',
-							'value'			=> 'footer',
-						),
-						array(
-							'name'	=> 'WP_TEMPLATE_PART_AREA_SIDEBAR',
-							'description'	=> 'Constant for supported wp_template_part_area taxonomy (related to blocks)',
-							'value'			=> 'sidebar',
-						),
-						array(
-							'name'	=> 'WP_TEMPLATE_PART_AREA_UNCATEGORIZED',
-							'description'	=> 'Constant for supported wp_template_part_area taxonomy (related to blocks)',
-							'value'			=> 'uncategorized',
+					'blocks'	=> array(
+						'title'		=> 'Blocks',
+						'constants'	=> array(
+							array(
+								'name'	=> 'WP_TEMPLATE_PART_AREA_HEADER',
+								'description'	=> 'Constant for supported wp_template_part_area taxonomy (related to blocks)',
+								'value'			=> 'header',
+							),
+							array(
+								'name'	=> 'WP_TEMPLATE_PART_AREA_FOOTER',
+								'description'	=> 'Constant for supported wp_template_part_area taxonomy (related to blocks)',
+								'value'			=> 'footer',
+							),
+							array(
+								'name'	=> 'WP_TEMPLATE_PART_AREA_SIDEBAR',
+								'description'	=> 'Constant for supported wp_template_part_area taxonomy (related to blocks)',
+								'value'			=> 'sidebar',
+							),
+							array(
+								'name'	=> 'WP_TEMPLATE_PART_AREA_UNCATEGORIZED',
+								'description'	=> 'Constant for supported wp_template_part_area taxonomy (related to blocks)',
+								'value'			=> 'uncategorized',
+							),
 						),
 					),
-				),
 
-				'debug'	=> array(
-					'title'		=> 'Debug',
-					'constants'	=> array(
-						array(
-							'name'		=> 'SAVEQUERIES',
-							'description'	=> '(De)activates the saving of database queries in an array ($wpdb->queries).',
-							'value'			=> 'true|false',
-						),
-						array(
-							'name'		=> 'SCRIPT_DEBUG',
-							'description'	=> '(De)activates the loading of compressed Javascript and CSS files.',
-							'value'			=> 'true|false',
-						),
-						array(
-							'name'		=> 'WP_DEBUG',
-							'description'	=> '(De)activates the debug mode in WordPress.',
-							'value'			=> 'true|false (Default: false)',
-						),
-						array(
-							'name'		=> 'WP_DEBUG_DISPLAY',
-							'description'	=> '(De)activates the display of errors on the screen.',
-							'value'			=> 'true|false|null (Default: true)',
-						),
-						array(
-							'name'		=> 'WP_DEBUG_LOG',
-							'description'	=> '(De)activates the writing of errors to the /wp-content/debug.log file.',
-							'value'			=> 'true|false (Default: false)',
-						),
-						array(
-							'name'	=> 'WP_LOCAL_DEV',
-							'description'	=> 'The default constant is not used anywhere in the core, but is intended as a general standard to enable, for example, some additional functionality when this constant is defined.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'	=> 'WP_START_TIMESTAMP',
-							'description'	=> 'WP code start time stamp - set as microtime( true ) at the moment of early file connection wp-includes/default-constants.php. Introduced in WP 5.2.',
-							'value'			=> '',
-						),
-						array(
-							'name'	=> 'WP_TESTS_CONFIG_FILE_PATH',
-							'description'	=> 'Location of the wp-tests-config.php file which is used for PHPUnit tests.',
-							'value'			=> '',
-						),
-					)
-				),
+					'debug'	=> array(
+						'title'		=> 'Debug',
+						'constants'	=> array(
+							array(
+								'name'		=> 'SAVEQUERIES',
+								'description'	=> '(De)activates the saving of database queries in an array ($wpdb->queries).',
+								'value'			=> 'true|false',
+							),
+							array(
+								'name'		=> 'SCRIPT_DEBUG',
+								'description'	=> '(De)activates the loading of compressed Javascript and CSS files.',
+								'value'			=> 'true|false',
+							),
+							array(
+								'name'		=> 'WP_DEBUG',
+								'description'	=> '(De)activates the debug mode in WordPress.',
+								'value'			=> 'true|false (Default: false)',
+							),
+							array(
+								'name'		=> 'WP_DEBUG_DISPLAY',
+								'description'	=> '(De)activates the display of errors on the screen.',
+								'value'			=> 'true|false|null (Default: true)',
+							),
+							array(
+								'name'		=> 'WP_DEBUG_LOG',
+								'description'	=> '(De)activates the writing of errors to the /wp-content/debug.log file.',
+								'value'			=> 'true|false (Default: false)',
+							),
+							array(
+								'name'	=> 'WP_LOCAL_DEV',
+								'description'	=> 'The default constant is not used anywhere in the core, but is intended as a general standard to enable, for example, some additional functionality when this constant is defined.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'	=> 'WP_START_TIMESTAMP',
+								'description'	=> 'WP code start time stamp - set as microtime( true ) at the moment of early file connection wp-includes/default-constants.php. Introduced in WP 5.2.',
+								'value'			=> '',
+							),
+							array(
+								'name'	=> 'WP_TESTS_CONFIG_FILE_PATH',
+								'description'	=> 'Location of the wp-tests-config.php file which is used for PHPUnit tests.',
+								'value'			=> '',
+							),
+						)
+					),
 
-				'security_cookies'	=> array(
-					'title'		=> 'Security & Cookies',
-					'constants'	=> array(
-						array(
-							'name'	=> 'ADMIN_COOKIE_PATH',
-							'description'	=> 'Path to directory /wp-admin/.',
-							'value'			=> 'SITECOOKIEPATH wp-admin Or for Multisite subdirectory ``SITECOOKIEPATH```',
-						),
-						array(
-							'name'	=> 'ALLOW_UNFILTERED_UPLOADS',
-							'description'	=> 'Allows unfiltered uploads by admins.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'	=> 'AUTH_COOKIE',
-							'description'	=> 'Cookie name for the authentication.',
-							'value'			=> 'wordpress_ COOKIEHASH',
-						),
-						array(
-							'name'	=> 'AUTH_KEY',
-							'description'	=> 'Secret key.',
-							'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
-						),
-						array(
-							'name'	=> 'AUTH_SALT',
-							'description'	=> 'Secret key.',
-							'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
-						),
-						array(
-							'name'	=> 'COOKIEHASH',
-							'description'	=> 'Hash for generating cookie names.',
-							'value'			=> '',
-						),
-						array(
-							'name'	=> 'COOKIEPATH',
-							'description'	=> 'Path to WordPress root dir.',
-							'value'			=> 'Home URL without http(s)://',
-						),
-						array(
-							'name'	=> 'COOKIE_DOMAIN',
-							'description'	=> 'Domain of the WordPress installation.',
-							'value'			=> 'false or for Multisite with subdomains .domain of the main site',
-						),
-						array(
-							'name'	=> 'CUSTOM_TAGS',
-							'description'	=> 'Allows you to override the list of secure HTML tags. See /wp-includes/kses.php.',
-							'value'			=> 'true|false (Default: false)',
-						),
-						array(
-							'name'	=> 'DISALLOW_FILE_EDIT',
-							'description'	=> 'Allows you to disallow theme and plugin edits via WordPress editor.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'	=> 'DISALLOW_FILE_MODS',
-							'description'	=> 'Allows you to disallow the editing, updating, installing and deleting of plugins, themes and core files via WordPress Backend.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'	=> 'DISALLOW_UNFILTERED_HTML',
-							'description'	=> 'Allows you to disallow unfiltered HTML for every user, admins too.',
-							'value'			=> 'true',
-						),
-						array(
-							'name'	=> 'FORCE_SSL_ADMIN',
-							'description'	=> 'Activates SSL for logins and in the backend.',
-							'value'			=> 'true|false (Default: false)',
-						),
-						array(
-							'name'	=> 'FORCE_SSL_LOGIN',
-							'description'	=> 'Activates SSL for logins.',
-							'value'			=> 'true|false (Default: false)',
-						),
-						array(
-							'name'	=> 'LOGGED_IN_COOKIE',
-							'description'	=> 'Cookie name for logins.',
-							'value'			=> 'wordpress_logged_in_ COOKIEHASH',
-						),
-						array(
-							'name'	=> 'LOGGED_IN_KEY',
-							'description'	=> 'Secret key.',
-							'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
-						),
-						array(
-							'name'	=> 'LOGGED_IN_SALT',
-							'description'	=> 'Secret key.',
-							'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
-						),
-						array(
-							'name'	=> 'NONCE_KEY',
-							'description'	=> 'Secret key.',
-							'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
-						),
-						array(
-							'name'	=> 'NONCE_SALT',
-							'description'	=> 'Secret key.',
-							'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
-						),
-						array(
-							'name'	=> 'PASS_COOKIE',
-							'description'	=> 'Cookie name for the password.',
-							'value'			=> 'wordpresspass_ COOKIEHASH',
-						),
-						array(
-							'name'	=> 'PLUGINS_COOKIE_PATH',
-							'description'	=> 'Path to the plugins dir.',
-							'value'			=> 'WP_PLUGIN_URL without http(s)://',
-						),
-						array(
-							'name'	=> 'SECURE_AUTH_COOKIE',
-							'description'	=> 'Cookie name for the SSL authentication.',
-							'value'			=> 'wordpress_sec_ COOKIEHASH',
-						),
-						array(
-							'name'	=> 'SECURE_AUTH_KEY',
-							'description'	=> 'Secret key.',
-							'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
-						),
-						array(
-							'name'	=> 'SECURE_AUTH_SALT',
-							'description'	=> 'Secret key.',
-							'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
-						),
-						array(
-							'name'	=> 'SITECOOKIEPATH',
-							'description'	=> 'Path of you site.',
-							'value'			=> 'Site URL without http(s)://',
-						),
-						array(
-							'name'	=> 'TEST_COOKIE',
-							'description'	=> 'Cookie name for the test cookie.',
-							'value'			=> 'wordpress_test_cookie',
-						),
-						array(
-							'name'	=> 'USER_COOKIE',
-							'description'	=> 'Cookie name for users.',
-							'value'			=> 'wordpressuser_ COOKIEHASH',
-						),
-						array(
-							'name'	=> 'WP_FEATURE_BETTER_PASSWORDS',
-							'description'	=> '',
-							'value'			=> 'true|false',
-						),
-						array(
-							'name'	=> 'RECOVERY_MODE_COOKIE',
-							'description'	=> '',
-							'value'			=> '',
-						),
-					)
-				),
+					'security_cookies'	=> array(
+						'title'		=> 'Security & Cookies',
+						'constants'	=> array(
+							array(
+								'name'	=> 'ADMIN_COOKIE_PATH',
+								'description'	=> 'Path to directory /wp-admin/.',
+								'value'			=> 'SITECOOKIEPATH wp-admin Or for Multisite subdirectory ``SITECOOKIEPATH```',
+							),
+							array(
+								'name'	=> 'ALLOW_UNFILTERED_UPLOADS',
+								'description'	=> 'Allows unfiltered uploads by admins.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'	=> 'AUTH_COOKIE',
+								'description'	=> 'Cookie name for the authentication.',
+								'value'			=> 'wordpress_ COOKIEHASH',
+							),
+							array(
+								'name'	=> 'AUTH_KEY',
+								'description'	=> 'Secret key.',
+								'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
+							),
+							array(
+								'name'	=> 'AUTH_SALT',
+								'description'	=> 'Secret key.',
+								'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
+							),
+							array(
+								'name'	=> 'COOKIEHASH',
+								'description'	=> 'Hash for generating cookie names.',
+								'value'			=> '',
+							),
+							array(
+								'name'	=> 'COOKIEPATH',
+								'description'	=> 'Path to WordPress root dir.',
+								'value'			=> 'Home URL without http(s)://',
+							),
+							array(
+								'name'	=> 'COOKIE_DOMAIN',
+								'description'	=> 'Domain of the WordPress installation.',
+								'value'			=> 'false or for Multisite with subdomains .domain of the main site',
+							),
+							array(
+								'name'	=> 'CUSTOM_TAGS',
+								'description'	=> 'Allows you to override the list of secure HTML tags. See /wp-includes/kses.php.',
+								'value'			=> 'true|false (Default: false)',
+							),
+							array(
+								'name'	=> 'DISALLOW_FILE_EDIT',
+								'description'	=> 'Allows you to disallow theme and plugin edits via WordPress editor.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'	=> 'DISALLOW_FILE_MODS',
+								'description'	=> 'Allows you to disallow the editing, updating, installing and deleting of plugins, themes and core files via WordPress Backend.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'	=> 'DISALLOW_UNFILTERED_HTML',
+								'description'	=> 'Allows you to disallow unfiltered HTML for every user, admins too.',
+								'value'			=> 'true',
+							),
+							array(
+								'name'	=> 'FORCE_SSL_ADMIN',
+								'description'	=> 'Activates SSL for logins and in the backend.',
+								'value'			=> 'true|false (Default: false)',
+							),
+							array(
+								'name'	=> 'FORCE_SSL_LOGIN',
+								'description'	=> 'Activates SSL for logins.',
+								'value'			=> 'true|false (Default: false)',
+							),
+							array(
+								'name'	=> 'LOGGED_IN_COOKIE',
+								'description'	=> 'Cookie name for logins.',
+								'value'			=> 'wordpress_logged_in_ COOKIEHASH',
+							),
+							array(
+								'name'	=> 'LOGGED_IN_KEY',
+								'description'	=> 'Secret key.',
+								'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
+							),
+							array(
+								'name'	=> 'LOGGED_IN_SALT',
+								'description'	=> 'Secret key.',
+								'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
+							),
+							array(
+								'name'	=> 'NONCE_KEY',
+								'description'	=> 'Secret key.',
+								'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
+							),
+							array(
+								'name'	=> 'NONCE_SALT',
+								'description'	=> 'Secret key.',
+								'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
+							),
+							array(
+								'name'	=> 'PASS_COOKIE',
+								'description'	=> 'Cookie name for the password.',
+								'value'			=> 'wordpresspass_ COOKIEHASH',
+							),
+							array(
+								'name'	=> 'PLUGINS_COOKIE_PATH',
+								'description'	=> 'Path to the plugins dir.',
+								'value'			=> 'WP_PLUGIN_URL without http(s)://',
+							),
+							array(
+								'name'	=> 'SECURE_AUTH_COOKIE',
+								'description'	=> 'Cookie name for the SSL authentication.',
+								'value'			=> 'wordpress_sec_ COOKIEHASH',
+							),
+							array(
+								'name'	=> 'SECURE_AUTH_KEY',
+								'description'	=> 'Secret key.',
+								'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
+							),
+							array(
+								'name'	=> 'SECURE_AUTH_SALT',
+								'description'	=> 'Secret key.',
+								'value'			=> 'See <a href="https://api.wordpress.org/secret-key/1.1/salt" target="blank">generator</a>',
+							),
+							array(
+								'name'	=> 'SITECOOKIEPATH',
+								'description'	=> 'Path of you site.',
+								'value'			=> 'Site URL without http(s)://',
+							),
+							array(
+								'name'	=> 'TEST_COOKIE',
+								'description'	=> 'Cookie name for the test cookie.',
+								'value'			=> 'wordpress_test_cookie',
+							),
+							array(
+								'name'	=> 'USER_COOKIE',
+								'description'	=> 'Cookie name for users.',
+								'value'			=> 'wordpressuser_ COOKIEHASH',
+							),
+							array(
+								'name'	=> 'WP_FEATURE_BETTER_PASSWORDS',
+								'description'	=> '',
+								'value'			=> 'true|false',
+							),
+							array(
+								'name'	=> 'RECOVERY_MODE_COOKIE',
+								'description'	=> '',
+								'value'			=> '',
+							),
+						)
+					),
 
-				'time'	=> array(
-					'title'		=> 'Time',
-					'constants'	=> array(
-						array(
-							'name'		=> 'MINUTE_IN_SECONDS',
-							'description'	=> 'Minute in seconds',
-							'value'			=> '60',
-						),
-						array(
-							'name'		=> 'HOUR_IN_SECONDS',
-							'description'	=> 'Hour in seconds',
-							'value'			=> '60 * MINUTE_IN_SECONDS',
-						),
-						array(
-							'name'		=> 'DAY_IN_SECONDS',
-							'description'	=> 'Day (day) in seconds',
-							'value'			=> '24 * HOUR_IN_SECONDS',
-						),
-						array(
-							'name'		=> 'WEEK_IN_SECONDS',
-							'description'	=> 'Week in seconds',
-							'value'			=> '7 * DAY_IN_SECONDS',
-						),
-						array(
-							'name'		=> 'MONTH_IN_SECONDS',
-							'description'	=> 'Month in seconds',
-							'value'			=> '30 * DAY_IN_SECONDS',
-						),
-						array(
-							'name'		=> 'YEAR_IN_SECONDS',
-							'description'	=> 'Year in seconds ',
-							'value'			=> '365 * DAY_IN_SECONDS',
-						),
-					)
-				),
+					'time'	=> array(
+						'title'		=> 'Time',
+						'constants'	=> array(
+							array(
+								'name'		=> 'MINUTE_IN_SECONDS',
+								'description'	=> 'Minute in seconds',
+								'value'			=> '60',
+							),
+							array(
+								'name'		=> 'HOUR_IN_SECONDS',
+								'description'	=> 'Hour in seconds',
+								'value'			=> '60 * MINUTE_IN_SECONDS',
+							),
+							array(
+								'name'		=> 'DAY_IN_SECONDS',
+								'description'	=> 'Day (day) in seconds',
+								'value'			=> '24 * HOUR_IN_SECONDS',
+							),
+							array(
+								'name'		=> 'WEEK_IN_SECONDS',
+								'description'	=> 'Week in seconds',
+								'value'			=> '7 * DAY_IN_SECONDS',
+							),
+							array(
+								'name'		=> 'MONTH_IN_SECONDS',
+								'description'	=> 'Month in seconds',
+								'value'			=> '30 * DAY_IN_SECONDS',
+							),
+							array(
+								'name'		=> 'YEAR_IN_SECONDS',
+								'description'	=> 'Year in seconds ',
+								'value'			=> '365 * DAY_IN_SECONDS',
+							),
+						)
+					),
 
-				'filesize'	=> array(
-					'title'		=> 'File Size',
-					'constants'	=> array(
-						array(
-							'name'		=> 'KB_IN_BYTES',
-							'description'	=> 'KiloByte in Bytes',
-							'value'			=> '1024',
-						),
-						array(
-							'name'		=> 'MB_IN_BYTES',
-							'description'	=> 'MegaByte in Bytes',
-							'value'			=> '1048576',
-						),
-						array(
-							'name'		=> 'GB_IN_BYTES',
-							'description'	=> 'GigaByte in Bytes',
-							'value'			=> '1073741824',
-						),
-						array(
-							'name'		=> 'TB_IN_BYTES',
-							'description'	=> 'TeraByte in Bytes',
-							'value'			=> '1099511627776',
-						),
-					)
-				),
+					'filesize'	=> array(
+						'title'		=> 'File Size',
+						'constants'	=> array(
+							array(
+								'name'		=> 'KB_IN_BYTES',
+								'description'	=> 'KiloByte in Bytes',
+								'value'			=> '1024',
+							),
+							array(
+								'name'		=> 'MB_IN_BYTES',
+								'description'	=> 'MegaByte in Bytes',
+								'value'			=> '1048576',
+							),
+							array(
+								'name'		=> 'GB_IN_BYTES',
+								'description'	=> 'GigaByte in Bytes',
+								'value'			=> '1073741824',
+							),
+							array(
+								'name'		=> 'TB_IN_BYTES',
+								'description'	=> 'TeraByte in Bytes',
+								'value'			=> '1099511627776',
+							),
+						)
+					),
 
-			);
-		
+				);
+			
 
-			$wp_constants_array = array();
-			$output = '';
+				$wp_constants_array = array();
+				$output = '';
 
-			// Output all defined constants by category
+				// Output all defined constants by category
 
-			if ( $type == 'defined' ) {
+				if ( $type == 'defined' ) {
 
-				$output .= $this->sd_html( 'accordions-start' );
+					$output .= $this->sd_html( 'accordions-start' );
 
-				foreach ( $wp_constants as $category ) {
+					foreach ( $wp_constants as $category ) {
 
-					$category_title = $category['title'];
-					$defined_constants = array();
-					$constants_output = '';
+						$category_title = $category['title'];
+						$defined_constants = array();
+						$constants_output = '';
 
-					foreach ( $category['constants'] as $constant ) {
+						foreach ( $category['constants'] as $constant ) {
 
-						$wp_constants_array[] = $constant['name'];
+							$wp_constants_array[] = $constant['name'];
 
-						if ( ( defined( $constant['name'] ) ) && ( !empty( constant( $constant['name'] ) ) ) ) {
+							if ( ( defined( $constant['name'] ) ) && ( !empty( constant( $constant['name'] ) ) ) ) {
 
-							$constant_name = $constant['name'];
-							$constant_value = constant( $constant['name'] );
+								$constant_name = $constant['name'];
+								$constant_value = constant( $constant['name'] );
 
-							switch( gettype( $constant_value ) ) {
+								switch( gettype( $constant_value ) ) {
+									case 'array':
+									case 'object':
+										$constant_value = '<pre>'.var_export($constant_value, true).'</pre>';
+									break;
+									case 'boolean':
+										$constant_value = true === $constant_value ? 'true' : 'false';
+									break;
+								}
+
+								$constants_output .= $this->sd_html( 'field-content-start' );
+								$constants_output .= $this->sd_html( 'field-content-first', $constant_name );
+								$constants_output .= $this->sd_html( 'field-content-second', wp_kses_post( $constant_value ), 'long-value' );
+								$constants_output .= $this->sd_html( 'field-content-end' );
+
+								$defined_constants[] = $constant_name;
+
+							}
+
+						}
+
+						// Only output categories with at least one defined constant
+
+						if ( count( $defined_constants ) > 0 ) {
+
+							$output .= $this->sd_html( 'accordion-head', $category_title );
+							$output .= $this->sd_html( 'accordion-body', $constants_output );
+
+						}
+
+					}
+
+					// Get constants defined by themes and plugins
+
+					$php_constants = get_defined_constants( true );
+					$php_user_constants = $php_constants['user'];
+					$plugins_themes_constants = array();
+					$plugins_themes_constants_output = '';
+
+					foreach ( $php_user_constants as $constant_name => $constant_value ) {
+
+						if ( !in_array( $constant_name, $wp_constants_array ) ) {
+
+							$plugins_themes_constants[] = array(
+								$constant_name => $constant_value,
+							);
+
+							$constant_value_type = gettype( $constant_value );
+
+							switch(gettype( $constant_value ) ) {
 								case 'array':
 								case 'object':
 									$constant_value = '<pre>'.var_export($constant_value, true).'</pre>';
@@ -8974,117 +9103,67 @@ EOD;
 								break;
 							}
 
-							$constants_output .= $this->sd_html( 'field-content-start' );
-							$constants_output .= $this->sd_html( 'field-content-first', $constant_name );
-							$constants_output .= $this->sd_html( 'field-content-second', wp_kses_post( $constant_value ), 'long-value' );
-							$constants_output .= $this->sd_html( 'field-content-end' );
-
-							$defined_constants[] = $constant_name;
+							$plugins_themes_constants_output .= $this->sd_html( 'field-content-start' );
+							$plugins_themes_constants_output .= $this->sd_html( 'field-content-first', $constant_name, 'long-value' );
+							$plugins_themes_constants_output .= $this->sd_html( 'field-content-second', wp_kses_post( $constant_value ), 'long-value' );
+							$plugins_themes_constants_output .= $this->sd_html( 'field-content-end' );
 
 						}
 
 					}
 
-					// Only output categories with at least one defined constant
+					if ( !empty( $plugins_themes_constants ) ) {
 
-					if ( count( $defined_constants ) > 0 ) {
+						$output .= $this->sd_html( 'accordion-head', 'From Themes and Plugins' );
+						$output .= $this->sd_html( 'accordion-body', $plugins_themes_constants_output );
 
-						$output .= $this->sd_html( 'accordion-head', $category_title );
+					}
+
+					$output .= $this->sd_html( 'accordions-end' );
+
+				} elseif ( $type == 'docs' ) {
+
+					$output .= $this->sd_html( 'accordions-start' );
+
+					foreach ( $wp_constants as $category ) {
+
+						$constants_output = '';
+
+						$output .= $this->sd_html( 'accordion-head', $category['title'] );
+
+						foreach ( $category['constants'] as $constant ) {
+
+							$constants_output .= $this->sd_html( 'field-content-start' );
+							$constants_output .= $this->sd_html( 'field-content-first', $constant['name'] . '<br />Value: ' . $constant['value'] );
+							$constants_output .= $this->sd_html( 'field-content-second', $constant['description'] );
+							$constants_output .= $this->sd_html( 'field-content-end' );
+
+						}
+
 						$output .= $this->sd_html( 'accordion-body', $constants_output );
 
 					}
 
-				}
+					$output .= $this->sd_html( 'accordions-end' );
 
-				// Get constants defined by themes and plugins
+				} else {
 
-				$php_constants = get_defined_constants( true );
-				$php_user_constants = $php_constants['user'];
-				$plugins_themes_constants = array();
-				$plugins_themes_constants_output = '';
+					$output .= '<h4>' . $wp_constants[$category]['title'] . '</h4>';			
 
-				foreach ( $php_user_constants as $constant_name => $constant_value ) {
+					foreach ( $wp_constants[$category]['constants'] as $constant ) {
 
-					if ( !in_array( $constant_name, $wp_constants_array ) ) {
-
-						$plugins_themes_constants[] = array(
-							$constant_name => $constant_value,
-						);
-
-						$constant_value_type = gettype( $constant_value );
-
-						switch(gettype( $constant_value ) ) {
-							case 'array':
-							case 'object':
-								$constant_value = '<pre>'.var_export($constant_value, true).'</pre>';
-							break;
-							case 'boolean':
-								$constant_value = true === $constant_value ? 'true' : 'false';
-							break;
-						}
-
-						$plugins_themes_constants_output .= $this->sd_html( 'field-content-start' );
-						$plugins_themes_constants_output .= $this->sd_html( 'field-content-first', $constant_name, 'long-value' );
-						$plugins_themes_constants_output .= $this->sd_html( 'field-content-second', wp_kses_post( $constant_value ), 'long-value' );
-						$plugins_themes_constants_output .= $this->sd_html( 'field-content-end' );
+						$output .= $this->sd_html( 'field-content-start' );
+						$output .= $this->sd_html( 'field-content-first', $constant['name'] . ' <br />Possible value(s): ' . wp_kses_post( $constant['value'] ) );
+						$output .= $this->sd_html( 'field-content-second', $constant['description'] );
+						$output .= $this->sd_html( 'field-content-end' );
 
 					}
 
 				}
-
-				if ( !empty( $plugins_themes_constants ) ) {
-
-					$output .= $this->sd_html( 'accordion-head', 'From Themes and Plugins' );
-					$output .= $this->sd_html( 'accordion-body', $plugins_themes_constants_output );
-
-				}
-
-				$output .= $this->sd_html( 'accordions-end' );
-
-			} elseif ( $type == 'docs' ) {
-
-				$output .= $this->sd_html( 'accordions-start' );
-
-				foreach ( $wp_constants as $category ) {
-
-					$constants_output = '';
-
-					$output .= $this->sd_html( 'accordion-head', $category['title'] );
-
-					foreach ( $category['constants'] as $constant ) {
-
-						$constants_output .= $this->sd_html( 'field-content-start' );
-						$constants_output .= $this->sd_html( 'field-content-first', $constant['name'] . '<br />Value: ' . $constant['value'] );
-						$constants_output .= $this->sd_html( 'field-content-second', $constant['description'] );
-						$constants_output .= $this->sd_html( 'field-content-end' );
-
-					}
-
-					$output .= $this->sd_html( 'accordion-body', $constants_output );
-
-				}
-
-				$output .= $this->sd_html( 'accordions-end' );
-
-			} else {
-
-				$output .= '<h4>' . $wp_constants[$category]['title'] . '</h4>';			
-
-				foreach ( $wp_constants[$category]['constants'] as $constant ) {
-
-					$output .= $this->sd_html( 'field-content-start' );
-					$output .= $this->sd_html( 'field-content-first', $constant['name'] . ' <br />Possible value(s): ' . wp_kses_post( $constant['value'] ) );
-					$output .= $this->sd_html( 'field-content-second', $constant['description'] );
-					$output .= $this->sd_html( 'field-content-end' );
-
-				}
-
 			}
-
-			echo $output;
-
 		}
 
+		echo $output;
 	}
 
 	/**
@@ -9097,166 +9176,168 @@ EOD;
 		$output = '';
 
 		if ( isset( $_REQUEST ) && isset( $_REQUEST['log_type'] ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
 
-			$log_type = $_REQUEST['log_type'];
+				$log_type = $_REQUEST['log_type'];
 
-			// Page Access Log
+				// Page Access Log
 
-			if ( $log_type == 'page_access_log' ) {
+				if ( $log_type == 'page_access_log' ) {
 
 
-				// Set default value if option is not already set, e.g. users upgrading from older version of the plugin
-				if ( get_option( 'system_dashboard_page_access_log' ) === false ) {
+					// Set default value if option is not already set, e.g. users upgrading from older version of the plugin
+					if ( get_option( 'system_dashboard_page_access_log' ) === false ) {
 
-			        $option_value = array(
-			            'status'    => 'disabled',
-			            'on'        => date( 'Y-m-d H:i:s' ),
-			        );
+				        $option_value = array(
+				            'status'    => 'disabled',
+				            'on'        => date( 'Y-m-d H:i:s' ),
+				        );
 
-			        update_option( 'system_dashboard_page_access_log', $option_value, false );
+				        update_option( 'system_dashboard_page_access_log', $option_value, false );
 
-				}
+					}
 
-				$value = get_option( 'system_dashboard_page_access_log' );
+					$value = get_option( 'system_dashboard_page_access_log' );
 
-				$date_time = date( 'Y-m-d H:i:s' );
+					$date_time = date( 'Y-m-d H:i:s' );
 
-				if ( $value['status'] == 'disabled' ) {
+					if ( $value['status'] == 'disabled' ) {
 
-					$option_value = array(
-						'status'	=> 'enabled',
-						'on'		=> $date_time,
-					);
+						$option_value = array(
+							'status'	=> 'enabled',
+							'on'		=> $date_time,
+						);
 
-					update_option( 'system_dashboard_page_access_log', $option_value, false );
+						update_option( 'system_dashboard_page_access_log', $option_value, false );
 
-					$output = 'Logging was enabled on ' . $date_time;
+						$output = 'Logging was enabled on ' . $date_time;
 
-				} elseif ( $value['status'] == 'enabled' ) {
+					} elseif ( $value['status'] == 'enabled' ) {
 
-					$option_value = array(
-						'status'	=> 'disabled',
-						'on'		=> $date_time,
-					);
+						$option_value = array(
+							'status'	=> 'disabled',
+							'on'		=> $date_time,
+						);
 
-					update_option( 'system_dashboard_page_access_log', $option_value, false );
+						update_option( 'system_dashboard_page_access_log', $option_value, false );
 
-					$output = 'Logging was disabled on ' . $date_time;
+						$output = 'Logging was disabled on ' . $date_time;
 
-				} else {}
-
-			}
-
-			// Errors Log
-			
-			if ( $log_type == 'errors_log' ) {
-
-				// Set default value if option is not already set, e.g. users upgrading from older version of the plugin
-				if ( get_option( 'system_dashboard_errors_log' ) === false ) {
-
-			        $option_value = array(
-			            'status'    => 'disabled',
-			            'on'        => date( 'Y-m-d H:i:s' ),
-			        );
-
-			        update_option( 'system_dashboard_errors_log', $option_value, false );
+					} else {}
 
 				}
 
-				$value = get_option( 'system_dashboard_errors_log' );
+				// Errors Log
+				
+				if ( $log_type == 'errors_log' ) {
 
-				$date_time = date( 'Y-m-d H:i:s' );
+					// Set default value if option is not already set, e.g. users upgrading from older version of the plugin
+					if ( get_option( 'system_dashboard_errors_log' ) === false ) {
 
-				if ( $value['status'] == 'disabled' ) {
+				        $option_value = array(
+				            'status'    => 'disabled',
+				            'on'        => date( 'Y-m-d H:i:s' ),
+				        );
 
-					$option_value = array(
-						'status'	=> 'enabled',
-						'on'		=> $date_time,
-					);
+				        update_option( 'system_dashboard_errors_log', $option_value, false );
 
-					update_option( 'system_dashboard_errors_log', $option_value, false );
+					}
 
-					// Assemble the errors log file path
+					$value = get_option( 'system_dashboard_errors_log' );
 
-			        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] );
-			        $errors_log_file_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG . '/logs/errors/' . $plain_domain . '_debug.log';
+					$date_time = date( 'Y-m-d H:i:s' );
 
-					// Define Debug constants in wp-config.php
+					if ( $value['status'] == 'disabled' ) {
 
-					$this->sd_wpconfig_update( 'constant', 'WP_DEBUG', 'true' );
-					$this->sd_wpconfig_update( 'constant', 'WP_DEBUG_LOG', $errors_log_file_path );
-					$this->sd_wpconfig_update( 'constant', 'WP_DEBUG_DISPLAY', 'false' );
+						$option_value = array(
+							'status'	=> 'enabled',
+							'on'		=> $date_time,
+						);
 
-					$output = 'Logging was enabled on ' . $date_time;
+						update_option( 'system_dashboard_errors_log', $option_value, false );
 
-				} elseif ( $value['status'] == 'enabled' ) {
+						// Assemble the errors log file path
 
-					$option_value = array(
-						'status'	=> 'disabled',
-						'on'		=> $date_time,
-					);
+				        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] );
+				        $errors_log_file_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG . '/logs/errors/' . $plain_domain . '_debug.log';
 
-					update_option( 'system_dashboard_errors_log', $option_value, false );
+						// Define Debug constants in wp-config.php
 
-					// Remove Debug constants in wp-config.php
+						$this->sd_wpconfig_update( 'constant', 'WP_DEBUG', 'true' );
+						$this->sd_wpconfig_update( 'constant', 'WP_DEBUG_LOG', $errors_log_file_path );
+						$this->sd_wpconfig_update( 'constant', 'WP_DEBUG_DISPLAY', 'false' );
 
-					$this->sd_wpconfig_remove( 'constant', 'WP_DEBUG' );
-					$this->sd_wpconfig_remove( 'constant', 'WP_DEBUG_LOG' );
-					$this->sd_wpconfig_remove( 'constant', 'WP_DEBUG_DISPLAY' );
+						$output = 'Logging was enabled on ' . $date_time;
 
-					$output = 'Logging was disabled on ' . $date_time;
+					} elseif ( $value['status'] == 'enabled' ) {
 
-				} else {}
+						$option_value = array(
+							'status'	=> 'disabled',
+							'on'		=> $date_time,
+						);
 
-			}
+						update_option( 'system_dashboard_errors_log', $option_value, false );
 
-			// Email Delivery Log
+						// Remove Debug constants in wp-config.php
 
-			if ( $log_type == 'email_delivery_log' ) {
+						$this->sd_wpconfig_remove( 'constant', 'WP_DEBUG' );
+						$this->sd_wpconfig_remove( 'constant', 'WP_DEBUG_LOG' );
+						$this->sd_wpconfig_remove( 'constant', 'WP_DEBUG_DISPLAY' );
 
+						$output = 'Logging was disabled on ' . $date_time;
 
-				// Set default value if option is not already set, e.g. users upgrading from older version of the plugin
-				if ( get_option( 'system_dashboard_email_delivery_log' ) === false ) {
-
-			        $option_value = array(
-			            'status'    => 'disabled',
-			            'on'        => date( 'Y-m-d H:i:s' ),
-			        );
-
-			        update_option( 'system_dashboard_email_delivery_log', $option_value, false );
+					} else {}
 
 				}
 
-				$value = get_option( 'system_dashboard_email_delivery_log' );
+				// Email Delivery Log
 
-				$date_time = date( 'Y-m-d H:i:s' );
+				if ( $log_type == 'email_delivery_log' ) {
 
-				if ( $value['status'] == 'disabled' ) {
 
-					$option_value = array(
-						'status'	=> 'enabled',
-						'on'		=> $date_time,
-					);
+					// Set default value if option is not already set, e.g. users upgrading from older version of the plugin
+					if ( get_option( 'system_dashboard_email_delivery_log' ) === false ) {
 
-					update_option( 'system_dashboard_email_delivery_log', $option_value, false );
+				        $option_value = array(
+				            'status'    => 'disabled',
+				            'on'        => date( 'Y-m-d H:i:s' ),
+				        );
 
-					$output = 'Logging was enabled on ' . $date_time;
+				        update_option( 'system_dashboard_email_delivery_log', $option_value, false );
 
-				} elseif ( $value['status'] == 'enabled' ) {
+					}
 
-					$option_value = array(
-						'status'	=> 'disabled',
-						'on'		=> $date_time,
-					);
+					$value = get_option( 'system_dashboard_email_delivery_log' );
 
-					update_option( 'system_dashboard_email_delivery_log', $option_value, false );
+					$date_time = date( 'Y-m-d H:i:s' );
 
-					$output = 'Logging was disabled on ' . $date_time;
+					if ( $value['status'] == 'disabled' ) {
 
-				} else {}
+						$option_value = array(
+							'status'	=> 'enabled',
+							'on'		=> $date_time,
+						);
 
+						update_option( 'system_dashboard_email_delivery_log', $option_value, false );
+
+						$output = 'Logging was enabled on ' . $date_time;
+
+					} elseif ( $value['status'] == 'enabled' ) {
+
+						$option_value = array(
+							'status'	=> 'disabled',
+							'on'		=> $date_time,
+						);
+
+						update_option( 'system_dashboard_email_delivery_log', $option_value, false );
+
+						$output = 'Logging was disabled on ' . $date_time;
+
+					} else {}
+
+				}
+							
 			}
-
 		}
 
 		echo $output;
@@ -9283,38 +9364,44 @@ EOD;
 	 * @since 2.6.0
 	 */
 	public function sd_page_access_log() {
+		
+		if ( current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$output = '<table id="page-access-log" class="wp-list-table widefat striped">
+							<thead>
+								<tr>
+									<th>Date Time</th>
+									<th>Visitor IP</th>
+									<th>Page URI Accessed</th>							
+								</tr>
+							</thead>
+							<tbody>';
 
-		$output = '<table id="page-access-log" class="wp-list-table widefat striped">
-					<thead>
-						<tr>
-							<th>Date Time</th>
-							<th>Visitor IP</th>
-							<th>Page URI Accessed</th>							
-						</tr>
-					</thead>
-					<tbody>';
+				global $wpdb;
 
-		global $wpdb;
+				$access_log_table = $wpdb->prefix . 'sd_page_access_log';
 
-		$access_log_table = $wpdb->prefix . 'sd_page_access_log';
+				$limit = 100;
 
-		$limit = 100;
+				$sql = $wpdb->prepare( "SELECT * FROM {$access_log_table} ORDER BY ID DESC LIMIT %d", array( $limit ) );
 
-		$sql = $wpdb->prepare( "SELECT * FROM {$access_log_table} ORDER BY ID DESC LIMIT %d", array( $limit ) );
+				$results = $wpdb->get_results( $sql, ARRAY_A );
 
-		$results = $wpdb->get_results( $sql, ARRAY_A );
+				foreach( $results as $log ) {
 
-		foreach( $results as $log ) {
+					$output .= '<tr>
+									<td>'. $log['access_on'] .'</td>
+									<td>'. $log['from_ip'] .'</td>
+									<td>'. $log['page_url'] .'</td>
+								</tr>';
 
-			$output .= '<tr>
-							<td>'. $log['access_on'] .'</td>
-							<td>'. $log['from_ip'] .'</td>
-							<td>'. $log['page_url'] .'</td>
-						</tr>';
+				}
 
+				$output .= '</tbody></table>';
+			}
+		} else {
+			$output = '';
 		}
-
-		$output .= '</tbody></table>';
 
 		echo $output;
 
@@ -9362,7 +9449,7 @@ EOD;
 	        $data = array(
 					'access_on'	=> $date_time,
 					'from_ip'	=> $ip_address,
-					'page_url'	=> $request_uri,
+					'page_url'	=> sanitize_url( $request_uri ),
 				);
 
 	        $format = array(
@@ -9793,129 +9880,132 @@ EOD;
 	public function sd_errors_log() {
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			
-			$output = '<table id="errors-log" class="wp-list-table widefat striped">
-						<thead>
-							<tr>
-								<th>Entries</th>
-							</tr>
-						</thead>
-						<tbody>';
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$output = '<table id="errors-log" class="wp-list-table widefat striped">
+							<thead>
+								<tr>
+									<th>Entries</th>
+								</tr>
+							</thead>
+							<tbody>';
 
-			if ( defined( 'WP_DEBUG_LOG' ) && ( ! is_string( WP_DEBUG_LOG ) ) ) {
+				if ( defined( 'WP_DEBUG_LOG' ) && ( ! is_string( WP_DEBUG_LOG ) ) ) {
 
-				// Assemble the errors log file path, i.e. use System Dashboard's log file
-		        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] );
-		        $errors_log_file_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG . '/logs/errors/' . $plain_domain . '_debug.log';
+					// Assemble the errors log file path, i.e. use System Dashboard's log file
+			        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] );
+			        $errors_log_file_path = wp_upload_dir()['basedir'] . '/' . SYSTEM_DASHBOARD_PLUGIN_SLUG . '/logs/errors/' . $plain_domain . '_debug.log';
 
-			} elseif ( defined( 'WP_DEBUG_LOG' ) && is_string( WP_DEBUG_LOG ) ) {
+				} elseif ( defined( 'WP_DEBUG_LOG' ) && is_string( WP_DEBUG_LOG ) ) {
 
-				$errors_log_file_path = WP_DEBUG_LOG;
+					$errors_log_file_path = WP_DEBUG_LOG;
 
-			} else {}
+				} else {}
 
-	        // Read the erros log file, reverse the order of the entries, prune to the latest 5000 entries
-	        $log = file_get_contents( $errors_log_file_path );
+		        // Read the erros log file, reverse the order of the entries, prune to the latest 5000 entries
+		        $log = file_get_contents( $errors_log_file_path );
 
-	        $log 	= str_replace( "[\\", "^\\", $log ); // certain error message contains the '[\' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^\'
-	        $log = str_replace( "[internal function]", "^internal function^", $log );
+		        $log 	= str_replace( "[\\", "^\\", $log ); // certain error message contains the '[\' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^\'
+		        $log = str_replace( "[internal function]", "^internal function^", $log );
 
-	        // We are splitting the log file not using PHP_EOL to preserve the stack traces for PHP Fatal Errors among other things
-	        $lines = explode("[", $log);
-	        $prepended_lines = array();
+		        // We are splitting the log file not using PHP_EOL to preserve the stack traces for PHP Fatal Errors among other things
+		        $lines = explode("[", $log);
+		        $prepended_lines = array();
 
-	        foreach ( $lines as $line ) {
-	        	if ( !empty($line) ) {
-	        		$line 				= str_replace( "UTC]", "UTC]@@@", $line ); // add '@@@' as marker/separator after time stamp
-	        		$line 				= str_replace( "Stack trace:", "<hr />Stack trace:", $line ); // add line break for stack trace section
-					if ( strpos( $line, 'PHP Fatal' ) !== false ) {
-		        		$line 			= str_replace( "#", "<hr />#", $line ); // add line break on PHP Fatal error's stack trace lines
+		        foreach ( $lines as $line ) {
+		        	if ( !empty($line) ) {
+		        		$line 				= str_replace( "UTC]", "UTC]@@@", $line ); // add '@@@' as marker/separator after time stamp
+		        		$line 				= str_replace( "Stack trace:", "<hr />Stack trace:", $line ); // add line break for stack trace section
+						if ( strpos( $line, 'PHP Fatal' ) !== false ) {
+			        		$line 			= str_replace( "#", "<hr />#", $line ); // add line break on PHP Fatal error's stack trace lines
+			        	}
+		        		$line 			= str_replace( "Argument <hr />#", "Argument #", $line ); // remove hr on certain error message
+		        		$line 			= str_replace( "parameter <hr />#", "parameter #", $line ); // remove hr on certain error message
+		        		$line 			= str_replace( "the <hr />#", "the #", $line ); // remove hr on certain error message
+		        		$line 			= str_replace( "^\\", "[\\", $line ); // reverse the temporary replacement of '[\' with '^\'
+		        		$line = str_replace( "^internal function^", "[internal function]", $line );
+			        	$prepended_line 	= '[' . $line; // Put back the missing '[' after explode operation
+			        	$prepended_lines[] 	= $prepended_line;
 		        	}
-	        		$line 			= str_replace( "Argument <hr />#", "Argument #", $line ); // remove hr on certain error message
-	        		$line 			= str_replace( "parameter <hr />#", "parameter #", $line ); // remove hr on certain error message
-	        		$line 			= str_replace( "the <hr />#", "the #", $line ); // remove hr on certain error message
-	        		$line 			= str_replace( "^\\", "[\\", $line ); // reverse the temporary replacement of '[\' with '^\'
-	        		$line = str_replace( "^internal function^", "[internal function]", $line );
-		        	$prepended_line 	= '[' . $line; // Put back the missing '[' after explode operation
-		        	$prepended_lines[] 	= $prepended_line;
-	        	}
-	        }
+		        }
 
-	        $lines_newest_first 	= array_reverse( $prepended_lines );
-	        $latest_lines 			= array_slice( $lines_newest_first, 0, 50000 );
+		        $lines_newest_first 	= array_reverse( $prepended_lines );
+		        $latest_lines 			= array_slice( $lines_newest_first, 0, 50000 );
 
-	        // Will hold error details types
-	        $errors_master_list = array();
+		        // Will hold error details types
+		        $errors_master_list = array();
 
-	        // Will hold error details types
-	        $errors_master_list = array();
+		        // Will hold error details types
+		        $errors_master_list = array();
 
-			foreach( $latest_lines as $line ) {
+				foreach( $latest_lines as $line ) {
 
-				$line = explode("@@@ ", $line);
+					$line = explode("@@@ ", $line);
 
-				$timestamp = str_replace( [ "[", "]" ], "", $line[0] );
-				if ( array_key_exists('1', $line) ) {
-					$error = $line[1];
-				} else {
-					$error = 'No error message specified...';
-				}
+					$timestamp = str_replace( [ "[", "]" ], "", $line[0] );
+					if ( array_key_exists('1', $line) ) {
+						$error = $line[1];
+					} else {
+						$error = 'No error message specified...';
+					}
 
-				if ( strpos( $error, 'PHP Fatal' ) !==false ) {
-					$error_type = 'PHP Fatal';
-					$error_details = str_replace( "PHP Fatal: ", "", $error );
-				} elseif ( strpos( $error, 'PHP Warning' ) !==false ) {
-					$error_type = 'PHP Warning';
-					$error_details = str_replace( "PHP Warning: ", "", $error );
-				} elseif ( strpos( $error, 'PHP Notice' ) !==false ) {
-					$error_type = 'PHP Notice';
-					$error_details = str_replace( "PHP Notice: ", "", $error );
-				} elseif ( strpos( $error, 'PHP Deprecated' ) !==false ) {
-					$error_type = 'PHP Deprecated';
-					$error_details = str_replace( "PHP Deprecated: ", "", $error );
-				} elseif ( strpos( $error, 'PHP Parse' ) !== false ) {
-					$error_type = 'PHP Parse';
-					$error_details 	= str_replace( "PHP Parse error: ", "", $error );
-				} elseif ( strpos( $error, 'WordPress database error' ) !==false ) {
-					$error_type = 'WP DB error';
-					$error_details = str_replace( "WordPress database error ", "", $error );
-				} else {
-					$error_type = 'Other';
-					$error_details = $error;
-				}
+					if ( strpos( $error, 'PHP Fatal' ) !==false ) {
+						$error_type = 'PHP Fatal';
+						$error_details = str_replace( "PHP Fatal: ", "", $error );
+					} elseif ( strpos( $error, 'PHP Warning' ) !==false ) {
+						$error_type = 'PHP Warning';
+						$error_details = str_replace( "PHP Warning: ", "", $error );
+					} elseif ( strpos( $error, 'PHP Notice' ) !==false ) {
+						$error_type = 'PHP Notice';
+						$error_details = str_replace( "PHP Notice: ", "", $error );
+					} elseif ( strpos( $error, 'PHP Deprecated' ) !==false ) {
+						$error_type = 'PHP Deprecated';
+						$error_details = str_replace( "PHP Deprecated: ", "", $error );
+					} elseif ( strpos( $error, 'PHP Parse' ) !== false ) {
+						$error_type = 'PHP Parse';
+						$error_details 	= str_replace( "PHP Parse error: ", "", $error );
+					} elseif ( strpos( $error, 'WordPress database error' ) !==false ) {
+						$error_type = 'WP DB error';
+						$error_details = str_replace( "WordPress database error ", "", $error );
+					} else {
+						$error_type = 'Other';
+						$error_details = $error;
+					}
 
-				// https://www.php.net/manual/en/function.array-search.php#120784
-				if ( array_search( trim( $error_details ), array_column( $errors_master_list, 'details' ) ) === false ) {
+					// https://www.php.net/manual/en/function.array-search.php#120784
+					if ( array_search( trim( $error_details ), array_column( $errors_master_list, 'details' ) ) === false ) {
 
-					$errors_master_list[] = array(
-						'type'			=> $error_type,
-						'details'		=> trim( $error_details ),
-						'occurrences'	=> array( $timestamp ),
-					);
+						$errors_master_list[] = array(
+							'type'			=> $error_type,
+							'details'		=> trim( $error_details ),
+							'occurrences'	=> array( $timestamp ),
+						);
 
-				} else {
+					} else {
 
-					$error_position = array_search( trim( $error_details ), array_column( $errors_master_list, 'details' ) ); // integer
+						$error_position = array_search( trim( $error_details ), array_column( $errors_master_list, 'details' ) ); // integer
 
-					array_push( $errors_master_list[$error_position]['occurrences'], $timestamp );
+						array_push( $errors_master_list[$error_position]['occurrences'], $timestamp );
+
+					}
 
 				}
 
+				foreach ( $errors_master_list as $error ) {
+
+					$localized_timestamp = wp_date( 'j-M-Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+					$occurrence_count = count( $error['occurrences'] );
+
+					$output .= '<tr>
+									<td><span class="hidden">' . esc_html( $localized_timestamp ) . '</span><strong>Last seen on</strong>: ' . esc_html( $localized_timestamp ) .' <span class="sd-faint">(' . esc_html( $occurrence_count ) . ' occurrences logged)</span><br />
+									<strong>'. esc_html( $error['type'] ) .'</strong>: '. $error['details'] .'</td>
+								</tr>';
+
+				}
+
+				$output .= '</tbody></table>';				
+			} else {
+				$output = '';
 			}
-
-			foreach ( $errors_master_list as $error ) {
-
-				$localized_timestamp = wp_date( 'j-M-Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
-				$occurrence_count = count( $error['occurrences'] );
-
-				$output .= '<tr>
-								<td><span class="hidden">' . esc_html( $localized_timestamp ) . '</span><strong>Last seen on</strong>: ' . esc_html( $localized_timestamp ) .' <span class="sd-faint">(' . esc_html( $occurrence_count ) . ' occurrences logged)</span><br />
-								<strong>'. esc_html( $error['type'] ) .'</strong>: '. $error['details'] .'</td>
-							</tr>';
-
-			}
-
-			$output .= '</tbody></table>';
 
 			echo $output;
 
@@ -9996,40 +10086,43 @@ EOD;
 	public function sd_email_delivery_log() {
 
 		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+				$output = '<table id="email-delivery-log" class="wp-list-table widefat striped">
+							<thead>
+								<tr>
+									<th>Entries</th>
+								</tr>
+							</thead>
+							<tbody>';
 
-			$output = '<table id="email-delivery-log" class="wp-list-table widefat striped">
-						<thead>
-							<tr>
-								<th>Entries</th>
-							</tr>
-						</thead>
-						<tbody>';
+				global $wpdb;
 
-			global $wpdb;
+				$email_delivery_log_table = $wpdb->prefix . 'sd_email_delivery_log';
 
-			$email_delivery_log_table = $wpdb->prefix . 'sd_email_delivery_log';
+				$limit = 1000;
 
-			$limit = 1000;
+				$sql = $wpdb->prepare( "SELECT * FROM {$email_delivery_log_table} ORDER BY ID DESC LIMIT %d", array( $limit ) );
 
-			$sql = $wpdb->prepare( "SELECT * FROM {$email_delivery_log_table} ORDER BY ID DESC LIMIT %d", array( $limit ) );
+				$results = $wpdb->get_results( $sql, ARRAY_A );
 
-			$results = $wpdb->get_results( $sql, ARRAY_A );
+				foreach( $results as $log ) {
 
-			foreach( $results as $log ) {
+					$output .= '<tr>
+									<td><strong>Sent on:</strong> '. $log['sent_on'] . '<br />
+									<strong>To:</strong> ' . $log['to_email'] . '<br />
+									<strong>Subject:</strong> ' . $log['subject'] . 
+									'<div class="ui accordion">
+										<div class="title"><i class="dropdown icon"></i>View message</div>
+										<div class="content">' . $log['message'] .'</div>
+									</div></td>
+								</tr>';
 
-				$output .= '<tr>
-								<td><strong>Sent on:</strong> '. $log['sent_on'] . '<br />
-								<strong>To:</strong> ' . $log['to_email'] . '<br />
-								<strong>Subject:</strong> ' . $log['subject'] . 
-								'<div class="ui accordion">
-									<div class="title"><i class="dropdown icon"></i>View message</div>
-									<div class="content">' . $log['message'] .'</div>
-								</div></td>
-							</tr>';
+				}
 
+				$output .= '</tbody></table>';
+			} else {
+				$output = '';
 			}
-
-			$output .= '</tbody></table>';
 
 			echo $output;
 
@@ -10439,7 +10532,7 @@ EOD;
 		$output = '';
 
 		$output .= $this->sd_html( 'accordions-start-left' );
-		$output .= $this->sd_html( 'accordion-head', 'View' );
+		$output .= $this->sd_html( 'accordion-head', __( 'View', 'system-dashboard' ) );
 
 		$tools_output = '';
 
@@ -10987,7 +11080,7 @@ EOD;
 		$output = '';
 
 		$output .= $this->sd_html( 'accordions-start-left' );
-		$output .= $this->sd_html( 'accordion-head', 'View' );
+		$output .= $this->sd_html( 'accordion-head', __( 'View', 'system-dashboard' ) );
 
 		$references_output = '';
 
@@ -11040,7 +11133,7 @@ EOD;
 			// Create options
 
 			CSF::createOptions ( $prefix, array(
-				'menu_title' 		=> 'System',
+				'menu_title' 		=> __( 'System', 'system-dashboard' ),
 				'menu_slug' 		=> 'system-dashboard',
 				'menu_type'			=> 'submenu',
 				'menu_parent'		=> 'index.php',
@@ -11071,27 +11164,27 @@ EOD;
 						'tabs'		=> array(
 					
 							array(
-								'title'		=> 'Database',
+								'title'		=> __( 'Database', 'system-dashboard' ),
 								'fields'	=> array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'System & Uptime',
+										'title'		=> __( 'System & Uptime', 'system-dashboard' ),
 										'content'	=> $this->sd_get_mysql_version() . ' / ' . $this->sd_db_uptime(),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Data & Index Size',
+										'title'		=> __( 'Data & Index Size', 'system-dashboard' ),
 										'content'	=> $this->sd_db_disk_usage( 'data' ) . ' / ' . $this->sd_db_disk_usage( 'index' ),
 									),
 									array(
 										'id'		=> 'core_db_tables',
 										'type'		=> 'accordion',
-										'title'		=> 'Core',
+										'title'		=> __( 'Core', 'system-dashboard' ),
 										'subtitle'	=> $this->sd_db_tables( 'count-core' ) . ' tables',
 										'class'		=> 'core-db-tables',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Tables',
+												'title'		=> __( 'View Tables', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11104,12 +11197,12 @@ EOD;
 									array(
 										'id'		=> 'noncore_db_tables',
 										'type'		=> 'accordion',
-										'title'		=> 'Themes & Plugins',
+										'title'		=> __( 'Themes & Plugins', 'system-dashboard' ),
 										'subtitle'	=> $this->sd_db_tables( 'count-noncore' ) . ' tables',
 										'class'		=> 'noncore-db-tables',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Tables',
+												'title'		=> __( 'View Tables', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11121,11 +11214,11 @@ EOD;
 									),									array(
 										'id'		=> 'db_key_specs',
 										'type'		=> 'accordion',
-										'title'		=> 'Key Info',
+										'title'		=> __( 'Key Info', 'system-dashboard' ),
 										'class'		=> 'db-specs',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11138,11 +11231,11 @@ EOD;
 									array(
 										'id'		=> 'db_detail_specs',
 										'type'		=> 'accordion',
-										'title'		=> 'Detailed Specifications',
+										'title'		=> __( 'Detailed Specifications', 'system-dashboard' ),
 										'class'		=> 'db-details',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11154,12 +11247,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'Tools', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'database' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'database' ),
 									),
 
@@ -11167,16 +11260,16 @@ EOD;
 							),
 
 							array(
-								'title' => 'Post Types & Taxonomies',
+								'title' => __( 'Post Types & Taxonomies', 'system-dashboard' ),
 								'fields' => array(
 									array(
 										'id'		=> 'post_types',
 										'type'		=> 'accordion',
-										'title'		=> 'Post Types Post Count',
+										'title'		=> __( 'Post Types Post Count', 'system-dashboard' ),
 										'class'		=> 'post-types',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11189,11 +11282,11 @@ EOD;
 									array(
 										'id'		=> 'taxonomies',
 										'type'		=> 'accordion',
-										'title'		=> 'Taxonomies Term Count',
+										'title'		=> __( 'Taxonomies Term Count', 'system-dashboard' ),
 										'class'		=> 'taxonomies',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11206,11 +11299,11 @@ EOD;
 									array(
 										'id'		=> 'pttax_old_slugs',
 										'type'		=> 'accordion',
-										'title'		=> 'Old Slugs',
+										'title'		=> __( 'Old Slugs', 'system-dashboard' ),
 										'class'		=> 'old-slugs',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11222,12 +11315,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'Tools', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'posttypes_taxonomies' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'posttypes_taxonomies' ),
 									),
 
@@ -11235,17 +11328,17 @@ EOD;
 							),
 
 							array(
-								'title'		=> 'Media',
+								'title'		=> __( 'Media', 'system-dashboard' ),
 								'fields'	=> array(
 
 									array(
 										'id'		=> 'media_count_by_mime',
 										'type'		=> 'accordion',
-										'title'		=> 'Media Count by Mime Type',
+										'title'		=> __( 'Media Count by Mime Type', 'system-dashboard' ),
 										'class'		=> 'media-count',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11258,11 +11351,11 @@ EOD;
 									array(
 										'id'		=> 'media_allowed_mime_types',
 										'type'		=> 'accordion',
-										'title'		=> 'Allowed Mime Types',
+										'title'		=> __( 'Allowed Mime Types', 'system-dashboard' ),
 										'class'		=> 'mime-types',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11275,11 +11368,11 @@ EOD;
 									array(
 										'id'		=> 'image_sizes',
 										'type'		=> 'accordion',
-										'title'		=> 'Registered Image Sizes',
+										'title'		=> __( 'Registered Image Sizes', 'system-dashboard' ),
 										'class'		=> 'image-sizes',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11293,11 +11386,11 @@ EOD;
 									array(
 										'id'		=> 'media_handling',
 										'type'		=> 'accordion',
-										'title'		=> 'Media Handling',
+										'title'		=> __( 'Media Handling', 'system-dashboard' ),
 										'class'		=> 'media-handling',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11309,12 +11402,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'Tools', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'media' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'media' ),
 									),
 
@@ -11326,17 +11419,17 @@ EOD;
 								'fields' => array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Root path',
+										'title'		=> __( 'Root path', 'system-dashboard' ),
 										'content'	=> str_replace( "/wp-content", "", WP_CONTENT_DIR ),
 									),
 									array(
 										'id'		=> 'directory_sizes',
 										'type'		=> 'accordion',
-										'title'		=> 'Directory Sizes',
+										'title'		=> __( 'Directory Sizes', 'system-dashboard' ),
 										'class'		=> 'directory-sizes',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11349,11 +11442,11 @@ EOD;
 									array(
 										'id'		=> 'filesystem_permissions',
 										'type'		=> 'accordion',
-										'title'		=> 'Filesystem Permissions',
+										'title'		=> __( 'Filesystem Permissions', 'system-dashboard' ),
 										'class'		=> 'filesystem-permissions',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11365,30 +11458,30 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'Tools', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'directories' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'directories' ),
 									),
 								),
 							),
 
 							array(
-								'title' => 'Custom Fields',
+								'title' => __( 'Custom Fields', 'system-dashboard' ),
 								'fields' => array(
 
 									array(
 										'id'		=> 'custom_fields',
 										'type'		=> 'accordion',
-										'title'		=> 'By Type',
+										'title'		=> __( 'By Type', 'system-dashboard' ),
 										'class'		=> 'custom-fields',
 										'accordions'	=> array(
 
 											array(
-												'title'		=> 'View Public Fields (' . $this->sd_custom_fields( 'public-count' ) . ')',
+												'title'		=> __( 'View Public Fields', 'system-dashboard' ) . ' (' . $this->sd_custom_fields( 'public-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11397,7 +11490,7 @@ EOD;
 												),
 											),
 											array(
-												'title'		=> 'View Private Fields (' . $this->sd_custom_fields( 'private-count' ) . ')',
+												'title'		=> __( 'View Private Fields', 'system-dashboard' ) . ' (' . $this->sd_custom_fields( 'private-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11410,12 +11503,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'Tools', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'custom_fields' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'custom_fields' ),
 									),
 
@@ -11423,17 +11516,17 @@ EOD;
 							),
 
 							array(
-								'title' => 'Users',
+								'title' => __( 'Users', 'system-dashboard' ),
 								'fields' => array(
 
 									array(
 										'id'		=> 'user_count_by_role',
 										'type'		=> 'accordion',
-										'title'		=> 'Users Count by Role',
+										'title'		=> __( 'Users Count by Role', 'system-dashboard' ),
 										'class'		=> 'user-count',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11446,11 +11539,11 @@ EOD;
 									array(
 										'id'		=> 'urc_tools',
 										'type'		=> 'accordion',
-										'title'		=> 'Roles & Capabilities',
+										'title'		=> __( 'Roles & Capabilities', 'system-dashboard' ),
 										'class'		=> 'roles-capabilities',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11462,12 +11555,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'Tools', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'users_roles_capabilities' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'users_roles_capabilities' ),
 									),
 
@@ -11486,26 +11579,26 @@ EOD;
 						'tabs'		=> array(
 
 							array(
-								'title'		=> 'Options',
+								'title'		=> __( 'Options', 'system-dashboard' ),
 								'fields'	=> array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Total',
+										'title'		=> __( 'Total', 'system-dashboard' ),
 										'content'	=> $this->sd_options( 'total_count' ) . ' options',
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Autoloaded',
+										'title'		=> __( 'Autoloaded', 'system-dashboard' ),
 										'content'	=> $this->sd_options( 'total_count_autoloaded' ) . ' options | Total size: ' . $this->sd_options( 'total_autoloaded_size' ),
 									),
 									array(
 										'id'		=> 'wp_core_options',
 										'type'		=> 'accordion',
-										'title'		=> 'Core',
+										'title'		=> __( 'Core', 'system-dashboard' ),
 										'subtitle'	=> $this->sd_options( 'wpcore_count' ) . ' options',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Options',
+												'title'		=> __( 'View Options', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11518,11 +11611,11 @@ EOD;
 									array(
 										'id'		=> 'wp_noncore_options',
 										'type'		=> 'accordion',
-										'title'		=> 'Themes & Plugins',
+										'title'		=> __( 'Themes & Plugins', 'system-dashboard' ),
 										'subtitle'	=> $this->sd_options( 'noncore_count' ) . ' options',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Options',
+												'title'		=> __( 'View Options', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11535,11 +11628,11 @@ EOD;
 									array(
 										'id'		=> 'wp_noncore_options',
 										'type'		=> 'accordion',
-										'title'		=> 'Largest Autoloaded',
+										'title'		=> __( 'Largest Autoloaded', 'system-dashboard' ),
 										'subtitle'	=> '10 options',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Options',
+												'title'		=> __( 'View Options', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11551,12 +11644,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'Tools', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'options' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'options' ),
 									),
 
@@ -11564,26 +11657,26 @@ EOD;
 							),
 
 							array(
-								'title'		=> 'Transients',
+								'title'		=> __( 'Transients', 'system-dashboard' ),
 								'fields'	=> array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Total',
+										'title'		=> __( 'Total', 'system-dashboard' ),
 										'content'	=> $this->sd_transients( 'total_count' ) . ' transients',
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Autoloaded',
+										'title'		=> __( 'Autoloaded', 'system-dashboard' ),
 										'content'	=> $this->sd_transients( 'total_count_autoloaded' ) . ' transients | Total size: ' . $this->sd_transients( 'total_autoloaded_size' ),
 									),
 									array(
 										'id'		=> 'transients_active',
 										'type'		=> 'accordion',
-										'title'		=> 'With Expiration',
+										'title'		=> __( 'With Expiration', 'system-dashboard' ),
 										'subtitle'	=> $this->sd_transients( 'count', 'active' ) . ' transients',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Transients',
+												'title'		=> __( 'View Transients', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11596,11 +11689,11 @@ EOD;
 									array(
 										'id'		=> 'transients_expired',
 										'type'		=> 'accordion',
-										'title'		=> 'Expired',
+										'title'		=> __( 'Expired', 'system-dashboard' ),
 										'subtitle'	=> $this->sd_transients( 'count', 'expired' ) . ' transients',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Transients',
+												'title'		=> __( 'View Transients', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11613,11 +11706,11 @@ EOD;
 									array(
 										'id'		=> 'transients_neverexpire',
 										'type'		=> 'accordion',
-										'title'		=> 'Does Not Expire',
+										'title'		=> __( 'Does Not Expire', 'system-dashboard' ),
 										'subtitle'	=> $this->sd_transients( 'count', 'neverexpire' ) . ' transients',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Transients',
+												'title'		=> __( 'View Transients', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11629,12 +11722,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'Tools', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'transients' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'transients' ),
 									),
 
@@ -11642,25 +11735,25 @@ EOD;
 							),
 
 							array(
-								'title'		=> 'Object Cache',
+								'title'		=> __( 'Object Cache', 'system-dashboard' ),
 								'fields'	=> array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Status',
+										'title'		=> __( 'Status', 'system-dashboard' ),
 										'content'	=> $this->sd_object_cache( 'status' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Stats',
+										'title'		=> __( 'Stats', 'system-dashboard' ),
 										'content'	=> $this->sd_object_cache( 'stats' ),
 									),
 									array(
 										'id'		=> 'object_cache_global_groups',
 										'type'		=> 'accordion',
-										'title'		=> 'Global Groups',
+										'title'		=> __( 'Global Groups', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11673,10 +11766,10 @@ EOD;
 									array(
 										'id'		=> 'object_cache_ignored_groups',
 										'type'		=> 'accordion',
-										'title'		=> 'Non-persistent Groups',
+										'title'		=> __( 'Non-persistent Groups', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11689,10 +11782,10 @@ EOD;
 									array(
 										'id'		=> 'object_cache_content',
 										'type'		=> 'accordion',
-										'title'		=> 'From $wp_object_cache',
+										'title'		=> __( 'From $wp_object_cache', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Cache Content',
+												'title'		=> __( 'View Cache Content', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11705,10 +11798,10 @@ EOD;
 									array(
 										'id'		=> 'object_cache_content',
 										'type'		=> 'accordion',
-										'title'		=> 'From Memory',
+										'title'		=> __( 'From Memory', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Cache Content',
+												'title'		=> __( 'View Cache Content', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11721,10 +11814,10 @@ EOD;
 									array(
 										'id'		=> 'object_cache_diagnostics',
 										'type'		=> 'accordion',
-										'title'		=> 'Diagnostics',
+										'title'		=> __( 'Diagnostics', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11736,33 +11829,33 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'Tools', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'object_cache' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'object_cache' ),
 									),
 
 								),
 							),
 							array(
-								'title'		=> 'Cron',
+								'title'		=> __( 'Cron', 'system-dashboard' ),
 								'fields'	=> array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Total',
+										'title'		=> __( 'Total', 'system-dashboard' ),
 										'content'	=> $this->sd_cron( 'all', 'count' ) . ' cron events',
 									),
 									array(
 										'id'		=> 'cron_events',
 										'type'		=> 'accordion',
-										'title'		=> 'Core',
+										'title'		=> __( 'Core', 'system-dashboard' ),
 										'subtitle'		=> $this->sd_cron( 'wpcore', 'count' ) . ' events',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11775,11 +11868,11 @@ EOD;
 									array(
 										'id'		=> 'cron_events',
 										'type'		=> 'accordion',
-										'title'		=> 'Themes & Plugins',
+										'title'		=> __( 'Themes & Plugins', 'system-dashboard' ),
 										'subtitle'		=> $this->sd_cron( 'custom', 'count' ) . ' events',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11792,11 +11885,11 @@ EOD;
 									array(
 										'id'		=> 'cron_events',
 										'type'		=> 'accordion',
-										'title'		=> 'Schedules',
+										'title'		=> __( 'Schedules', 'system-dashboard' ),
 										'subtitle'		=> $this->sd_cron( 'schedules', 'count' ) . ' intervals',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11808,12 +11901,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'View', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'cron' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'cron' ),
 									),
 
@@ -11822,23 +11915,23 @@ EOD;
 
 
 							array(
-								'title'		=> 'Rewrite Rules',
+								'title'		=> __( 'Rewrite Rules', 'system-dashboard' ),
 								'fields'	=> array(
 
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Total',
+										'title'		=> __( 'Total', 'system-dashboard' ),
 										'content'	=> $this->sd_rewrite_rules_count() . ' rules',
 									),
 									array(
 										'id'		=> 'rewrite_rules',
 										'type'		=> 'accordion',
-										'title'		=> 'List',
-										'subtitle'	=> 'URL Structure <br />&#10132; Query Parameters',
+										'title'		=> __( 'List', 'system-dashboard' ),
+										'subtitle'	=> __( 'URL Structure <br />&#10132; Query Parameters', 'system-dashboard' ),
 										'class'		=> 'rewrite-rules',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11850,12 +11943,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'View', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'rewrite_rules' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'rewrite_rules' ),
 									),
 
@@ -11863,22 +11956,22 @@ EOD;
 							),
 
 							array(
-								'title'		=> 'Shortcodes',
+								'title'		=> __( 'Shortcodes', 'system-dashboard' ),
 								'fields'	=> array(
 
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Total',
+										'title'		=> __( 'Total', 'system-dashboard' ),
 										'content'	=> $this->sd_shortcodes_count() . ' shortcodes',
 									),
 									array(
 										'id'		=> 'shortcodes',
 										'type'		=> 'accordion',
-										'title'		=> 'List',
+										'title'		=> __( 'List', 'system-dashboard' ),
 										'class'		=> 'shortcodes',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11890,12 +11983,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'View', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'shortcodes' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'shortcodes' ),
 									),
 
@@ -11913,17 +12006,17 @@ EOD;
 						'tabs'		=> array(
 
 							array(
-								'title'		=> 'Hooks',
+								'title'		=> __( 'Hooks', 'system-dashboard' ),
 								'fields'	=> array(
 									array(
 										'id'		=> 'hooks_wpcore',
 										'type'		=> 'accordion',
-										'title'		=> 'Core (v6.0)',
-										'subtitle'	=> 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each hook.',
+										'title'		=> __( 'Core', 'system-dashboard' ) . ' (v6.0)',
+										'subtitle'	=>__( 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each hook.', 'system-dashboard' ),
 										'class'		=> 'wpcore-hooks',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Action Hooks',
+												'title'		=> __( 'View Action Hooks', 'system-dashboard' ),
 												'class'		=> 'core-action-hooks',
 												'fields'	=> array(
 													array(
@@ -11933,7 +12026,7 @@ EOD;
 												),
 											),
 											array(
-												'title'		=> 'View Filter Hooks',
+												'title'		=> __( 'View Filter Hooks', 'system-dashboard' ),
 												'class'		=> 'core-filter-hooks',
 												'fields'	=> array(
 													array(
@@ -11943,7 +12036,7 @@ EOD;
 												),
 											),
 											// array(
-											// 	'title'		=> 'Hooks on this page',
+											// 	'title'		=> __( 'Hooks on this page', 'system-dashboard' ),
 											// 	'fields'	=> array(
 											// 		array(
 											// 			'type'		=> 'content',
@@ -11957,12 +12050,12 @@ EOD;
 									array(
 										'id'		=> 'hooks_active_theme',
 										'type'		=> 'accordion',
-										'title'		=> 'Current Theme',
-										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.',
+										'title'		=> __( 'Current Theme', 'system-dashboard' ),
+										'subtitle'	=> __( 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.', 'system-dashboard' ),
 										'class'		=> 'sd__hooks theme-hooks',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Hooks',
+												'title'		=> __( 'View Hooks', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -11975,8 +12068,8 @@ EOD;
 									array(
 										'id'		=> 'hooks_active_plugins',
 										'type'		=> 'accordion',
-										'title'		=> 'Active Plugins',
-										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.',
+										'title'		=> __( 'Active Plugins', 'system-dashboard' ),
+										'subtitle'	=> __( 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.', 'system-dashboard' ),
 										'class'		=> 'sd__hooks plugins-hooks',
 										'accordions'	=> array(
 											array(
@@ -11992,12 +12085,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'View', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'hooks' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'hooks' ),
 									),
 
@@ -12005,17 +12098,17 @@ EOD;
 							),
 
 							array(
-								'title'		=> 'Classes',
+								'title'		=> __( 'Classes', 'system-dashboard' ),
 								'fields'	=> array(
 									array(
 										'id'		=> 'classes_core',
 										'type'		=> 'accordion',
-										'title'		=> 'Core',
-										'subtitle'		=> 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each class.',
+										'title'		=> __( 'Core', 'system-dashboard' ),
+										'subtitle'		=> __( 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each class.', 'system-dashboard' ),
 										'class'		=> 'core-classes',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Classes and Methods',
+												'title'		=> __( 'View Classes and Methods', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12028,12 +12121,12 @@ EOD;
 									array(
 										'id'		=> 'classes_themes',
 										'type'		=> 'accordion',
-										'title'		=> 'Current Theme',
-										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.',
+										'title'		=> __( 'Current Theme', 'system-dashboard' ),
+										'subtitle'	=> __( 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.', 'system-dashboard' ),
 										'class'		=> 'theme-classes',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Classes and Methods',
+												'title'		=> __( 'View Classes and Methods', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12046,12 +12139,12 @@ EOD;
 									array(
 										'id'		=> 'classes_plugins',
 										'type'		=> 'accordion',
-										'title'		=> 'Active Plugins',
-										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.',
+										'title'		=> __( 'Active Plugins', 'system-dashboard' ),
+										'subtitle'	=> __( 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.', 'system-dashboard' ),
 										'class'		=> 'plugins-classes',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Classes and Methods',
+												'title'		=> __( 'View Classes and Methods', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12063,12 +12156,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'View', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'classes' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'classes' ),
 									),
 
@@ -12076,17 +12169,17 @@ EOD;
 							),
 
 							array(
-								'title'		=> 'Functions',
+								'title'		=> __( 'Functions', 'system-dashboard' ),
 								'fields'	=> array(
 									array(
 										'id'		=> 'functions_core',
 										'type'		=> 'accordion',
-										'title'		=> 'Core',
-										'subtitle'		=> 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each function.',
+										'title'		=> __( 'Core', 'system-dashboard' ),
+										'subtitle'		=> __( 'Links to the WordPress <a href="https://developer.wordpress.org/reference/" target="_blank">Code Reference</a> for each function.', 'system-dashboard' ),
 										'class'		=> 'core-functions',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Functions'  . ' (' . $this->sd_functions( 'core-count' ) . ')',
+												'title'		=> __( 'View Functions', 'system-dashboard' )  . ' (' . $this->sd_functions( 'core-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12099,12 +12192,12 @@ EOD;
 									array(
 										'id'		=> 'functions_themes',
 										'type'		=> 'accordion',
-										'title'		=> 'Current Theme',
-										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.',
+										'title'		=> __( 'Current Theme', 'system-dashboard' ),
+										'subtitle'	=> __( 'To preview links, ensure that <a href="/wp-admin/theme-editor.php" target="_blank">Theme File Editor</a> is not disabled.', 'system-dashboard' ),
 										'class'		=> 'theme-functions',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Functions'  . ' (' . $this->sd_functions( 'theme-count' ) . ')',
+												'title'		=> __( 'View Functions', 'system-dashboard' )  . ' (' . $this->sd_functions( 'theme-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12117,12 +12210,12 @@ EOD;
 									array(
 										'id'		=> 'functions_plugins',
 										'type'		=> 'accordion',
-										'title'		=> 'Active Plugins',
-										'subtitle'	=> 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.',
+										'title'		=> __( 'Active Plugins', 'system-dashboard' ),
+										'subtitle'	=> __( 'To preview links, ensure that <a href="/wp-admin/plugin-editor.php" target="_blank">Plugin File Editor</a> is not disabled.', 'system-dashboard' ),
 										'class'		=> 'plugins-functions',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Functions'  . ' (' . $this->sd_functions( 'plugins-count' ) . ')',
+												'title'		=> __( 'View Functions', 'system-dashboard' )  . ' (' . $this->sd_functions( 'plugins-count' ) . ')',
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12134,12 +12227,12 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'View', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'classes' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'classes' ),
 									),
 
@@ -12147,16 +12240,16 @@ EOD;
 							),
 
 							array(
-								'title'		=> 'Globals',
+								'title'		=> __( 'Globals', 'system-dashboard' ),
 								'fields'	=> array(
 
 									array(
 										'id'			=> 'version_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Version',
+										'title'			=> __( 'Version', 'system-dashboard' ),
 										'accordions'  	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12169,10 +12262,10 @@ EOD;
 									array(
 										'id'			=> 'common_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Common',
+										'title'			=> __( 'Common', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12185,10 +12278,10 @@ EOD;
 									array(
 										'id'			=> 'themes_plugins_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'On Themes & Plugins',
+										'title'			=> __( 'On Themes & Plugins', 'system-dashboard' ),
 										'accordions'  	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12201,10 +12294,10 @@ EOD;
 									array(
 										'id'			=> 'various_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Various',
+										'title'			=> __( 'Various', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 													'type'    => 'content',
@@ -12217,10 +12310,10 @@ EOD;
 									array(
 										'id'			=> 'admin_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Admin',
+										'title'			=> __( 'Admin', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12233,10 +12326,10 @@ EOD;
 									array(
 										'id'			=> 'current_user_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Current User',
+										'title'			=> __( 'Current User', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12249,10 +12342,10 @@ EOD;
 									array(
 										'id'			=> 'main_wp_query_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Main Query',
+										'title'			=> __( 'Main Query', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12265,10 +12358,10 @@ EOD;
 									array(
 										'id'			=> 'multisite_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Multisite',
+										'title'			=> __( 'Multisite', 'system-dashboard' ),
 										'accordions'	=> array(
 										  array(
-										    'title'   => 'View',
+										    'title'   => __( 'View', 'system-dashboard' ),
 										    'fields'  => array(
 										      array(
 										        'type'    => 'content',
@@ -12281,10 +12374,10 @@ EOD;
 									array(
 										'id'			=> 'locales_localization_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Locales & Localization',
+										'title'			=> __( 'Locales & Localization', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12297,10 +12390,10 @@ EOD;
 									array(
 										'id'			=> 'rest_api_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'REST API',
+										'title'			=> __( 'REST API', 'system-dashboard' ),
 										'accordions'	=> array(
 										  array(
-										    'title'   => 'View',
+										    'title'   => __( 'View', 'system-dashboard' ),
 										    'fields'  => array(
 										      array(
 										        'type'    => 'content',
@@ -12313,10 +12406,10 @@ EOD;
 									array(
 										'id'			=> 'browser_detection_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Browser Detection',
+										'title'			=> __( 'Browser Detection', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12329,10 +12422,10 @@ EOD;
 									array(
 										'id'			=> 'web_server_detection_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Web Server Detection',
+										'title'			=> __( 'Web Server Detection', 'system-dashboard' ),
 										'accordions'  => array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12345,10 +12438,10 @@ EOD;
 									array(
 										'id'			=> 'posts_loop_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Posts Loop',
+										'title'			=> __( 'Posts Loop', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12361,10 +12454,10 @@ EOD;
 									array(
 										'id'			=> 'comments_loop_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Comments Loop',
+										'title'			=> __( 'Comments Loop', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12377,10 +12470,10 @@ EOD;
 									array(
 										'id'			=> 'frontend_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'Front-End',
+										'title'			=> __( 'Front-End', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12393,10 +12486,10 @@ EOD;
 									array(
 										'id'			=> 'non_wpcore_globals',
 										'type'			=> 'accordion',
-										'title'			=> 'From Themes & Plugins',
+										'title'			=> __( 'From Themes & Plugins', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12409,10 +12502,10 @@ EOD;
 									array(
 										'id'			=> 'constants_reference',
 										'type'			=> 'accordion',
-										'title'			=> 'PHP Super Globals',
+										'title'			=> __( 'PHP Super Globals', 'system-dashboard' ),
 										'accordions'	=> array(
 											array(
-												'title'   => 'View',
+												'title'   => __( 'View', 'system-dashboard' ),
 												'fields'  => array(
 													array(
 														'type'    => 'content',
@@ -12424,7 +12517,7 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'globals' ),
 									),
 
@@ -12432,16 +12525,16 @@ EOD;
 							),
 
 							array(
-								'title'		=> 'Constants',
+								'title'		=> __( 'Constants', 'system-dashboard' ),
 								'fields'	=> array(
 									array(
 										'id'		=> 'defined_constants',
 										'type'		=> 'accordion',
-										'title'		=> 'Defined Constants',
+										'title'		=> __( 'Defined Constants', 'system-dashboard' ),
 										'class'		=> 'constant-values',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12455,11 +12548,11 @@ EOD;
 									array(
 										'id'		=> 'constants_reference',
 										'type'		=> 'accordion',
-										'title'		=> 'Constants Documentation',
+										'title'		=> __( 'Constants Documentation', 'system-dashboard' ),
 										'class'		=> 'constant-docs',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12472,7 +12565,7 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'constants' ),
 									),
 
@@ -12480,18 +12573,18 @@ EOD;
 							),
 
 							array(
-								'title' => 'Viewer',
+								'title' => __( 'Viewer', 'system-dashboard' ),
 								'fields' => array(
 
 									array(
 										'id'		=> 'viewer_wpconfig',
 										'type'		=> 'accordion',
 										'title'		=> 'wp-config.php',
-										'subtitle'	=> 'WordPress main configuration file',
+										'subtitle'	=> __( 'WordPress main configuration file', 'system-dashboard' ),
 										'class'		=> 'sd-viewer wpconfig',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12505,11 +12598,11 @@ EOD;
 										'id'		=> 'viewer_htaccess',
 										'type'		=> 'accordion',
 										'title'		=> '.htaccess',
-										'subtitle'	=> 'Apache server configuration only for the directory the file is in',
+										'subtitle'	=> __( 'Apache server configuration only for the directory the file is in', 'system-dashboard' ),
 										'class'		=> 'htaccess',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12522,12 +12615,12 @@ EOD;
 									array(
 										'id'		=> 'viewer_restapi',
 										'type'		=> 'accordion',
-										'title'		=> 'WordPress <a href="/wp-json/wp/v2" target="_blank">REST API</a>',
-										'subtitle'	=> 'An interface for applications to interact with WordPress',
+										'title'		=> __( 'WordPress <a href="/wp-json/wp/v2" target="_blank">REST API</a>', 'system-dashboard' ),
+										'subtitle'	=> __( 'An interface for applications to interact with WordPress', 'system-dashboard' ),
 										'class'		=> 'restapi_viewer',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12541,11 +12634,11 @@ EOD;
 										'id'		=> 'viewer_robots',
 										'type'		=> 'accordion',
 										'title'		=> 'robots.txt',
-										'subtitle'	=> 'Tell search engine crawlers which URLs they can access on your site',
+										'subtitle'	=> __( 'Tell search engine crawlers which URLs they can access on your site', 'system-dashboard' ),
 										'class'		=> 'robotstxt',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12557,19 +12650,19 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Sitemap',
-										'subtitle'	=> 'Contains information for search engines to crawl your site more efficiently',
-										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">Access now &raquo;</a>',
+										'title'		=> __( 'Sitemap', 'system-dashboard' ),
+										'subtitle'	=> __( 'Contains information for search engines to crawl your site more efficiently', 'system-dashboard' ),
+										'content'	=> '<a href="/wp-sitemap.xml" target="_blank">' . __( 'Access now', 'system-dashboard' ) . ' &raquo;</a>',
 									),
 									array(
 										'id'		=> 'viewer_urls_paths',
 										'type'		=> 'accordion',
-										'title'		=> 'URLs and Paths',
-										'subtitle'	=> 'From WP core functions and constants, as well as PHP $_SERVER superglobal',
+										'title'		=> __( 'URLs and Paths', 'system-dashboard' ),
+										'subtitle'	=> __( 'From WP core functions and constants, as well as PHP $_SERVER superglobal', 'system-dashboard' ),
 										'class'		=> 'urls-paths',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12581,26 +12674,26 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Recent Posts Feed',
+										'title'		=> __( 'Recent Posts Feed', 'system-dashboard' ),
 										'subtitle'	=> 'RSS 2.0',
 										'class'		=> 'posts-feed',
-										'content'	=> '<a href="/feed/" target="_blank">Access now &raquo;</a>',
+										'content'	=> '<a href="/feed/" target="_blank">' . __( 'Access now', 'system-dashboard' ) . ' &raquo;</a>',
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Recent Comments Feed',
+										'title'		=> __( 'Recent Comments Feed', 'system-dashboard' ),
 										'subtitle'	=> 'RSS 2.0',
 										'class'		=> 'comments-feed',
-										'content'	=> '<a href="/comments/feed/" target="_blank">Access now &raquo;</a>',
+										'content'	=> '<a href="/comments/feed/" target="_blank">' . __( 'Access now', 'system-dashboard' ) . ' &raquo;</a>',
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Tools',
+										'title'		=> __( 'View', 'system-dashboard' ),
 										'content'	=> $this->sd_tools( 'viewer' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'References',
+										'title'		=> __( 'References', 'system-dashboard' ),
 										'content'	=> $this->sd_references( 'viewer' ),
 									),
 
@@ -12608,18 +12701,18 @@ EOD;
 							), // End of Viewer module
 
 							array(
-								'title' => 'Logs',
+								'title' => __( 'Logs', 'system-dashboard' ),
 								'fields' => array(
 
 									array(
 										'id'		=> 'logs_page_access',
 										'type'		=> 'accordion',
-										'title'		=> '<input type="checkbox" id="page-access-log-checkbox" class="inset-3 page-access-log-checkbox"><label for="page-access-log-checkbox" class="green page-access-log-switcher"></label>Page Access',
+										'title'		=> '<input type="checkbox" id="page-access-log-checkbox" class="inset-3 page-access-log-checkbox"><label for="page-access-log-checkbox" class="green page-access-log-switcher"></label>' . __( 'Page Access', 'system-dashboard' ),
 										'subtitle'	=> '',
 										'class'		=> 'has-switcher page-access-log',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Log Entries',
+												'title'		=> __( 'View Log Entries', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12634,12 +12727,12 @@ EOD;
 									array(
 										'id'		=> 'logs_errors',
 										'type'		=> 'accordion',
-										'title'		=> '<input type="checkbox" id="errors-log-checkbox" class="inset-3 errors-log-checkbox"><label for="errors-log-checkbox" class="green errors-log-switcher"></label>PHP Errors',
+										'title'		=> '<input type="checkbox" id="errors-log-checkbox" class="inset-3 errors-log-checkbox"><label for="errors-log-checkbox" class="green errors-log-switcher"></label>' . __( 'PHP Errors', 'system-dashboard' ),
 										'subtitle'	=> '',
 										'class'		=> 'has-switcher errors-log',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Log Entries',
+												'title'		=> __( 'View Log Entries', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12654,12 +12747,12 @@ EOD;
 									array(
 										'id'		=> 'email_delivery',
 										'type'		=> 'accordion',
-										'title'		=> '<input type="checkbox" id="email-delivery-log-checkbox" class="inset-3 email-delivery-log-checkbox"><label for="email-delivery-log-checkbox" class="green email-delivery-log-switcher"></label>Email Delivery',
+										'title'		=> '<input type="checkbox" id="email-delivery-log-checkbox" class="inset-3 email-delivery-log-checkbox"><label for="email-delivery-log-checkbox" class="green email-delivery-log-switcher"></label>' . __( 'Email Delivery', 'system-dashboard' ),
 										'subtitle'	=> '',
 										'class'		=> 'has-switcher email-delivery-log',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View Log Entries',
+												'title'		=> __( 'View Log Entries', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12680,64 +12773,64 @@ EOD;
 					array(
 						'id'		=> 'server',
 						'type'		=> 'tabbed',
-						'title' 	=> 'Server',
+						'title' 	=> __( 'Server', 'system-dashboard' ),
 						'class'		=> 'main-section',
 						'subtitle'	=> $this->sd_server_overview(),
 						'tabs'		=> array(
 
 							array(
-								'title' => 'Monitor',
+								'title' => __( 'Monitor', 'system-dashboard' ),
 								'fields' => array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Uptime',
+										'title'		=> __( 'Uptime', 'system-dashboard' ),
 										'content'	=> $this->sd_server_uptime(),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'CPU Load Average',
+										'title'		=> __( 'CPU Load Average', 'system-dashboard' ),
 										'subtitle'	=> '% of system total (raw)<br />at '. date( 'H:i:s', time() ),
 										'content'	=> $this->sd_cpu_load_average(),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'RAM Usage',
+										'title'		=> __( 'RAM Usage', 'system-dashboard' ),
 										'subtitle'	=> 'at '. date( 'H:i:s', time() ),
 										'content'	=> $this->sd_ram_usage(),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Disk Usage',
+										'title'		=> __( 'Disk Usage', 'system-dashboard' ),
 										'content'	=> $this->sd_disk_usage(),
 									),
 									// array(
 									// 	'type'		=> 'content',
-									// 	'title'		=> 'Web Server',
+									// 	'title'		=> __( 'Web Server', 'system-dashboard' ),
 									// 	'content'	=> $_SERVER['SERVER_SOFTWARE'],
 									// ),
 									// array(
 									// 	'type'		=> 'content',
-									// 	'title'		=> 'Web Server Interface',
+									// 	'title'		=> __( 'Web Server Interface', 'system-dashboard' ),
 									// 	'content'	=> php_sapi_name(),
 									// ),
 									// array(
 									// 	'type'		=> 'content',
-									// 	'title'		=> 'Database Engine',
+									// 	'title'		=> __( 'Database Engine', 'system-dashboard' ),
 									// 	'content'	=> $this->sd_get_mysql_version(),
 									// ),
 									// array(
 									// 	'type'		=> 'content',
-									// 	'title'		=> 'Timezone',
+									// 	'title'		=> __( 'Timezone', 'system-dashboard' ),
 									// 	'content'	=> date_default_timezone_get(),
 									// ),
 									// array(
 									// 	'type'		=> 'content',
-									// 	'title'		=> 'Server Time',
+									// 	'title'		=> __( 'Server Time', 'system-dashboard' ),
 									// 	'content'	=> date( 'F j, Y - H:i', time() ),
 									// ),
 									// array(
 									// 	'type'		=> 'content',
-									// 	'title'		=> 'Server IP',
+									// 	'title'		=> __( 'Server IP', 'system-dashboard' ),
 									// 	'content'	=> $_SERVER['SERVER_ADDR'],
 									// ),
 
@@ -12745,27 +12838,27 @@ EOD;
 							),
 
 							array(
-								'title' => 'Hardware',
+								'title' => __( 'Hardware', 'system-dashboard' ),
 								'fields' => array(
 
 									array(
 										'type'		=> 'content',
-										'title'		=> 'CPU type',
+										'title'		=> __( 'CPU type', 'system-dashboard' ),
 										'content'	=> $this->sd_cpu_type(),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'CPU / Cores',
+										'title'		=> __( 'CPU / Cores', 'system-dashboard' ),
 										'content'	=> $this->sd_cpus_cores_count(),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Total RAM',
+										'title'		=> __( 'Total RAM', 'system-dashboard' ),
 										'content'	=> $this->sd_total_ram_display(),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Total Disk Space',
+										'title'		=> __( 'Total Disk Space', 'system-dashboard' ),
 										'content'	=> $this->sd_total_disk_space( 'formatted' ),
 									),
 
@@ -12777,57 +12870,57 @@ EOD;
 								'fields' => array(
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Version',
+										'title'		=> __( 'Version', 'system-dashboard' ),
 										'content'	=> phpversion(),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'User',
+										'title'		=> __( 'User', 'system-dashboard' ),
 										'content'	=> ( function_exists('get_current_user') ? get_current_user() : 'Undetectable' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Max Execution Time',
+										'title'		=> __( 'Max Execution Time', 'system-dashboard' ),
 										'content'	=> ini_get( 'max_execution_time' ). ' seconds',
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Max Input Time',
+										'title'		=> __( 'Max Input Time', 'system-dashboard' ),
 										'content'	=> ini_get( 'max_input_time' ). ' seconds',
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Max Input Vars',
+										'title'		=> __( 'Max Input Vars', 'system-dashboard' ),
 										'content'	=> ini_get( 'max_input_vars' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Memory Limit',
+										'title'		=> __( 'Memory Limit', 'system-dashboard' ),
 										'content'	=> ini_get( 'memory_limit' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Post Max Size',
+										'title'		=> __( 'Post Max Size', 'system-dashboard' ),
 										'content'	=> ini_get( 'post_max_size' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Upload Max Size',
+										'title'		=> __( 'Upload Max Size', 'system-dashboard' ),
 										'content'	=> ini_get( 'upload_max_filesize' ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Extensions Loaded',
+										'title'		=> __( 'Extensions Loaded', 'system-dashboard' ),
 										'content'	=> implode(", ", get_loaded_extensions() ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Disabled Functions',
+										'title'		=> __( 'Disabled Functions', 'system-dashboard' ),
 										'content'	=> str_replace( ",", ", ", ini_get( 'disable_functions' ) ),
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Error Reporting',
+										'title'		=> __( 'Error Reporting', 'system-dashboard' ),
 										'subtitle'	=> 'Code: ' . error_reporting(),
 										'content'	=> $this->sd_error_reporting(),
 									),
@@ -12873,7 +12966,7 @@ EOD;
 									),
 									array(
 										'type'		=> 'content',
-										'title'		=> 'Detailed Specifications',
+										'title'		=> __( 'Detailed Specifications', 'system-dashboard' ),
 										'content'	=> '',
 									),
 									array(
@@ -12883,7 +12976,7 @@ EOD;
 										'class'		=> 'phpinfo-details title-hidden',
 										'accordions'	=> array(
 											array(
-												'title'		=> 'View',
+												'title'		=> __( 'View', 'system-dashboard' ),
 												'fields'	=> array(
 													array(
 														'type'		=> 'content',
@@ -12924,7 +13017,7 @@ EOD;
 	 * @since 2.8.5
 	 */
 	public function footer_version_text() {
-        return 'Also by Bowo &#8594; <a href="https://bowo.io/wpn-dlm" target="_blank">WordPress Newsboard</a>: The latest from 100+ sources';		
+        return __( 'Also by Bowo &#8594; <a href="https://bowo.io/wpn-dlm" target="_blank">WordPress Newsboard</a>: The latest from 100+ sources', 'system-dashboard' );		
 	}
 
 	/**
@@ -12935,7 +13028,7 @@ EOD;
 	
 	public function sd_add_plugin_action_links( $links ) {
 
-		$settings_link = '<a href="index.php?page='.$this->plugin_name.'">View Dashboard</a>';
+		$settings_link = '<a href="index.php?page='.$this->plugin_name.'">' . __( 'View Dashboard', 'system-dashboard' ) . '</a>';
 
 		array_unshift($links, $settings_link); 
 
@@ -12971,7 +13064,7 @@ EOD;
 		if ( strpos( $plugin_file, 'system-dashboard.php' ) !== false ) {
 
 			$new_links = array(
-				'donate'	=> '<a href="https://paypal.me/qriouslad" target="_blank">Donate</a>',
+				'donate'	=> '<a href="https://paypal.me/qriouslad" target="_blank">' . __( 'Donate', 'system-dashboard' ) . '</a>',
 			);
 
 			$plugin_meta = array_merge( $plugin_meta, $new_links );
