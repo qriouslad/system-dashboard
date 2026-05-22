@@ -76,6 +76,22 @@ class System_Dashboard_Admin {
 	}
 
 	/**
+	 * Verify AJAX request capability and nonce.
+	 *
+	 * @since 2.8.0
+	 * @return bool True when the current user may run an AJAX handler and the nonce is valid.
+	 */
+	private function sd_verify_ajax_request() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		$nonce = isset( $_REQUEST['nonce'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['nonce'] ) ) : '';
+
+		return (bool) wp_verify_nonce( $nonce, 'sd-nonce-key-' . get_current_user_id() );
+	}
+
+	/**
 	 * Register the stylesheets for the admin area.
 	 *
 	 * @since    1.0.0
@@ -537,43 +553,33 @@ class System_Dashboard_Admin {
 	 * @link https://plugins.trac.wordpress.org/browser/wp-system-info/trunk/class/common.php
 	 * @since 1.0.0
 	 */
-	public function sd_post_types(){
+	public function sd_post_types() {
+		$output = '';
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( $this->sd_verify_ajax_request() ) {
+			global $wpdb;
 
-				global $wpdb;
+			$post_types = $wpdb->get_results( "SELECT post_type AS 'type', count(1) AS 'count' FROM {$wpdb->posts} GROUP BY post_type ORDER BY count DESC;" );
 
-				$post_types = $wpdb->get_results( "SELECT post_type AS 'type', count(1) AS 'count' FROM {$wpdb->posts} GROUP BY post_type ORDER BY count DESC;" );
+			foreach ( $post_types as $post_type ) {
+				$label_name = '';
 
-				$output = '';
+				$post_type_object = get_post_type_object( $post_type->type );
 
-				foreach ( $post_types as $post_type ) {
-
-					$label_name = '';
-
-					$post_type_object = get_post_type_object( $post_type->type );
-
-					if ( isset( $post_type_object->labels ) ) {
-						$labels = $post_type_object->labels;
-						$label_name = isset( $labels->name ) ? ' (' . $labels->name . ')' : '';
-					}
-
-					$output .= $this->sd_html( 'field-content-start' );
-					$output .= $this->sd_html( 'field-content-first', $post_type->type . $label_name );
-					$output .= $this->sd_html( 'field-content-second', $post_type->count );
-					$output .= $this->sd_html( 'field-content-end' );
-
+				if ( isset( $post_type_object->labels ) ) {
+					$labels     = $post_type_object->labels;
+					$label_name = isset( $labels->name ) ? ' (' . $labels->name . ')' : '';
 				}
-				
-			} else {
-				$output = '';
+
+				$output .= $this->sd_html( 'field-content-start' );
+				$output .= $this->sd_html( 'field-content-first', $post_type->type . $label_name );
+				$output .= $this->sd_html( 'field-content-second', $post_type->count );
+				$output .= $this->sd_html( 'field-content-end' );
 			}
-
-			echo $output;
-
 		}
 
+		echo $output;
+		wp_die();
 	}
 
 	/**
@@ -582,11 +588,9 @@ class System_Dashboard_Admin {
 	 * @since 1.0.0
 	 */
 	public function sd_taxonomies( $type = 'name' ) {
+		$taxonomies_info = '';
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
-
-				$taxonomies_info = '';
+		if ( $this->sd_verify_ajax_request() ) {
 
 				$args = array(
 					'public' => true,
@@ -615,14 +619,9 @@ class System_Dashboard_Admin {
 
 				}
 								
-			} else {
-				$taxonomies_info = '';
-			}
-
-			echo $taxonomies_info;
-
 		}
 
+		echo $taxonomies_info;
 	}
 
 	/**
@@ -632,11 +631,10 @@ class System_Dashboard_Admin {
 	 * @since 1.5.0
 	 */
 	public function sd_old_slugs() {
+		$output = '';
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
-
-				global $wpdb;
+		if ( $this->sd_verify_ajax_request() ) {
+			global $wpdb;
 
 				$query = "SELECT * FROM {$wpdb->prefix}postmeta WHERE meta_key = '_wp_old_slug' ORDER BY post_id";
 
@@ -659,14 +657,9 @@ class System_Dashboard_Admin {
 
 				}
 								
-			} else {
-				$output = '';
-			}
-
-			echo $output;
-
 		}
 
+		echo $output;
 	}
 
 	/** 
@@ -676,12 +669,10 @@ class System_Dashboard_Admin {
 	 * @since 1.0.0
 	 */
 	public function sd_media_count() {
+		$output = '';
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
-
-				$attachments_count = wp_count_attachments();
-				$output = '';
+		if ( $this->sd_verify_ajax_request() ) {
+			$attachments_count = wp_count_attachments();
 
 				foreach ( $attachments_count as $media_type => $media_num ) {
 
@@ -701,14 +692,9 @@ class System_Dashboard_Admin {
 			        }
 
 				}
-								
-			} else {
-				$output = '';
-			}
-
-			echo $output;
-
 		}
+
+		echo $output;
 	}
 
 	/**
@@ -720,8 +706,7 @@ class System_Dashboard_Admin {
 	public function sd_image_sizes() {
 		$output = '';
 		
-		if ( current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( $this->sd_verify_ajax_request() ) {
 				global $_wp_additional_image_sizes;
 
 				do_action( 'inspect', [ '_wp_additional_image_sizes', $_wp_additional_image_sizes ] );
@@ -790,12 +775,10 @@ class System_Dashboard_Admin {
 					$output .= $this->sd_html( 'field-content-second', $size_type . ' ' . $value['width'] . ' (width) x ' . $value['height'] . ' (height) pixels ' );
 					$output .= $this->sd_html( 'field-content-end' );
 
-				}				
-			}			
+				}
 		}
 
 		echo $output;
-
 	}
 
 	/**
@@ -806,8 +789,7 @@ class System_Dashboard_Admin {
 	public function sd_mime_types() {
 		$output = '';
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( $this->sd_verify_ajax_request() ) {
 
 				$mime_types = get_allowed_mime_types();
 
@@ -828,11 +810,9 @@ class System_Dashboard_Admin {
 					$output .= $this->sd_html( 'field-content-end' );
 
 				}
-			}
 		}
 
 		echo $output;
-
 	}
 
 	/**
@@ -844,8 +824,7 @@ class System_Dashboard_Admin {
 	public function sd_media_handling() {
 		$output = '';
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( $this->sd_verify_ajax_request() ) {
 				$output .= $this->sd_html( 'field-content-start' );
 				$output .= $this->sd_html( 'field-content-first', __( 'Active editor', 'system-dashboard' ) );
 				$output .= $this->sd_html( 'field-content-second', _wp_image_editor_choose() );
@@ -944,8 +923,7 @@ class System_Dashboard_Admin {
 				$output .= $this->sd_html( 'field-content-start' );
 				$output .= $this->sd_html( 'field-content-first', __( 'Ghostscript version', 'system-dashboard' ) );
 				$output .= $this->sd_html( 'field-content-second', $gs );
-				$output .= $this->sd_html( 'field-content-end' );				
-			}
+				$output .= $this->sd_html( 'field-content-end' );
 		}
 
 		echo $output;
@@ -961,8 +939,7 @@ class System_Dashboard_Admin {
 	public function sd_roles_capabilities( $return = 'all' ) {
 		$output = '';
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( $this->sd_verify_ajax_request() ) {
 				$default_wp_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
 
 				$default_capabilities = array(
@@ -1132,8 +1109,7 @@ class System_Dashboard_Admin {
 
 				}
 
-				$output .= $this->sd_html( 'accordions-end' );				
-			}
+				$output .= $this->sd_html( 'accordions-end' );
 		}
 
 		echo $output;
@@ -1148,8 +1124,7 @@ class System_Dashboard_Admin {
 	public function sd_user_count() {
 		$output = '';
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( $this->sd_verify_ajax_request() ) {
 				$users = count_users();
 
 				$output .= $this->sd_html( 'field-content-start' );
@@ -1168,8 +1143,7 @@ class System_Dashboard_Admin {
 
 					}
 
-				}				
-			}
+				}
 		}
 
 		echo $output;
@@ -1240,8 +1214,7 @@ class System_Dashboard_Admin {
 
 		}
 
-		if ( isset( $_REQUEST ) && isset( $_REQUEST['type'] ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( isset( $_REQUEST['type'] ) && $this->sd_verify_ajax_request() ) {
 				$type = $_REQUEST['type'];
 
 				if ( $type == 'public' ) {
@@ -1268,8 +1241,7 @@ class System_Dashboard_Admin {
 
 					echo $output;
 
-				}				
-			}
+				}
 		}
 
 		if ( $count == 'public-count' ) {
@@ -1471,48 +1443,70 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_server_location() {
 
-		if ( ! $this->is_localhost() && function_exists( 'file_get_contents' ) ) {
-
-			if ( isset( $_SERVER['HTTP_X_SERVER_ADDR'] ) ) {
-
-				$server_ip = $_SERVER['HTTP_X_SERVER_ADDR'];
-
-			} else {
-
-				$server_ip = $_SERVER['SERVER_ADDR'];
-				
-			}
-
-			$location_data = get_transient('sd_server_location');
-
-			if ( false === $location_data ) {
-
-				$location_data = unserialize( file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $server_ip ) );
-
-				set_transient('sd_server_location', $location_data, WEEK_IN_SECONDS);
-
-			}
-			
-			if ( is_array( $location_data ) && isset( $location_data['geoplugin_city'] ) && isset( $location_data['geoplugin_countryName'] ) ) {
-
-				$location = $location_data['geoplugin_city'] . ', ' . $location_data['geoplugin_countryName'];
-
-				$location = trim(trim($location),',');
-				
-			} else {
-				
-				$location = __( 'Undetectable', 'system-dashboard' );
-
-			}
-
-			return $location;
-
-		} else {
-
+		if ( $this->is_localhost() ) {
 			return __( 'Undetectable', 'system-dashboard' );
-
 		}
 
+		if ( isset( $_SERVER['HTTP_X_SERVER_ADDR'] ) ) {
+			$server_ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_SERVER_ADDR'] ) );
+		} elseif ( isset( $_SERVER['SERVER_ADDR'] ) ) {
+			$server_ip = sanitize_text_field( wp_unslash( $_SERVER['SERVER_ADDR'] ) );
+		} else {
+			return __( 'Undetectable', 'system-dashboard' );
+		}
+
+		if ( ! filter_var( $server_ip, FILTER_VALIDATE_IP ) ) {
+			return __( 'Undetectable', 'system-dashboard' );
+		}
+
+		$location_data = get_transient( 'sd_server_location' );
+
+		if ( false === $location_data && false === get_transient( 'sd_server_location_failed' ) ) {
+			$response = wp_remote_get(
+				'https://ipwho.is/' . rawurlencode( $server_ip ),
+				array(
+					'timeout' => 5,
+				)
+			);
+
+			if ( ! is_wp_error( $response ) && 200 === (int) wp_remote_retrieve_response_code( $response ) ) {
+				$decoded = json_decode( wp_remote_retrieve_body( $response ), true );
+
+				if ( is_array( $decoded ) && ! empty( $decoded['success'] ) ) {
+					$location_data = array(
+						'city'    => isset( $decoded['city'] ) ? sanitize_text_field( $decoded['city'] ) : '',
+						'country' => isset( $decoded['country'] ) ? sanitize_text_field( $decoded['country'] ) : '',
+					);
+					set_transient( 'sd_server_location', $location_data, WEEK_IN_SECONDS );
+				} else {
+					set_transient( 'sd_server_location_failed', 1, HOUR_IN_SECONDS );
+				}
+			} else {
+				set_transient( 'sd_server_location_failed', 1, HOUR_IN_SECONDS );
+			}
+		}
+
+		if ( is_array( $location_data ) ) {
+			// Legacy GeoPlugin transient format.
+			if ( isset( $location_data['geoplugin_city'], $location_data['geoplugin_countryName'] ) ) {
+				$location = $location_data['geoplugin_city'] . ', ' . $location_data['geoplugin_countryName'];
+				$location = trim( trim( $location ), ',' );
+
+				if ( '' !== $location ) {
+					return $location;
+				}
+			}
+
+			if ( ! empty( $location_data['city'] ) || ! empty( $location_data['country'] ) ) {
+				$location = trim( $location_data['city'] . ', ' . $location_data['country'], ', ' );
+
+				if ( '' !== $location ) {
+					return $location;
+				}
+			}
+		}
+
+		return __( 'Undetectable', 'system-dashboard' );
 	}
 
 	/**
@@ -2028,8 +2022,7 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_php_info() {
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( $this->sd_verify_ajax_request() ) {
 				if ( !class_exists( 'DOMDocument' ) ) {
 					return __( 'Please enable DOMDocument extension first.', 'system-dashboard' );
 				} else {
@@ -2061,9 +2054,7 @@ class System_Dashboard_Admin {
 					echo $phpinfo_html;
 
 				}
-			}
 		}
-		
 	}
 
 	/**
@@ -2088,12 +2079,15 @@ class System_Dashboard_Admin {
 			'E_USER_ERROR' => false,
 			'E_USER_WARNING' => false,
 			'E_USER_NOTICE' => false,
-			'E_STRICT' => false,
 			'E_RECOVERABLE_ERROR' => false,
 			'E_DEPRECATED' => false,
 			'E_USER_DEPRECATED' => false,
 			'E_ALL' => false,
 		);
+
+		if ( PHP_VERSION_ID < 80400 ) {
+			$levels['E_STRICT'] = false;
+		}
 
 		foreach ( $levels as $level => $reported ) {
 			if ( defined( $level ) ) {
@@ -2169,8 +2163,7 @@ class System_Dashboard_Admin {
 	public function sd_directory_sizes() {
 		$output = '';
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( $this->sd_verify_ajax_request() ) {
 				$output .= $this->sd_html( 'field-content-start' );
 				$output .= $this->sd_html( 'field-content-first', __( 'All directories and files', 'system-dashboard' ) );
 				$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ) . $this->sd_files_count( str_replace( "/wp-content", "", WP_CONTENT_DIR ) ) );
@@ -2204,8 +2197,7 @@ class System_Dashboard_Admin {
 				$output .= $this->sd_html( 'field-content-start' );
 				$output .= $this->sd_html( 'field-content-first', '/wp-content/themes' );
 				$output .= $this->sd_html( 'field-content-second', $this->sd_dir_size( WP_CONTENT_DIR.'/themes' ) . $this->sd_files_count( WP_CONTENT_DIR.'/themes' ) );
-				$output .= $this->sd_html( 'field-content-end' );				
-			}
+				$output .= $this->sd_html( 'field-content-end' );
 		}
 
 		echo $output;
@@ -2220,8 +2212,7 @@ class System_Dashboard_Admin {
 	public function sd_filesystem_permissions() {
 		$output = '';
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( $this->sd_verify_ajax_request() ) {
 				$checkmark = '<span class="sd__symbol sd__symbol--green">&check;</span>';
 				$xmark = '<span class="sd__symbol sd__symbol--red">&cross;</span>';
 
@@ -2278,8 +2269,7 @@ class System_Dashboard_Admin {
 				$output .= $this->sd_html( 'field-content-start' );
 				$output .= $this->sd_html( 'field-content-first', '/wp-content/themes' );
 				$output .= $this->sd_html( 'field-content-second', $is_writable_template_directory );
-				$output .= $this->sd_html( 'field-content-end' );				
-			}
+				$output .= $this->sd_html( 'field-content-end' );
 		}
 
 		echo $output;
@@ -2310,10 +2300,10 @@ class System_Dashboard_Admin {
 	 * @since 1.5.0
 	 */
 	public function sd_viewer() {
+		$output = '';
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
-				$filename = sanitize_text_field( $_REQUEST['filename'] );
+		if ( $this->sd_verify_ajax_request() ) {
+				$filename = sanitize_text_field( wp_unslash( $_REQUEST['filename'] ) );
 				
 				if ( in_array( $filename, array( 'wpcnfg', '.htaccess', 'robots.txt', '/wp-json/wp/v2' ) ) ) {
 					
@@ -2351,8 +2341,7 @@ class System_Dashboard_Admin {
 					
 					$output = '';
 
-				}				
-			}
+				}
 		}
 
 		echo wp_kses_post( $output );
@@ -2365,16 +2354,13 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_viewer_url() {
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( $this->sd_verify_ajax_request() ) {
 				$path = $_REQUEST['path'];
 
 				$response = wp_remote_get( get_site_url() . $path );
 
-				echo trim( wp_remote_retrieve_body( $response ) );				
-			}
+				echo trim( wp_remote_retrieve_body( $response ) );
 		}
-
 	}
 
 	/**
@@ -2701,79 +2687,104 @@ class System_Dashboard_Admin {
 	}
 
 	/**
+	 * Get WordPress core and non-core database table lists.
+	 *
+	 * @since 2.8.0
+	 * @return array{tables: array, wpcore_tables: array, noncore_tables: array, prefix: string}
+	 */
+	private function sd_db_tables_get_table_groups() {
+		global $wpdb;
+
+		$prefix = $wpdb->prefix;
+
+		$tables = wp_cache_get( 'sd_db_show_table_status', 'wpdb-queries' );
+
+		if ( false === $tables ) {
+			$tables = $wpdb->get_results( 'SHOW TABLE STATUS' );
+			wp_cache_set( 'sd_db_show_table_status', $tables, 'wpdb-queries', MINUTE_IN_SECONDS );
+		}
+
+		$wpcore_tables = array(
+			$wpdb->prefix . 'commentmeta',
+			$wpdb->prefix . 'comments',
+			$wpdb->prefix . 'links',
+			$wpdb->prefix . 'options',
+			$wpdb->prefix . 'postmeta',
+			$wpdb->prefix . 'posts',
+			$wpdb->prefix . 'term_relationships',
+			$wpdb->prefix . 'term_taxonomy',
+			$wpdb->prefix . 'termmeta',
+			$wpdb->prefix . 'terms',
+			$wpdb->prefix . 'usermeta',
+			$wpdb->prefix . 'users',
+		);
+
+		// On a multisite install, add multisite-specific tables.
+		if ( function_exists( 'is_multisite' ) && is_multisite() ) {
+			array_push( $wpcore_tables, $wpdb->prefix . 'blogs' );
+			array_push( $wpcore_tables, $wpdb->prefix . 'blog_versions' );
+			array_push( $wpcore_tables, $wpdb->prefix . 'blogmeta' );
+			array_push( $wpcore_tables, $wpdb->prefix . 'registration_log' );
+			array_push( $wpcore_tables, $wpdb->prefix . 'site' );
+			array_push( $wpcore_tables, $wpdb->prefix . 'sitemeta' );
+			array_push( $wpcore_tables, $wpdb->prefix . 'signups' );
+		}
+
+		$noncore_tables = array();
+
+		foreach ( $tables as $table ) {
+			if ( ! in_array( $table->Name, $wpcore_tables, true ) ) {
+				$noncore_tables[] = $table->Name;
+			}
+		}
+
+		return array(
+			'tables'         => $tables,
+			'wpcore_tables'  => $wpcore_tables,
+			'noncore_tables' => $noncore_tables,
+			'prefix'         => $prefix,
+		);
+	}
+
+	/**
 	 * List DB tables
 	 * 
 	 * @link https://plugins.svn.wordpress.org/wptools/tags/3.13/functions/functions.php
 	 * @since 1.0.0
 	 */
 	public function sd_db_tables( $return = 'count-core' ) {
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
-				global $wpdb;
+		if ( wp_doing_ajax() ) {
+			if ( ! $this->sd_verify_ajax_request() ) {
+				wp_die( '', '', array( 'response' => 403 ) );
+			}
 
-				$prefix = $wpdb->prefix;
+			$type = isset( $_REQUEST['type'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['type'] ) ) : '';
 
-				// Get tables data from cache or DB
+			if ( ! in_array( $type, array( 'core', 'noncore' ), true ) ) {
+				wp_die();
+			}
+		} elseif ( in_array( $return, array( 'count-core', 'count-noncore' ), true ) ) {
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return 0;
+			}
 
-				$tables = wp_cache_get( 'sd_db_show_table_status', 'wpdb-queries' );
+			$table_groups = $this->sd_db_tables_get_table_groups();
 
-				if ( false === $tables ) {
-					$tables = $wpdb->get_results("SHOW TABLE STATUS");
-					wp_cache_set( 'sd_db_show_table_status', $tables, 'wpdb-queries', MINUTE_IN_SECONDS );
-				}
+			if ( 'count-core' === $return ) {
+				return count( $table_groups['wpcore_tables'] );
+			}
 
-				$wpcore_tables = array(
-					$wpdb->prefix . 'commentmeta',
-					$wpdb->prefix . 'comments',
-					$wpdb->prefix . 'links',
-					$wpdb->prefix . 'options',
-					$wpdb->prefix . 'postmeta',
-					$wpdb->prefix . 'posts',
-					$wpdb->prefix . 'term_relationships',
-					$wpdb->prefix . 'term_taxonomy',
-					$wpdb->prefix . 'termmeta',
-					$wpdb->prefix . 'terms',
-					$wpdb->prefix . 'usermeta',
-					$wpdb->prefix . 'users',
-				);
+			return count( $table_groups['noncore_tables'] );
+		} else {
+			return;
+		}
 
-				// On a multisite install, add multisite-specific tables
-				// Modified from https://plugins.svn.wordpress.org/advanced-database-cleaner/tags/3.0.4/includes/functions.php >> aDBc_get_core_tables()
-				if ( function_exists('is_multisite') && is_multisite() ){
-					array_push( $wpcore_tables, $wpdb->prefix . 'blogs' );
-					array_push( $wpcore_tables, $wpdb->prefix . 'blog_versions' );
-					array_push( $wpcore_tables, $wpdb->prefix . 'blogmeta' );
-					array_push( $wpcore_tables, $wpdb->prefix . 'registration_log' );
-					array_push( $wpcore_tables, $wpdb->prefix . 'site' );
-					array_push( $wpcore_tables, $wpdb->prefix . 'sitemeta' );
-					array_push( $wpcore_tables, $wpdb->prefix . 'signups' );
-				}
-
-				$noncore_tables = array();
-
-				foreach ( $tables as $table ) {
-
-					if ( !in_array( $table->Name, $wpcore_tables ) ) {
-
-						$noncore_tables[] = $table->Name;
-
-					}
-
-				}
-
-				if ( $return == 'count-core' ) {
-
-					return count( $wpcore_tables );
-
-				} elseif ( $return == 'count-noncore' ) {
-
-					return count( $noncore_tables );
-
-				} else {}
-
-				if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-
-					$type = $_REQUEST['type'];
+		$table_groups = $this->sd_db_tables_get_table_groups();
+		$tables         = $table_groups['tables'];
+		$wpcore_tables  = $table_groups['wpcore_tables'];
+		$noncore_tables = $table_groups['noncore_tables'];
+		$prefix         = $table_groups['prefix'];
+		$output         = '';
 
 					// Get installed plugins folder-name / slug array
 
@@ -2948,15 +2959,10 @@ class System_Dashboard_Admin {
 
 						} else {}
 
-					}				
-			} else {
-				$output = '';
-			}
-		}
-			echo $output;
+					}
 
-		}
-
+		echo $output;
+		wp_die();
 	}
 
 	/** 
@@ -3050,11 +3056,10 @@ class System_Dashboard_Admin {
 	 * @since 1.0.0
 	 */
 	public function sd_db_specs() {
+		$output = '';
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
-
-				global $wpdb;
+		if ( $this->sd_verify_ajax_request() ) {
+			global $wpdb;
 
 				$default_storage_engine_query = $wpdb->get_row("SHOW VARIABLES LIKE 'default_storage_engine'");
 				$default_storage_engine = $default_storage_engine_query->Value;
@@ -3155,15 +3160,10 @@ class System_Dashboard_Admin {
 					$output .= $this->sd_html( 'field-content-second', $spec['value'] );
 					$output .= $this->sd_html( 'field-content-end' );
 
-				}	
-							
-			} else {
-				$output = '';
-			}
-
-			echo $output;
+				}
 		}
 
+		echo $output;
 	}
 
 	/** 
@@ -3173,14 +3173,11 @@ class System_Dashboard_Admin {
 	 * @since 1.0.0
 	 */
 	public function sd_db_details() {
+		$output = '';
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
-
-				global $wpdb;
-				$dbinfo = $wpdb->get_results("SHOW VARIABLES");
-
-				$output = '';
+		if ( $this->sd_verify_ajax_request() ) {
+			global $wpdb;
+			$dbinfo = $wpdb->get_results( 'SHOW VARIABLES' );
 
 				if ( !empty( $dbinfo ) ) {
 
@@ -3199,14 +3196,9 @@ class System_Dashboard_Admin {
 
 				}
 								
-			} else {
-				$output = '';
-			}
-
-			echo $output;
-
 		}
 
+		echo $output;
 	}
 
 	/**
@@ -3248,17 +3240,16 @@ class System_Dashboard_Admin {
 		$custom_crons .= $header;
 
 		foreach ( $crons as $cron ) {
+			$schedule = 'singlerun';
 
-			foreach( $cron as $c ) {
+			foreach ( $cron as $c ) {
+				$schedule_array = array_column( $c, 'schedule' );
 
-				$schedule_array = array_column($c, 'schedule');
-
-				if ( !empty( trim( $schedule_array[0] ) ) ) {
+				if ( isset( $schedule_array[0] ) && ! empty( trim( $schedule_array[0] ) ) ) {
 					$schedule = esc_attr( $schedule_array[0] );
 				} else {
 					$schedule = 'singlerun';
 				}
-
 			}
 
 			if ( in_array( key( $cron ), $wpcore_cron_hooks ) ) {
@@ -3353,8 +3344,7 @@ class System_Dashboard_Admin {
 	public function sd_rewrite_rules() {
 		$output = '';
 		
-		if ( current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( $this->sd_verify_ajax_request() ) {
 				$rewrite_rules = get_option( 'rewrite_rules' );
 
 				if ( !empty( $rewrite_rules ) ) {
@@ -3372,8 +3362,7 @@ class System_Dashboard_Admin {
 
 					$output = __( 'Currently, there are no defined rewrite rules.', 'system-dashboard' );
 
-				}				
-			}
+				}
 		}
 
 		echo $output;
@@ -3447,8 +3436,7 @@ class System_Dashboard_Admin {
 	public function sd_shortcodes() {
 		$output = '';
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( $this->sd_verify_ajax_request() ) {
 				global $shortcode_tags;
 
 				if ( ( is_array( $shortcode_tags ) ) && ( !empty( $shortcode_tags ) ) ) {
@@ -3470,7 +3458,6 @@ class System_Dashboard_Admin {
 
 					}				
 				}
-			}
 		}
 
 		echo $output;
@@ -3978,6 +3965,7 @@ class System_Dashboard_Admin {
 		if ( $return == 'status' ) {
 
 			// Get object cache backend type
+			$backend_type = '';
 
 			// Redis Object Cache plugin - RunCloud Hub plugin - Powered Cache plugin
 			if ( defined( 'WP_REDIS_PREFIX' ) || defined( 'RCWP_REDIS_DROPIN' ) || ( defined( 'POWERED_OBJECT_CACHE' ) && defined( 'WP_REDIS_OBJECT_CACHE' ) ) ) {
@@ -3989,7 +3977,7 @@ class System_Dashboard_Admin {
 
 				$backend_type = ' with Memcached backend';
 
-			} else {}
+			}
 
 			// Get the status
 
@@ -4584,29 +4572,21 @@ class System_Dashboard_Admin {
 	 */
 	public function sd_cache_value() {
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
-				$cache_key = $_REQUEST['cache_key'];
-				$cache_group = $_REQUEST['cache_group'];
+		if ( $this->sd_verify_ajax_request() ) {
+			$cache_key   = isset( $_REQUEST['cache_key'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['cache_key'] ) ) : '';
+			$cache_group = isset( $_REQUEST['cache_group'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['cache_group'] ) ) : '';
 
-				$cache_value = maybe_unserialize( wp_cache_get( $cache_key, $cache_group ) );
-
+			if ( ! empty( $cache_key ) && ! empty( $cache_group ) ) {
+				$cache_value      = maybe_unserialize( wp_cache_get( $cache_key, $cache_group ) );
 				$cache_value_type = gettype( $cache_value );
 
-				if  ( ( $cache_value_type == 'array' ) || ( $cache_value_type == 'object' ) ) {
-
-					// JSON_UNESCAPED_SLASHES will remove backslashes used for escaping, e.g. \' will become just '. stripslashes will further remove backslashes using to escape backslashes, e.g. double \\ will become a single \. JSON_PRETTY_PRINT and <pre> beautifies the output on the HTML side.
-
-					// echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>'; // Raw JSON beautified
+				if ( ( $cache_value_type == 'array' ) || ( $cache_value_type == 'object' ) ) {
 					echo json_encode( $cache_value ); // for JSON Tree viewer
-
 				} elseif ( ( $cache_value_type == 'boolean' ) || ( $cache_value_type == 'integer' ) || ( $cache_value_type == 'string' ) ) {
-
 					echo '<pre>' . htmlspecialchars( $cache_value ) . '</pre>'; // Raw JSON beautified
-
-				} else {}
+				}
 			} else {
-				echo __( 'None. Please define cache key and cache group first.', 'system-dashboard' );
+				echo esc_html__( 'None. Please define cache key and cache group first.', 'system-dashboard' );
 			}
 		}
 
@@ -6513,39 +6493,24 @@ EOD;
 	 */
 	public function sd_option_value() {
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
-				$option_name = $_REQUEST['option_name'];
-				
-				if ( ! empty( $option_name ) ) {
+		if ( $this->sd_verify_ajax_request() ) {
+			$option_name = isset( $_REQUEST['option_name'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['option_name'] ) ) : '';
 
-					$option_value = maybe_unserialize( get_option( $option_name ) );
+			if ( ! empty( $option_name ) ) {
+				$option_value      = maybe_unserialize( get_option( $option_name ) );
+				$option_value_type = gettype( $option_value );
 
-					$option_value_type = gettype( $option_value );
-
-					if  ( ( $option_value_type == 'array' ) || ( $option_value_type == 'object' ) ) {
-
-						// JSON_UNESCAPED_SLASHES will remove backslashes used for escaping, e.g. \' will become just '. stripslashes will further remove backslashes using to escape backslashes, e.g. double \\ will become a single \. JSON_PRETTY_PRINT and <pre> beautifies the output on the HTML side.
-
-						// echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>'; // Raw JSON beautified
-						echo json_encode( $option_value ); // for JSON Tree viewer
-
-					} elseif ( ( $option_value_type == 'boolean' ) || ( $option_value_type == 'integer' ) || ( $option_value_type == 'string' ) ) {
-
-						echo '<pre>' . htmlspecialchars( $option_value ) . '</pre>'; // Raw JSON beautified
-
-					} else {}
-					
-				} else {
-
-					echo __( 'None. Please define option name first.', 'system-dashboard' );
-					
-				}				
+				if ( ( $option_value_type == 'array' ) || ( $option_value_type == 'object' ) ) {
+					echo json_encode( $option_value ); // for JSON Tree viewer
+				} elseif ( ( $option_value_type == 'boolean' ) || ( $option_value_type == 'integer' ) || ( $option_value_type == 'string' ) ) {
+					echo '<pre>' . htmlspecialchars( $option_value ) . '</pre>'; // Raw JSON beautified
+				}
+			} else {
+				echo esc_html__( 'None. Please define option name first.', 'system-dashboard' );
 			}
 		}
 
 		wp_die();
-
 	}
 
 	/**
@@ -6560,8 +6525,7 @@ EOD;
 	public function sd_wpcore_hooks() {
 		$output = '';
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( $this->sd_verify_ajax_request() ) {
 				$type = $_REQUEST['type'];
 
 				$wp_reference_base_url = 'https://developer.wordpress.org/reference/hooks';		
@@ -6625,8 +6589,7 @@ EOD;
 				// Add search filter box and total hooks count
 				$output .= $this->sd_html( 'search-filter', 'Total: ' . $hooks_count . ' hooks', '', ['search-wpcore-action-hooks' => ''] );
 
-				$output .= $hooks_list;				
-			}
+				$output .= $hooks_list;
 		}
 
 		echo $output;
@@ -6707,8 +6670,7 @@ EOD;
 	 */
 	public function sd_classes() {
 
-		if ( isset( $_REQUEST ) && isset( $_REQUEST['type'] ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( isset( $_REQUEST['type'] ) && $this->sd_verify_ajax_request() ) {
 				$type = $_REQUEST['type'];
 
 				$output = '';
@@ -6889,12 +6851,10 @@ EOD;
 					$output .= $this->sd_html( 'accordion-body', $classes_output );
 					$output .= $this->sd_html( 'accordions-end' );
 
-				} else {}				
-			}
+				} else {}
 		}
 
 		echo $output;
-
 	}
 
 	/**
@@ -6948,8 +6908,7 @@ EOD;
 
 		// For AJAX calls
 
-		if ( isset( $_REQUEST ) && isset( $_REQUEST['type'] ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( isset( $_REQUEST['type'] ) && $this->sd_verify_ajax_request() ) {
 				$type = $_REQUEST['type'];
 
 				if ( $type == 'core' ) {
@@ -7065,8 +7024,7 @@ EOD;
 
 					echo $output;
 
-				} else {}				
-			}
+				} else {}
 		}
 
 		// For direct function calls
@@ -7557,42 +7515,32 @@ EOD;
 	 */
 	public function sd_global_value() {
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
-				$global_name = $_REQUEST['global_name'];
+		if ( $this->sd_verify_ajax_request() ) {
+			$global_name = isset( $_REQUEST['global_name'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['global_name'] ) ) : '';
 
+			if ( ! empty( $global_name ) ) {
 				global $$global_name;
 
-				$global_value = $$global_name;
-
+				$global_value      = $$global_name;
 				$global_value_type = gettype( $global_value );
 
-				if  ( ( $global_value_type == 'array' ) || ( $global_value_type == 'object' ) ) {
-
-					// JSON_UNESCAPED_SLASHES will remove backslashes used for escaping, e.g. \' will become just '. stripslashes will further remove backslashes using to escape backslashes, e.g. double \\ will become a single \. JSON_PRETTY_PRINT and <pre> beautifies the output on the HTML side.
-
-					// echo '<pre>' . stripslashes( json_encode( $option_value, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ) . '</pre>'; // Raw JSON beautified
+				if ( ( $global_value_type == 'array' ) || ( $global_value_type == 'object' ) ) {
 					echo json_encode( $global_value ); // for JSON Tree viewer
-
 				} elseif ( $global_value_type == 'boolean' ) {
-
 					if ( $global_value ) {
 						echo 'true';
 					} else {
 						echo 'false';
 					}
-
 				} elseif ( ( $global_value_type == 'integer' ) || ( $global_value_type == 'string' ) ) {
-
 					echo '<pre>' . htmlspecialchars( $global_value ) . '</pre>'; // Raw JSON beautified
-
-				} else {}				
+				}
 			} else {
-				echo __( 'None. Please define global variable\'s name first.', 'system-dashboard' );
+				echo esc_html__( 'None. Please define global variable\'s name first.', 'system-dashboard' );
 			}
 		}
-		wp_die();
 
+		wp_die();
 	}
 
 	/**
@@ -7771,8 +7719,7 @@ EOD;
 	 */
 	public function sd_hooks() {
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( $this->sd_verify_ajax_request() ) {
 				$type = $_REQUEST['type'];
 
 				// This sd_hooks method can only works if shell_exec is enabled in PHP, so, check first.
@@ -7859,7 +7806,7 @@ EOD;
 								$shell_output = shell_exec( $shell_command );
 
 								// delay execution of wp_remote_get by 0.25 seconds, so file writing process can be completed properly first.
-								sleep(0.25); 
+								usleep( 250000 );
 
 							}
 
@@ -7990,7 +7937,7 @@ EOD;
 							$shell_output = shell_exec( $shell_command );
 
 							// delay execution of wp_remote_get by 0.25 seconds, so file writing process can be completed properly first.
-							sleep(0.25); 
+							usleep( 250000 );
 
 						}
 
@@ -8089,12 +8036,9 @@ EOD;
 
 					echo $output;
 
-				}				
-			}
+				}
 		}
-		
 	}
-
 
 	/** Get WordPress constants
 	 * 
@@ -8103,8 +8047,7 @@ EOD;
 	public function sd_constants() {
 		$output = '';
 		
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( $this->sd_verify_ajax_request() ) {
 				$type = $_REQUEST['type'];
 
 				$wp_constants = array(
@@ -9160,7 +9103,6 @@ EOD;
 					}
 
 				}
-			}
 		}
 
 		echo $output;
@@ -9175,8 +9117,7 @@ EOD;
 
 		$output = '';
 
-		if ( isset( $_REQUEST ) && isset( $_REQUEST['log_type'] ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( isset( $_REQUEST['log_type'] ) && $this->sd_verify_ajax_request() ) {
 
 				$log_type = $_REQUEST['log_type'];
 
@@ -9337,7 +9278,6 @@ EOD;
 
 				}
 							
-			}
 		}
 
 		echo $output;
@@ -9365,8 +9305,7 @@ EOD;
 	 */
 	public function sd_page_access_log() {
 		
-		if ( current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
+		if ( $this->sd_verify_ajax_request() ) {
 				$output = '<table id="page-access-log" class="wp-list-table widefat striped">
 							<thead>
 								<tr>
@@ -9398,7 +9337,6 @@ EOD;
 				}
 
 				$output .= '</tbody></table>';
-			}
 		} else {
 			$output = '';
 		}
@@ -9878,10 +9816,10 @@ EOD;
 	 * @since 2.7.0
 	 */
 	public function sd_errors_log() {
+		$output = '';
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
-				$output = '<table id="errors-log" class="wp-list-table widefat striped">
+		if ( $this->sd_verify_ajax_request() ) {
+			$output = '<table id="errors-log" class="wp-list-table widefat striped">
 							<thead>
 								<tr>
 									<th>Entries</th>
@@ -10003,14 +9941,9 @@ EOD;
 				}
 
 				$output .= '</tbody></table>';				
-			} else {
-				$output = '';
-			}
-
-			echo $output;
-
 		}
 
+		echo $output;
 	}
 
 	/** 
@@ -10084,10 +10017,10 @@ EOD;
 	 * @since 2.8.0
 	 */
 	public function sd_email_delivery_log() {
+		$output = '';
 
-		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
-			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'sd-nonce-key-' . get_current_user_id() ) ) {
-				$output = '<table id="email-delivery-log" class="wp-list-table widefat striped">
+		if ( $this->sd_verify_ajax_request() ) {
+			$output = '<table id="email-delivery-log" class="wp-list-table widefat striped">
 							<thead>
 								<tr>
 									<th>Entries</th>
@@ -10120,14 +10053,9 @@ EOD;
 				}
 
 				$output .= '</tbody></table>';
-			} else {
-				$output = '';
-			}
-
-			echo $output;
-
 		}
 
+		echo $output;
 	}
 
 	/**
