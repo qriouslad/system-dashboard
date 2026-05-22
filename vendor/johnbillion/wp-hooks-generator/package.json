@@ -13,7 +13,7 @@
 		"url": "https://github.com/johnbillion/wp-hooks-generator/issues"
 	},
 	"dependencies": {
-		"json-schema-to-typescript": "^7.1"
+		"json-schema-to-typescript": "^15.0.1"
 	},
 	"scripts": {
 		"generate-interfaces": "json2ts --input schema.json --output=interface/index.d.ts"
