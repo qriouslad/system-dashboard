@@ -4,8 +4,8 @@ Contributors: qriouslad
 Donate link: https://bowo.io/dotorg-sponsor-sd
 Tags: system monitor, wordpress components, action filter hooks, server info, developer  
 Requires at least: 4.8  
-Tested up to: 6.8.2  
-Stable tag: 2.8.21  
+Tested up to: 7.0  
+Stable tag: 2.8.22  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -288,6 +288,7 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
   * Fixed several PHP warnings reported by Yasin.
   * Fixed additional PHP warning and deprecations.
   * Changed server IP address location lookup to use ipwho.is
+  * Confirmed compatibility with WordPress 7.0
 
 ### 2.8.21 (2025.09.19)
 
