@@ -286,6 +286,7 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 
 * **[FIXED PHP Warnings]**: 
   * Fixed several PHP warnings reported by Yasin.
+  * Fixed additional PHP warning and deprecations.
   * Changed server IP address location lookup to use ipwho.is
 
 ### 2.8.21 (2025.09.19)

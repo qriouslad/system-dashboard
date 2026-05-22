@@ -2079,12 +2079,15 @@ class System_Dashboard_Admin {
 			'E_USER_ERROR' => false,
 			'E_USER_WARNING' => false,
 			'E_USER_NOTICE' => false,
-			'E_STRICT' => false,
 			'E_RECOVERABLE_ERROR' => false,
 			'E_DEPRECATED' => false,
 			'E_USER_DEPRECATED' => false,
 			'E_ALL' => false,
 		);
+
+		if ( PHP_VERSION_ID < 80400 ) {
+			$levels['E_STRICT'] = false;
+		}
 
 		foreach ( $levels as $level => $reported ) {
 			if ( defined( $level ) ) {
@@ -3237,17 +3240,16 @@ class System_Dashboard_Admin {
 		$custom_crons .= $header;
 
 		foreach ( $crons as $cron ) {
+			$schedule = 'singlerun';
 
-			foreach( $cron as $c ) {
+			foreach ( $cron as $c ) {
+				$schedule_array = array_column( $c, 'schedule' );
 
-				$schedule_array = array_column($c, 'schedule');
-
-				if ( !empty( trim( $schedule_array[0] ) ) ) {
+				if ( isset( $schedule_array[0] ) && ! empty( trim( $schedule_array[0] ) ) ) {
 					$schedule = esc_attr( $schedule_array[0] );
 				} else {
 					$schedule = 'singlerun';
 				}
-
 			}
 
 			if ( in_array( key( $cron ), $wpcore_cron_hooks ) ) {
@@ -7804,7 +7806,7 @@ EOD;
 								$shell_output = shell_exec( $shell_command );
 
 								// delay execution of wp_remote_get by 0.25 seconds, so file writing process can be completed properly first.
-								sleep(0.25); 
+								usleep( 250000 );
 
 							}
 
@@ -7935,7 +7937,7 @@ EOD;
 							$shell_output = shell_exec( $shell_command );
 
 							// delay execution of wp_remote_get by 0.25 seconds, so file writing process can be completed properly first.
-							sleep(0.25); 
+							usleep( 250000 );
 
 						}
 
