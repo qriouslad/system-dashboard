@@ -282,6 +282,12 @@ System Dashboard was built with: [WordPress Plugin Boilerplate](https://github.c
 
 ## Changelog
 
+### 2.8.22 (2026.05.22)
+
+* **[FIXED PHP Warnings]**: 
+  * Fixed several PHP warnings reported by Yasin.
+  * Changed server IP address location lookup to use ipwho.is
+
 ### 2.8.21 (2025.09.19)
 
 * **[SECURITY FIX]** added nonce checks to AJAX calls to prevent Cross-Site Request Forgery vulnerability. Props to Đỗ Quang Huy for responsibly disclosing this in the sd_toggle_logs() function via WordFence.
